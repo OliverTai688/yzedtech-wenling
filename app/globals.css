@@ -1,0 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Noto Sans TC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Noto Serif TC", Georgia, Cambria, "Times New Roman", Times, serif;
+
+  /* Keila Healing Visual Specification Color Codes */
+  --color-page-bg: #FBF1DD;
+  --color-card-bg: #FDF6E6;
+  --color-card-border: #F0DFA0;
+  --color-card-border-alt: #EFDA9E;
+
+  --color-text-main: #2E2318;
+  --color-text-heading: #3A2A18;
+  --color-text-heading-dark: #4A2F0A;
+  --color-text-muted: #6A5642;
+  --color-text-subtle: #9A8060;
+
+  --color-gold-primary: #B5762A;
+  --color-gold-dark: #C9862E;
+  --color-gold-light: #F5D98A;
+  --color-gold-pale: #FCE7A8;
+
+  --color-dark-bg: #20140A;
+  --color-dark-gold: #F0C875;
+  --color-dark-gold-light: #F5E4C8;
+  --color-dark-muted: #B49A76;
+  --color-dark-subtle: #8A7458;
+
+  /* brand-gold-* / brand-pink-* / brand-stone-* — 2026-08-18 補齊：這三組色階原本被
+     Story／About／Resources／Testimonials／Blog／Services／Contact／Legal／NotFound
+     等非首頁元件大量使用（text-brand-gold-600、bg-brand-pink-50、border-brand-stone-150
+     等），但從未在任何 @theme 中定義過，等於完全沒有樣式生效，是這些頁面「卡片與背景
+     偏白」的主因之一。這裡依首頁既有的金褐色系（--color-gold-*／--color-card-*／
+     --color-text-*）補上完整色階，並依使用者指示，brand-pink-* 直接對應到與
+     brand-gold-* 相同色值，讓原本設計的粉色點綴統一改為首頁的金褐色視覺。 */
+  --color-brand-gold-50: #FDF6E6;
+  --color-brand-gold-100: #FCE7A8;
+  --color-brand-gold-150: #F0DFA0;
+  --color-brand-gold-200: #F5D98A;
+  --color-brand-gold-300: #E8B15A;
+  --color-brand-gold-400: #D89A3E;
+  --color-brand-gold-500: #C9862E;
+  --color-brand-gold-600: #B5762A;
+  --color-brand-gold-700: #8A5415;
+  --color-brand-gold-800: #6B3F10;
+  --color-brand-gold-900: #3A2409;
+
+  --color-brand-pink-50: var(--color-brand-gold-50);
+  --color-brand-pink-100: var(--color-brand-gold-100);
+  --color-brand-pink-150: var(--color-brand-gold-150);
+  --color-brand-pink-200: var(--color-brand-gold-200);
+  --color-brand-pink-300: var(--color-brand-gold-300);
+  --color-brand-pink-400: var(--color-brand-gold-400);
+  --color-brand-pink-500: var(--color-brand-gold-500);
+  --color-brand-pink-600: var(--color-brand-gold-600);
+  --color-brand-pink-700: var(--color-brand-gold-700);
+  --color-brand-pink-800: var(--color-brand-gold-800);
+  --color-brand-pink-900: var(--color-brand-gold-900);
+
+  --color-brand-stone-50: #FBF1DD;
+  --color-brand-stone-100: #F6E9C8;
+  --color-brand-stone-150: #F0DFA0;
+  --color-brand-stone-200: #E4D3AE;
+  --color-brand-stone-300: #C9B899;
+  --color-brand-stone-400: #A68F6E;
+  --color-brand-stone-500: #6A5642;
+  --color-brand-stone-600: #5A4A38;
+  --color-brand-stone-700: #4A2F0A;
+  --color-brand-stone-800: #3A2A18;
+  --color-brand-stone-900: #2E2318;
+}
+
+/* Base Body and Global Typography Setup */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #FBF1DD;
+  color: #2E2318;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .font-serif-tc {
+  font-family: var(--font-serif);
+}
+
+/* Bokeh Golden Background */
+.bokeh-bg {
+  background-color: #F3D999;
+  background-image: 
+    radial-gradient(circle at 18% 28%, rgba(255, 247, 222, 0.85) 0%, transparent 35%),
+    radial-gradient(circle at 82% 18%, rgba(255, 244, 208, 0.75) 0%, transparent 32%),
+    radial-gradient(circle at 45% 68%, rgba(255, 240, 195, 0.7) 0%, transparent 40%),
+    radial-gradient(circle at 88% 72%, rgba(255, 247, 222, 0.8) 0%, transparent 28%),
+    radial-gradient(circle at 12% 78%, rgba(255, 244, 208, 0.65) 0%, transparent 32%),
+    radial-gradient(circle at 62% 38%, rgba(255, 240, 195, 0.65) 0%, transparent 38%),
+    radial-gradient(circle at 32% 16%, rgba(255, 247, 222, 0.7) 0%, transparent 24%),
+    radial-gradient(circle at 72% 88%, rgba(255, 244, 208, 0.7) 0%, transparent 30%),
+    linear-gradient(135deg, #F7E3A8 0%, #E8B15A 45%, #D89A3E 75%, #C9862E 100%);
+}
+
+/* Sparkle Animation */
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.sparkle {
+  position: absolute;
+  border-radius: 9999px;
+  background: #FFFDF0;
+  box-shadow: 0 0 10px 2px rgba(255, 245, 200, 0.85), 0 0 20px 4px rgba(245, 217, 138, 0.6);
+  animation: shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Gold Gradient Text */
+.gold-text-gradient {
+  background: linear-gradient(135deg, #B5762A 0%, #D89A3E 50%, #8A5415 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-number-gradient {
+  background: linear-gradient(135deg, #D89A3E 0%, #B5762A 60%, #8A5415 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Primary CTA Button (Pill 999px, Gold gradient, dark coffee text, gold shadow) */
+.gold-btn {
+  background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%);
+  color: #3A2409;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(201, 134, 46, 0.35);
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gold-btn:hover {
+  background: linear-gradient(135deg, #FFF0BD 0%, #E2A648 100%);
+  box-shadow: 0 6px 20px rgba(201, 134, 46, 0.45);
+  transform: translateY(-1px);
+}
+
+.gold-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(201, 134, 46, 0.3);
+}
+
+/* Header Button Specific Gradient */
+.gold-btn-header {
+  background: linear-gradient(135deg, #F5D98A 0%, #C9862E 100%);
+  color: #3A2409;
+  border-radius: 9999px;
+  box-shadow: 0 3px 10px rgba(201, 134, 46, 0.3);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.gold-btn-header:hover {
+  background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%);
+  box-shadow: 0 5px 15px rgba(201, 134, 46, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Standard Brand Cards */
+.brand-card {
+  background-color: #FDF6E6;
+  border: 1px solid #F0DFA0;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(58, 42, 24, 0.04);
+  transition: all 0.3s ease;
+}
+
+.brand-card:hover {
+  border-color: #D89A3E;
+  box-shadow: 0 8px 30px rgba(181, 118, 42, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Dark Section Cards */
+.dark-card {
+  background-color: rgba(45, 29, 15, 0.65);
+  border: 1px solid rgba(240, 200, 117, 0.25);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.dark-card:hover {
+  border-color: rgba(240, 200, 117, 0.5);
+  background-color: rgba(55, 36, 19, 0.8);
+}
+
+/* Text clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@theme inline {
+  --font-heading: var(--font-serif);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  @keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+  @keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+    }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+    }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+    }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+    }
+  }
+}
+
+:root {
+  /* shadcn/Magic UI 元件 token — 對應 Keila Healing 品牌色票（見上方 @theme），
+     讓透過 shadcn CLI 安裝的元件（NavigationMenu、Sheet…）預設就吃品牌配色，
+     不需要每個元件另外覆寫顏色 class。 */
+  --background: var(--color-page-bg);
+  --foreground: var(--color-text-main);
+  --card: var(--color-card-bg);
+  --card-foreground: var(--color-text-main);
+  --popover: var(--color-card-bg);
+  --popover-foreground: var(--color-text-main);
+  --primary: var(--color-gold-primary);
+  --primary-foreground: #FFFDF0;
+  --secondary: var(--color-card-bg);
+  --secondary-foreground: var(--color-text-heading);
+  --muted: #F6E9C8;
+  --muted-foreground: var(--color-text-subtle);
+  --accent: var(--color-gold-pale);
+  --accent-foreground: var(--color-text-heading);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: var(--color-card-border);
+  --input: var(--color-card-border);
+  --ring: var(--color-gold-primary);
+  --chart-1: var(--color-gold-primary);
+  --chart-2: var(--color-gold-dark);
+  --chart-3: var(--color-gold-light);
+  --chart-4: var(--color-text-subtle);
+  --chart-5: var(--color-text-muted);
+  --radius: 0.75rem;
+  --sidebar: var(--color-card-bg);
+  --sidebar-foreground: var(--color-text-main);
+  --sidebar-primary: var(--color-gold-primary);
+  --sidebar-primary-foreground: #FFFDF0;
+  --sidebar-accent: var(--color-gold-pale);
+  --sidebar-accent-foreground: var(--color-text-heading);
+  --sidebar-border: var(--color-card-border);
+  --sidebar-ring: var(--color-gold-primary);
+}
+
+.dark {
+  --background: var(--color-dark-bg);
+  --foreground: var(--color-dark-gold-light);
+  --card: #2D1D0F;
+  --card-foreground: var(--color-dark-gold-light);
+  --popover: #2D1D0F;
+  --popover-foreground: var(--color-dark-gold-light);
+  --primary: var(--color-dark-gold);
+  --primary-foreground: var(--color-dark-bg);
+  --secondary: #3A2409;
+  --secondary-foreground: var(--color-dark-gold-light);
+  --muted: #3A2409;
+  --muted-foreground: var(--color-dark-muted);
+  --accent: #3A2409;
+  --accent-foreground: var(--color-dark-gold);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: rgba(240, 200, 117, 0.25);
+  --input: rgba(240, 200, 117, 0.25);
+  --ring: var(--color-dark-gold);
+  --chart-1: var(--color-dark-gold);
+  --chart-2: var(--color-gold-light);
+  --chart-3: var(--color-gold-primary);
+  --chart-4: var(--color-dark-muted);
+  --chart-5: var(--color-dark-subtle);
+  --sidebar: #2D1D0F;
+  --sidebar-foreground: var(--color-dark-gold-light);
+  --sidebar-primary: var(--color-dark-gold);
+  --sidebar-primary-foreground: var(--color-dark-bg);
+  --sidebar-accent: #3A2409;
+  --sidebar-accent-foreground: var(--color-dark-gold);
+  --sidebar-border: rgba(240, 200, 117, 0.25);
+  --sidebar-ring: var(--color-dark-gold);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
