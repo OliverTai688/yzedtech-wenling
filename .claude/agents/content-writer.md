@@ -5,7 +5,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 model: sonnet
 ---
 
-You are the content-writer agent for the `wenling-web-main` project (幸運療癒師 Keila Wenling 文齡 官網).
+You are the content-writer agent for the `wenling-web-main` project (幸運教主 文齡 Keila 官網).
 
 # Ground truth
 

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Sparkles, Award, GraduationCap, CheckCircle, Moon, ArrowLeft } from 'lucide-react';
+import { Sparkles, Award, GraduationCap, CheckCircle, Moon, ArrowLeft, Wallet, Heart, Mic } from 'lucide-react';
 
 // /story 頁：完整的「我的故事」敘述與學經歷／證照總覽，拆分自原本合併於
 // /about 的 AboutStory.tsx（依 PLN-002 Phase 4 建議，About／Story 分頁呈現）。
@@ -43,16 +43,16 @@ export default function StorySection() {
   ];
 
   return (
-    <section id="story-section" className="py-20 bg-[#FBF1DD]">
+    <section id="story-section" className="py-20 bg-linear-to-b from-white via-brand-pink-50/10 to-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <Link href="/about" className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-brand-pink-600 mb-8">
+        <Link href="/about" className="inline-flex items-center gap-1.5 text-base font-semibold text-stone-500 hover:text-brand-pink-600 mb-8">
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>返回品牌理念與方法體系</span>
         </Link>
 
         <div className="text-center space-y-3 mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-pink-50 border border-brand-pink-100 text-brand-pink-600 text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-pink-50 border border-brand-pink-100 text-brand-pink-600 text-sm font-semibold">
             <Moon className="w-3.5 h-3.5" />
             <span>03 | Story 我的故事</span>
           </div>
@@ -61,9 +61,9 @@ export default function StorySection() {
           </h1>
         </div>
 
-        <div className="text-xs sm:text-sm text-stone-600 space-y-6 leading-relaxed">
+        <div className="text-base text-stone-600 space-y-6 leading-relaxed">
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 跌入谷底：當人生的一切同時崩塌</h2>
+            <h2 className="text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 跌入谷底：當人生的一切同時崩塌</h2>
             <p>
               2019 年的下半年，是我生命中最黑暗、也最無助的時刻。那段時間，所有的挑戰彷彿約好了一起降臨：家庭爆發爭吵與分裂、職場上背負沉重的誤會、外婆突然中風、感情深受創傷，我的身上甚至還背負了百萬的負債。
             </p>
@@ -73,7 +73,7 @@ export default function StorySection() {
           </div>
 
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 轉折的契機：看見潛意識，找回內在的光</h2>
+            <h2 className="text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 轉折的契機：看見潛意識，找回內在的光</h2>
             <p>
               直到我接觸了「希塔療癒（ThetaHealing®）」，這成為了我生命的終極救贖與轉捩點。透過冥想進入 θ（Theta）腦波狀態，我終於鼓起勇氣，往自己的內心深處看去。我驚訝地發現，原來這一切外在的崩潰與停滯，都源自於我內在深層的限制性信念——在潛意識裡，我一直覺得自己「不值得被愛」、「不值得成功」。
             </p>
@@ -83,31 +83,40 @@ export default function StorySection() {
           </div>
 
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 蛻變與顯化：拿回生命主導權的奇蹟</h2>
+            <h2 className="text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 蛻變與顯化：拿回生命主導權的奇蹟</h2>
             <p>清理了能量場的淤堵後，我的人生在極短的時間內發生了具體且震撼的改變：</p>
             <ul className="mt-3 space-y-2.5">
-              <li><strong className="text-brand-stone-900">💰 財富的絕對大翻轉</strong>：我離開了長達 9 年的工作，全職投入療癒領域，僅僅第三個月的收入，就超過了過去當上班族的時期！我從背負百萬負債，成功翻轉為年收百萬。</li>
-              <li><strong className="text-brand-stone-900">💞 遇見 90% 契合的靈魂伴侶</strong>：因為終於學會不再害怕看自己、學會面對潛意識，我在半年內就遇見了符合我九成條件的靈魂伴侶。</li>
-              <li><strong className="text-brand-stone-900">🎤 影響力的擴展與肯定</strong>：我受邀至知名節目《好女人的情場攻略》、《美麗佳人 Podcast》分享我的蛻變故事，更榮幸成為暢銷書《七週遇見對的人》改版推薦序的唯一作者。</li>
+              <li className="flex items-start gap-2">
+                <Wallet className="w-4 h-4 text-brand-gold-600 shrink-0 mt-0.5" />
+                <span><strong className="text-brand-stone-900">財富的絕對大翻轉</strong>：我離開了長達 9 年的工作，全職投入療癒領域，僅僅第三個月的收入，就超過了過去當上班族的時期！我從背負百萬負債，成功翻轉為年收百萬。</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Heart className="w-4 h-4 text-brand-pink-500 shrink-0 mt-0.5" />
+                <span><strong className="text-brand-stone-900">遇見 90% 契合的靈魂伴侶</strong>：因為終於學會不再害怕看自己、學會面對潛意識，我在半年內就遇見了符合我九成條件的靈魂伴侶。</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Mic className="w-4 h-4 text-brand-gold-600 shrink-0 mt-0.5" />
+                <span><strong className="text-brand-stone-900">影響力的擴展與肯定</strong>：我受邀至知名節目《好女人的情場攻略》、《美麗佳人 Podcast》分享我的蛻變故事，更榮幸成為暢銷書《七週遇見對的人》改版推薦序的唯一作者。</span>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 意想不到的禮物：能量與靈性的全面躍升</h2>
+            <h2 className="text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 意想不到的禮物：能量與靈性的全面躍升</h2>
             <p>這趟旅程帶給我的，遠不止於物質與感情的豐盛，還有許多無價的生命禮物：</p>
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {giftItems.map((g, idx) => (
                 <div key={idx} className="bg-brand-gold-50/40 rounded-xl p-4 border border-brand-gold-100">
-                  <span className="font-bold text-brand-stone-900 block mb-1 text-xs">{g.title}</span>
-                  <p className="text-xs text-stone-500 leading-relaxed">{g.desc}</p>
+                  <span className="font-bold text-brand-stone-900 block mb-1 text-base">{g.title}</span>
+                  <p className="text-base text-stone-500 leading-relaxed">{g.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 我的使命：陪你重啟人生，走向真正的自由</h2>
-            <div className="bg-brand-pink-50 border-l-4 border-brand-pink-500 p-4.5 rounded-r-2xl italic text-xs sm:text-sm text-brand-stone-800 leading-relaxed font-serif my-3">
+            <h2 className="text-base font-bold text-brand-stone-900 font-serif mb-2">▍ 我的使命：陪你重啟人生，走向真正的自由</h2>
+            <div className="bg-brand-pink-50 border-l-4 border-brand-pink-500 p-4.5 rounded-r-2xl italic text-base text-brand-stone-800 leading-relaxed font-serif my-3">
               「真正的療癒，不是逃離現實，而是重新看見內在的光。」
             </div>
             <p>
@@ -119,20 +128,20 @@ export default function StorySection() {
         {/* Credentials, education & Certifications Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
           {/* Certifications Card */}
-          <div className="bg-[#FDF6E6] rounded-2xl border border-[#F0DFA0] p-6 sm:p-8 hover:shadow-xs hover:border-[#D89A3E] transition-all">
+          <div className="bg-white rounded-2xl border border-stone-150 p-6 sm:p-8 hover:shadow-xs transition-shadow">
             <div className="flex items-center gap-3 border-b border-stone-100 pb-4 mb-6">
               <div className="p-2.5 rounded-xl bg-brand-gold-100 text-brand-gold-600">
                 <Award className="w-5 h-5 text-brand-gold-600" />
               </div>
-              <h4 className="font-bold font-serif text-sm sm:text-base text-brand-stone-900">導師專業資格與國際授權證照</h4>
+              <h4 className="font-bold font-serif text-base text-brand-stone-900">導師專業資格與國際授權證照</h4>
             </div>
             <div className="space-y-5">
               {certificationGroups.map((group, gIdx) => (
                 <div key={gIdx}>
-                  <span className="text-[10px] font-bold text-brand-gold-600 uppercase tracking-wider block mb-2">{group.category}</span>
+                  <span className="text-sm font-bold text-brand-gold-600 uppercase tracking-wider block mb-2">{group.category}</span>
                   <ul className="space-y-2">
                     {group.items.map((cert, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-xs text-stone-600 leading-relaxed">
+                      <li key={idx} className="flex items-start gap-2.5 text-base text-stone-600 leading-relaxed">
                         <CheckCircle className="w-4 h-4 text-brand-pink-500 shrink-0 mt-0.5" />
                         <span>{cert}</span>
                       </li>
@@ -144,20 +153,20 @@ export default function StorySection() {
           </div>
 
           {/* Experience Card */}
-          <div className="bg-[#FDF6E6] rounded-2xl border border-[#F0DFA0] p-6 sm:p-8 hover:shadow-xs hover:border-[#D89A3E] transition-all">
+          <div className="bg-white rounded-2xl border border-stone-150 p-6 sm:p-8 hover:shadow-xs transition-shadow">
             <div className="flex items-center gap-3 border-b border-stone-100 pb-4 mb-6">
               <div className="p-2.5 rounded-xl bg-brand-pink-100 text-brand-pink-600">
                 <GraduationCap className="w-5 h-5 text-brand-pink-600" />
               </div>
-              <h4 className="font-bold font-serif text-sm sm:text-base text-brand-stone-900">學經歷與實踐軌跡</h4>
+              <h4 className="font-bold font-serif text-base text-brand-stone-900">學經歷與實踐軌跡</h4>
             </div>
             <div className="space-y-6">
               {credentials.map((cred, idx) => (
                 <div key={idx} className="relative pl-5 border-l-2 border-brand-pink-100 space-y-1">
                   <div className="absolute w-2.5 h-2.5 rounded-full bg-brand-pink-500 -left-[6px] top-1"></div>
-                  <span className="text-[10px] text-brand-gold-600 font-bold block tracking-wider">{cred.year}</span>
-                  <h5 className="font-bold text-xs sm:text-sm text-brand-stone-900">{cred.school}</h5>
-                  <p className="text-xs text-stone-500 leading-relaxed">{cred.major}</p>
+                  <span className="text-sm text-brand-gold-600 font-bold block tracking-wider">{cred.year}</span>
+                  <h5 className="font-bold text-base text-brand-stone-900">{cred.school}</h5>
+                  <p className="text-base text-stone-500 leading-relaxed">{cred.major}</p>
                 </div>
               ))}
             </div>
@@ -168,8 +177,8 @@ export default function StorySection() {
         <div className="mt-16 text-center bg-linear-to-br from-brand-pink-50 to-brand-gold-50 rounded-3xl border border-brand-gold-150 p-8 sm:p-10 space-y-4">
           <Sparkles className="w-6 h-6 text-brand-gold-600 mx-auto" />
           <h4 className="font-bold font-serif text-base sm:text-lg text-brand-stone-900">如果你也正經歷我曾經走過的黑夜</h4>
-          <p className="text-xs text-stone-600 max-w-lg mx-auto">你本就具備翻轉生命的力量，而我，會在這裡陪你一起把它找回來。</p>
-          <Link href="/services" className="gold-btn inline-flex items-center gap-1.5 px-6 py-3 text-xs font-semibold">
+          <p className="text-base text-stone-600 max-w-lg mx-auto">你本就具備翻轉生命的力量，而我，會在這裡陪你一起把它找回來。</p>
+          <Link href="/services" className="gold-btn inline-flex items-center gap-1.5 px-6 py-3 text-base font-semibold">
             <span>瀏覽適合你的療癒服務</span>
           </Link>
         </div>

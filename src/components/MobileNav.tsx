@@ -68,7 +68,7 @@ export default function MobileNav() {
             .filter((group) => group.items)
             .map((group) => (
               <div key={group.id} className="mt-4">
-                <p className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="px-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   {group.label}
                 </p>
                 <ul className="mt-1.5 space-y-1">
@@ -117,7 +117,7 @@ export default function MobileNav() {
             background="linear-gradient(135deg,#F5D98A 0%,#C9862E 100%)"
             shimmerColor="#FFFDF0"
             borderRadius="999px"
-            className="w-full py-3 text-xs font-semibold text-[#3A2409]"
+            className="w-full py-3 text-base font-semibold text-[#3A2409]"
             onClick={() => {
               setOpen(false);
               router.push('/services');
@@ -129,7 +129,7 @@ export default function MobileNav() {
             href="https://lin.ee/yo6a6FW"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-full bg-[#06C755] px-4 py-2.5 text-center text-xs font-semibold text-white shadow-xs hover:opacity-95"
+            className="flex items-center justify-center gap-2 rounded-full bg-[#06C755] px-4 py-2.5 text-center text-base font-semibold text-white shadow-xs hover:opacity-95"
           >
             <MessageCircle className="h-4 w-4" />
             <span>加入 LINE 官方帳號</span>

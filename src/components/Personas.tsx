@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, Sparkles, Coins, ArrowRight, Calendar, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, Sparkles, Coins, ArrowRight, Calendar, MessageCircle, ChevronDown, ChevronUp, Lightbulb, X } from 'lucide-react';
 
 interface PersonasProps {
   onNavigateToService: (serviceId: string) => void;
@@ -24,7 +24,7 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
         { name: '遠距煙供祈福儀式', id: 'smoke-prayer', desc: '古法慈悲祈福，淨化家宅磁場' },
         { name: '豐盛靈氣｜全方位能量調頻與願望顯化', id: 'abundance-reiki', desc: '為家庭注入順遂與豐盛福氣' }
       ],
-      tip: '💡 建議起點：先進行 1 次一對一深度調頻，釋放體內緊繃情緒，再透過遠距煙供祈福守護家宅與孩子。'
+      tip: '建議起點：先進行 1 次一對一深度調頻，釋放體內緊繃情緒，再透過遠距煙供祈福守護家宅與孩子。'
     },
     {
       id: 'single',
@@ -38,7 +38,7 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
         { name: '五行香水供奉｜佛前加持版', id: 'five-elements-perfume', desc: '依你的八字調配桃花與貴人香氛，7 天 24 小時佛前供奉' },
         { name: '心靈引渡人｜一對一個人能量療癒', id: 'personal-1on1', desc: '探掘並解開童年或過往關係的深層卡點' }
       ],
-      tip: '💡 建議起點：先預約靈魂伴侶解讀看清目前吸引的能量狀態，再搭配一對一能量療癒深入探掘感情卡關的根源信念。'
+      tip: '建議起點：先預約靈魂伴侶解讀看清目前吸引的能量狀態，再搭配一對一能量療癒深入探掘感情卡關的根源信念。'
     },
     {
       id: 'business',
@@ -52,7 +52,7 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
         { name: '靈性按摩｜全域氣場修護與脈輪清理', id: 'spiritual-massage', desc: '財務阻礙清理主題，聚焦處理拖延與自我價值卡點' },
         { name: '心靈引渡人｜一對一個人能量療癒', id: 'personal-1on1', desc: '釋放決策焦慮，調整事業整體能量場' }
       ],
-      tip: '💡 建議起點：先加入豐盛靈氣梯次調頻財富磁場，並可搭配靈性按摩的財務阻礙清理主題，進行更深度的信念重塑。'
+      tip: '建議起點：先加入豐盛靈氣梯次調頻財富磁場，並可搭配靈性按摩的財務阻礙清理主題，進行更深度的信念重塑。'
     }
   ];
 
@@ -70,14 +70,14 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A] text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A] text-sm font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
             <span>三大受眾專屬導覽</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-[32px] font-bold text-[#3A2A18] font-serif leading-snug">
             為不同階段的你，量身規劃專屬療癒起點
           </h2>
-          <p className="text-sm sm:text-base text-[#6A5642] leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-[#6A5642] leading-relaxed max-w-2xl mx-auto">
             身心靈療癒不是迷信，而是精準的「大腦程式除錯與能量對齊」。不論您處在何種生命階段，文齡老師都為您整理了最理性、安心且溫和的轉化地圖。
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
                     <div className="w-12 h-12 rounded-2xl bg-[#FFFDF0] border border-[#F0DFA0] flex items-center justify-center shadow-xs">
                       <IconComponent className="w-6 h-6 text-[#B5762A]" />
                     </div>
-                    <span className="text-[11px] font-semibold px-3 py-1 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#8A5415]">
+                    <span className="text-sm font-semibold px-3 py-1 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#8A5415]">
                       專屬起點
                     </span>
                   </div>
@@ -110,17 +110,17 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
                   <h3 className="text-lg sm:text-xl font-bold text-[#3A2A18] font-serif mb-1">
                     {persona.title}
                   </h3>
-                  <p className="text-xs text-[#B5762A] font-medium mb-5">
+                  <p className="text-base text-[#B5762A] font-medium mb-5">
                     {persona.subtitle}
                   </p>
 
                   {/* Pain Point Quote */}
-                  <div className="bg-[#FFFDF0]/90 border-l-3 border-[#D89A3E] p-4 rounded-r-xl mb-5 text-xs text-[#5A4A38] leading-relaxed italic">
+                  <div className="bg-[#FFFDF0]/90 border-l-3 border-[#D89A3E] p-4 rounded-r-xl mb-5 text-base text-[#5A4A38] leading-relaxed italic">
                     {persona.painPoint}
                   </div>
 
                   {/* Description */}
-                  <p className="text-xs sm:text-[13px] text-[#6A5642] leading-relaxed mb-6">
+                  <p className="text-base text-[#6A5642] leading-relaxed mb-6">
                     {persona.description}
                   </p>
                 </div>
@@ -129,7 +129,7 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
                 <div className="pt-4 border-t border-[#F0DFA0]/80">
                   <button
                     onClick={() => togglePersona(persona.id)}
-                    className="w-full py-3 px-4 rounded-full bg-[#FFFDF0] hover:bg-[#FFF] border border-[#F0DFA0] text-[#8A5415] hover:text-[#3A2409] text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-xs"
+                    className="w-full py-3 px-4 rounded-full bg-[#FFFDF0] hover:bg-[#FFF] border border-[#F0DFA0] text-[#8A5415] hover:text-[#3A2409] text-base font-semibold flex items-center justify-center gap-2 transition-all shadow-xs"
                   >
                     <span>{isExpanded ? '收合專屬推薦' : '查看適合我的療癒路徑'}</span>
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -151,18 +151,19 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
                   {/* Drawer Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#F0DFA0] pb-4 gap-4">
                     <div>
-                      <span className="text-xs text-[#B5762A] font-bold uppercase tracking-wider">
+                      <span className="text-sm text-[#B5762A] font-bold uppercase tracking-wider">
                         Personalized Path Guide
                       </span>
                       <h4 className="text-xl sm:text-2xl font-bold font-serif text-[#3A2A18] mt-1">
-                        幸運療癒師文齡為【{p.title.split('：')[1] || p.title}】量身規劃的轉化路徑
+                        幸運教主文齡為【{p.title.split('：')[1] || p.title}】量身規劃的轉化路徑
                       </h4>
                     </div>
                     <button
                       onClick={() => setActivePersona(null)}
-                      className="self-start text-xs font-semibold text-[#7A6650] hover:text-[#3A2A18] border border-[#F0DFA0] bg-[#FFFDF0] px-3.5 py-1.5 rounded-full"
+                      className="self-start text-base font-semibold text-[#7A6650] hover:text-[#3A2A18] border border-[#F0DFA0] bg-[#FFFDF0] px-3.5 py-1.5 rounded-full inline-flex items-center gap-1"
                     >
-                      ✕ 收合此視窗
+                      <X className="w-3.5 h-3.5" />
+                      <span>收合此視窗</span>
                     </button>
                   </div>
 
@@ -172,18 +173,18 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
                       <div key={idx} className="bg-[#FFFDF0] rounded-2xl p-5 border border-[#F0DFA0] flex flex-col justify-between shadow-xs">
                         <div>
                           <div className="flex items-center gap-2 mb-2.5">
-                            <span className="w-6 h-6 rounded-full bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A] flex items-center justify-center text-xs font-bold font-serif">
+                            <span className="w-6 h-6 rounded-full bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A] flex items-center justify-center text-sm font-bold font-serif">
                               {idx + 1}
                             </span>
-                            <h5 className="font-bold text-sm text-[#3A2A18]">{service.name}</h5>
+                            <h5 className="font-bold text-base text-[#3A2A18]">{service.name}</h5>
                           </div>
-                          <p className="text-xs text-[#6A5642] leading-relaxed mb-4">
+                          <p className="text-base text-[#6A5642] leading-relaxed mb-4">
                             {service.desc}
                           </p>
                         </div>
                         <button
                           onClick={() => onNavigateToService(service.id)}
-                          className="w-full py-2 bg-[#FDF6E6] hover:bg-[#FBF1DD] text-[#8A5415] hover:text-[#3A2409] font-semibold text-xs rounded-full transition-colors border border-[#F0DFA0] text-center flex items-center justify-center gap-1.5"
+                          className="w-full py-2 bg-[#FDF6E6] hover:bg-[#FBF1DD] text-[#8A5415] hover:text-[#3A2409] font-semibold text-base rounded-full transition-colors border border-[#F0DFA0] text-center flex items-center justify-center gap-1.5"
                         >
                           <span>查看服務詳情</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -194,13 +195,14 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
 
                   {/* Mentor Tip Box */}
                   <div className="bg-[#FFFDF0] border-l-4 border-[#B5762A] p-5 rounded-r-2xl space-y-3">
-                    <p className="text-xs sm:text-sm font-medium text-[#3A2A18] leading-relaxed">
-                      {p.tip}
+                    <p className="text-base font-medium text-[#3A2A18] leading-relaxed flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-[#B5762A] shrink-0 mt-0.5" />
+                      <span>{p.tip}</span>
                     </p>
                     <div className="flex flex-wrap gap-3 pt-1">
                       <button
                         onClick={() => onNavigateToTab('contact')}
-                        className="gold-btn px-5 py-2 text-xs font-semibold flex items-center gap-1.5"
+                        className="gold-btn px-5 py-2 text-base font-semibold flex items-center gap-1.5"
                       >
                         <Calendar className="w-3.5 h-3.5" />
                         <span>填寫諮詢表單預約</span>
@@ -209,7 +211,7 @@ export default function Personas({ onNavigateToService, onNavigateToTab }: Perso
                         href="https://lin.ee/yo6a6FW"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-5 py-2 rounded-full bg-[#06C755] hover:bg-[#05b04b] text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs"
+                        className="px-5 py-2 rounded-full bg-[#06C755] hover:bg-[#05b04b] text-white font-semibold text-base flex items-center gap-1.5 shadow-xs"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
                         <span>加入 LINE 社群領取日常指南</span>

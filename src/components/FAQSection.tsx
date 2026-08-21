@@ -29,14 +29,14 @@ export default function FAQSection() {
         
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A] text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A] text-sm font-semibold">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>常見疑惑與理性認知</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-[32px] font-bold text-[#3A2A18] font-serif leading-snug">
             常見問題 FAQ 與正確心態對齊
           </h2>
-          <p className="text-sm sm:text-base text-[#6A5642] leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-[#6A5642] leading-relaxed max-w-2xl mx-auto">
             我們相信「理性的溝通，才能產生深度的信任」。文齡老師針對大眾最常關心的療癒過程、準備工作與科學原理給予透明答覆。
           </p>
         </div>
@@ -49,7 +49,7 @@ export default function FAQSection() {
               onClick={() => {
                 setSelectedPersona(tab.id as 'all' | 'mom' | 'single' | 'business');
               }}
-              className={`flex-1 py-2 px-3 rounded-full text-xs font-bold transition-all ${
+              className={`flex-1 py-2 px-3 rounded-full text-base font-bold transition-all ${
                 selectedPersona === tab.id
                   ? 'bg-[#FFFDF0] text-[#3A2409] border border-[#D89A3E] shadow-xs'
                   : 'text-[#6A5642] hover:text-[#3A2A18]'
@@ -77,7 +77,7 @@ export default function FAQSection() {
               >
                 {/* Header */}
                 <div className="flex justify-between items-center gap-4">
-                  <h4 className="font-bold text-sm sm:text-base text-[#3A2A18] font-serif leading-snug">
+                  <h4 className="font-bold text-base sm:text-lg text-[#3A2A18] font-serif leading-snug">
                     {faq.question}
                   </h4>
                   <div className="w-7 h-7 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] flex items-center justify-center text-[#B5762A] shrink-0">
@@ -92,7 +92,7 @@ export default function FAQSection() {
                 {/* Answer */}
                 {isExpanded && (
                   <div className="mt-4 pt-4 border-t border-[#F0DFA0]/80">
-                    <p className="text-xs sm:text-[13px] text-[#5A4A38] leading-relaxed whitespace-pre-line bg-[#FFFDF0]/90 p-4 rounded-xl border border-[#F0DFA0]/60">
+                    <p className="text-base text-[#5A4A38] leading-relaxed whitespace-pre-line bg-[#FFFDF0]/90 p-4 rounded-xl border border-[#F0DFA0]/60">
                       {faq.answer}
                     </p>
                   </div>
@@ -106,10 +106,10 @@ export default function FAQSection() {
         <div className="bg-[#FFFDF0] rounded-2xl border border-[#F0DFA0] p-6 flex items-start gap-4 max-w-3xl mx-auto shadow-xs">
           <ShieldAlert className="w-6 h-6 text-[#B5762A] shrink-0 mt-0.5" />
           <div className="space-y-1 text-left">
-            <h5 className="text-xs font-bold text-[#3A2A18]">
+            <h5 className="text-base font-bold text-[#3A2A18]">
               理性守護原則：療癒旨在自我覺察與放鬆支持
             </h5>
-            <p className="text-[11px] text-[#6A5642] leading-relaxed">
+            <p className="text-base text-[#6A5642] leading-relaxed">
               本網站所提供之能量療癒、靈氣與相關課程，皆屬身心靈輔助與自我覺察支持，非醫療行為，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。
             </p>
           </div>

@@ -28,7 +28,7 @@ function isPathActive(pathname: string, path: string) {
 
 const triggerClass = (active: boolean) =>
   cn(
-    'rounded-full px-3.5 py-1.5 text-[13.5px] font-medium transition-all duration-200 bg-transparent hover:bg-secondary/60 data-popup-open:bg-secondary/60 data-open:bg-secondary/60',
+    'rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 bg-transparent hover:bg-secondary/60 data-popup-open:bg-secondary/60 data-open:bg-secondary/60',
     active
       ? 'bg-secondary text-primary font-semibold border border-border shadow-xs hover:bg-secondary'
       : 'text-muted-foreground hover:text-primary'
@@ -70,7 +70,7 @@ export default function DesktopNav() {
                             <Link href={item.href} className="flex flex-col gap-0.5 rounded-lg px-3 py-2.5">
                               <span className="text-sm font-medium text-foreground">{item.label}</span>
                               {item.description && (
-                                <span className="text-xs text-muted-foreground">{item.description}</span>
+                                <span className="text-sm text-muted-foreground">{item.description}</span>
                               )}
                             </Link>
                           </NavigationMenuLink>

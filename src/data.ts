@@ -1,9 +1,11 @@
-import { Service, ReikiCourse, Testimonial, BlogPost, FAQItem, ResourceItem, NavGroup } from './types';
+import { Service, ReikiCourse, Testimonial, BlogPost, FAQItem, ResourceItem, TeamPartner, NavGroup } from './types';
 
 // 全站導覽架構（對應 app/ 路由）。Header 的桌機 mega menu／手機選單、以及 Footer
 // 的網站地圖都應該從這裡取用，不要各自寫死一份選單文案，避免兩處導覽長期漂移。
 // 分組方式刻意與 Footer「服務導覽 / 支持與條款」兩欄對齊，讓 Header 與 Footer
 // 呈現同一套網站架構。
+// 2026-08-21（PRD-002 §3.2）：FAQ 從主導覽移除，改由本清單「支持」分組供
+// Footer 網站地圖收錄，維持可被找到但不佔用主導覽空間。
 export const primaryNavigation: NavGroup[] = [
   { id: 'home', label: '首頁', href: '/' },
   {
@@ -336,6 +338,11 @@ export const certificationCourses: ReikiCourse[] = [
   }
 ];
 
+// ⚠️ 2026-08-18 本輪瀏覽器視覺 QA 發現：以下 4 筆見證的姓名／居住地／職業／完整前後對照
+// 故事，在 docs/網站文案集.md 裡完全查無出處（文案集第 643～648 行的「個案真實見證」只有
+// 4 句匿名一行見證，無姓名無故事）。依使用者指示，TrustSystem.tsx 與 HomeTestimonialsSection.tsx
+// 已暫時不再 import／渲染這份資料（改顯示「籌備中」提示），這份陣列先保留在檔案裡以免遺失
+// 既有格式，但目前沒有任何元件引用它。待取得真實個案授權後再啟用或整批替換。
 export const testimonials: Testimonial[] = [
   {
     id: 'test-1',
@@ -650,8 +657,11 @@ export const resources: ResourceItem[] = [
     typeName: '免費收聽／觀看',
     description: '文齡老師受邀於美麗佳人、好女人的情場攻略、迷人說等多個知名 Podcast 與 YouTube 頻道分享蛻變故事與專業觀點。',
     targetAudience: '想更了解文齡老師的理念與真實故事者。',
-    ctaText: '前往媒體專訪頁',
-    ctaLink: '/media'
+    ctaText: '前往首頁媒體專訪區塊',
+    // 注意：MediaSection 目前只掛載在首頁（見 app/HomeClientPage.tsx），沒有獨立的 /media 路由，
+    // 直接連到 '/media' 會 404（本輪瀏覽器視覺 QA 掃描發現）。改為錨點連結首頁的
+    // <section id="media-section">。
+    ctaLink: '/#media-section'
   }
 ];
 
@@ -672,6 +682,33 @@ export const methodologySystems = [
   { id: 12, name: '香水供 (Perfume Offering)', definition: '依據個人八字與願望，以五行精油擴香供養，精準補運的開運法門。', solves: '流年運勢不足、五行能量失衡、特定願望（如桃花/事業）缺乏推動力。', suitedFor: '想針對自身八字量身打造開運配方、提升特定願望實現率的人。' },
   { id: 13, name: '人魚靈氣 (Mermaid Reiki)', definition: '源自天狼星系統，喚醒深海魅力、重塑自愛與豐盛能量的覺醒之旅。', solves: '自信低落缺乏吸引力、情緒壓抑創傷、生殖系統機能需要溫和療癒。', suitedFor: '想大幅提升個人魅力與費洛蒙、吸引理想伴侶、釋放受害者心態的人。' },
   { id: 14, name: '脈輪與氣場能量療癒', definition: '不需觸碰身體，運用生命氣場進行淨化、充能與修護的科學療癒法。', solves: '身體能量淤堵、莫名疲憊沉重、特定脈輪能量失衡。', suitedFor: '需要快速恢復能量、重視氣場清潔與講求實用感受的人。' }
+];
+
+// PRD-002 §3.5：合作夥伴（療癒師／協作老師）介紹卡片，佔位資料。
+// 客戶素材（真實姓名、照片、專長、簡介）尚未提供，photoUrl 留空由元件顯示
+// 佔位圖；之後只需替換以下內容即可上線，元件不需改動。
+export const teamPartners: TeamPartner[] = [
+  {
+    id: 'partner-placeholder-1',
+    name: '夥伴老師姓名（待補）',
+    title: '職稱／頭銜（待補）',
+    specialty: '專長領域（待補，例如：靈氣二階認證導師）',
+    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
+  },
+  {
+    id: 'partner-placeholder-2',
+    name: '夥伴老師姓名（待補）',
+    title: '職稱／頭銜（待補）',
+    specialty: '專長領域（待補）',
+    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
+  },
+  {
+    id: 'partner-placeholder-3',
+    name: '夥伴老師姓名（待補）',
+    title: '職稱／頭銜（待補）',
+    specialty: '專長領域（待補）',
+    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
+  }
 ];
 
 export const partnerLogos = [

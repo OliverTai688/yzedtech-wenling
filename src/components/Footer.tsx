@@ -33,13 +33,13 @@ export default function Footer() {
                 <Sparkles className="w-4 h-4 text-[#3A2409]" />
               </div>
               <h2 className="text-lg font-bold font-serif text-[#FFFDF0] tracking-wide">
-                幸運療癒師 <span className="text-[#F0C875] font-sans text-xs">Keila 文齡</span>
+                豐盛之翼學苑 <span className="text-[#F0C875] font-sans text-sm">幸運教主 文齡 Keila</span>
               </h2>
             </Link>
-            <p className="text-xs text-[#B49A76] leading-relaxed max-w-sm">
+            <p className="text-base text-[#B49A76] leading-relaxed max-w-sm">
               結合多年商務行銷與專案管理的理性思維與溫柔宇宙能量調頻。陪伴你在愛情、家庭與事業財富中，找回內在的光芒與篤定，活出最圓滿的豐盛本色。
             </p>
-            <div className="pt-2 flex items-center gap-3 text-xs text-[#F0C875]">
+            <div className="pt-2 flex items-center gap-3 text-sm text-[#F0C875]">
               <span className="inline-block w-2 h-2 rounded-full bg-[#06C755]"></span>
               <span>線上全球遠距諮詢服務中</span>
             </div>
@@ -49,10 +49,10 @@ export default function Footer() {
           <div className="md:col-span-6 grid grid-cols-2 gap-x-6 gap-y-8">
             {navGroups.map((group) => (
               <div key={group.id}>
-                <h3 className="text-xs font-bold text-[#F0C875] uppercase tracking-wider mb-3.5">
+                <h3 className="text-sm font-bold text-[#F0C875] uppercase tracking-wider mb-3.5">
                   {group.label}
                 </h3>
-                <ul className="space-y-2.5 text-xs">
+                <ul className="space-y-2.5 text-base">
                   {group.items!.map((item) => (
                     <li key={item.id}>
                       <Link
@@ -71,13 +71,13 @@ export default function Footer() {
 
           {/* Contact & Community Channels */}
           <div className="md:col-span-3 space-y-4">
-            <h3 className="text-xs font-bold text-[#F0C875] uppercase tracking-wider">
+            <h3 className="text-sm font-bold text-[#F0C875] uppercase tracking-wider">
               官方聯繫與諮詢
             </h3>
-            <p className="text-xs text-[#B49A76] leading-relaxed">
+            <p className="text-base text-[#B49A76] leading-relaxed">
               企業心靈講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：
             </p>
-            <div className="space-y-2.5 text-xs">
+            <div className="space-y-2.5 text-base">
               <Link
                 href={contactHref}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -103,7 +103,7 @@ export default function Footer() {
         <Separator className="mb-10" />
 
         {/* Verbatim Disclaimer Banner */}
-        <div className="bg-[#170E07] rounded-2xl p-5 sm:p-6 border border-[#3A2409] mb-8 text-xs text-[#B49A76] leading-relaxed">
+        <div className="bg-[#170E07] rounded-2xl p-5 sm:p-6 border border-[#3A2409] mb-8 text-base text-[#B49A76] leading-relaxed">
           <p className="font-semibold text-[#F0C875] mb-1.5 flex items-center gap-1.5">
             <span>官方免責與專業倫理守則聲明</span>
           </p>
@@ -113,13 +113,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom Copyright */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#8A7458]">
-          <p>© 2026 幸運療癒師 Keila Wenling 文齡. All Rights Reserved.</p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#8A7458]">
+          <p>© 2026 豐盛之翼學苑. All Rights Reserved.</p>
           <div className="flex items-center gap-3">
             <Button
               variant="link"
               size="sm"
-              className="h-auto p-0 text-[11px] text-[#8A7458] hover:text-[#FFFDF0]"
+              className="h-auto p-0 text-base text-[#8A7458] hover:text-[#FFFDF0]"
               onClick={() => goTo('/legal')}
             >
               隱私權保護政策
@@ -128,7 +128,7 @@ export default function Footer() {
             <Button
               variant="link"
               size="sm"
-              className="h-auto p-0 text-[11px] text-[#8A7458] hover:text-[#FFFDF0]"
+              className="h-auto p-0 text-base text-[#8A7458] hover:text-[#FFFDF0]"
               onClick={() => goTo('/legal')}
             >
               服務條款
@@ -137,7 +137,7 @@ export default function Footer() {
             <Button
               variant="link"
               size="sm"
-              className="h-auto p-0 text-[11px] text-[#8A7458] hover:text-[#FFFDF0]"
+              className="h-auto p-0 text-base text-[#8A7458] hover:text-[#FFFDF0]"
               onClick={() => goTo('/contact')}
             >
               聯絡我們

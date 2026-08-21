@@ -8,7 +8,6 @@ import HomeTrainingSection from '../src/components/HomeTrainingSection';
 import HomeIntuitionBanner from '../src/components/HomeIntuitionBanner';
 import HomeTestimonialsSection from '../src/components/HomeTestimonialsSection';
 import MediaSection from '../src/components/MediaSection';
-import FAQSection from '../src/components/FAQSection';
 
 export default function HomeClientPage() {
   const router = useRouter();
@@ -59,9 +58,6 @@ export default function HomeClientPage() {
 
       {/* 7. Media 出版與聲音專區 */}
       <MediaSection />
-
-      {/* 8. FAQ 常見問題 */}
-      <FAQSection />
     </div>
   );
 }

@@ -112,6 +112,18 @@ export interface ResourceItem {
   ctaLink: string;
 }
 
+// 合作夥伴（療癒師／協作老師）介紹卡片 — PRD-002 §3.5。與既有 `partnerLogos`
+// （媒體/講座合作紀錄，性質不同、不可混用）分開維護。素材尚未到位前，
+// `src/data.ts` 的 `teamPartners` 先放佔位資料，photoUrl 留空即可。
+export interface TeamPartner {
+  id: string;
+  name: string;
+  title: string;
+  specialty: string;
+  bio: string;
+  photoUrl?: string;
+}
+
 // 導覽架構：與 app/ 路由一一對應，供 Header（桌機 mega menu + 手機 Sheet）
 // 及未來其他導覽型元件（如 Footer 網站地圖）共用同一份資料，避免各自寫死文案。
 export interface NavItem {

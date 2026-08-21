@@ -24,8 +24,10 @@ check() {
   shift 2
   local paths=("$@")
 
+  # 排除「說明某項目已移除／下架」的歷史紀錄型註解（例如解釋 PRD 決策的 code comment），
+  # 只攔截真正還留在網站上的殘留敘述。
   local matches
-  matches=$(grep -rnE "$pattern" "${paths[@]}" 2>/dev/null)
+  matches=$(grep -rnE "$pattern" "${paths[@]}" 2>/dev/null | grep -vE "已移除|已下架|已刪除|取代原")
 
   if [ -n "$matches" ]; then
     echo "❌ 未通過：$label"
@@ -61,6 +63,17 @@ check "無《七週遇見對的人》殘留課程化措辭（例如「系列課�
 #    非科技業工程師；此規則只抓與 Keila 自身背景相關的敘述，不影響其他真實客戶職稱）
 check "無「科技業工程師／高科技」等失真創辦人背景敘述" \
   "文齡老師(以前|之前)?(是|曾是)?(一名)?科技業工程師|從科技業工程師|高科技資深工程師" \
+  src app
+
+# 5. 查無出處的第三方服務／金流具名聲明（2026-08-18 瀏覽器視覺 QA 發現：Legal 頁曾寫
+#    Google Analytics 4／Shopify／蝦皮金流等文案集完全未提及的具名廠商，屬杜撰細節）
+check "無查無出處的具名第三方服務聲明（GA4／Shopify／蝦皮金流）" \
+  "Google Analytics 4|Shopify|蝦皮金流|藍新金流" \
+  src app
+
+# 6. 臼井靈氣不得誇大為導師/大師級（文案集僅記載三階療癒師，非導師/大師級認證）
+check "無「臼井靈氣」導師／大師級誇大用語" \
+  "臼井靈氣.{0,4}(導師|大師)" \
   src app
 
 echo

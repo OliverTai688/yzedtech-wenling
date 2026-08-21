@@ -31,7 +31,7 @@ export default function ClientLayoutWrapper() {
         aria-label="加入 LINE 官方社群"
       >
         {/* Tooltip hint on hover */}
-        <span className="absolute right-16 scale-0 group-hover:scale-100 transition-transform duration-200 origin-right whitespace-nowrap bg-[#20140A] text-[#F5E4C8] text-[11px] font-semibold py-1.5 px-3 rounded-lg shadow-md border border-[#3A2409] flex items-center gap-1">
+        <span className="absolute right-16 scale-0 group-hover:scale-100 transition-transform duration-200 origin-right whitespace-nowrap bg-[#20140A] text-[#F5E4C8] text-sm font-semibold py-1.5 px-3 rounded-lg shadow-md border border-[#3A2409] flex items-center gap-1">
           <Sparkles className="w-3.5 h-3.5 text-[#F0C875] animate-pulse" />
           免費加 LINE 領靜心好禮!
         </span>

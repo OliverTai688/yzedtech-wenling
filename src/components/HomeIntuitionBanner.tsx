@@ -18,7 +18,7 @@ export default function HomeIntuitionBanner() {
 
           {/* Left Text */}
           <div className="space-y-3.5 max-w-2xl text-center lg:text-left z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF0]/90 border border-[#F0DFA0] text-[#B5762A] text-xs font-semibold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF0]/90 border border-[#F0DFA0] text-[#B5762A] text-sm font-semibold">
               <Eye className="w-3.5 h-3.5" />
               <span>即將推出・搶先登記</span>
             </div>
@@ -27,7 +27,7 @@ export default function HomeIntuitionBanner() {
               直覺力培訓｜喚醒你與生俱來的靈通天賦
             </h3>
 
-            <p className="text-sm sm:text-base text-[#5A4A38] leading-relaxed">
+            <p className="text-base text-[#5A4A38] leading-relaxed">
               你是否也曾在某個瞬間，準確預感到即將發生的事？其實每個人都擁有與生俱來的直覺力，只是被日常的忙碌與雜訊掩蓋了。透過系統化的直覺力訓練，你將學會清晰接收、辨識並運用自己的靈通感知，讓直覺成為你人生中最可靠的指引。課程大綱籌備中，敬請期待。
             </p>
           </div>
@@ -38,7 +38,7 @@ export default function HomeIntuitionBanner() {
               href="https://lin.ee/yo6a6FW"
               target="_blank"
               rel="noopener noreferrer"
-              className="gold-btn px-8 py-4 text-sm sm:text-base font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+              className="gold-btn px-8 py-4 text-base font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
             >
               <span>搶先登記，開課通知我</span>
               <ArrowRight className="w-4 h-4" />

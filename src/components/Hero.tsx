@@ -1,4 +1,4 @@
-import { Sparkles, MessageCircle, Heart, Shield, Award } from 'lucide-react';
+import { Sparkles, MessageCircle, Heart, Shield, Award, BookOpen } from 'lucide-react';
 
 interface HeroProps {
   onLearnMore: (tabId: string) => void;
@@ -25,7 +25,7 @@ export default function Hero({ onLearnMore }: HeroProps) {
           <div className="lg:col-span-7 space-y-7 text-left">
             
             {/* Top Eyebrow Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFFDF0]/85 backdrop-blur-xs border border-[#F0DFA0] text-[#8A5415] text-xs font-semibold shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFFDF0]/85 backdrop-blur-xs border border-[#F0DFA0] text-[#8A5415] text-sm font-semibold shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-[#C9862E]" />
               <span>理性解構潛意識 • 溫柔調頻心輪磁場</span>
             </div>
@@ -38,7 +38,7 @@ export default function Hero({ onLearnMore }: HeroProps) {
 
             {/* Subheading text */}
             <p className="text-base sm:text-lg text-[#5A4A38] leading-relaxed max-w-2xl font-normal">
-              幸運療癒師文齡 <strong className="text-[#3A2A18] font-semibold">Keila</strong>，整合希塔療癒、14 種以上靈氣與顯化技術，用理性的邏輯結構、最柔軟的愛，陪你清理潛意識裡的限制信念，讓愛情、財富與事業的順流，重新回到你的生命。
+              幸運教主文齡 <strong className="text-[#3A2A18] font-semibold">Keila</strong>，整合希塔療癒、14 種以上靈氣與顯化技術，用理性的邏輯結構、最柔軟的愛，陪你清理潛意識裡的限制信念，讓愛情、財富與事業的順流，重新回到你的生命。
             </p>
 
             {/* Dual CTA Buttons — 對應文案集主／次按鈕與真實連結 */}
@@ -69,13 +69,13 @@ export default function Hero({ onLearnMore }: HeroProps) {
             {/* Secondary link to full services/training overview */}
             <button
               onClick={() => onLearnMore('services')}
-              className="text-xs font-semibold text-[#8A5415] hover:text-[#3A2409] underline underline-offset-4 decoration-[#F0DFA0]"
+              className="text-base font-semibold text-[#8A5415] hover:text-[#3A2409] underline underline-offset-4 decoration-[#F0DFA0]"
             >
               或先瀏覽三大服務與培訓體系總覽 ➔
             </button>
 
             {/* Trust Micro-Badges */}
-            <div className="pt-4 border-t border-[#F0DFA0]/70 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-[#7A6650]">
+            <div className="pt-4 border-t border-[#F0DFA0]/70 flex flex-wrap items-center gap-y-2 gap-x-6 text-sm text-[#7A6650]">
               <div className="flex items-center gap-1.5">
                 <Shield className="w-4 h-4 text-[#B5762A]" />
                 <span>美國 Think 官方希塔認證導師</span>
@@ -109,13 +109,13 @@ export default function Hero({ onLearnMore }: HeroProps) {
                     <Sparkles className="w-10 h-10 text-[#3A2409]" />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-widest text-[#B5762A] font-bold block">
+                    <span className="text-sm uppercase tracking-widest text-[#B5762A] font-bold block">
                       Keila Wenling 文齡
                     </span>
                     <h3 className="font-serif font-bold text-lg sm:text-xl text-[#3A2A18]">
-                      幸運療癒師 & 暢銷書推薦序作者
+                      幸運教主 & 暢銷書推薦序作者
                     </h3>
-                    <p className="text-xs text-[#6A5642] max-w-[220px] leading-relaxed">
+                    <p className="text-sm text-[#6A5642] max-w-[220px] leading-relaxed">
                       「用專案管理人的理性邏輯，<br />為你解開靈性世界的溫柔力量。」
                     </p>
                   </div>
@@ -128,11 +128,11 @@ export default function Hero({ onLearnMore }: HeroProps) {
               {/* Floating Highlight Card */}
               <div className="absolute -bottom-4 -left-4 sm:left-0 bg-[#FFFDF0] border border-[#F0DFA0] rounded-2xl py-2.5 px-4 shadow-lg flex items-center gap-3 backdrop-blur-md">
                 <div className="w-8 h-8 rounded-full bg-[#FDF6E6] border border-[#F0DFA0] flex items-center justify-center text-[#B5762A]">
-                  ✨
+                  <BookOpen className="w-4 h-4" />
                 </div>
                 <div className="text-left">
-                  <p className="text-[11px] font-bold text-[#3A2A18] leading-tight">《七週遇見對的人》</p>
-                  <p className="text-[9.5px] text-[#9A8060]">暢銷書改版唯一推薦序作者</p>
+                  <p className="text-sm font-bold text-[#3A2A18] leading-tight">《七週遇見對的人》</p>
+                  <p className="text-sm text-[#9A8060]">暢銷書改版唯一推薦序作者</p>
                 </div>
               </div>
 

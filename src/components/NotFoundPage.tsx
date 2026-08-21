@@ -20,11 +20,11 @@ export default function NotFoundPage({ setCurrentTab }: NotFoundPageProps) {
         </h2>
 
         {/* Quote / Description */}
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed italic">
+        <p className="text-base text-stone-600 leading-relaxed italic">
           「有時候，迷路只是為了解鎖全新的生命軌跡，讓我們在此處重新對齊。」
         </p>
-        
-        <p className="text-xs text-stone-500 leading-relaxed">
+
+        <p className="text-base text-stone-500 leading-relaxed">
           您所存取的網頁路徑可能已移動或正在進行能量維護。別擔心，隨時可以點選下方按鈕回到幸運首頁 Hub，重新展開療癒旅程。
         </p>
 
@@ -34,7 +34,7 @@ export default function NotFoundPage({ setCurrentTab }: NotFoundPageProps) {
             setCurrentTab('home');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="w-full inline-flex items-center justify-center gap-2 py-3 bg-linear-to-r from-brand-pink-500 to-brand-gold-500 hover:opacity-95 text-white font-semibold text-xs sm:text-sm rounded-xl transition-all shadow-2xs hover:shadow-xs"
+          className="w-full inline-flex items-center justify-center gap-2 py-3 bg-linear-to-r from-brand-pink-500 to-brand-gold-500 hover:opacity-95 text-white font-semibold text-base rounded-xl transition-all shadow-2xs hover:shadow-xs"
         >
           <ArrowLeft className="w-4 h-4 text-white" />
           <span>返回幸運首頁 Hub</span>

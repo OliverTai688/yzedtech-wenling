@@ -73,14 +73,14 @@ export default function MediaSection() {
 
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#B5762A] text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#B5762A] text-sm font-semibold">
             <BookOpen className="w-3.5 h-3.5" />
             <span>媒體專訪與出版紀錄</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-[32px] font-bold text-[#3A2A18] font-serif leading-snug">
             文齡的蛻變故事，多次受邀於全台知名 Podcast 節目分享
           </h2>
-          <p className="text-sm sm:text-base text-[#6A5642] leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-[#6A5642] leading-relaxed max-w-2xl mx-auto">
             以下為文齡老師公開可查證的出版與媒體受訪紀錄，收錄自官方公開頁面與節目存檔連結。
           </p>
         </div>
@@ -103,7 +103,7 @@ export default function MediaSection() {
                 <div>
                   <div className="w-full h-40 bg-gradient-to-br from-[#FFFDF0] to-[#FBF1DD] rounded-[18px] border border-[#F0DFA0] shadow-sm mb-6 p-5 flex flex-col justify-between relative overflow-hidden">
                     <div className="flex justify-between items-start">
-                      <span className="text-[10px] font-bold text-[#8A5415] bg-[#FFFDF0] px-2.5 py-0.5 rounded-full border border-[#F0DFA0]">
+                      <span className="text-sm font-bold text-[#8A5415] bg-[#FFFDF0] px-2.5 py-0.5 rounded-full border border-[#F0DFA0]">
                         {pub.role}
                       </span>
                       <BookOpen className="w-4 h-4 text-[#B5762A]" />
@@ -115,12 +115,12 @@ export default function MediaSection() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-[#6A5642] leading-relaxed mb-4">
+                  <p className="text-base text-[#6A5642] leading-relaxed mb-4">
                     {pub.description}
                   </p>
                 </div>
 
-                <p className="text-[11px] text-[#9A8060] italic border-t border-[#F0DFA0]/60 pt-3">
+                <p className="text-sm text-[#9A8060] italic border-t border-[#F0DFA0]/60 pt-3">
                   {pub.linkNote}
                 </p>
               </div>
@@ -135,7 +135,7 @@ export default function MediaSection() {
               <Headphones className="w-5 h-5 text-[#B5762A]" />
               <span>Podcast 精選訪談</span>
             </h3>
-            <span className="text-xs text-[#9A8060] hidden sm:inline">連結為節目原始存檔頁面</span>
+            <span className="text-sm text-[#9A8060] hidden sm:inline">連結為節目原始存檔頁面</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -146,13 +146,13 @@ export default function MediaSection() {
               >
                 <div>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-[10.5px] font-semibold px-2.5 py-0.5 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#8A5415] flex items-center gap-1">
+                    <span className="text-sm font-semibold px-2.5 py-0.5 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#8A5415] flex items-center gap-1">
                       <Mic className="w-3 h-3" />
                       {pod.show}
                     </span>
                   </div>
 
-                  <h4 className="text-sm font-bold text-[#3A2A18] font-serif mb-4 leading-snug">
+                  <h4 className="text-base font-bold text-[#3A2A18] font-serif mb-4 leading-snug">
                     {pod.title}
                   </h4>
                 </div>
@@ -161,7 +161,7 @@ export default function MediaSection() {
                   href={pod.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="pt-3 border-t border-[#F0DFA0]/70 flex items-center gap-1 text-xs text-[#8A5415] hover:text-[#3A2409] font-semibold"
+                  className="pt-3 border-t border-[#F0DFA0]/70 flex items-center gap-1 text-base text-[#8A5415] hover:text-[#3A2409] font-semibold"
                 >
                   <span>前往收聽</span>
                   <ExternalLink className="w-3 h-3" />
@@ -173,12 +173,12 @@ export default function MediaSection() {
 
         {/* Partner Logos Wall */}
         <div className="bg-[#FFFDF0] rounded-2xl p-6 sm:p-8 text-center border border-[#F0DFA0]/80">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#8A5415] block mb-5">
+          <span className="text-sm font-bold uppercase tracking-widest text-[#8A5415] block mb-5">
             官方授權認證資歷與合作機構
           </span>
           <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8">
             {partnerLogos.map((logo, idx) => (
-              <div key={idx} className="bg-[#FDF6E6] rounded-xl border border-[#F0DFA0] px-4 py-2 text-xs font-semibold text-[#3A2A18] shadow-xs">
+              <div key={idx} className="bg-[#FDF6E6] rounded-xl border border-[#F0DFA0] px-4 py-2 text-sm font-semibold text-[#3A2A18] shadow-xs">
                 {logo.name}
               </div>
             ))}
@@ -186,7 +186,7 @@ export default function MediaSection() {
         </div>
 
         {/* Integrity note */}
-        <div className="mt-8 flex items-center justify-center gap-1.5 text-[10px] text-[#9A8060]">
+        <div className="mt-8 flex items-center justify-center gap-1.5 text-sm text-[#9A8060]">
           <Sparkles className="w-3 h-3" />
           <span>所有媒體資料均可於節目官方頁面查證，非行銷宣稱</span>
         </div>

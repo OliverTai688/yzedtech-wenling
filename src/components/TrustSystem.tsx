@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { Users, Coins, Sparkles, Quote, ShieldAlert } from 'lucide-react';
-import { testimonials } from '../data';
+import { Users, Coins, Sparkles, ShieldAlert, Clock } from 'lucide-react';
+import { InfoPopover } from '@/components/ui/info-popover';
+
+// 2026-08-18 本輪瀏覽器視覺 QA 發現：原本 `testimonials`（見 ../data.ts）內的 4 位具名客戶
+// （姓名／居住地／職業／完整前後對照故事）在 docs/網站文案集.md 裡完全查無出處——文案集只有
+// 4 句匿名的一行見證，沒有姓名、城市、職業或完整故事。且下方原本有一段文字聲稱這些見證
+// 「均獲得當事人去識別化同意後公開刊登」，但見證內容本身是虛構的，等同不實聲明。
+// 依使用者指示（2026-08-18）：先隱藏整段具名見證卡片與該聲明，待有真實個案資料後再啟用。
+// 若要復原，將下方註解掉的 import 與渲染區塊還原即可：
+// import { testimonials } from '../data';
 
 export default function TrustSystem() {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'mom' | 'single' | 'business'>('all');
 
   // 依文案集 Story 區「現在，我每年累積破百次的個案療癒經驗，影響了至少30人踏上
   // 學習希塔療癒的道路」（第 436 行）與 Hero「整合希塔療癒、14 種以上靈氣與顯化技術」
@@ -38,20 +44,8 @@ export default function TrustSystem() {
     // 文案集取得可用文案，不得杜撰代寫（見 PLN-002 §5.1）。
   ];
 
-  const categories = [
-    { id: 'all', name: '全部成功個案' },
-    { id: 'mom', name: '媽媽守護案例' },
-    { id: 'single', name: '單身愛情轉化' },
-    { id: 'business', name: '企業主與經理人成長' }
-  ];
-
-  const filteredTestimonials = testimonials.filter(item => {
-    if (selectedCategory === 'all') return true;
-    return item.persona === selectedCategory;
-  });
-
   return (
-    <section id="testimonials-section" className="py-20 bg-[#FBF1DD]">
+    <section id="testimonials-section" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Achievements stats grid */}
@@ -59,25 +53,25 @@ export default function TrustSystem() {
           {stats.map((stat) => {
             const IconComp = stat.icon;
             return (
-              <div key={stat.id} className="bg-brand-gold-50/50 rounded-2xl border border-brand-pink-100 p-6 flex flex-col justify-between hover:shadow-xs hover:border-brand-pink-200 transition-all duration-300">
+              <div key={stat.id} className="relative bg-brand-gold-50/50 rounded-2xl border border-brand-pink-100 p-6 flex flex-col justify-between hover:shadow-xs hover:border-brand-pink-200 transition-all duration-300">
+                <InfoPopover label="數據來源說明" className="absolute top-3 right-3">
+                  * 數據與經驗源自個案累積與受眾回饋示意
+                </InfoPopover>
                 <div className="space-y-4">
-                  <div className="p-3 bg-[#FFFDF0] shadow-xs rounded-xl inline-block text-brand-pink-500">
+                  <div className="p-3 bg-white shadow-xs rounded-xl inline-block text-brand-pink-500">
                     <IconComp className="w-5 h-5 text-brand-pink-600" />
                   </div>
                   <div>
                     <span className="text-2xl sm:text-3xl font-bold font-serif text-brand-stone-900 block tracking-tight">
                       {stat.value}
                     </span>
-                    <span className="text-xs font-bold text-brand-gold-600 block mt-1">
+                    <span className="text-sm font-bold text-brand-gold-600 block mt-1">
                       {stat.label}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-600 leading-relaxed">
+                  <p className="text-base text-stone-600 leading-relaxed">
                     {stat.description}
                   </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-stone-100 text-[10px] text-stone-400">
-                  * 數據與經驗源自個案累積與受眾回饋示意
                 </div>
               </div>
             );
@@ -86,104 +80,34 @@ export default function TrustSystem() {
 
         {/* Testimonials Title */}
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
-          <span className="text-xs uppercase tracking-widest text-brand-pink-600 font-bold">Case Studies</span>
+          <span className="text-sm uppercase tracking-widest text-brand-pink-600 font-bold">Case Studies</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-brand-stone-900 font-serif">
             聽聽他們的真實轉化：從卡關到看見光
           </h2>
           <div className="w-12 h-1 bg-linear-to-r from-brand-pink-300 to-brand-gold-300 mx-auto rounded-full"></div>
-          <p className="text-sm text-stone-600 leading-relaxed">
+          <p className="text-base text-stone-600 leading-relaxed">
             每一個案例都是真實生命的舒展與蛻變。以下呈現個案接受療癒、祈福或加入課程後的原原本本心路歷程。
           </p>
         </div>
 
-        {/* Testimonials Filter Tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10 border-b border-stone-150 pb-6 max-w-2xl mx-auto">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id as 'all' | 'mom' | 'single' | 'business')}
-              className={`px-4.5 py-2 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 border ${
-                selectedCategory === cat.id
-                  ? 'bg-brand-pink-100 border-brand-pink-300 text-brand-pink-600'
-                  : 'bg-[#FDF6E6] border-[#F0DFA0] text-stone-700 hover:bg-brand-pink-50 hover:border-brand-pink-200'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Testimonial Cards Layout (Before / After Contrast) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {filteredTestimonials.map((item) => (
-            <div key={item.id} className="bg-brand-gold-50/20 border border-stone-150 rounded-2xl p-6 sm:p-8 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
-              
-              <div className="space-y-6">
-                {/* Header info */}
-                <div className="flex justify-between items-start border-b border-brand-pink-100/50 pb-4">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-brand-pink-600 tracking-wider bg-brand-pink-100 px-2.5 py-1 rounded-full">
-                      {item.category}
-                    </span>
-                    <h4 className="font-bold font-serif text-sm text-brand-stone-900 mt-2">
-                      {item.clientName}
-                    </h4>
-                  </div>
-                  <Quote className="w-8 h-8 text-brand-pink-200 shrink-0" />
-                </div>
-
-                {/* Before vs After Contrast Matrix */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Before card */}
-                  <div className="bg-stone-100 rounded-xl p-4 border border-stone-200/80">
-                    <span className="text-[10px] uppercase font-extrabold text-stone-500 tracking-wider block mb-1.5">
-                      ✕ 療癒前卡關狀態
-                    </span>
-                    <p className="text-xs text-stone-600 leading-relaxed">
-                      {item.beforeState}
-                    </p>
-                  </div>
-                  
-                  {/* After card */}
-                  <div className="bg-brand-pink-100/40 rounded-xl p-4 border border-brand-pink-200">
-                    <span className="text-[10px] uppercase font-extrabold text-brand-pink-600 tracking-wider block mb-1.5 flex items-center gap-1">
-                      <span>✓ 能量對齊後轉化</span>
-                      <Sparkles className="w-3 h-3 text-brand-pink-500 animate-pulse" />
-                    </span>
-                    <p className="text-xs text-brand-stone-900 font-medium leading-relaxed">
-                      {item.afterState}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Personal Testimonial Quote */}
-                <div className="bg-[#FDF6E6] rounded-xl p-5 border border-[#F0DFA0] relative shadow-2xs">
-                  <p className="text-xs text-stone-700 leading-relaxed italic relative z-10">
-                    「 {item.testimonialText} 」
-                  </p>
-                  <div className="text-[10px] text-brand-gold-600 font-bold tracking-wider mt-3 text-right">
-                    ➔ 對應服務：{item.relatedService}
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Disclaimer inside card */}
-              <div className="text-[9px] text-stone-400 italic text-center mt-6">
-                * 免責提示：個案經驗因其潛意識投入與功課對齊程度而異，不代表保證效果，亦非醫療宣稱。
-              </div>
-
-            </div>
-          ))}
+        {/* 具名見證卡片區塊已暫時隱藏（見檔案頂部說明），改為誠實的「籌備中」提示，
+            避免展示查無出處的虛構客戶故事。 */}
+        <div className="max-w-3xl mx-auto bg-brand-gold-50/40 border border-brand-gold-150 rounded-2xl p-8 sm:p-10 text-center space-y-3 mb-12">
+          <Clock className="w-6 h-6 text-brand-gold-600 mx-auto" />
+          <h3 className="font-bold font-serif text-base text-brand-stone-900">真實個案見證整理中</h3>
+          <p className="text-base text-stone-600 leading-relaxed max-w-xl mx-auto">
+            我們正在向個案取得正式授權與去識別化整理，確保每一則見證都真實可查證。完整的個案故事上線前，
+            歡迎透過 LINE 官方帳號或 Instagram 私訊直接詢問文齡老師過往的服務經驗。
+          </p>
         </div>
 
         {/* Global Testimonials Note / Disclaimer Banner */}
-        <div className="bg-[#FDF6E6] rounded-2xl border border-[#F0DFA0] p-5 flex items-start gap-4 max-w-4xl mx-auto shadow-2xs">
+        <div className="bg-stone-50 rounded-2xl border border-stone-200 p-5 flex items-start gap-4 max-w-4xl mx-auto shadow-2xs">
           <ShieldAlert className="w-5 h-5 text-brand-gold-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h5 className="text-xs font-bold text-brand-stone-900">身心靈能量陪伴之誠實守則</h5>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              幸運療癒師 Keila Wenling 文齡的所有個案見證，均獲得當事人去識別化同意後公開刊登。能量療癒與諮詢服務均為心靈保養與宇宙共振之日常輔助，旨在引導自我覺察與放鬆調和。<strong>本站服務絕不提供任何醫療診斷、藥物處方、心理諮商治療、法律訴訟、或投資與財務獲利建議。</strong> 如有身體或心理重大疾病，請優先就醫，為自身的身心決策承擔健康主權。
+            <h5 className="text-base font-bold text-brand-stone-900">身心靈能量陪伴之誠實守則</h5>
+            <p className="text-base text-stone-500 leading-relaxed">
+              能量療癒與諮詢服務均為心靈保養與宇宙共振之日常輔助，旨在引導自我覺察與放鬆調和。<strong>本站服務絕不提供任何醫療診斷、藥物處方、心理諮商治療、法律訴訟、或投資與財務獲利建議。</strong> 如有身體或心理重大疾病，請優先就醫，為自身的身心決策承擔健康主權。
             </p>
           </div>
         </div>
