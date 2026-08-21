@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck, MessageCircle } from 'lucide-react';
 import { thetaTrainingCourses, reikiCourses, certificationCourses, healerCertificationAddOn } from '../data';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 // PRD-002 §3.3 v1.1（2026-08-21，Batch E）：`/training` 培訓總覽頁，收錄
 // `thetaTrainingCourses`＋`reikiCourses`＋`certificationCourses`（希塔培訓／
@@ -9,6 +11,14 @@ import { thetaTrainingCourses, reikiCourses, certificationCourses, healerCertifi
 // 切換。卡片點擊導向各自的詳細頁 `/training/[id]`
 // （TrainingDetailClientPage.tsx），圖片一律用品牌漸層背景＋文字呈現，
 // 不使用照片。
+//
+// 2026-08-22（客戶回報重疊 bug＋設計系統要求）：原本用 `absolute top-4
+// right-4` 疊放分類徽章在標題右上角，標題較長／換行時會被徽章蓋住。改用
+// shadcn/ui 的 Card／CardHeader／CardTitle／CardContent／CardFooter＋Badge
+// 重寫，徽章移到 CardHeader 內、標題正上方，兩者都在正常文件流中各自佔一行，
+// 不論文字多長都不會互相覆蓋。Card／Badge 的 className 皆有覆寫品牌配色
+// （見 ServicesSection.tsx 同樣的說明：專案 shadcn 色彩 tokens 尚未在
+// app/globals.css 定義，沿用預設 variant 會呈現無色）。
 
 interface TrainingCardData {
   id: string;
@@ -23,46 +33,54 @@ interface TrainingCardData {
 
 function TrainingCourseCard({ course }: { course: TrainingCardData }) {
   return (
-    <Link
-      href={`/training/${course.id}`}
-      className={`group rounded-2xl border shadow-xs p-6 flex flex-col justify-between transition-all duration-300 relative ${
-        course.comingSoon
-          ? 'bg-brand-stone-50/60 border-dashed border-stone-200'
-          : 'bg-white border-stone-100 hover:shadow-md hover:border-brand-gold-200'
-      }`}
-    >
-      <div className={`absolute top-4 right-4 text-sm font-bold px-2.5 py-1 rounded-full border ${
-        course.comingSoon
-          ? 'bg-stone-100 border-stone-200 text-stone-500'
-          : 'bg-brand-gold-100 border-brand-gold-200 text-brand-gold-600'
-      }`}>
-        {course.badgeText}
-      </div>
+    <Link href={`/training/${course.id}`} className="group block h-full">
+      <div
+        className={`flex h-full flex-col overflow-hidden rounded-2xl border shadow-xs transition-all duration-300 ${
+          course.comingSoon
+            ? 'bg-brand-stone-50/60 border-dashed border-stone-200'
+            : 'bg-white border-stone-100 group-hover:shadow-md group-hover:border-brand-gold-200'
+        }`}
+      >
+        <Card className="flex flex-1 flex-col rounded-none border-0 bg-transparent p-0 shadow-none ring-0">
+          <CardHeader className="gap-2 px-5 pt-5 sm:px-6">
+            {/* 分類／徽章文字：獨立一行，正常文件流，不會蓋到下方標題 */}
+            <Badge
+              variant="outline"
+              className={`h-auto w-fit whitespace-normal break-words rounded-full px-2.5 py-1 text-sm font-bold ${
+                course.comingSoon
+                  ? 'border-stone-200 bg-stone-100 text-stone-500'
+                  : 'border-brand-gold-200 bg-brand-gold-100 text-brand-gold-600'
+              }`}
+            >
+              {course.badgeText}
+            </Badge>
+            <CardTitle className="text-base sm:text-lg font-bold font-serif leading-relaxed text-brand-stone-900">
+              {course.title}
+            </CardTitle>
+          </CardHeader>
 
-      <div>
-        <h3 className="text-base sm:text-lg font-bold text-brand-stone-900 font-serif mb-4 leading-relaxed pr-20">
-          {course.title}
-        </h3>
+          <CardContent className="flex-1 space-y-6 px-5 sm:px-6">
+            <div className="rounded-xl border border-brand-gold-150 bg-brand-gold-50/50 p-4 text-base leading-relaxed font-medium text-stone-700">
+              <span className="font-bold text-brand-stone-900">培訓目標：</span>{course.objective}
+            </div>
 
-        <div className="bg-brand-gold-50/50 rounded-xl p-4 border border-brand-gold-150 mb-6 text-base text-stone-700 leading-relaxed font-medium">
-          <span className="text-brand-stone-900 font-bold">培訓目標：</span>{course.objective}
-        </div>
+            {course.tags.length > 0 && (
+              <ul className="space-y-1.5">
+                {course.tags.slice(0, 3).map((tag, tIdx) => (
+                  <li key={tIdx} className="text-base text-stone-600 leading-relaxed">・{tag}</li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
 
-        {course.tags.length > 0 && (
-          <ul className="space-y-1.5 mb-6">
-            {course.tags.slice(0, 3).map((tag, tIdx) => (
-              <li key={tIdx} className="text-base text-stone-600 leading-relaxed">・{tag}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="pt-4 border-t border-stone-50 flex items-center justify-between">
-        <span className="text-sm text-stone-500">{course.duration}</span>
-        <span className="inline-flex items-center gap-1 text-base font-semibold text-brand-pink-600 group-hover:text-brand-pink-700">
-          <span>查看完整介紹</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </span>
+          <CardFooter className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-stone-50 bg-transparent px-5 py-4 sm:px-6">
+            <span className="text-sm text-stone-500">{course.duration}</span>
+            <span className="inline-flex items-center gap-1 text-base font-semibold text-brand-pink-600 group-hover:text-brand-pink-700">
+              <span>查看完整介紹</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </span>
+          </CardFooter>
+        </Card>
       </div>
     </Link>
   );
@@ -123,11 +141,11 @@ export default function TrainingSection() {
 
         {/* Category 1: 希塔療癒認證培訓（thetaTrainingCourses） */}
         <div className="mb-16">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
             <h3 className="text-xl font-bold font-serif text-brand-stone-900">希塔療癒認證培訓</h3>
             <span className="text-sm text-stone-500">美國 ThetaHealing® 官方國際認證</span>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {thetaCards.map((course) => (
               <TrainingCourseCard key={course.id} course={course} />
             ))}
@@ -136,11 +154,11 @@ export default function TrainingSection() {
 
         {/* Category 2: 希塔療癒認證班（reikiCourses） */}
         <div className="mb-16">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
             <h3 className="text-xl font-bold font-serif text-brand-stone-900">希塔療癒認證班</h3>
             <span className="text-sm text-stone-500">線上／實體同步開班</span>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {certBadgeCards.map((course) => (
               <TrainingCourseCard key={course.id} course={course} />
             ))}
@@ -149,11 +167,11 @@ export default function TrainingSection() {
 
         {/* Category 3: 專業證照與直覺力培訓（certificationCourses，含併入的直覺力培訓說明） */}
         <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
             <h3 className="text-xl font-bold font-serif text-brand-stone-900">專業證照與直覺力培訓</h3>
             <span className="text-sm text-stone-500">療癒師暨導師認證</span>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
             {healerCertCards.map((course) => (
               <TrainingCourseCard key={course.id} course={course} />
             ))}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import Link from 'next/link';
 import { Search, Calendar, Clock, ArrowRight, BookOpen, MessageCircle, X, Sparkles } from 'lucide-react';
 import { blogPosts } from '../data';
 import { BlogPost } from '../types';
@@ -294,12 +295,15 @@ export default function BlogSection({ initialSearchQuery = '' }: BlogSectionProp
                           您可以預約文齡老師的<b>心靈引渡人｜一對一個人能量療癒</b>，或依您的卡點瀏覽其他能量調頻服務，進行系統化清理。
                         </p>
                         <div className="space-y-2">
-                          <a
+                          {/* 2026-08-22：修正 next/next/no-html-link-for-pages（站內連結一律用 next/link
+                              的 Link，避免整頁重新載入），與本輪卡片重疊修正無關的既有 lint 違規，
+                              建置階段刪除 .next 快取後才會被重新檢出，順手一併修正。 */}
+                          <Link
                             href="/services"
                             className="w-full inline-flex items-center justify-center py-2.5 bg-brand-pink-600 hover:bg-brand-pink-700 text-white font-semibold text-base rounded-lg shadow-xs text-center"
                           >
                             前往服務頁選擇適合方案
-                          </a>
+                          </Link>
                           <a
                             href="https://lin.ee/yo6a6FW"
                             target="_blank"
