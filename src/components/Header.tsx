@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Menu, X, Search, Sparkles, MessageCircle, Home, UserCircle, Layers, Quote, BookOpen, Gift, CalendarCheck } from 'lucide-react';
+import { Menu, X, Search, Sparkles, MessageCircle, Home, UserCircle, Layers, GraduationCap, Quote, BookOpen, Gift, CalendarCheck } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -22,10 +22,18 @@ export default function Header({ currentTab: propCurrentTab, setCurrentTab, onSe
 
   // 2026-08-18：導覽列文字太長會在桌機版折成兩行，依使用者指示改為「icon + 縮短文字」，
   // 兼顧可讀性與精簡（純 icon 對初次到訪者不夠直覺，故保留簡短文字）。
+  // 2026-08-21（copy-qa-reviewer 覆核＋客戶確認）：這份寫死的扁平選單才是實際掛在
+  // app/layout.tsx 的主導覽（DesktopNav.tsx／MobileNav.tsx 雖然有讀 primaryNavigation
+  // 且已指向 /training，但目前沒有任何頁面匯入使用，屬死碼）。新增「培訓」項目、
+  // 與「服務」並列，指向 /training，讓使用者能從主導覽找到培訓總覽頁。桌機／手機
+  // 版共用同一份 menuItems（見下方 desktop-nav／mobile-drawer 兩處渲染），新增這項
+  // 已一併涵蓋兩種版面，不需另外處理手機選單。新增後為 8 項，桌機版是否會因此折成
+  // 兩行需另外於瀏覽器實測確認（PRD-002 §2 item 5 提過的既有風險），已回報給協調者。
   const menuItems = [
     { id: 'home', name: '首頁', icon: Home },
     { id: 'about', name: '關於', icon: UserCircle },
     { id: 'services', name: '服務', icon: Layers },
+    { id: 'training', name: '培訓', icon: GraduationCap },
     { id: 'testimonials', name: '見證', icon: Quote },
     { id: 'blog', name: '部落格', icon: BookOpen },
     { id: 'resources', name: '資源', icon: Gift },
@@ -84,9 +92,6 @@ export default function Header({ currentTab: propCurrentTab, setCurrentTab, onSe
                   幸運教主 文齡
                 </span>
               </div>
-              <p className="text-sm text-[#9A8060] tracking-widest font-sans uppercase mt-0.5">
-                Love • Abundance • Subconscious Reprogramming
-              </p>
             </div>
           </div>
 

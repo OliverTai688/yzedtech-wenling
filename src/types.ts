@@ -1,3 +1,11 @@
+// 服務／培訓分類 — PRD-002 §3.3／§3.4：供各筆資料標示自己屬於 `/services`
+// 還是 `/training` 底下的哪個分類，作為總覽頁分組與詳細頁麵包屑判斷依據。
+export type ServiceCategory =
+  | 'energy-healing' // /services：能量療癒 8 項
+  | 'theta-training' // /training：希塔療癒認證培訓（thetaTrainingCourses）
+  | 'theta-certification' // /training：希塔療癒認證班（reikiCourses）
+  | 'healer-certification'; // /training：療癒師認證（certificationCourses，含併入的直覺力培訓說明）
+
 export interface Service {
   id: string;
   name: string;
@@ -10,6 +18,13 @@ export interface Service {
   ctaText: string;
   ctaLink: string;
   iconName: string;
+  // PRD-002 §3.3／§3.4（Batch D）— additive。
+  category: ServiceCategory;
+  // 對應該服務專屬的客戶見證 id（見 `testimonials`）。目前 `testimonials` 陣列
+  // 內容經 2026-08-18 QA 認定查無文案集出處、全站已停用渲染（見 TrustSystem.tsx／
+  // HomeTestimonialsSection.tsx 註解），因此本輪暫不填入任何 id，一律留空陣列，
+  // 待取得真實個案授權後再比對填入，不可虛構或亂配見證內容。
+  testimonialIds?: string[];
 }
 
 export interface ReikiCourse {
@@ -28,10 +43,41 @@ export interface ReikiCourse {
   refundPolicy?: string;
   prerequisite?: string;
   repeatPrice?: string;
+  // PRD-002 §3.3 v1.1（copy-qa-reviewer 覆核，2026-08-21）— 比照 `Service.price`
+  // 命名風格，補上課程費用欄位，逐字對照 docs/網站文案集.md 對應行號填入。
+  price?: string;
   // Phase 2 additions: per-course CTA link (取代寫死在元件內的共用連結) and
   // coming-soon 狀態（例如「直覺力訓練」，文案集標註「⚠️ 待客戶補充」）。
   ctaLink?: string;
   status?: 'live' | 'coming-soon';
+  // PRD-002 §3.3／§3.4（Batch D）— additive。
+  category: ServiceCategory;
+  // 見 Service.testimonialIds 註解：`testimonials` 陣列目前全數查無出處、
+  // 全站已停用渲染，本輪一律留空，不可虛構或亂配見證內容。
+  testimonialIds?: string[];
+}
+
+// `thetaTrainingCourses`（src/data.ts）用的型別 — 原本以隱性推論型別存在，
+// 本次補上明確 interface 以便加上 category／testimonialIds 兩個新欄位。
+export interface ThetaTrainingCourse {
+  id: string;
+  level: string; // 例如「基礎 DNA (Basic DNA)」，非 ReikiCourse 的 union level
+  name: string;
+  objective: string;
+  targetAudience: string;
+  duration: string;
+  certification: string;
+  highlights: string[];
+  ctaLink?: string;
+  prerequisite?: string;
+  // PRD-002 §3.3 v1.1（copy-qa-reviewer 覆核，2026-08-21）— 比照 `Service.price`
+  // 命名風格，補上課程費用欄位，逐字對照 docs/網站文案集.md 對應行號填入。
+  price?: string;
+  // PRD-002 §3.3／§3.4（Batch D）— additive。
+  category: ServiceCategory;
+  // 見 Service.testimonialIds 註解：`testimonials` 陣列目前全數查無出處、
+  // 全站已停用渲染，本輪一律留空，不可虛構或亂配見證內容。
+  testimonialIds?: string[];
 }
 
 // --- PRD-001 §4.2 content-module type skeleton (Phase 0) ---

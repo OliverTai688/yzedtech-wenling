@@ -1,4 +1,4 @@
-import { Service, ReikiCourse, Testimonial, BlogPost, FAQItem, ResourceItem, TeamPartner, NavGroup } from './types';
+import { Service, ReikiCourse, ThetaTrainingCourse, ServiceCategory, Testimonial, BlogPost, FAQItem, ResourceItem, TeamPartner, NavGroup } from './types';
 
 // 全站導覽架構（對應 app/ 路由）。Header 的桌機 mega menu／手機選單、以及 Footer
 // 的網站地圖都應該從這裡取用，不要各自寫死一份選單文案，避免兩處導覽長期漂移。
@@ -21,7 +21,9 @@ export const primaryNavigation: NavGroup[] = [
     label: '療癒與培訓',
     items: [
       { id: 'services', label: '核心能量調頻服務', href: '/services', description: '一對一療癒、靈性解讀與工作坊' },
-      { id: 'theta-training', label: '希塔療癒認證班', href: '/services?tab=theta-training', description: '國際認證的希塔與靈氣培訓課程' },
+      // PRD-002 §3.2（2026-08-21）：服務／培訓改為兩個獨立總覽頁，此子項目改指向
+      // 新增的 /training 總覽頁，不再用 /services?tab=xxx 的舊 query 導頁方式。
+      { id: 'theta-training', label: '希塔療癒認證班', href: '/training', description: '國際認證的希塔與靈氣培訓課程' },
     ],
   },
   {
@@ -65,7 +67,9 @@ export const services: Service[] = [
     price: '$2,600 起',
     ctaText: '前往預約一對一療癒',
     ctaLink: 'https://booking.wenling.tw/activities/soul-healing',
-    iconName: 'Sparkles'
+    iconName: 'Sparkles',
+    category: 'energy-healing',
+    testimonialIds: [] // TODO: 待補專屬見證（`testimonials` 陣列目前查無文案集出處、全站已停用渲染，見 types.ts 註解）
   },
   {
     id: 'spiritual-reading',
@@ -83,7 +87,9 @@ export const services: Service[] = [
     price: '$600 起',
     ctaText: '了解 3 大解讀主題',
     ctaLink: 'https://booking.wenling.tw/activities/life-direction',
-    iconName: 'Compass'
+    iconName: 'Compass',
+    category: 'energy-healing',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'spiritual-massage',
@@ -101,7 +107,9 @@ export const services: Service[] = [
     price: '$4,580 起',
     ctaText: '前往預約靈性按摩',
     ctaLink: 'https://booking.wenling.tw/activities/chakra-cleaning',
-    iconName: 'Heart'
+    iconName: 'Heart',
+    category: 'energy-healing',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'group-healing',
@@ -118,7 +126,9 @@ export const services: Service[] = [
     duration: '1 回合 11 次遠距傳送（約 1 個月內完成），建議連續 3 回合以上',
     ctaText: '立即加入梯次',
     ctaLink: 'https://booking.wenling.tw/activities/life-forward',
-    iconName: 'Users'
+    iconName: 'Users',
+    category: 'energy-healing',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'workshop',
@@ -134,7 +144,9 @@ export const services: Service[] = [
     duration: '每場約 3-4 小時',
     ctaText: '加入 LINE 詢問工作坊場次',
     ctaLink: 'https://lin.ee/yo6a6FW',
-    iconName: 'Wind'
+    iconName: 'Wind',
+    category: 'energy-healing',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'smoke-prayer',
@@ -151,7 +163,12 @@ export const services: Service[] = [
     duration: '單次施作，另有多次預約優惠',
     ctaText: '登岸預約煙供祈福',
     ctaLink: 'https://booking.wenling.tw/activities/pray-all',
-    iconName: 'Flame'
+    iconName: 'Flame',
+    category: 'energy-healing',
+    // 注意：`testimonials` 陣列中 test-1（relatedService: '煙供祈福與家庭能量清理'）
+    // 主題上對應本服務，但該陣列全數查無文案集出處、全站已停用渲染（見 types.ts 註解），
+    // 本輪暫不引用，待取得真實個案授權後再評估是否啟用。
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'abundance-reiki',
@@ -167,7 +184,9 @@ export const services: Service[] = [
     duration: '每月梯次，10 或 30 次遠距傳送',
     ctaText: '查看豐盛靈氣梯次方案',
     ctaLink: 'https://booking.wenling.tw/activities/reiki-healing',
-    iconName: 'Coins'
+    iconName: 'Coins',
+    category: 'energy-healing',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'five-elements-perfume',
@@ -184,7 +203,9 @@ export const services: Service[] = [
     price: '$2,500 起',
     ctaText: '線上填單供奉香水',
     ctaLink: 'https://booking.wenling.tw/activities/energy-filling',
-    iconName: 'Flower2'
+    iconName: 'Flower2',
+    category: 'energy-healing',
+    testimonialIds: [] // TODO: 待補專屬見證
   }
 ];
 // 《七週遇見對的人》課程與「國際希塔與靈氣雙證照培訓」service 項目
@@ -195,7 +216,7 @@ export const services: Service[] = [
 
 // Phase 2（PLN-001 Batch E）：內容依 docs/網站文案集.md 1542-1823 行重新確認，
 // 補上真實報名連結（basicDNA / advanced_DNA / digdeeper）與費用/先修資訊。
-export const thetaTrainingCourses = [
+export const thetaTrainingCourses: ThetaTrainingCourse[] = [
   {
     id: 'theta-basic',
     level: '基礎 DNA (Basic DNA)',
@@ -205,7 +226,12 @@ export const thetaTrainingCourses = [
     duration: '3 天密集認證（實體台北松江南京站附近／線上 Zoom 同步）',
     certification: '美國 THInK 官方認證證書',
     highlights: ['希塔波冥想入門與解讀掃描', '四個信念層面轉化', '顯化練習與淨化保護', '靈界連結與 DNA 啟動'],
-    ctaLink: 'https://booking.wenling.tw/activities/basicDNA'
+    ctaLink: 'https://booking.wenling.tw/activities/basicDNA',
+    // 文案集第 1621-1623 行：「💰 課程費用：NT$ 20,000（含原廠教材、官方國際認證證書、
+    // 中文書、精選乳香精油）／兩人同行每人折 NT$200／四人團報每人折 NT$500」逐字對照。
+    price: 'NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）；兩人同行每人折 NT$200，四人團報每人折 NT$500',
+    category: 'theta-training',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'theta-advanced-dna',
@@ -216,7 +242,12 @@ export const thetaTrainingCourses = [
     duration: '18 小時以上（可拆天數，1 人即可私訊約課）',
     certification: '官方「進階療癒師」國際證照',
     highlights: ['3R 深度挖掘：怨恨、後悔、被拒絕', '1 秒下載法與七界連結', '淨化水晶／土地／空間', '時間感調整與萬物祝福'],
-    ctaLink: 'https://booking.wenling.tw/activities/advanced_DNA'
+    ctaLink: 'https://booking.wenling.tw/activities/advanced_DNA',
+    // 文案集第 1697-1699 行：「💰 課程費用：單堂 NT$ 20,000／2 人同行每人折 NT$200／
+    // 4 人團報每人折 NT$500」逐字對照。
+    price: '單堂 NT$ 20,000；2 人同行每人折 NT$200，4 人團報每人折 NT$500',
+    category: 'theta-training',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'theta-dig-deeper',
@@ -228,7 +259,12 @@ export const thetaTrainingCourses = [
     certification: '官方授權「挖掘療癒師」國際證照',
     highlights: ['10 大深度信念挖掘技術', '疾病／遺傳層／歷史層挖掘', '誓言挖掘與感覺切入（Keila 獨家補充）', '常態約課制，1 人即可開課'],
     ctaLink: 'https://booking.wenling.tw/activities/digdeeper',
-    prerequisite: '需完成希塔療癒基礎班與進階班'
+    prerequisite: '需完成希塔療癒基礎班與進階班',
+    // 文案集第 1782-1784 行：「💰 課程費用：單堂 NT$ 20,000（支持刷卡、分期）／
+    // 2 人合報/複訓每人另折 NT$200／4 人團報/複訓每人另折 NT$500」逐字對照。
+    price: '單堂 NT$ 20,000（支持刷卡、分期）；2 人合報／複訓每人另折 NT$200，4 人團報／複訓每人另折 NT$500',
+    category: 'theta-training',
+    testimonialIds: [] // TODO: 待補專屬見證
   }
 ];
 
@@ -249,7 +285,12 @@ export const reikiCourses: ReikiCourse[] = [
     curriculum: ['希塔波冥想入門與解讀掃描', '四個信念層面轉化', '顯化練習與淨化保護', '靈界連結與 DNA 啟動'],
     duration: '3 天密集認證（線上/實體同步開班）',
     badge: '熱門入門必修',
-    ctaLink: 'https://booking.wenling.tw/activities/basicDNA'
+    ctaLink: 'https://booking.wenling.tw/activities/basicDNA',
+    // 與 thetaTrainingCourses 的 theta-basic 為同一門課程，價格逐字比照文案集
+    // 第 1621-1623 行。
+    price: 'NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）；兩人同行每人折 NT$200，四人團報每人折 NT$500',
+    category: 'theta-certification',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'theta-adv-cert',
@@ -261,7 +302,12 @@ export const reikiCourses: ReikiCourse[] = [
     curriculum: ['3R 深度挖掘：怨恨、後悔、被拒絕', '1 秒下載法與七界連結', '淨化水晶／土地／空間', '時間感調整與萬物祝福'],
     duration: '18 小時以上（線上/實體）',
     badge: '深層蛻變推薦',
-    ctaLink: 'https://booking.wenling.tw/activities/advanced_DNA'
+    ctaLink: 'https://booking.wenling.tw/activities/advanced_DNA',
+    // 與 thetaTrainingCourses 的 theta-advanced-dna 為同一門課程，價格逐字比照
+    // 文案集第 1697-1699 行。
+    price: '單堂 NT$ 20,000；2 人同行每人折 NT$200，4 人團報每人折 NT$500',
+    category: 'theta-certification',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'theta-dig-deeper-cert',
@@ -274,7 +320,12 @@ export const reikiCourses: ReikiCourse[] = [
     duration: '4-5 日（含午休 1 小時）',
     badge: '先修：基礎＋進階班',
     ctaLink: 'https://booking.wenling.tw/activities/digdeeper',
-    prerequisite: '需完成希塔療癒基礎班與進階班'
+    prerequisite: '需完成希塔療癒基礎班與進階班',
+    // 與 thetaTrainingCourses 的 theta-dig-deeper 為同一門課程，價格逐字比照
+    // 文案集第 1782-1784 行。
+    price: '單堂 NT$ 20,000（支持刷卡、分期）；2 人合報／複訓每人另折 NT$200，4 人團報／複訓每人另折 NT$500',
+    category: 'theta-certification',
+    testimonialIds: [] // TODO: 待補專屬見證
   }
 ];
 
@@ -295,7 +346,12 @@ export const certificationCourses: ReikiCourse[] = [
     duration: '場次安排中，1 人即可彈性排課（三階可拆 2-4 次完成）',
     badge: '三階合報最划算',
     ctaLink: 'https://booking.wenling.tw/activities/money-reikei',
-    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。'
+    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。',
+    // 文案集第 1902-1913 行「💰 課程費用與優惠方案」表格逐字對照：三階合報／一階單報／
+    // 複訓／新生 2 人團報／新生 4 人以上團報。
+    price: '三階合報 NT$14,899（一世發久久！原價 NT$18,000，完訓可授課）；一階單報 NT$6,000（無證書）；複訓（三階）NT$7,500（須出示證書，含所有贈品）；新生 2 人團報 NT$14,299／人；新生 4 人以上團報 NT$13,889／人',
+    category: 'healer-certification',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'love-reiki-cert',
@@ -308,7 +364,11 @@ export const certificationCourses: ReikiCourse[] = [
     duration: '8 小時（實體台北松江南京站工作室＋線上同步開課）',
     badge: '含官方證書',
     ctaLink: 'https://booking.wenling.tw/activities/love-reiki',
-    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。'
+    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。',
+    // 文案集第 2076-2081 行「💎 課程費用與超級贈禮」逐字對照：初訓費用／團報／複訓。
+    price: '初訓費用 NT$12,520（含官方證書、課本、教材電子檔，支援 6-24 期無卡分期）；雙人／四人以上團報另享超值折價優惠；其他老師學員複訓享優惠價（不含證書與課本），Keila 既有愛情靈氣學員免費複訓',
+    category: 'healer-certification',
+    testimonialIds: [] // TODO: 待補專屬見證
   },
   {
     id: 'mermaid-reiki-cert',
@@ -321,22 +381,46 @@ export const certificationCourses: ReikiCourse[] = [
     duration: '6-8 小時，可拆兩次（線上同步直播＋實體課）',
     badge: '完課頒發證書',
     ctaLink: 'https://booking.wenling.tw/activities/mermaid-reiki',
-    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。'
-  },
-  {
-    id: 'intuition-training',
-    level: 'beginner',
-    type: 'both',
-    name: '直覺力訓練｜喚醒你與生俱來的靈通天賦',
-    objective: '透過系統化的直覺力訓練，學會清晰接收、辨識並運用自己的靈通感知，讓直覺成為你人生中最可靠的指引。',
-    targetAudience: '曾在某個瞬間準確預感到即將發生的事、想開發與生俱來直覺力者',
-    curriculum: ['課程大綱製作中，內容將依官方文案更新'],
-    duration: '敬請期待',
-    badge: '即將推出',
-    ctaLink: 'https://lin.ee/yo6a6FW',
-    status: 'coming-soon'
+    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。',
+    // 文案集第 2176 行「課程費用｜NT$ 12,520（支援刷卡/分期付款）」逐字對照。
+    price: 'NT$ 12,520（支援刷卡／分期付款）',
+    category: 'healer-certification',
+    testimonialIds: [] // TODO: 待補專屬見證
   }
 ];
+
+// PRD-002 §3.3 v1.1（2026-08-21）：原本獨立的 `intuition-training` 項目
+// （id、卡片、獨立詳細頁）已依客戶決策移除，不再獨立呈現；其內容併入
+// 「療癒師認證」總覽／詳細頁敘述中，作為此分類下的加值模組說明。文字沿用
+// docs/網站文案集.md 241-249 行（Block 5｜Section 3：直覺力培訓 Training CTA）
+// 與原 certificationCourses 項目的既有措辭，僅做「不再獨立成卡片」的結構調整，
+// 不改寫語意。狀態維持 coming-soon（文案集標註「⚠️ 待客戶補充」完整課綱）。
+export const healerCertificationAddOn = {
+  name: '直覺力訓練｜喚醒你與生俱來的靈通天賦',
+  objective: '透過系統化的直覺力訓練，學會清晰接收、辨識並運用自己的靈通感知，讓直覺成為你人生中最可靠的指引。',
+  targetAudience: '曾在某個瞬間準確預感到即將發生的事、想開發與生俱來直覺力者',
+  note: '課程大綱製作中，內容將依官方文案更新',
+  status: 'coming-soon' as const,
+  ctaLink: 'https://lin.ee/yo6a6FW'
+};
+
+// PRD-002 §3.4（Batch F，2026-08-21）：首頁與其他站內呼叫點過去都是用
+// `router.push(\`/services?tab=${serviceId}\`)` 這種「傳 id、由 ServicesSection
+// 內部原地展開」的舊機制。/services、/training 拆成兩個獨立總覽頁＋各自詳細頁後，
+// 改用這個 helper 依 Batch D 補上的 `category` 欄位，判斷某個服務/課程 id 該連到
+// `/services/[id]` 還是 `/training/[id]`，取代呼叫點各自寫死 `/services?tab=xxx`。
+// 查無對應 id 時 fallback 回 `/services` 總覽頁，避免產生 404。
+export function resolveOfferingHref(id: string): string {
+  const allOfferings: { id: string; category: ServiceCategory }[] = [
+    ...services,
+    ...thetaTrainingCourses,
+    ...reikiCourses,
+    ...certificationCourses,
+  ];
+  const match = allOfferings.find((item) => item.id === id);
+  if (!match) return '/services';
+  return match.category === 'energy-healing' ? `/services/${id}` : `/training/${id}`;
+}
 
 // ⚠️ 2026-08-18 本輪瀏覽器視覺 QA 發現：以下 4 筆見證的姓名／居住地／職業／完整前後對照
 // 故事，在 docs/網站文案集.md 裡完全查無出處（文案集第 643～648 行的「個案真實見證」只有

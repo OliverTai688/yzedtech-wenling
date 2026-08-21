@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { resolveOfferingHref } from '../src/data';
 import Hero from '../src/components/Hero';
 import Personas from '../src/components/Personas';
 import HomeServicesGrid from '../src/components/HomeServicesGrid';
@@ -18,8 +19,12 @@ export default function HomeClientPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // PRD-002 §3.4（Batch F）：不再用 `/services?tab=${serviceId}` 這種舊的
+  // 「傳 id、由 ServicesSection 原地展開」機制；改用 resolveOfferingHref
+  // 依 Batch D 補上的 category 欄位，導向對應的 `/services/[id]` 或
+  // `/training/[id]` 詳細頁。
   const handleNavigateToService = (serviceId: string) => {
-    router.push(`/services?tab=${serviceId}`);
+    router.push(resolveOfferingHref(serviceId));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

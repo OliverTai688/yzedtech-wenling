@@ -17,7 +17,7 @@
 | 文件號 | 標題 | 狀態 | 摘要 |
 | --- | --- | --- | --- |
 | PRD-001 | [官方文案內容模組化與 Demo 資料移除](../01_product-requirements/PRD-001_official-copy-content-module-and-demo-data-removal.md) | Active | 全站文字內容一律溯源至 `docs/網站文案集.md`；移除《七週遇見對的人》課程產品與臼井靈氣獨立課程頁 |
-| PRD-002 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構](../01_product-requirements/PRD-002_round4-homepage-brand-partner-product-restructure.md) | Ready for Implementation | 首頁移除 FAQ、新增合作夥伴區塊、服務課程改獨立商品頁、品牌標示統一為「豐盛之翼學苑」、導覽微調 |
+| PRD-002 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構](../01_product-requirements/PRD-002_round4-homepage-brand-partner-product-restructure.md) | Ready for Implementation | v1.1：首頁移除 FAQ、新增合作夥伴區塊、服務／培訓拆為兩個總覽頁＋各自獨立詳細頁（含專屬見證、漸層圖片、直覺力併入療癒師認證）、品牌標示統一為「豐盛之翼學苑」、導覽微調 |
 
 ## 02_architecture-and-rules
 
@@ -39,7 +39,7 @@
 | --- | --- | --- | --- |
 | PLN-001 | [官方文案上線執行計畫](../04_execution-plans/PLN-001_official-copy-rollout-execution-plan.md) | Active | Batch A–L 內容批次定義與文案集行號對照 |
 | PLN-002 | [多階段開發、Agent 協作與驗收執行計畫](../04_execution-plans/PLN-002_multi-phase-agent-orchestrated-execution-plan.md) | Active | Phase 0–6 開發階段、三層次驗收法、開發邊界 |
-| PLN-003 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構 執行計畫](../04_execution-plans/PLN-003_round4-execution-plan.md) | In Progress | Batch A–C 已完成（品牌標示／首頁 FAQ 移除／合作夥伴佔位）；Batch D–G（服務轉商品詳細頁）待排時間 |
+| PLN-003 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構 執行計畫](../04_execution-plans/PLN-003_round4-execution-plan.md) | ✅ 完成 | Batch A–G 全數完成；`/services`＋`/training` 兩個總覽頁與 17 個獨立詳細頁已上線，驗收見 ACC-002 |
 
 ## 05_audits-and-reports
 
@@ -56,6 +56,7 @@ _目前尚無文件。設計探索、方案比較可於此建立 `RES-NNN_<slug>
 | 文件號 | 標題 | 狀態 | 摘要 |
 | --- | --- | --- | --- |
 | ACC-001 | [官方文案上線驗收](../07_acceptance-and-qa/ACC-001_official-copy-rollout-acceptance.md) | Active | Phase 0–6 出處對照表彙整、三層次驗收結果、已知未完成事項 |
+| ACC-002 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構 驗收](../07_acceptance-and-qa/ACC-002_round4-services-training-restructure-acceptance.md) | Active | Batch A–G 驗收；獨立覆核發現並修正 3 項問題、瀏覽器視覺驗收確認新導覽項目無折行 |
 
 ---
 
