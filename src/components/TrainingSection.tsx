@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck, MessageCircle } from 'lucide-react';
-import { thetaTrainingCourses, reikiCourses, certificationCourses, healerCertificationAddOn } from '../data';
+import { thetaTrainingCourses, certificationCourses, healerCertificationAddOn, siteLinks } from '../data';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 // PRD-002 §3.3 v1.1（2026-08-21，Batch E）：`/training` 培訓總覽頁，收錄
-// `thetaTrainingCourses`＋`reikiCourses`＋`certificationCourses`（希塔培訓／
+// `thetaTrainingCourses`＋`certificationCourses`（希塔培訓／
 // 希塔認證班／療癒師認證，含併入的直覺力培訓加值模組說明），版面比照
 // `/services` 總覽頁（大標題、分類說明、卡片清單），不再依賴 `activeTab`
 // 切換。卡片點擊導向各自的詳細頁 `/training/[id]`
@@ -97,16 +97,6 @@ export default function TrainingSection() {
     ctaLink: c.ctaLink,
   }));
 
-  const certBadgeCards: TrainingCardData[] = reikiCourses.map((c) => ({
-    id: c.id,
-    badgeText: c.badge,
-    title: c.name,
-    objective: c.objective,
-    duration: c.duration,
-    tags: c.curriculum,
-    ctaLink: c.ctaLink,
-  }));
-
   const healerCertCards: TrainingCardData[] = certificationCourses.map((c) => ({
     id: c.id,
     badgeText: c.badge,
@@ -139,7 +129,7 @@ export default function TrainingSection() {
           </p>
         </div>
 
-        {/* Category 1: 希塔療癒認證培訓（thetaTrainingCourses） */}
+        {/* Category 1: 希塔療癒認證培訓（thetaTrainingCourses；PRD-003 §4.5 已併入原 reikiCourses） */}
         <div className="mb-16">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
             <h3 className="text-xl font-bold font-serif text-brand-stone-900">希塔療癒認證培訓</h3>
@@ -147,19 +137,6 @@ export default function TrainingSection() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {thetaCards.map((course) => (
-              <TrainingCourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        </div>
-
-        {/* Category 2: 希塔療癒認證班（reikiCourses） */}
-        <div className="mb-16">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <h3 className="text-xl font-bold font-serif text-brand-stone-900">希塔療癒認證班</h3>
-            <span className="text-sm text-stone-500">線上／實體同步開班</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {certBadgeCards.map((course) => (
               <TrainingCourseCard key={course.id} course={course} />
             ))}
           </div>
@@ -216,7 +193,7 @@ export default function TrainingSection() {
             </div>
           </div>
           <a
-            href="https://lin.ee/yo6a6FW"
+            href={siteLinks.line}
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2.5 rounded-full border border-brand-pink-200 text-brand-pink-600 font-semibold text-base hover:bg-brand-pink-50 transition-colors shrink-0"

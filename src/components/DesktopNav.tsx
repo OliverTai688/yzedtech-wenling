@@ -34,7 +34,7 @@ function isPathActive(pathname: string, path: string) {
 // 專案既有品牌色票（比照 Header.tsx 原本手刻選單的顏色）逐一 override。
 const triggerClass = (active: boolean) =>
   cn(
-    'rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 bg-transparent hover:bg-[#FDF6E6]/60 data-popup-open:bg-[#FDF6E6]/60 data-open:bg-[#FDF6E6]/60',
+    'rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 bg-transparent hover:bg-[#FDF6E6]/60 data-popup-open:bg-[#FDF6E6]/60 data-open:bg-[#FDF6E6]/60',
     active
       ? 'bg-[#FDF6E6] text-[#B5762A] font-semibold border border-[#F0DFA0] shadow-xs hover:bg-[#FDF6E6]'
       : 'text-[#5A4A38] hover:text-[#B5762A]'
@@ -69,14 +69,11 @@ export default function DesktopNav() {
   const pathname = usePathname();
 
   return (
-    <NavigationMenu viewport={false} className="hidden max-w-none lg:flex" id="desktop-nav">
+    <NavigationMenu viewport={false} className="hidden max-w-none xl:flex" id="desktop-nav">
       <NavigationMenuList className="gap-1">
-        {primaryNavigation
-          // 2026-08-22（客戶確認）：主導覽排除 contact（另有獨立 CTA 按鈕）與
-          // support（常見問題／免責聲明改由 Footer.tsx 網站地圖收錄，不佔用
-          // 主導覽版面）。
-          .filter((group) => !['contact', 'support'].includes(group.id))
-          .map((group) => {
+        {/* PRD-003 §4.3（2026-10-04）：第一層 8 項全部呈現；「商城」按鈕在 Header.tsx。
+            8 項加按鈕在 1024～1279px 放不下，桌機導覽改從 xl 斷點起顯示（PLN-004 §6）。 */}
+        {primaryNavigation.map((group) => {
             const active = groupPaths(group).some((path) => isPathActive(pathname, path));
 
             if (!group.items) {

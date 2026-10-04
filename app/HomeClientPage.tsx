@@ -30,18 +30,13 @@ export default function HomeClientPage() {
 
   return (
     <div className="animate-fadeIn">
-      {/* 1. Hero Section (Bokeh background, 2 cols, circular portrait) */}
-      <Hero 
-        onLearnMore={handleNavigateToTab} 
-        onPersonaClick={handleNavigateToService} 
-      />
+      {/* 1. Hero（文案集 v2 Home Block 1） */}
+      <Hero />
 
-      {/* 2. Persona 快速導覽 (3 Columns with expandable recommendation) */}
-      <Personas 
-        onNavigateToService={handleNavigateToService} 
-        onNavigateToTab={handleNavigateToTab} 
-      />
+      {/* 2. 需求入口（文案集 v2 Home Block 2，4 張卡） */}
+      <Personas />
 
+      {/* 3～5：PRD-003 決策 D2 將於階段 D 移出首頁（PLN-004 §2），階段 A 先保留。 */}
       {/* 3. Services 服務項目 (8 cards with gold metallic numbers) */}
       <HomeServicesGrid 
         onNavigateToService={handleNavigateToService} 
@@ -61,8 +56,8 @@ export default function HomeClientPage() {
         onNavigateToTab={handleNavigateToTab}
       />
 
-      {/* 7. Media 出版與聲音專區 */}
-      <MediaSection />
+      {/* 7. 媒體精選（完整內容在 /media） */}
+      <MediaSection variant="home" />
     </div>
   );
 }

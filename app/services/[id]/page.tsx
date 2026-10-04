@@ -14,10 +14,10 @@ export async function generateMetadata({ params }: ServiceDetailPageProps) {
   const { id } = await params;
   const service = services.find((s) => s.id === id);
   if (!service) {
-    return { title: '找不到此服務 — 幸運教主 文齡 Keila' };
+    return { title: '找不到此服務｜豐盛之翼學苑' };
   }
   return {
-    title: `${service.name} — 幸運教主 文齡 Keila`,
+    title: `${service.name}｜豐盛之翼學苑`,
     description: service.description,
   };
 }

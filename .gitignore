@@ -7,4 +7,4 @@ next-env.d.ts
 .DS_Store
 
 # 內容來源文案集：僅供本機對照溯源，不上傳到遠端 repo（客戶指示 2026-08-21）
-docs/網站文案集.md
+docs/網站文案集*.md

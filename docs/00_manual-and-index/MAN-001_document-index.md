@@ -18,6 +18,7 @@
 | --- | --- | --- | --- |
 | PRD-001 | [官方文案內容模組化與 Demo 資料移除](../01_product-requirements/PRD-001_official-copy-content-module-and-demo-data-removal.md) | Active | 全站文字內容一律溯源至 `docs/網站文案集.md`；移除《七週遇見對的人》課程產品與臼井靈氣獨立課程頁 |
 | PRD-002 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構](../01_product-requirements/PRD-002_round4-homepage-brand-partner-product-restructure.md) | Ready for Implementation | v1.1：首頁移除 FAQ、新增合作夥伴區塊、服務／培訓拆為兩個總覽頁＋各自獨立詳細頁（含專屬見證、漸層圖片、直覺力併入療癒師認證）、品牌標示統一為「豐盛之翼學苑」、導覽微調 |
+| PRD-003 | [第二次修改——學苑品牌主體、需求分流首頁與資訊架構重整](../01_product-requirements/PRD-003_second-revision-academy-ia-restructure.md) | Ready for Implementation | v1.0：品牌主體為「豐盛之翼學苑」、首頁改需求分流 10 段、導覽加新手入門／媒體專訪／商城、CTA 分流規則；分 A–E 五階段（文案對齊 → UIUX 研究 → 缺口建議書 → 實作 → 轉化驗證） |
 
 ## 02_architecture-and-rules
 
@@ -40,12 +41,14 @@
 | PLN-001 | [官方文案上線執行計畫](../04_execution-plans/PLN-001_official-copy-rollout-execution-plan.md) | Active | Batch A–L 內容批次定義與文案集行號對照 |
 | PLN-002 | [多階段開發、Agent 協作與驗收執行計畫](../04_execution-plans/PLN-002_multi-phase-agent-orchestrated-execution-plan.md) | Active | Phase 0–6 開發階段、三層次驗收法、開發邊界 |
 | PLN-003 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構 執行計畫](../04_execution-plans/PLN-003_round4-execution-plan.md) | ✅ 完成 | Batch A–G 全數完成；`/services`＋`/training` 兩個總覽頁與 17 個獨立詳細頁已上線，驗收見 ACC-002 |
+| PLN-004 | [第二次修改執行計畫](../04_execution-plans/PLN-004_second-revision-execution-plan.md) | In Progress | 階段 A（文案對齊）批次 A0–A8 已完成，含執行紀錄與已知未完成事項；文案集 v2 行號對照；階段 B–E 大綱 |
 
 ## 05_audits-and-reports
 
 | 文件號 | 標題 | 狀態 | 摘要 |
 | --- | --- | --- | --- |
 | AUD-001 | [官方文案 vs. 現行網站盤點](../05_audits-and-reports/AUD-001_official-copy-vs-current-site-audit.md) | Active | 逐頁盤點現行網站與文案集的落差、demo 資料殘留清單 |
+| AUD-002 | [第二次修改需求書＋新版文案集 vs. 現行網站落差稽核](../05_audits-and-reports/AUD-002_second-revision-requirements-and-copy-v2-audit.md) | Active | 需求書（2026-09-19）與文案集 v2（2026-10-04）對現行網站的逐頁落差、v1→v2 文案變動、需求書與文案集衝突、查無出處內容、圖文素材缺口初盤 |
 
 ## 06_research-and-design
 

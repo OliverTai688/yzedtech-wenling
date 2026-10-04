@@ -2,8 +2,7 @@
 // 還是 `/training` 底下的哪個分類，作為總覽頁分組與詳細頁麵包屑判斷依據。
 export type ServiceCategory =
   | 'energy-healing' // /services：能量療癒 8 項
-  | 'theta-training' // /training：希塔療癒認證培訓（thetaTrainingCourses）
-  | 'theta-certification' // /training：希塔療癒認證班（reikiCourses）
+  | 'theta-training' // /training：希塔療癒認證課程（thetaTrainingCourses）
   | 'healer-certification'; // /training：療癒師認證（certificationCourses，含併入的直覺力培訓說明）
 
 export interface Service {
@@ -185,4 +184,55 @@ export interface NavGroup {
   /** 無子項的單一連結（例如「首頁」「預約聯絡」）填 href；有子項則填 items。 */
   href?: string;
   items?: NavItem[];
+}
+
+// --- PRD-003／PLN-004 階段 A ---
+
+// 首頁需求入口卡片（文案集 v2 Home Block 2）。
+export interface NeedEntry {
+  id: string;
+  iconName: 'heart' | 'sparkles' | 'coins' | 'sprout';
+  title: string;
+  painPoint: string;
+  stories: { title: string; text: string }[];
+  startingPoint: string;
+  ctas: { label: string; href: string; external?: boolean }[];
+}
+
+// 媒體專訪（文案集 v2 Home Block 7 與 Media 頁）。
+export interface MediaPublication {
+  id: string;
+  title: string;
+  role: string;
+  description: string;
+  note?: string;
+  link?: { label: string; href: string };
+}
+
+export interface MediaEpisode {
+  title: string;
+  /** 文案集未提供可用連結時留空，元件只顯示標題。 */
+  href?: string;
+  /** 同一節目下的季別分組，例如「2022 S3」。 */
+  group?: string;
+  note?: string;
+  /** 首頁 Block 7 的精選單集。 */
+  featured?: boolean;
+}
+
+export interface MediaShow {
+  id: string;
+  show: string;
+  kind: 'podcast' | 'youtube' | 'facebook';
+  summary?: string;
+  episodes: MediaEpisode[];
+}
+
+// 法律文件（文案集 v2 Privacy Policy／Terms of Service／免責聲明）。
+// blocks 內：字串為段落，字串陣列為條列。
+export interface LegalDocument {
+  id: string;
+  title: string;
+  intro: string;
+  sections: { heading: string; blocks: (string | string[])[] }[];
 }

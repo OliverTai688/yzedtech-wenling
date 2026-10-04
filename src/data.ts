@@ -1,49 +1,48 @@
-import { Service, ReikiCourse, ThetaTrainingCourse, ServiceCategory, Testimonial, BlogPost, FAQItem, ResourceItem, TeamPartner, NavGroup } from './types';
+import { Service, ReikiCourse, ThetaTrainingCourse, ServiceCategory, Testimonial, BlogPost, FAQItem, ResourceItem, TeamPartner, NavGroup, NeedEntry, MediaPublication, MediaShow, LegalDocument } from './types';
 
-// 全站導覽架構（對應 app/ 路由）。Header 的桌機 mega menu／手機選單、以及 Footer
-// 的網站地圖都應該從這裡取用，不要各自寫死一份選單文案，避免兩處導覽長期漂移。
-// 分組方式刻意與 Footer「服務導覽 / 支持與條款」兩欄對齊，讓 Header 與 Footer
-// 呈現同一套網站架構。
-// 2026-08-21（PRD-002 §3.2）：FAQ 從主導覽移除，改由本清單「支持」分組供
-// Footer 網站地圖收錄，維持可被找到但不佔用主導覽空間。
+// 站台連結與聯絡資訊（PRD-003 §4.2）。元件一律引用這裡，不要各自寫死網址。
+// 官方 LINE 依 2026-10-04 決策 D4 統一為 lin.ee/N7QHCND；其餘取自文案集 v2
+// 「網站下方區塊調整」（第 269～308 行）與 Home Block 1（第 115 行）。
+export const siteLinks = {
+  line: 'https://lin.ee/N7QHCND',
+  lineId: '@healer.wenling',
+  shop: 'https://booking.wenling.tw/',
+  // Hero 次 CTA 與各服務頁文案使用的社群短網址（進入密碼 168168）
+  community: 'https://reurl.cc/8DDd1M',
+  // 頁尾文案使用的 LINE 社群直連網址
+  lineCommunity: 'https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA',
+  email: 'lavie@wenling.tw',
+  facebook: 'https://m.me/keila.healing',
+  instagram: 'https://www.instagram.com/keila.healing1491',
+};
+
+// 全站主導覽（PRD-003 §4.3）。Header 的桌機導覽與手機抽屜共用這份資料；
+// 頁尾的分組不同，另見 footerNavigation。顯示名稱依 PRD-003 §2 命名規則。
+// 「療癒與培訓」的「新手入門」待頁面文案到位後再加入（PLN-004 §2）。
+// 「商城」是外部連結按鈕，由 Header／MobileNav 直接引用 siteLinks.shop。
 export const primaryNavigation: NavGroup[] = [
   { id: 'home', label: '首頁', href: '/' },
   {
     id: 'about',
-    label: '關於文齡',
+    label: '關於我們',
     items: [
-      { id: 'about', label: '品牌理念', href: '/about', description: '幸運療癒師文齡的理念與服務初衷' },
-      { id: 'story', label: '故事與學經歷', href: '/story', description: '從商務行銷到能量療癒的蛻變之路' },
+      { id: 'about', label: '品牌理念與學苑體系', href: '/about', description: '品牌理念、方法體系與合作夥伴' },
+      { id: 'story', label: '創辦人介紹', href: '/story', description: '創辦人文齡老師的故事與學經歷' },
     ],
   },
   {
     id: 'services',
     label: '療癒與培訓',
     items: [
-      { id: 'services', label: '核心能量調頻服務', href: '/services', description: '一對一療癒、靈性解讀與工作坊' },
-      // PRD-002 §3.2（2026-08-21）：服務／培訓改為兩個獨立總覽頁，此子項目改指向
-      // 新增的 /training 總覽頁，不再用 /services?tab=xxx 的舊 query 導頁方式。
-      { id: 'theta-training', label: '希塔療癒認證班', href: '/training', description: '國際認證的希塔與靈氣培訓課程' },
+      { id: 'services', label: '全部服務', href: '/services', description: '一對一療癒、團體療癒、祈福與工作坊' },
+      { id: 'training', label: '認證班', href: '/training', description: '希塔療癒與靈氣療癒師認證課程' },
     ],
   },
-  {
-    id: 'community',
-    label: '見證與內容',
-    items: [
-      { id: 'testimonials', label: '真實見證', href: '/testimonials', description: '學員與個案的真實蛻變故事' },
-      { id: 'blog', label: '療癒部落格', href: '/blog', description: '能量保養與自我覺察隨筆' },
-      { id: 'resources', label: '免費資源', href: '/resources', description: '媒體專訪、電子書與音頻素材' },
-    ],
-  },
-  {
-    id: 'support',
-    label: '支持',
-    items: [
-      { id: 'faq', label: '常見問題', href: '/faq', description: '預約流程、方案選擇常見疑問' },
-      { id: 'legal', label: '免責聲明與條款', href: '/legal', description: '服務性質說明與隱私權政策' },
-    ],
-  },
-  { id: 'contact', label: '預約聯絡', href: '/contact' },
+  { id: 'testimonials', label: '客戶見證', href: '/testimonials' },
+  { id: 'media', label: '媒體專訪', href: '/media' },
+  { id: 'blog', label: '部落格', href: '/blog' },
+  { id: 'resources', label: '免費資源', href: '/resources' },
+  { id: 'contact', label: '聯絡我們', href: '/contact' },
 ];
 
 // Phase 2（PLN-001 Batch D）：以下 8 項энергy-healing 服務內容全數依
@@ -143,7 +142,7 @@ export const services: Service[] = [
     ],
     duration: '每場約 3-4 小時',
     ctaText: '加入 LINE 詢問工作坊場次',
-    ctaLink: 'https://lin.ee/yo6a6FW',
+    ctaLink: siteLinks.line,
     iconName: 'Wind',
     category: 'energy-healing',
     testimonialIds: [] // TODO: 待補專屬見證
@@ -272,62 +271,9 @@ export const thetaTrainingCourses: ThetaTrainingCourse[] = [
 // （2026-08-18 使用者確認）移除：不建立可購買/報名的獨立靈氣課程頁，臼井靈氣僅
 // 保留在 About「方法體系」14 項技術表格中作為技術介紹。
 
-// Phase 2（PLN-001 Batch E）：ServicesSection「希塔療癒認證培訓」tab 用的資料，
-// 與 thetaTrainingCourses 內容對應，並補上第 3 門「深度信念挖掘班」（原缺漏）。
-export const reikiCourses: ReikiCourse[] = [
-  {
-    id: 'theta-basic-cert',
-    level: 'beginner',
-    type: 'both',
-    name: '希塔療癒 基礎 DNA 課程 (ThetaHealing®)',
-    objective: '學會連結源頭與高我、感應自己與他人的身心狀態，掌握四個信念層面轉化與顯化練習的完整核心步驟。',
-    targetAudience: '初學者、想學會自我潛意識調頻與改寫命運藍圖者',
-    curriculum: ['希塔波冥想入門與解讀掃描', '四個信念層面轉化', '顯化練習與淨化保護', '靈界連結與 DNA 啟動'],
-    duration: '3 天密集認證（線上/實體同步開班）',
-    badge: '熱門入門必修',
-    ctaLink: 'https://booking.wenling.tw/activities/basicDNA',
-    // 與 thetaTrainingCourses 的 theta-basic 為同一門課程，價格逐字比照文案集
-    // 第 1621-1623 行。
-    price: 'NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）；兩人同行每人折 NT$200，四人團報每人折 NT$500',
-    category: 'theta-certification',
-    testimonialIds: [] // TODO: 待補專屬見證
-  },
-  {
-    id: 'theta-adv-cert',
-    level: 'intermediate',
-    type: 'both',
-    name: '希塔療癒 進階 DNA 課程 (Advanced DNA)',
-    objective: '透過 3R 深度挖掘徹底拔除怨恨、後悔、被拒絕三大深層阻礙，下載數百種深層正面情感，加速顯化效率。',
-    targetAudience: '已完成基礎 DNA、渴望加速自我轉化與修補心輪者',
-    curriculum: ['3R 深度挖掘：怨恨、後悔、被拒絕', '1 秒下載法與七界連結', '淨化水晶／土地／空間', '時間感調整與萬物祝福'],
-    duration: '18 小時以上（線上/實體）',
-    badge: '深層蛻變推薦',
-    ctaLink: 'https://booking.wenling.tw/activities/advanced_DNA',
-    // 與 thetaTrainingCourses 的 theta-advanced-dna 為同一門課程，價格逐字比照
-    // 文案集第 1697-1699 行。
-    price: '單堂 NT$ 20,000；2 人同行每人折 NT$200，4 人團報每人折 NT$500',
-    category: 'theta-certification',
-    testimonialIds: [] // TODO: 待補專屬見證
-  },
-  {
-    id: 'theta-dig-deeper-cert',
-    level: 'advanced',
-    type: 'both',
-    name: '希塔療癒 深度信念挖掘班 (Digging Deeper)',
-    objective: '掌握 10 大深度信念挖掘技術，精準直達潛意識根源，是希塔療癒中最核心、最實用的精華課程。',
-    targetAudience: '想成為專業執業療癒師、或在信念清理上遇到瓶頸者',
-    curriculum: ['10 大深度信念挖掘技術', '疾病／遺傳層／歷史層挖掘', '誓言挖掘與感覺切入（Keila 獨家補充）', '常態約課制，1 人即可開課'],
-    duration: '4-5 日（含午休 1 小時）',
-    badge: '先修：基礎＋進階班',
-    ctaLink: 'https://booking.wenling.tw/activities/digdeeper',
-    prerequisite: '需完成希塔療癒基礎班與進階班',
-    // 與 thetaTrainingCourses 的 theta-dig-deeper 為同一門課程，價格逐字比照
-    // 文案集第 1782-1784 行。
-    price: '單堂 NT$ 20,000（支持刷卡、分期）；2 人合報／複訓每人另折 NT$200，4 人團報／複訓每人另折 NT$500',
-    category: 'theta-certification',
-    testimonialIds: [] // TODO: 待補專屬見證
-  }
-];
+// PRD-003 §4.5（PLN-004 Batch A5，2026-10-04）：原 `reikiCourses` 與上方
+// `thetaTrainingCourses` 是同一批希塔課程的兩份資料，已併入後者；舊詳細頁
+// `/training/theta-*-cert` 由 next.config.js 轉址到對應的 `/training/theta-*`。
 
 // Phase 2（PLN-001 Batch F）：ServicesSection「專業證照與直覺力培訓」tab 用的資料，
 // 內容依 docs/網站文案集.md 1824-2196 行（金錢靈氣／愛情靈氣證照／人魚靈氣證照）
@@ -401,7 +347,7 @@ export const healerCertificationAddOn = {
   targetAudience: '曾在某個瞬間準確預感到即將發生的事、想開發與生俱來直覺力者',
   note: '課程大綱製作中，內容將依官方文案更新',
   status: 'coming-soon' as const,
-  ctaLink: 'https://lin.ee/yo6a6FW'
+  ctaLink: siteLinks.line
 };
 
 // PRD-002 §3.4（Batch F，2026-08-21）：首頁與其他站內呼叫點過去都是用
@@ -414,7 +360,6 @@ export function resolveOfferingHref(id: string): string {
   const allOfferings: { id: string; category: ServiceCategory }[] = [
     ...services,
     ...thetaTrainingCourses,
-    ...reikiCourses,
     ...certificationCourses,
   ];
   const match = allOfferings.find((item) => item.id === id);
@@ -712,7 +657,7 @@ export const resources: ResourceItem[] = [
     description: '每週一晚間 21:30–22:30，文齡老師於社群內舉辦免費公益體驗直播，帶你實際感受能量練習與希塔療癒的應用，參與還有機會獲得專屬小禮物。',
     targetAudience: '想先免費體驗能量療癒、還在觀望哪一項服務適合自己者。',
     ctaText: '查看直播社群資訊',
-    ctaLink: 'https://reurl.cc/8DDd1M'
+    ctaLink: siteLinks.community
   },
   {
     id: 'res-2',
@@ -722,7 +667,7 @@ export const resources: ResourceItem[] = [
     description: '每天充滿正能量分享的免費社群，帶著願望進來，也帶著好消息出去。進入社群需輸入密碼 168168。',
     targetAudience: '渴望在身心靈路上有溫暖夥伴陪伴、想獲得第一手活動與直播資訊者。',
     ctaText: '點我加入免費社群',
-    ctaLink: 'https://reurl.cc/8DDd1M'
+    ctaLink: siteLinks.community
   },
   {
     id: 'res-3',
@@ -732,21 +677,9 @@ export const resources: ResourceItem[] = [
     description: '透過官方 LINE 帳號即時發問、預約各項服務，並掌握最新開班與活動情報。',
     targetAudience: '想直接預約服務、或有課程開班時程疑問者。',
     ctaText: '點我加入 LINE 官方帳號',
-    ctaLink: 'https://lin.ee/yo6a6FW'
-  },
-  {
-    id: 'res-4',
-    title: '【媒體專訪】Podcast 與 YouTube 訪談精選',
-    type: 'audio',
-    typeName: '免費收聽／觀看',
-    description: '文齡老師受邀於美麗佳人、好女人的情場攻略、迷人說等多個知名 Podcast 與 YouTube 頻道分享蛻變故事與專業觀點。',
-    targetAudience: '想更了解文齡老師的理念與真實故事者。',
-    ctaText: '前往首頁媒體專訪區塊',
-    // 注意：MediaSection 目前只掛載在首頁（見 app/HomeClientPage.tsx），沒有獨立的 /media 路由，
-    // 直接連到 '/media' 會 404（本輪瀏覽器視覺 QA 掃描發現）。改為錨點連結首頁的
-    // <section id="media-section">。
-    ctaLink: '/#media-section'
+    ctaLink: siteLinks.line
   }
+  // PRD-003 §4.7：原第 4 筆「媒體專訪」已移至獨立的 /media 頁，免費資源不再放媒體內容。
 ];
 
 // 依文案集「▍ 方法體系：專業療癒與顯化技術總覽 (Methodology)」表格（第 346～367 行）逐項轉錄，
@@ -795,10 +728,588 @@ export const teamPartners: TeamPartner[] = [
   }
 ];
 
-export const partnerLogos = [
-  { name: '《七週遇見對的人》暢銷著作', type: 'book' },
-  { name: '幸運療癒之聲 Podcast', type: 'podcast' },
-  { name: '各大企業身心靈減壓 講座合作', type: 'lecture' },
-  { name: '希塔與靈氣 國際認證導師資格', type: 'certification' },
-  { name: '身心靈推廣協會 專訪報導', type: 'media' }
+// ─────────────────────────────────────────────────────────────────────────
+// PRD-003／PLN-004 階段 A（2026-10-04）：以下內容依文案集 v2 轉錄。
+// 行號指 docs/網站文案集.md（v2）；更早註解裡的行號是 v1（docs/網站文案集.v1.md）。
+// ─────────────────────────────────────────────────────────────────────────
+
+// Home Block 1｜Hero（文案集 v2 第 110～119 行）
+export const heroContent = {
+  eyebrow: '成為你豐盛之路上的翅膀',
+  headlineLines: ['為你的人生開外掛！', '許願成真，就是這麼幸福。'],
+  description:
+    '豐盛之翼學苑旨在成為大家豐盛之路上的翅膀。無論你正期盼感情的順遂、財富的自由，或是生活的全面好運，我們將透過最白話、最落地的靈性工具，陪你解開內在卡點。讓你從此不再迷惘，活出充滿熱情與使命的幸運人生！',
+  primaryCta: { label: '從這裡，開始我的改變', href: '#personas-section' },
+  secondaryCta: { label: '加入免費體驗社群：密碼168168', href: siteLinks.community },
+  trustBadges: [
+    '《七週遇見對的人》暢銷書推薦序作者',
+    '500+個案經驗',
+    '整合14種以上顯化技術，助你掌握受用一輩子的工具',
+  ],
+  portraitCaption: '豐盛之翼學苑創辦人 幸運教主文齡 Keila',
+};
+
+// Home Block 2｜Persona 快速入口（文案集 v2 第 121～158 行）。
+// 文案集的 CTA 都沒有填連結，href 依 CTA 文字對應站內詳細頁（AUD-002 §5.1）；
+// 「看練愛大確幸介紹」站內無對應頁，依 PRD-003 §4.9 規則 1 導向商城商品頁。
+// 案例中的金額與成果數字依決策 D5 先照文案集上線，待行政確認。
+export const needEntriesIntro = {
+  heading: '為不同階段的你，量身規劃專屬的改變起點',
+  description:
+    '身心靈療癒不是迷信，而是幫你的大腦「重新開機、清除雜訊」。不論你處在哪個人生階段，幸運教主文齡 Keila 都為你準備了最理性、安心且溫和的改變地圖。',
+};
+
+export const needEntries: NeedEntry[] = [
+  {
+    id: 'family',
+    iconName: 'heart',
+    title: '家庭與孩子守護',
+    painPoint:
+      '「每天為孩子的課業、情緒操碎了心，還要面對另一半或長輩的壓力。多渴望家裡和睦順利，孩子自動自發，自己也能好好睡個好覺。」',
+    stories: [
+      {
+        title: '媽媽的定心丸',
+        text: '孩子原本對讀書沒動力、人際卡關，媽媽幫他遠距預約「人生推進器」祝福後，孩子明顯變得積極，不僅主動分享心事，還說出未來想出國唸書的目標！',
+      },
+      {
+        title: '婆媳與夫妻和解',
+        text: '面臨極大婆媳壓力的媳婦，為婆婆預約「靈性按摩」清理身心壓力後，婆婆不再把情緒發洩在她身上；也有先生幫容易爆炸的太太預約，兩人終於能心平氣和地好好說話。',
+      },
+    ],
+    startingPoint: '為辛勞的你提供最深度的安定感。當媽媽的心安定了，整個家就會迎來最溫柔的和諧。',
+    ctas: [
+      { label: '了解人生推進器', href: '/services/group-healing' },
+      { label: '看靈性按摩介紹', href: '/services/spiritual-massage' },
+    ],
+  },
+  {
+    id: 'love',
+    iconName: 'sparkles',
+    title: '幸福真愛與伴侶',
+    painPoint:
+      '「母胎單身、總是遇不到對的人，或是一再陷入『不斷付出卻受傷』的感情舊模式？到底哪裡出了錯，我也想被好好疼愛啊！」',
+    stories: [
+      {
+        title: '母胎單身逆襲',
+        text: '透過心靈引渡人一對一對談，精準找出內心深處「害怕受傷」的愛情盲點。母胎單身的女孩成功告白，現在已經順利結婚生子！',
+      },
+      {
+        title: '打破爛桃花循環',
+        text: '透過練愛大確幸專屬課程陪跑，清空過去的感情包袱。不再委曲求全，活出自信閃耀的自己，順利吸引到真正懂你、疼你的另一半。',
+      },
+    ],
+    startingPoint: '幫助你重新愛上自己，拔除感情裡的「有毒習慣」。這是一段溫暖陪伴的旅程，幫你打開心房，遇見真正適合你的人。',
+    ctas: [
+      { label: '了解心靈引渡人', href: '/services/personal-1on1' },
+      { label: '看練愛大確幸介紹', href: 'https://booking.wenling.tw/products/love365', external: true },
+    ],
+  },
+  {
+    id: 'business',
+    iconName: 'coins',
+    title: '企業求財與事業突破',
+    painPoint:
+      '「身處商場高壓，每天焦慮到不行。面臨業績停滯、找不到神隊友員工，或是投資決策卡關，多渴望能有一股推力，讓財富與事業全面大爆發！」',
+    stories: [
+      {
+        title: '投資人與老闆的神助攻',
+        text: '透過豐盛靈氣清理掉「金錢阻礙」後，退休媽媽的股票從虧損 50 萬逆轉正，有操盤手突破個人最高獲利兩千萬！企業主也順利招募到心目中的神隊友員工。',
+      },
+      {
+        title: '業績翻倍超順利',
+        text: '珠寶店使用煙供祈福，順利打破長期的業績停滯期，創造每月穩定達到200萬元以上的業績。',
+      },
+    ],
+    startingPoint: '為老闆、創業家、業務員與投資者提供專屬的開運助攻，讓好運與業績自動找上門！',
+    ctas: [
+      { label: '了解豐盛靈氣', href: '/services/abundance-reiki' },
+      { label: '看煙供祈福介紹', href: '/services/smoke-prayer' },
+    ],
+  },
+  {
+    id: 'starter',
+    iconName: 'sprout',
+    title: '開啟身心靈事業 (新手入門)',
+    painPoint:
+      '「對身心靈充滿好奇，想找個簡單實用的方法解決自己的煩惱；或是想多一份副業收入，卻不知道從哪裡開始最快賺到錢？」',
+    stories: [
+      {
+        title: '占卜師專業大升級',
+        text: '塔羅牌占卜師學習希塔療癒後，從「只能給建議」變成「能實際幫客戶解決困擾」，收費價值大幅提升，開拓出全新的賺錢方向。',
+      },
+      {
+        title: '零基礎小白無痛增加收入',
+        text: '完全沒有身心靈背景的上班族，學完簡單易懂的金錢靈氣後，開始穩定接案增加收入，甚至能自己開課賺錢，打造完美副業！',
+      },
+    ],
+    startingPoint: '不論是想療癒自己，還是想發展高收入的第二專長，這裡有最簡單、零門檻的教學，帶你把所學變成實際的收入。',
+    ctas: [
+      { label: '了解希塔療癒', href: '/training/theta-basic' },
+      { label: '看金錢靈氣課介紹', href: '/training/money-reiki-cert' },
+    ],
+  },
+];
+
+// Home Block 7｜媒體與出版（文案集 v2 第 230～268 行）與 Media 頁（第 1488～1575 行）。
+// 連結規則（PRD-003 §4.7）：文案集有顯示原始網址者用原始網址；只有內嵌在標題上的
+// 連結者照內嵌連結（多為 Wayback 存檔）；原始網址已失效者改用文案集內嵌的替代連結。
+// 同一集在 Block 7 與 Media 頁連結不同時，採 Block 7（較新、非存檔）的連結。
+// featured 為首頁 Block 7 的精選單集。
+export const mediaIntro = {
+  label: '媒體專訪與出版紀錄',
+  heading: '幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享',
+  description:
+    '以下為幸運教主文齡 Keila公開可查證的出版與媒體受訪紀錄，用最落地的經驗，陪你走過感情與人生的每個卡關。',
+};
+
+export const mediaPublications: MediaPublication[] = [
+  {
+    id: 'pub-seven-weeks',
+    title: '七週遇見對的人',
+    role: '暢銷書改版唯一推薦序作者',
+    description:
+      '受邀為經典暢銷書撰寫推薦序，幸運教主文齡 Keila帶領本書讀書會超過10年、幫助破百名學員的深厚實務經驗，已成功陪伴無數學員走過低潮，順利脫單、結婚生子，活出自己最美好的樣子。',
+    link: { label: '博客來購書連結', href: 'https://www.books.com.tw/products/0010917426' },
+  },
+  {
+    id: 'pub-love365',
+    title: '練愛大確幸',
+    role: '個人著作・實作手帳',
+    description:
+      '將多年協助個案走過失戀與感情卡關的實務心法，淬鍊成這本專屬的幸福手帳。不只分享改變人生的實作方法，更錄製52則療癒音檔，成為你每天都能輕鬆參與的小練習！',
+    link: { label: '購買連結', href: 'https://booking.wenling.tw/products/love365' },
+  },
+  {
+    id: 'pub-good-woman',
+    title: '好女人的情場攻略',
+    role: '節目合作／內容參與',
+    description:
+      '多次受邀參與節目錄製，並為同名暢銷書的戀愛專家群，分享感情經營與自我價值提升。用最白話的方式，解開你的愛情盲點。',
+    note: '曾創下 2022 年度收聽冠軍、2024 前十名！',
+    link: { label: '下方收聽 Podcast 精選單集', href: '#media-podcasts' },
+  },
+];
+
+const WAYBACK = 'https://web.archive.org/web/20250518033113/';
+const GOOD_WOMAN_S1 = 'https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/';
+const MARIE_CLAIRE = 'https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/';
+const HAPPINESS_APPLE =
+  'https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=';
+
+export const mediaShows: MediaShow[] = [
+  {
+    id: 'marie-claire',
+    show: '美麗佳人 Podcast',
+    kind: 'podcast',
+    summary: '多集專訪，分享希塔療癒與失戀急診等主題',
+    episodes: [
+      { title: 'S2EP29＃情慾瑪麗｜失戀急診:希塔療癒Ft.療癒師文齡 (上)', href: `${MARIE_CLAIRE}65751f59-2024-41a0-b890-335b2f0780d3` },
+      { title: 'S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)', href: `${WAYBACK}${MARIE_CLAIRE}78189391-fc1e-409f-807f-b01ca6cd9f2d` },
+      { title: 'S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)', href: `${WAYBACK}${MARIE_CLAIRE}9a4466ab-0dc5-43b6-accb-d7893cd35906` },
+      { title: 'S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛', href: 'https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw', featured: true },
+    ],
+  },
+  {
+    id: 'good-woman',
+    show: '好女人的情場攻略 Podcast',
+    kind: 'podcast',
+    summary: '長期合作來賓，2022 年收聽數冠軍、2024 年前十名',
+    episodes: [
+      { group: '2020 S1', title: 'ep95設好日期脫單術', href: `${GOOD_WOMAN_S1}c0f3494c-b283-4c9a-b44e-14955deb0a6f` },
+      { group: '2020 S1', title: 'ep96清理過去，迎接美好愛情', href: `${GOOD_WOMAN_S1}408ef22a-dce0-43ce-8fec-4077be82d06c` },
+      { group: '2020 S1', title: 'ep97愛情也需要設定目標', href: `${GOOD_WOMAN_S1}f385a9c6-d6ee-4d3a-ba31-b14e956c753f` },
+      { group: '2020 S1', title: 'ep98開啟百人約會計劃', href: `${GOOD_WOMAN_S1}cc451cc7-020e-42f2-ace0-e116233315d6` },
+      { group: '2020 S1', title: 'ep99七週遇見對的人讀書會', href: `${GOOD_WOMAN_S1}f7a796df-c7b0-4505-b23a-246af8aa28ad` },
+      { group: '2022 S3', title: 'Ep.099｜失戀急救箱：加速放下前任的五個療癒方法！', href: 'https://open.firstory.me/story/cl4l13gnv017h01ygfl3r13t9' },
+      { group: '2022 S3', title: 'Ep.100｜醒醒吧！你總是在愛情裡鬼打牆？這集請務必服用！', href: 'https://open.firstory.me/story/cl4nviaac007d01zteuj47jnl' },
+      { group: '2022 S3', title: 'Ep.101｜你知道嗎？有形無形的「約定」正阻礙你遇到理想型？', href: 'https://open.firstory.me/story/cl4pg3yez001001wa9q14ezlp' },
+      { group: '2022 S3', title: 'Ep.102｜你的擇偶條件是什麼? 你是嚮往愛情，還是愛上對方?', href: 'https://open.firstory.me/story/cl4qqoi9800ni01zy6o8lhtc7' },
+      { group: '2022 S3', title: 'Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！', href: 'https://open.firstory.me/story/cl4vg6oez001d01t99rpi2bwd', note: '2022年收聽冠軍單集', featured: true },
+      { group: '2024 S5', title: 'Ep.005｜【鏡子練習】用肯定句創造理想人生', href: 'https://open.firstory.me/story/clr4bn1gi030i01tzcvvsboco' },
+      { group: '2024 S5', title: 'Ep.006｜七週遇見對的人 【理想伴侶訂單】秘技來了', href: 'https://open.firstory.me/story/clr4bnw3103kw01wv9xdkcala' },
+      { group: '2024 S5', title: 'Ep.007｜【靈魂伴侶】真的存在嗎？什麼是【雙生火焰】?', href: 'https://open.firstory.me/story/clr759oav00x301w1dlypg1w1' },
+      { group: '2024 S5', title: 'Ep.008｜【分手失戀】挽回感情的復合攻略是?', href: 'https://open.firstory.me/story/clr75al6200zp01x3evigd7h9' },
+    ],
+  },
+  {
+    id: 'charming-talk',
+    show: '迷人說 Podcast',
+    kind: 'podcast',
+    episodes: [
+      { title: '迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯', href: `${WAYBACK}https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1` },
+    ],
+  },
+  {
+    id: 'happiness-study',
+    show: '小紀老師的幸福學 Podcast',
+    kind: 'podcast',
+    episodes: [
+      { title: 'Ep.161 l 打造幸運體質', href: `${WAYBACK}${HAPPINESS_APPLE}1000591850026` },
+      { title: 'Ep.162 l 如何創造貴人', href: `${WAYBACK}${HAPPINESS_APPLE}1000591959880` },
+      { title: 'Ep.163 l 如何成為金錢磁鐵', href: 'https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229', featured: true },
+      { title: 'Ep.164 l 如何吸引好桃花', href: `${WAYBACK}${HAPPINESS_APPLE}1000592527540` },
+      { title: 'Ep.165 l 心想事成許願法', href: `${WAYBACK}${HAPPINESS_APPLE}1000592780746` },
+    ],
+  },
+  {
+    id: 'pink-hell',
+    show: '粉紅地獄辛辣麵 Podcast',
+    kind: 'podcast',
+    episodes: [
+      { title: 'S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！', href: 'https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d', featured: true },
+      { title: 'S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！', href: `${WAYBACK}https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6` },
+    ],
+  },
+  {
+    id: 'heart-talk',
+    show: '談芯時刻',
+    kind: 'podcast',
+    episodes: [
+      { title: 'Ep.246 Stop！停止被潛意識綁架，希塔療癒破除你的限制信念_feat.幸運療癒師文齡 Keila', href: `${WAYBACK}https://chuchu.firstory.io/episodes/clyimzld608pu01zsar0sedw3` },
+      // 例外：文案集 Media 頁顯示的原始網址在 chuchu.firstory.io，該網域已無法解析
+      // （2026-10-04 查為 NXDOMAIN）。Ep.246 改用文案集內嵌的 Wayback 存檔連結，
+      // Ep.282 改用文案集 Block 7 內嵌的 YouTube 連結。
+      { title: 'Ep.282【談芯時刻】生活卡關了嗎？一起來做個脈輪健檢吧！ _feat.幸運療癒師 文齡 Keila', href: 'https://youtu.be/gyfw264Gxwo?si=N3lgDii1Bs2nLpy5', featured: true },
+    ],
+  },
+  {
+    id: 'theta-fun',
+    show: '希塔好好玩 YouTube 直播訪談',
+    kind: 'youtube',
+    episodes: [
+      { title: '如何顯化靈魂伴侶及成為專職療癒師💕', href: 'https://www.youtube.com/watch?v=XIbfVMbPqLA', featured: true },
+    ],
+  },
+  {
+    id: 'love-chat',
+    show: '戀愛潛聊室 YouTube 直播訪談',
+    kind: 'youtube',
+    episodes: [
+      { title: '《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師', href: `${WAYBACK}https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq` },
+      { title: '分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師', href: `${WAYBACK}https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb` },
+    ],
+  },
+  {
+    id: 'island-day',
+    show: '小島好日 YouTube 直播訪談',
+    kind: 'youtube',
+    episodes: [
+      { title: '單身的你，如何尋找對的另一半', href: `${WAYBACK}https://www.youtube.com/watch?v=wwv1UPc1EyA` },
+    ],
+  },
+  {
+    id: 'co-cooking',
+    show: '共煮生活實驗室 YouTube 直播訪談',
+    kind: 'youtube',
+    episodes: [
+      // 文案集此集的內嵌連結與「小島好日」同一支影片，疑為誤植，先不放連結（待客戶確認）。
+      { title: '如何成功招桃花' },
+    ],
+  },
+  {
+    id: 'zen-life',
+    show: '禪生活的108問 Facebook 直播',
+    kind: 'facebook',
+    episodes: [
+      { title: '教你如何變幸運', href: 'https://www.facebook.com/ZenLifeWithYou/videos/797426094675119' },
+    ],
+  },
+];
+
+// 文案集 v2 Block 7「官方授權認證資歷與合作機構」（第 265～268 行）。
+export const mediaPartners: string[] = [
+  '暢銷著作合作《七週遇見對的人》《好女人的情場攻略》',
+  '愛山林集團、One&Co商務中心、大誠保險經紀人特邀講師',
+  '美國 THINK 官方希塔療癒認證導師',
+];
+
+// 文案集 v2「網站下方區塊調整」（第 269～308 行）。導覽文字依 PRD-003 §2 命名規則
+// （全部服務／認證班／客戶見證／部落格）。「新手入門」待頁面文案到位後再加入。
+export const footerContent = {
+  tagline:
+    '用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。',
+  status: '全球線上遠距服務',
+  shopLabel: '訂購商品、服務或課程',
+  contactHeading: '官方聯繫與諮詢管道',
+  contactIntro: '企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：',
+  communityNote: '輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）',
+  // 文案集 sitemap 註記「Footer 免責聲明」（第 105 行）但未附文字；內文取自
+  // Home Block 8 Q6 的回答（第 323 行）。
+  disclaimerHeading: '免責聲明',
+  disclaimer:
+    '所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。',
+};
+
+export const footerNavigation: NavGroup[] = [
+  {
+    id: 'about',
+    label: '關於豐盛之翼學苑',
+    items: [
+      { id: 'about', label: '品牌理念', href: '/about' },
+      { id: 'story', label: '創辦人經歷與故事', href: '/story' },
+      { id: 'partners', label: '合作夥伴', href: '/about#partners' },
+    ],
+  },
+  {
+    id: 'services',
+    label: '療癒與培訓',
+    items: [
+      { id: 'services', label: '全部服務', href: '/services' },
+      { id: 'training', label: '認證班', href: '/training' },
+    ],
+  },
+  {
+    id: 'community',
+    label: '見證與實用內容',
+    items: [
+      { id: 'testimonials', label: '客戶見證', href: '/testimonials' },
+      { id: 'blog', label: '部落格', href: '/blog' },
+      { id: 'resources', label: '免費資源', href: '/resources' },
+      { id: 'media', label: '媒體專訪', href: '/media' },
+    ],
+  },
+];
+
+// PRD-003 §4.14（PLN-004 Batch A6）：/legal 改用文案集 v2 的《隱私權政策》（第 1589 行起）、
+// 《服務條款》（第 1617 行起）與《免責聲明》（第 1684 行起）全文。以下內容由
+// 文案集逐段轉錄，未改寫；blocks 內字串為段落、字串陣列為條列。
+export const legalDocuments: LegalDocument[] = [
+  {
+    "id": "disclaimer",
+    "title": "網站服務與課程免責聲明",
+    "intro": "歡迎您使用本網站/平台之服務。在您報名課程、預約諮詢或使用本平台任何服務之前，請務必詳細閱讀以下聲明。當您使用本平台服務，即表示您已充分理解並同意以下條款：",
+    "sections": [
+      {
+        "heading": "1. 服務目的與範圍",
+        "blocks": [
+          "本平台提供之課程、示範掃描解讀、一對一諮詢、練習會、講座及相關能量療癒服務與商品，其主要目的為激勵並協助學員探索、學習與擴展健康的情緒與靈性知識，進而為自己、家人或顧客提供促進身心平衡的選擇參考。"
+        ]
+      },
+      {
+        "heading": "2. 非醫療與專業意見替代聲明",
+        "blocks": [
+          "本平台所提供之所有課程、療癒與相關服務內容，均不構成醫療、心理治療、法律、財務或其他專業意見，亦不得取代專業合格醫師之診斷、建議或治療。若您有任何身體、心理或其他醫學上被視為需進行醫療照護之情形，請務必尋求專業合格的醫師、醫療人員或心理諮商師之協助。請勿因本平台之部分資訊或課程內容而延誤就醫、停止治療、忽略專業醫療建議，或中斷必要的醫療措施。"
+        ]
+      },
+      {
+        "heading": "3. 產品與療效聲明免責",
+        "blocks": [
+          "本平台服務過程（含諮詢、能量療癒、解讀）及課程中提及之任何食品、營養補充品、配方、精油或可能授予健康益處等相關陳述或聲明，均未經食品藥物管理署（FDA / TFDA）評估，亦非用於疾病的診斷、療癒、照顧或預防。相關資訊僅供參考，絕不應作為醫療診斷、治療或疾病預防之依據。"
+        ]
+      },
+      {
+        "heading": "4. 學習成效與結果不保證",
+        "blocks": [
+          "本平台之所有課程、練習會、講座、療癒、解讀、諮詢與顧問服務，均僅供學習與參考之用，不保證任何健康、關係、財富、收入或其他特定結果。每位學員因個人背景、身心狀態、學習體驗、實際運用程度及其他客觀因素不同，因此本單位不保證每位學員使用服務後之成效。本平台無須承擔學員因運用相關內容所衍生之任何法律責任。"
+        ]
+      },
+      {
+        "heading": "5. 個人風險承擔與特殊身心狀況聲明",
+        "blocks": [
+          "學員應自行評估自身身心狀況是否適合參加本平台之課程及相關活動。課程與活動後、掃描解讀、個案諮詢之成效，以及懷孕期間仍選擇參加潛意識挖掘活動或其他課程者，所產生的一切結果與影響，均由學員/個案自行評估風險並承擔，本單位概不負責。學員對於因參加課程、運用課程內容及個人決定所產生的一切結果與責任，須由個人完全承擔。"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "privacy",
+    "title": "隱私權政策",
+    "intro": "歡迎您光臨豐盛之翼學苑（以下簡稱本網站），為了讓您能夠安心的使用本網站的各項服務與資訊，特此向您說明本網站的隱私權政策，以保障您的權益，請您詳閱下列內容：",
+    "sections": [
+      {
+        "heading": "一、隱私權政策的適用範圍",
+        "blocks": [
+          "隱私權政策內容，包括本網站如何處理在您使用網站服務時收集到的個人識別資料。隱私權政策不適用於本網站以外的相關連結網站，也不適用於非本網站所委託或參與管理的人員。"
+        ]
+      },
+      {
+        "heading": "二、個人資料的蒐集、處理及利用方式",
+        "blocks": [
+          [
+            "當您造訪本網站或使用本網站所提供之功能服務時，我們將視該服務功能性質，請您提供必要的個人資料，並在該特定目的範圍內處理及利用您的個人資料；非經您書面同意，本網站不會將個人資料用於其他用途。",
+            "本網站在您使用服務信箱、問卷調查等互動性功能時，會保留您所提供的姓名、電子郵件地址、聯絡方式及使用時間等。",
+            "於一般瀏覽時，伺服器會自行記錄相關行徑，包括您使用連線設備的IP位址、使用時間、使用的瀏覽器、瀏覽及點選資料記錄等，做為我們增進網站服務的參考依據，此記錄為內部應用，決不對外公佈。",
+            "為提供精確的服務，我們會將收集的問卷調查內容進行統計與分析，分析結果之統計數據或說明文字呈現，除供內部研究外，我們會視需要公佈統計數據及說明文字，但不涉及特定個人之資料。"
+          ]
+        ]
+      },
+      {
+        "heading": "三、資料之保護",
+        "blocks": [
+          [
+            "本網站主機均設有防火牆、防毒系統等相關的各項資訊安全設備及必要的安全防護措施，加以保護網站及您的個人資料採用嚴格的保護措施，只由經過授權的人員才能接觸您的個人資料。",
+            "如因業務需要有必要委託其他單位提供服務時，本網站亦會嚴格要求其遵守保密義務，並且採取必要檢查程序以確定其將確實遵守。"
+          ]
+        ]
+      },
+      {
+        "heading": "四、網網站對外的相關連結",
+        "blocks": [
+          "本網站的網頁提供其他網站的網路連結，您也可經由本網站所提供的連結，點選進入其他網站。但該連結網站不適用本網站的隱私權政策，您必須參考該連結網站中的隱私權政策。"
+        ]
+      },
+      {
+        "heading": "五、與第三人共用個人資料之政策",
+        "blocks": [
+          "本網站絕不會提供、交換、出租或出售任何您的個人資料給其他個人、團體、私人企業或公務機關，但有法律依據或合約義務者，不在此限。前項但書之情形包括不限於：",
+          [
+            "經由您書面同意。",
+            "法律明文規定。",
+            "為免除您生命、身體、自由或財產上之危險。",
+            "與公務機關或學術研究機構合作，基於公共利益為統計或學術研究而有必要，且資料經過提供者處理或蒐集者依其揭露方式無從識別特定之當事人。",
+            "當您在網站的行為，違反服務條款或可能損害或妨礙網站與其他使用者權益或導致任何人遭受損害時，經網站管理單位研析揭露您的個人資料是為了辨識、聯絡或採取法律行動所必要者。",
+            "有利於您的權益。",
+            "本網站委託廠商協助蒐集、處理或利用您的個人資料時，將對委外廠商或個人善盡監督管理之責。"
+          ]
+        ]
+      },
+      {
+        "heading": "六、Cookie 之使用",
+        "blocks": [
+          "為了提供您最佳的服務，本網站會在您的電腦中放置並取用我們的 Cookie，若您不願接受 Cookie 的寫入，您可在您使用的瀏覽器功能項中設定隱私權等級為高，即可拒絕 Cookie 的寫入，但可能會導致網站某些功能無法正常執行 。"
+        ]
+      },
+      {
+        "heading": "七、隱私權政策之修正",
+        "blocks": [
+          "本網站隱私權政策將因應需求隨時進行修正，修正後的條款將刊登於網站上。"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "terms",
+    "title": "服務條款",
+    "intro": "當您開始使用豐盛之翼學苑（以下簡稱本網站），即表示您已閱讀、瞭解並同意接受本服務條款。如果您不同意接受本服務條款，即無法使用豐盛之翼學苑提供的服務。",
+    "sections": [
+      {
+        "heading": "一、會員服務條款",
+        "blocks": [
+          [
+            "本會員服務條款所稱之「會員」，為依照本網站所定之加入會員程序加入完成並通過認證者。",
+            "當您使用本網站服務時，即表示您同意及遵守本服務條款的規定事項及相關法律之規定。",
+            "本網站保留有審核加入會員資格之權利，另外已加入會員者，本網站亦保留有解除其會員資格之權利。",
+            "本會員服務條款之修訂，適用於所有會員，當本網站修訂本服務條款時，將於本網站上公告。"
+          ]
+        ]
+      },
+      {
+        "heading": "二、會員",
+        "blocks": [
+          [
+            "使用本網站所提供之會員服務時，於加入會員時所登錄之帳號及密碼使用之。",
+            "會員須善盡帳號及密碼的使用與管理之責任。對於使用該會員之帳號及密碼（無關於會員本身或其他人）利用本網站服務所造成或衍生之所有行為及結果，會員須自行負擔全部責任。",
+            "會員之帳號及密碼遺失，或發現無故遭第三者盜用時，應立即通知本網站連絡掛失，因未即時通知，導致本網站無法有效防止及修改時，所造成的所有損失，會員應自負全責。",
+            "每次結束使用本服務，執行會員之登出並關閉視窗，以確保您的會員權益。",
+            "盜用第三者會員之帳號及密碼，導致第三者或本公司遭其他第三人或行政機關之調查或追訴時，第三者會員或本公司有權向您請求損害賠償，包括但不限於訴訟費用、律師費及商譽損失等。"
+          ]
+        ]
+      },
+      {
+        "heading": "三、會員登錄資料",
+        "blocks": [
+          [
+            "會員登錄資料須提供您本人正確、最新及完整的資料。",
+            "會員登錄資料不得有偽造、不實等之情事（例如：個人資料及信用卡資料），一經發現本公司可拒絕其加入會員資格之權利。並得以暫停或終止其會員資格，若違反中華民國相關法律，亦將依法追究。",
+            "會員基本資料（例如：住址、電話及其他登錄資料）有變更時，請不定期更新相關個人資料，確保其正確及完整性。若您提供的資料有錯誤或不符等現象，本網站有權暫停或終止您的帳號，並拒絕您繼續使用本服務。",
+            "未經會員本人同意，本公司原則上不會將涉及個人隱私之資料開示給第三者，唯資料共用原則...等不在此限。",
+            "會員應妥善保管密碼，不可將密碼洩露或提供給他人知道或使用；以同一個會員身分證字號和密碼使用本服務所進行的所有行為，都將被認為是該會員本人和密碼持有人的行為。",
+            "會員如果發現或懷疑有第三人使用其會員身分證字號或密碼，應該立即通知本公司，採取必要的必要的防範措施。但上述通知不得解釋為本公司對會員負有任何形式之賠償或補償之責任或義務。"
+          ]
+        ]
+      },
+      {
+        "heading": "四、使用行為",
+        "blocks": [
+          [
+            "您使用本服務之一切行為必須符合當地或國際相關法令規範；對於使用者的一切行為，您須自行負擔全部責任。",
+            "您同意絕不為非法之目的或以非法方式使用本服務，與確實遵守中華民國相關法規及網際網路之國際慣例，並保證不得利用本服務從事侵害他人權益或違法之行為。",
+            "您於使用本網站會員服務時應遵守以下限制：",
+            "有損他人人格或商標權、著作權等智慧財產權或其他權利內容。",
+            "使用違反公共秩序或善良風俗或其他不法之文字。",
+            "強烈政治、宗教色彩的偏激言論。",
+            "未經本公司許可，不得利用本服務或本網站所提供其他資源，包括但不限於圖文資料庫、編寫製作網頁之軟體等，從事任何商業交易行為，或招攬廣告商或贊助人。",
+            "其他違反本網站「會員服務條款」的內容。"
+          ]
+        ]
+      },
+      {
+        "heading": "五、本公司專有權利",
+        "blocks": [
+          [
+            "本服務所載，或本服務所連結之一切軟體或內容，或本公司之廣告商或合夥人所提供之內容，均受其著作權或其他專有權利或法律所保障。",
+            "當您傳輸資料至本公司提供之服務時，您即同意此一資料為全開放性（任何人均可瀏覽）。您授權並許可本公司得以重製、修飾、改編或以其他形式使用該內容之全部或一部分，及利用該內容製作衍生著作。衍生著作之著作權悉歸本公司所有。",
+            "本公司同意除依本使用條款約定，將前述您的資料及衍生著作置於本網站供網路使用者瀏覽，以及本公司所屬相關媒體外，絕不非法轉供其他直接營利目的或侵害您的權利之使用。",
+            "所有網頁之頁面出現之廣告看板與活動訊息，所有權及經營權均為本公司所有，使用者除事先取得本公司同意外，不得自行使用所有訊息。",
+            "會員同意並授權本網站，得為提供個人化服務或相關加值服務之目的，提供所需之會員資料給合作單位（第三者）做約定範圍內之運用，如會員不同意將其資料列於合作單位（第三者）產品或服務名單內，可通知本網站於名單中刪除其資料，並同時放棄其本網站以外之購物優惠或獲獎權利。",
+            "同時為提供行銷、市場分析、統計或研究、或為提供會員個人化服務或加值服務之目的，會員同意本公司、或本公司之策略合作夥伴，得記錄、保存、並利用會員在本網站所留存或產生之資料及記錄，同時在不揭露各該資料之情形下得公開或使用統計資料。",
+            "對於會員所登錄之個人資料，會員同意本網站得於合理之範圍內蒐集、處理、保存、傳遞及使用該等資料，以提供使用者其他資訊或服務、或作成會員統計資料、或進行關於網路行為之調查或行銷研究。"
+          ]
+        ]
+      },
+      {
+        "heading": "六、終止授權",
+        "blocks": [
+          "您使用本服務之行為若有任何違反法令或本使用條款或危害本網站或第三者權益之虞時，本公司有權不經告知您，立即暫時或永久終止您使用本服務之授權。"
+        ]
+      },
+      {
+        "heading": "七、免責事項",
+        "blocks": [
+          [
+            "下列情形發生時，本網站有權可以停止、中斷提供本服務：",
+            "對本服務相關軟硬體設備進行更換、升級、保養或施工時。",
+            "發生突發性之電子通信設備故障時。",
+            "天災或其他不可抗力之因素致使本網站無法提供服務時。",
+            "本公司對於使用者在使用本服務或使用本服務所致生之任何直接、間接、衍生之財產或非財產之損害，不負賠償責任。",
+            "使用者對於上傳留言之文字、圖片及其它資料，應自行備份；本公司對於任何原因導致其內容全部或一部之滅失、毀損，不負任何責任。",
+            "本公司對使用本服務之用途或所產生的結果，不負任何保證責任，亦不保證與本服務相關之軟體無缺失或會予以修正。",
+            "對於您在本網站中的所有言論、意見或行為僅代表您個人；不代表本公司的立場，本公司不負任何責任。本公司對於使用者所自稱之身分，不擔保其正確性。",
+            "本公司無須對發生於本服務或透過本服務所涉及之任何恐嚇、誹謗、淫穢或其他一切不法行為對您或任何人負責。",
+            "對於您透過本服務所購買或取得，或透過本公司之贊助者或廣告商所刊登、銷售或交付之任何貨品或服務，您應自行承擔其可能風險或依法向商品或服務提供者交涉求償，與本公司完全無關，本公司均不負任何責任。"
+          ]
+        ]
+      },
+      {
+        "heading": "八、修改權",
+        "blocks": [
+          [
+            "當您開始使用本服務時，即表示您已充分閱讀、瞭解與同意接受本條款之內容。本公司有權於任何時間修改與變更本條款之內容，並將不個別通知會員，建議您定期查閱本服務條款。如您於本條款修改與變更後仍繼續使用本服務，則視為您已閱讀、瞭解與同意接受本條款修改或變更。",
+            "本公司有權暫時或永久修改或中止提供本服務給您，您不得因此要求任何賠償。"
+          ]
+        ]
+      },
+      {
+        "heading": "九、智慧財產權的保護",
+        "blocks": [
+          [
+            "本網站所使用之軟體、程式及網站上所有內容，包括但不限於著作、圖片、檔案、資訊、資料、網站架構、網頁設計，均由本網站或其他權利人依法擁有其智慧財產權，包括但不限於商標權、專利權、著作權、營業秘密與專有技術等。",
+            "任何人不得逕行使用、修改、重製、公開播送、改作、散布、發行、公開發表、進行還原工程、解編或反向組譯。如欲引用或轉載前述之軟體、程式或網站內容，必須依法取得本網站或其他權利人的事前書面同意。如有違反之情事，您應對本網站或其他權利人負損害賠償責任（包括但不限於訴訟費用及律師費用等）。"
+          ]
+        ]
+      },
+      {
+        "heading": "十、其他規定",
+        "blocks": [
+          [
+            "本網站使用者條約，免責之內容，亦構成本使用條款之一部分。",
+            "凡因使用本服務所生之爭執，均以台灣臺中地方法院為第一審管轄法院。",
+            "若因您使用本服務之任何行為，導致本公司遭第三人或行政機關之調查或追訴時，本公司有權向您請求損害賠償，包括但不限於訴訟費用、律師費及商譽損失等。",
+            "本公司針對可預知之軟硬體維護工作，有可能導致系統中斷或是暫停者，將會於該狀況發生前，以適當之方式告知會員。"
+          ]
+        ]
+      },
+      {
+        "heading": "十一、會員身份終止與本公司通知之義務",
+        "blocks": [
+          [
+            "本公司具有更改各項服務內容或終止任一會員帳戶服務之權利。",
+            "若會員決定終止本公司會員資格，可直接以電子郵件的方式通知本公司或是由本公司所提供之機制進行取消，本公司將儘快註銷您的會員資料。",
+            "會員有通知取消本公司會員資格之義務，並自停止本公司會員身份之日起（以本公司電子郵件發出日期為準），喪失所有本服務所提供之優惠及權益。",
+            "為避免惡意情事發生致使會員應享權益損失，當會員通知本公司停止會員身份時，本公司將再次以電子郵件確認無誤後，再進行註銷會員資格。"
+          ]
+        ]
+      }
+    ]
+  }
 ];

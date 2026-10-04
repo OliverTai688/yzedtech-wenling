@@ -1,214 +1,92 @@
-'use client';
+import { MessageCircle, Mail, MessageSquare, Users, AtSign, ArrowUpRight } from 'lucide-react';
+import { footerContent, siteLinks } from '../data';
 
-import React, { useState } from 'react';
-import { Mail, MessageCircle, Send, Sparkles, ShieldCheck, Loader2, CheckCircle } from 'lucide-react';
+// PRD-003 §4.12（2026-10-04）：原聯絡表單送出後只是前端模擬成功訊息、不會寄出任何
+// 資料（ACC-001 §6 已列為未完成），本輪改為導流卡片：官方 LINE 第一順位，其次
+// Email、Facebook、LINE 社群與 Instagram。聯絡管道取自文案集 v2「網站下方區塊調整」
+// （第 302～308 行）；Instagram 為既有管道，依 PRD-003 §7 第 9 項預設保留。
+const channels = [
+  {
+    id: 'line',
+    icon: MessageCircle,
+    title: '官方 LINE',
+    detail: siteLinks.lineId,
+    href: siteLinks.line,
+    primary: true,
+  },
+  {
+    id: 'email',
+    icon: Mail,
+    title: 'Email',
+    detail: siteLinks.email,
+    href: `mailto:${siteLinks.email}`,
+  },
+  {
+    id: 'facebook',
+    icon: MessageSquare,
+    title: 'Facebook',
+    detail: 'm.me/keila.healing',
+    href: siteLinks.facebook,
+  },
+  {
+    id: 'community',
+    icon: Users,
+    title: 'LINE 社群',
+    detail: footerContent.communityNote,
+    href: siteLinks.lineCommunity,
+  },
+  {
+    id: 'instagram',
+    icon: AtSign,
+    title: 'Instagram',
+    detail: '@keila.healing1491',
+    href: siteLinks.instagram,
+  },
+];
 
 export default function ContactSection() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    service: 'personal-1on1',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-
-  const servicesDropdown = [
-    { value: 'personal-1on1', label: '心靈引渡人｜一對一個人能量療癒' },
-    { value: 'spiritual-reading', label: '靈性解讀與能量療癒' },
-    { value: 'spiritual-massage', label: '靈性按摩｜全域氣場修護與脈輪清理' },
-    { value: 'group-healing', label: '人生推進器｜團體遠距療癒' },
-    { value: 'workshop', label: '能量身心靈主題工作坊' },
-    { value: 'smoke-prayer', label: '遠距煙供祈福儀式' },
-    { value: 'abundance-reiki', label: '豐盛靈氣｜全方位能量調頻與願望顯化' },
-    { value: 'five-elements-perfume', label: '五行香水供奉｜佛前加持版' },
-    { value: 'theta-training', label: '希塔療癒認證培訓（現場/線上開課）' },
-    { value: 'certifications', label: '金錢/愛情/人魚靈氣證照課程' },
-    { value: 'other', label: '其他客製化需求 / 合作邀請' }
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate async submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({ name: '', email: '', service: 'personal-1on1', message: '' });
-      
-      // Auto close success alert after 5s
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 5000);
-    }, 1200);
-  };
-
   return (
-    <section id="contact-section" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto items-center">
-          
-          {/* Left Column (5 Cols): Brand Quick contacts */}
-          <div className="lg:col-span-5 space-y-6">
-            <span className="text-sm uppercase tracking-widest text-brand-pink-600 font-bold">Contact Us</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-brand-stone-900 font-serif leading-tight">
-              開啟您的心靈對齊，與豐盛好運接軌
-            </h2>
-            <div className="w-12 h-1 bg-linear-to-r from-brand-pink-300 to-brand-gold-300 rounded-full"></div>
+    <section id="contact-section" className="py-20 bg-[#FBF1DD]">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
 
-            <p className="text-base text-stone-600 leading-relaxed">
-              對課程、療癒或煙供項目有任何疑問嗎？歡迎透過下方的表單直接發送您的需求，文齡老師與助理團隊將在 24 小時內回覆。
-            </p>
-
-            {/* Quick CTAs */}
-            <div className="space-y-4 pt-4">
-              
-              {/* LINE card */}
-              <a
-                href="https://lin.ee/yo6a6FW"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 rounded-2xl bg-[#06C755]/10 border border-[#06C755]/30 hover:shadow-xs transition-shadow duration-300 group"
-              >
-                <div className="w-12 h-12 rounded-full bg-[#06C755] flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition-transform">
-                  <MessageCircle className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-base text-brand-stone-900">官方 LINE 社群與預約</h4>
-                  <p className="text-base text-stone-600 mt-0.5">即時發問、領取每週能量預報與公益調頻福利</p>
-                </div>
-              </a>
-
-              {/* IG card — 文案集未提供官方 email，合作邀請一律導向 IG／LINE 官方管道 */}
-              <a
-                href="https://www.instagram.com/keila.healing1491"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 rounded-2xl bg-brand-pink-50 border border-brand-pink-100 hover:shadow-xs transition-shadow duration-300 group"
-              >
-                <div className="w-12 h-12 rounded-full bg-brand-pink-600 flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition-transform">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-base text-brand-stone-900">Instagram 私訊聯絡</h4>
-                  <p className="text-base text-stone-600 mt-0.5">@keila.healing1491 / 合作演講、機構合作邀請</p>
-                </div>
-              </a>
-
-            </div>
-
-            {/* Integrity statement */}
-            <div className="bg-brand-gold-50 border border-brand-gold-200 p-4 rounded-xl flex items-start gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-brand-gold-600 shrink-0 mt-0.5" />
-              <p className="text-base text-stone-500 leading-relaxed">
-                您的聯絡資料與留言內容將受到絕對的隱私保障。文齡療癒團隊絕不將您的個資洩漏、揭露、或轉售予任何第三方機構。
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column (7 Cols): Mock Contact Form */}
-          <div className="lg:col-span-7 bg-brand-gold-50/30 border border-stone-150 rounded-3xl p-6 sm:p-8 shadow-2xs relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-linear-to-bl from-brand-pink-100 to-transparent rounded-bl-full opacity-30"></div>
-            
-            <h3 className="font-bold font-serif text-base sm:text-lg text-brand-stone-900 mb-6 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-brand-pink-500" />
-              填寫預約與諮詢意願表
-            </h3>
-
-            {/* Contact Form Container */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              
-              {/* Name field */}
-              <div>
-                <label className="block text-base font-bold text-stone-700 mb-1.5">您的稱呼 / 姓名 *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="請輸入您的姓名，如：林小姐 / Eva"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2.5 text-base bg-white rounded-xl border border-stone-200 focus:outline-hidden focus:ring-1 focus:ring-brand-pink-300"
-                />
-              </div>
-
-              {/* Email field */}
-              <div>
-                <label className="block text-base font-bold text-stone-700 mb-1.5">電子信箱 *</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="請輸入聯絡 Email，例如：yourname@mail.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2.5 text-base bg-white rounded-xl border border-stone-200 focus:outline-hidden focus:ring-1 focus:ring-brand-pink-300"
-                />
-              </div>
-
-              {/* Service Selection dropdown */}
-              <div>
-                <label className="block text-base font-bold text-stone-700 mb-1.5">感興趣的服務項目 *</label>
-                <select
-                  value={formData.service}
-                  onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                  className="w-full px-4 py-2.5 text-base bg-white rounded-xl border border-stone-200 focus:outline-hidden focus:ring-1 focus:ring-brand-pink-300"
-                >
-                  {servicesDropdown.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Message field */}
-              <div>
-                <label className="block text-base font-bold text-stone-700 mb-1.5">留言內容 (可以簡述您目前的卡關或想要除錯的狀態) *</label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="請簡短描述您目前的生活/感情卡點，或您想預約、諮詢的梯次。文齡老師將親自查閱回信。"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-4 py-2.5 text-base bg-white rounded-xl border border-stone-200 focus:outline-hidden focus:ring-1 focus:ring-brand-pink-300"
-                ></textarea>
-              </div>
-
-              {/* Submit CTA */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 bg-linear-to-r from-brand-pink-500 to-brand-gold-500 hover:from-brand-pink-600 hover:to-brand-gold-600 text-white font-bold text-base tracking-widest rounded-xl transition-all shadow-xs hover:shadow-md flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 text-white animate-spin" />
-                    <span>正在安全送出表單資訊...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 text-white" />
-                    <span>送出心靈預約意願單</span>
-                  </>
-                )}
-              </button>
-
-            </form>
-
-            {/* Submit Success Alert Banner */}
-            {submitSuccess && (
-              <div className="absolute inset-x-6 bottom-6 bg-brand-gold-500 text-white p-4.5 rounded-2xl border border-brand-gold-600 shadow-xl animate-fadeIn flex flex-col items-center text-center space-y-1.5 z-10">
-                <span className="text-xl flex items-center gap-1.5"><CheckCircle className="w-5 h-5" />預約單送出成功</span>
-                <p className="text-base text-white/95 leading-relaxed font-medium">
-                  感謝您的填寫！文齡老師與療癒團隊已安全收到您的意願，我們將盡快在 24 小時內與您取得信箱聯繫。
-                </p>
-              </div>
-            )}
-
-          </div>
-
+        <div className="text-center mb-10 space-y-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#3A2A18] font-serif">聯絡我們</h1>
+          <p className="text-base text-[#6A5642] leading-relaxed">{footerContent.contactIntro}</p>
         </div>
+
+        <ul className="space-y-4">
+          {channels.map((channel) => {
+            const Icon = channel.icon;
+            const external = channel.href.startsWith('http');
+            return (
+              <li key={channel.id}>
+                <a
+                  href={channel.href}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  id={`contact-${channel.id}`}
+                  className={`flex items-center gap-4 p-5 rounded-2xl border transition-shadow hover:shadow-md ${
+                    channel.primary
+                      ? 'bg-[#06C755]/10 border-[#06C755]/40'
+                      : 'bg-[#FFFDF0] border-[#F0DFA0]'
+                  }`}
+                >
+                  <div
+                    className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center ${
+                      channel.primary ? 'bg-[#06C755] text-white' : 'bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A]'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-bold text-base text-[#3A2A18]">{channel.title}</h2>
+                    <p className="text-base text-[#6A5642] mt-0.5 break-words">{channel.detail}</p>
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 shrink-0 text-[#9A8060]" />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
 
       </div>
     </section>
