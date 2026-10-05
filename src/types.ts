@@ -191,6 +191,8 @@ export interface NavGroup {
 // 首頁需求入口卡片（文案集 v2 Home Block 2）。
 export interface NeedEntry {
   id: string;
+  /** 分頁按鈕上的短名稱 */
+  shortLabel: string;
   iconName: 'heart' | 'sparkles' | 'coins' | 'sprout';
   title: string;
   painPoint: string;

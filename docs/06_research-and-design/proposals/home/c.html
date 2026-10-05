@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<!--
+  提案代號：C「展翼羅盤」（Wings & Compass）— 首頁提案，PLN-004 階段 D
+  概念一句話：Hero 之後接一段釘住的舞台，捲動讓學苑標誌的金色雙翼由收攏到展開，
+              羅盤指針依序指向四個方位，每個方位帶出一張需求入口卡——需求入口本身就是捲動敘事。
+
+  動效技術：
+    - position: sticky 舞台（桌機 ≥1024px 且視窗高 ≥680px 才啟用，捲動距離約 3 個視窗高，不攔截原生捲動）
+    - CSS 3D transform：每片翅膀 perspective + rotateY / rotateZ；每根羽毛以 CSS 變數驅動 rotate 扇形展開
+    - 捲動進度 → CSS 自訂屬性（--open / --glow / --needle / --p），JS 只寫變數，樣式只動 transform 與 opacity
+    - 羅盤指針依捲動旋轉；分頁模式下以 CSS transition（帶回彈）轉向
+    - Canvas 2D 金色光塵（桌機、舞台在視窗內才跑；全頁唯一的持續循環動效），不可用時顯示靜態光點
+    - 其餘區塊：IntersectionObserver 單次淡入上移 16px，依序延遲 70ms
+    - 手機（<768px）、平板、prefers-reduced-motion、視窗過矮：不釘住，改為「靜態展開的徽章＋四個分頁一次一張卡」
+    - 無 JavaScript：四張卡全部直接顯示
+
+  佔位說明：
+    - 正式 Logo 檔尚未交付。頁內的雙翼與羅盤是自行繪製的暫代示意圖（inline SVG），定案後需以正式 Logo 重繪。
+    - 「新手入門引導」「創辦人簡介」「最終 CTA 收束句」尚無文案，以「文案待提供」標示；形象照、書封為佔位框。
+    - 精選見證使用文案集匿名引言呈現版型，區塊角落標示「待授權」。
+
+  對外連結計數（主內容，上限 10）：需求入口 8（其中 1 個外連商城）＋ Hero 社群 1 ＋ 最終 CTA 的 LINE 1 ＝ 10。
+    精選服務卡、各區塊的「查看更多」皆為站內路由；媒體的書籍與單集不放連結，統一由「閱讀媒體專訪」進 /media；
+    免費資源橫幅改導站內 /resources（社群連結已在 Hero）；商城入口留在頁首與頁尾。
+
+  已知弱點：
+    1. 釘住段把四張需求卡攤在約 3 個視窗高的捲動裡，急著找服務的人要多捲；靠「跳過，直接看全部」與方位按鈕補救。
+    2. 桌機與手機是兩套呈現（捲動敘事／分頁），實作與 QA 成本高於一般首頁；視窗高度不足的筆電會退回分頁版。
+    3. 整個概念押在 Logo 母題上，暫代圖與正式 Logo 的造型若差異大，羽毛分層與 3D 參數需重調。
+    4. 羽毛為 SVG 內 transform，每格重繪而非合成層動畫，低階桌機可能掉幀。
+    5. 需求卡文字量大，釘住舞台在 1024px 寬時版面偏緊。
+-->
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜首頁提案 C・展翼羅盤</title>
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add('js');
+  try {
+    var pin = window.matchMedia('(min-width: 1024px) and (min-height: 680px) and (prefers-reduced-motion: no-preference)').matches;
+    d.setAttribute('data-story', pin ? 'pinned' : 'tabs');
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --background: #FBF1DD;  --foreground: #2E2318;
+  --card: #FDF6E6;        --card-foreground: #3A2A18;
+  --popover: #FFFDF0;
+  --primary: #C9862E;     --primary-foreground: #3A2409;
+  --secondary: #FFFDF0;   --secondary-foreground: #8A5415;
+  --muted: #FDF6E6;       --muted-foreground: #7A6650;
+  --accent: #FCE7A8;      --accent-foreground: #8A5415;
+  --border: #F0DFA0;      --ring: #B5762A;
+  --inverse: #20140A;     --inverse-foreground: #F5E4C8;  --inverse-accent: #F0C875;
+  --gold-100: #FCE7A8; --gold-300: #E8B15A; --gold-500: #C9862E; --gold-600: #B5762A; --gold-700: #8A5415;
+  --line: #06C755;        --line-foreground: #0B2E18;
+  --font-serif: "Noto Serif TC", serif;  --font-sans: "Noto Sans TC", sans-serif;
+
+  --header-h: 56px;
+  --radius: 18px;
+  --fast: 150ms; --base: 250ms; --slow: 500ms;
+}
+@media (min-width: 1024px) { :root { --header-h: 64px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h) + 8px); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  margin: 0; background: var(--background); color: var(--foreground);
+  font: 400 16px/1.75 var(--font-sans); letter-spacing: .01em;
+  overflow-x: clip;
+}
+h1, h2, h3, h4, p, ul, ol, figure, blockquote { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+a { color: inherit; }
+img, svg { display: block; }
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.wrap { width: 100%; max-width: 1152px; margin-inline: auto; padding-inline: 16px; }
+@media (min-width: 768px) { .wrap { padding-inline: 32px; } }
+
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- 按鈕 ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 22px; border-radius: 999px; border: 1.5px solid transparent;
+  font: 700 15px/1.2 var(--font-sans); text-decoration: none; text-align: center; cursor: pointer;
+  transition: transform var(--fast) ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn--primary {
+  background: linear-gradient(135deg, var(--gold-100), #D89A3E); color: var(--primary-foreground);
+  box-shadow: 0 8px 20px -8px rgba(201,134,46,.7), inset 0 1px 0 rgba(255,255,255,.65);
+}
+.btn--ghost { background: var(--secondary); color: var(--secondary-foreground); border-color: var(--gold-300); }
+.btn--ghost:hover { background: var(--accent); }
+.btn--soft { background: var(--accent); color: var(--accent-foreground); }
+.btn--line { background: var(--line); color: var(--line-foreground); box-shadow: 0 8px 20px -10px rgba(6,199,85,.8); }
+.btn--on-dark { background: transparent; color: var(--inverse-accent); border-color: rgba(240,200,117,.65); }
+.btn--on-dark:hover { background: rgba(240,200,117,.12); }
+.btn--sm { min-height: 44px; padding: 0 16px; font-size: 14px; }
+
+/* ---------- 佔位 ---------- */
+.ph {
+  display: grid; place-content: center; justify-items: center; gap: 6px; text-align: center;
+  border: 1.5px dashed var(--gold-300); border-radius: var(--radius); padding: 16px;
+  background: repeating-linear-gradient(135deg, rgba(252,231,168,.38) 0 10px, rgba(255,253,240,.7) 10px 20px);
+  color: var(--accent-foreground); font-size: 14px; line-height: 1.5;
+}
+.ph .ic { width: 24px; height: 24px; }
+.ph-text {
+  display: block; border: 1.5px dashed var(--gold-300); border-radius: 12px; padding: 10px 14px;
+  color: var(--accent-foreground); font-size: 14px; background: rgba(255,253,240,.6);
+}
+
+/* ---------- 頁首 ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 50; height: var(--header-h);
+  background: rgba(251,241,221,.92); border-bottom: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.site-header__in { height: 100%; display: flex; align-items: center; gap: 12px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; font: 700 18px/1 var(--font-serif); letter-spacing: .04em; white-space: nowrap; }
+.brand svg { width: 46px; height: 28px; }
+.nav { display: none; margin-left: auto; align-items: center; gap: 2px; }
+.nav a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px; border-radius: 999px; font-size: 15px; font-weight: 500; text-decoration: none; white-space: nowrap; }
+.nav a:hover { background: var(--accent); }
+.nav .ic { width: 14px; height: 14px; }
+.header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.header-line { display: none; }
+.header-line i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.menu-btn { width: 44px; height: 44px; display: grid; place-items: center; border: 1.5px solid var(--border); border-radius: 50%; background: var(--secondary); cursor: pointer; }
+@media (min-width: 1024px) {
+  .nav { display: flex; }
+  .header-actions { margin-left: 8px; }
+  .header-line { display: inline-flex; }
+  .menu-btn { display: none; }
+}
+
+/* ---------- 共用區塊 ---------- */
+.sec { padding-block: 32px; }
+@media (min-width: 1024px) { .sec { padding-block: 48px; } }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; letter-spacing: .12em; color: var(--accent-foreground); }
+.eyebrow .ic { width: 14px; height: 14px; fill: var(--gold-300); stroke: var(--gold-600); stroke-width: 1.2; }
+.sec-head { position: relative; margin-bottom: 24px; max-width: 760px; }
+.sec-head h2 { font: 700 26px/1.4 var(--font-serif); letter-spacing: .02em; margin-top: 6px; }
+.sec-head p { margin-top: 8px; color: var(--muted-foreground); }
+.sec-foot { margin-top: 24px; display: flex; justify-content: center; }
+@media (min-width: 1024px) { .sec-head h2 { font-size: 32px; } .sec-head { margin-bottom: 32px; } }
+
+.card { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* 單次進場（M2）：主標題不使用 */
+@media (prefers-reduced-motion: no-preference) {
+  .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity var(--slow) ease, transform var(--slow) cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 70ms); }
+  .js .reveal.is-in { opacity: 1; transform: none; }
+}
+
+/* ---------- 1 Hero ---------- */
+.hero { position: relative; padding-block: 28px 32px; overflow: clip; }
+.hero__bg { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(52% 60% at 88% 8%, rgba(252,231,168,.95), rgba(252,231,168,0) 70%),
+    radial-gradient(36% 44% at 0% 96%, rgba(255,253,240,.95), rgba(255,253,240,0) 70%);
+}
+.hero__grid { display: grid; gap: 28px; }
+.hero h1 { font: 700 32px/1.32 var(--font-serif); letter-spacing: .02em; margin: 10px 0 14px; }
+.hero h1 > span { display: block; }
+.hero h1 > span + span { color: var(--gold-700); }
+.hero h1 .nb { display: inline-block; }
+.hero__desc { color: var(--card-foreground); max-width: 38em; }
+.hero__ctas { display: grid; gap: 10px; margin-top: 20px; }
+.hero__badges { margin-top: 20px; display: grid; gap: 8px; }
+.hero__badges li { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.6; color: var(--card-foreground); }
+.hero__badges .ic { width: 14px; height: 14px; margin-top: 4px; fill: var(--gold-300); stroke: var(--gold-600); stroke-width: 1.2; }
+.hero__portrait .ph { aspect-ratio: 16 / 9; }
+.hero__portrait figcaption { margin-top: 8px; text-align: center; font-size: 14px; color: var(--muted-foreground); }
+@media (min-width: 600px) { .hero__ctas { display: flex; flex-wrap: wrap; } }
+@media (min-width: 1024px) {
+  .hero { padding-block: 56px 48px; }
+  .hero__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: 64px; align-items: center; }
+  .hero h1 { font-size: 40px; margin: 12px 0 18px; }
+  .hero__portrait .ph { aspect-ratio: 4 / 5; border-radius: 999px 999px var(--radius) var(--radius); }
+}
+
+/* ---------- 2 需求入口＝展翼羅盤 ---------- */
+.story { --open: 1; --glow: 1; --needle: 0; --p: 1; position: relative; padding-block: 32px; overflow-x: clip; }
+.story__stage { display: flex; flex-direction: column; gap: 20px; }
+.story__visual, .story__panel { display: contents; }
+.story__title { order: 1; font: 700 26px/1.4 var(--font-serif); letter-spacing: .02em; text-align: center; }
+.story__intro { order: 2; text-align: center; max-width: 720px; margin-inline: auto; }
+.story__intro p { color: var(--muted-foreground); }
+.story__hint { display: none; }
+.emblem { order: 3; }
+.dirs { order: 4; }
+.story__rail { order: 4; display: none; }
+.story__cards { order: 5; display: grid; gap: 16px; }
+.story__foot { order: 6; display: flex; align-items: center; justify-content: center; gap: 16px; }
+.story__count { display: none; font: 700 15px/1 var(--font-serif); color: var(--accent-foreground); letter-spacing: .08em; }
+.story__skip { min-height: 44px; padding: 0 10px; background: none; border: 0; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--accent-foreground); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--gold-300); display: inline-flex; align-items: center; gap: 6px; }
+.story__skip .ic { width: 16px; height: 16px; }
+.story__skip span { display: none; }
+:root[data-story="pinned"] .story__skip .t-pinned,
+:root[data-story="tabs"] .story__skip .t-tabs,
+:root[data-story="all"] .story__skip .t-all { display: inline; }
+@media (min-width: 768px) { .story__cards { grid-template-columns: 1fr 1fr; gap: 20px; } }
+@media (min-width: 1024px) { .story { padding-block: 48px; } .story__title { font-size: 32px; } }
+
+/* 徽章：雙翼＋羅盤（暫代圖） */
+.emblem { position: relative; width: min(100%, 460px); aspect-ratio: 460 / 270; margin-inline: auto; flex: none; }
+@media (max-width: 767px) { .emblem { width: min(84%, 300px); } }
+.emblem__glow { position: absolute; inset: -16% -6%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,253,240,.98) 0, rgba(252,231,168,.9) 34%, rgba(232,177,90,.38) 60%, rgba(232,177,90,0) 100%);
+  opacity: calc(.1 + var(--glow) * .9); transform: scale(calc(.5 + var(--glow) * .5));
+}
+.emblem__rays { position: absolute; inset: -34% -8%; pointer-events: none;
+  background: repeating-conic-gradient(from -4deg at 50% 52%, rgba(201,134,46,0) 0 8deg, rgba(201,134,46,.2) 8deg 9.5deg, rgba(201,134,46,0) 9.5deg 15deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%);
+          mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%);
+  opacity: var(--glow); transform: scale(calc(.7 + var(--glow) * .3));
+}
+.wing { position: absolute; top: 1.5%; width: 46%; aspect-ratio: 300 / 260; perspective: 620px; perspective-origin: 95.3% 73%; }
+.wing--l { left: -4%; }
+.wing--r { right: -4%; transform: scaleX(-1); }
+.wing__svg { width: 100%; height: 100%; overflow: visible; transform-origin: 95.3% 73%;
+  transform: rotateY(calc((1 - var(--open)) * -64deg)) rotateZ(calc((1 - var(--open)) * -8deg));
+}
+.wing .f { transform-origin: 286px 190px; transform: rotate(calc(var(--d) * (1 - var(--open)))); }
+.compass { position: absolute; left: 50%; top: 50%; width: 31%; aspect-ratio: 1; transform: translate(-50%, -46%); overflow: visible; }
+.needle { transform-origin: 100px 100px; transform: rotate(calc(var(--needle) * 1deg)); }
+.mark__on { opacity: 0; transition: opacity var(--base) ease; }
+.mark.is-on .mark__on, :root[data-story="all"] .mark__on, :root:not([data-story]) .mark__on { opacity: 1; }
+.emblem__canvas { position: absolute; left: -10%; top: -22%; width: 120%; height: 132%; pointer-events: none; display: none; }
+.emblem.has-canvas .emblem__canvas { display: block; }
+.emblem.has-canvas .glint { display: none; }
+.glint { position: absolute; width: 6px; height: 6px; background: var(--gold-300); transform: rotate(45deg); opacity: calc(var(--glow) * .85); border-radius: 1px; }
+.glint:nth-of-type(1) { left: 8%; top: 4%; } .glint:nth-of-type(2) { left: 30%; top: -6%; width: 4px; height: 4px; }
+.glint:nth-of-type(3) { left: 66%; top: -4%; } .glint:nth-of-type(4) { left: 92%; top: 10%; width: 4px; height: 4px; }
+.glint:nth-of-type(5) { left: 50%; top: -12%; width: 5px; height: 5px; background: var(--gold-500); }
+
+/* 方位按鈕 */
+.dirs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 460px; margin-inline: auto; }
+.dir { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 6px; border-radius: 999px;
+  border: 1.5px solid var(--border); background: var(--secondary); color: var(--secondary-foreground); font-weight: 700; font-size: 15px; cursor: pointer; }
+.dir:hover { border-color: var(--gold-300); }
+.dir .ic { width: 14px; height: 14px; fill: currentColor; stroke: none; transform: rotate(var(--r, 0deg)); }
+.dir.is-active { background: var(--accent); border-color: var(--gold-600); color: var(--primary-foreground); }
+:root[data-story="all"] .dirs { display: none; }
+.story__rail { height: 3px; width: 100%; max-width: 460px; margin-inline: auto; border-radius: 3px; background: var(--border); overflow: hidden; }
+.story__rail i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-300), var(--gold-600)); transform-origin: 0 50%; transform: scaleX(var(--p)); }
+
+/* 需求卡 */
+.need { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 16px 36px -26px rgba(138,84,21,.55); }
+.need__head { display: flex; align-items: center; gap: 12px; }
+.need__icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 14px; color: var(--primary-foreground);
+  background: linear-gradient(135deg, var(--gold-100), var(--gold-300)); }
+.need h3 { font: 700 20px/1.35 var(--font-serif); letter-spacing: .02em; }
+.need__pain { font-size: 15px; line-height: 1.7; padding-left: 12px; border-left: 3px solid var(--gold-300); }
+.need__stories { display: grid; gap: 10px; }
+.need__story { background: var(--popover); border-radius: 12px; padding: 12px 14px; }
+.need__story h4 { font: 700 15px/1.5 var(--font-sans); color: var(--accent-foreground); margin-bottom: 2px; }
+.need__story p { font-size: 14px; line-height: 1.65; }
+.need__start { font-size: 14px; line-height: 1.65; color: var(--muted-foreground); }
+.need__start b { display: inline-block; margin-right: 8px; padding: 0 8px; border-radius: 999px; background: var(--accent); color: var(--accent-foreground); font-size: 13px; line-height: 22px; }
+.need__ctas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+.need__ctas .btn { padding-inline: 8px; font-size: 14px; }
+/* 全部展開（含無 JS）時不讓多顆主按鈕同框：改用柔和樣式 */
+:root[data-story="all"] .need .btn--primary, :root:not([data-story]) .need .btn--primary { background: var(--accent); box-shadow: none; color: var(--accent-foreground); }
+
+/* 分頁模式：手機、平板、減少動態、視窗過矮 */
+:root[data-story="tabs"] .story__cards { grid-template-columns: 1fr; width: 100%; max-width: 640px; margin-inline: auto; }
+:root[data-story="tabs"] .need:not(.is-active) { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-story="tabs"] .need.is-active { animation: cardIn var(--base) ease both; }
+  :root[data-story="tabs"] .needle { transition: transform 600ms cubic-bezier(.3, 1.35, .6, 1); }
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 1024px) {
+  :root[data-story="tabs"] .story__stage,
+  :root[data-story="pinned"] .story__stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: 56px; align-items: center; }
+  :root[data-story="tabs"] .story__visual, :root[data-story="tabs"] .story__panel,
+  :root[data-story="pinned"] .story__visual { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  :root[data-story="tabs"] .story__title, :root[data-story="pinned"] .story__title,
+  :root[data-story="tabs"] .story__intro, :root[data-story="pinned"] .story__intro { text-align: left; margin-inline: 0; }
+  :root[data-story="tabs"] .story__stage { align-items: start; }
+  :root[data-story="tabs"] .story__cards { max-width: none; }
+  :root[data-story="tabs"] .need__stories { grid-template-columns: 1fr 1fr; }
+  :root[data-story="tabs"] .story__foot { justify-content: flex-end; }
+}
+
+/* 釘住模式：桌機捲動敘事 */
+:root[data-story="pinned"] .story { height: 400vh; padding-block: 0; overflow-x: visible; --open: 0; --glow: 0; --needle: -50; --p: 0; }
+:root[data-story="pinned"] .story__stage { position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); padding-block: 16px; }
+:root[data-story="pinned"] .story__panel { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; row-gap: 8px; min-width: 0; }
+:root[data-story="pinned"] .story__intro, :root[data-story="pinned"] .story__cards { grid-area: 1 / 1; }
+:root[data-story="pinned"] .story__cards { grid-template-columns: minmax(0, 1fr); gap: 0; }
+:root[data-story="pinned"] .need { grid-area: 1 / 1; opacity: 0; visibility: hidden; transform: translateY(16px);
+  transition: opacity var(--fast) ease, transform var(--fast) ease, visibility 0s linear var(--fast); }
+:root[data-story="pinned"] .need.is-active { opacity: 1; visibility: visible; transform: none;
+  transition: opacity var(--base) ease 60ms, transform var(--base) cubic-bezier(.2,.7,.2,1) 60ms, visibility 0s; }
+:root[data-story="pinned"] .need__stories { grid-template-columns: 1fr 1fr; }
+:root[data-story="pinned"] .story__intro { align-self: center; opacity: 0; visibility: hidden; transform: translateY(-12px);
+  transition: opacity var(--fast) ease, transform var(--fast) ease, visibility 0s linear var(--fast); }
+:root[data-story="pinned"] .story[data-active="-1"] .story__intro { opacity: 1; visibility: visible; transform: none; transition: opacity var(--base) ease, transform var(--base) ease, visibility 0s; }
+:root[data-story="pinned"] .story__intro p:first-child { font: 500 20px/1.8 var(--font-serif); color: var(--card-foreground); }
+:root[data-story="pinned"] .story__hint { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 14px; font-weight: 700; color: var(--accent-foreground); letter-spacing: .08em; }
+:root[data-story="pinned"] .story__rail { display: block; }
+:root[data-story="pinned"] .story__count { display: block; }
+:root[data-story="pinned"] .story[data-active="-1"] .story__count { visibility: hidden; }
+:root[data-story="pinned"] .story__foot { justify-content: space-between; }
+:root[data-story="pinned"] .wing__svg { will-change: transform; }
+
+/* ---------- 3 新手入門引導 ---------- */
+.start { display: grid; gap: 16px; padding: 20px; background: linear-gradient(135deg, var(--accent), var(--card) 70%); }
+.start h2 { font: 700 20px/1.4 var(--font-serif); }
+.start__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.start__steps li { display: grid; justify-items: center; gap: 6px; text-align: center; font-size: 14px; color: var(--accent-foreground); }
+.start__steps i { width: 48px; height: 48px; border-radius: 50%; border: 1.5px dashed var(--gold-300); display: grid; place-items: center; font: 700 18px/1 var(--font-serif); font-style: normal; background: var(--popover); }
+@media (min-width: 1024px) {
+  .start { grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) auto; align-items: center; gap: 32px; padding: 28px 32px; }
+}
+
+/* ---------- 4 精選服務 ---------- */
+.svcs { display: grid; gap: 12px; }
+.svc { height: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; padding: 18px; text-decoration: none;
+  transition: transform var(--fast) ease; }
+.svc:hover { transform: translateY(-2px); border-color: var(--gold-300); box-shadow: 0 16px 30px -22px rgba(138,84,21,.6); }
+.svc__icon { grid-row: span 2; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: var(--primary-foreground);
+  background: linear-gradient(135deg, var(--gold-100), var(--gold-300)); }
+.svc h3 { font: 700 18px/1.4 var(--font-serif); display: flex; gap: 8px; justify-content: space-between; align-items: flex-start; }
+.svc h3 .ic { width: 18px; height: 18px; margin-top: 4px; color: var(--gold-600); }
+.svc p { grid-column: 2; font-size: 15px; line-height: 1.7; color: var(--muted-foreground); }
+@media (min-width: 900px) {
+  .svcs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .svc { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 24px; align-content: start; }
+  .svc__icon { grid-row: auto; }
+  .svc h3 { font-size: 20px; }
+  .svc p { grid-column: auto; }
+}
+
+/* ---------- 5 精選見證 ---------- */
+.pending { position: absolute; right: 0; top: 0; padding: 2px 10px; border: 1.5px dashed var(--gold-600); border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--accent-foreground); background: var(--popover); }
+.sec-head--tagged { max-width: none; padding-right: 76px; }
+.quotes { display: grid; gap: 12px; }
+.quote { height: 100%; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.quote__cat { align-self: flex-start; padding: 0 10px; border-radius: 999px; background: var(--accent); color: var(--accent-foreground); font-size: 13px; font-weight: 700; line-height: 24px; }
+.quote blockquote { font: 500 17px/1.75 var(--font-serif); color: var(--card-foreground); }
+.quote footer { margin-top: auto; font-size: 14px; color: var(--muted-foreground); display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.quote footer span { padding: 0 8px; border: 1px dashed var(--gold-300); border-radius: 999px; font-size: 13px; }
+@media (min-width: 900px) { .quotes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; } }
+
+/* ---------- 6 創辦人簡介 ---------- */
+.founder { display: grid; gap: 20px; }
+.founder .ph { aspect-ratio: 16 / 9; }
+.founder__body { display: grid; gap: 12px; align-content: center; justify-items: start; }
+.founder__body h2 { font: 700 22px/1.45 var(--font-serif); }
+.founder__body .ph-text { width: 100%; }
+.founder__creds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.founder__creds li { text-align: center; padding: 10px 6px; }
+@media (min-width: 900px) {
+  .founder { grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 48px; align-items: center; }
+  .founder .ph { aspect-ratio: 1 / 1; }
+  .founder__body h2 { font-size: 26px; }
+}
+
+/* ---------- 7 媒體精選 ---------- */
+.media .sec-head h2 { font-size: 22px; }
+.books { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.book .ph { aspect-ratio: 3 / 4; padding: 8px; font-size: 13px; border-radius: 12px; }
+.book h3 { margin-top: 8px; font: 700 16px/1.4 var(--font-serif); }
+.book p { font-size: 14px; line-height: 1.5; color: var(--muted-foreground); margin-top: 2px; }
+.eps { margin-top: 24px; display: grid; gap: 10px; }
+.ep { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 12px; padding: 14px 16px; }
+.ep__icon { grid-row: span 2; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-foreground); }
+.ep__show { font-size: 14px; font-weight: 700; color: var(--accent-foreground); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.ep__show em { font-style: normal; font-size: 13px; padding: 0 8px; border-radius: 999px; background: var(--accent); }
+.ep__title { font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
+@media (min-width: 900px) {
+  .media .sec-head h2 { font-size: 28px; }
+  .media__grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 40px; align-items: start; }
+  .books { gap: 20px; }
+  .eps { margin-top: 0; }
+}
+
+/* ---------- 8 免費資源 ---------- */
+.free { padding: 20px; display: grid; gap: 16px; background: linear-gradient(135deg, var(--popover), var(--accent)); }
+.free__items { display: grid; gap: 14px; }
+.free__type { font-size: 13px; font-weight: 700; color: var(--accent-foreground); letter-spacing: .08em; }
+.free h3 { font: 700 18px/1.45 var(--font-serif); }
+.free p { font-size: 15px; line-height: 1.7; color: var(--card-foreground); margin-top: 4px; }
+@media (min-width: 900px) {
+  .free { padding: 28px 32px; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 32px; }
+  .free__items { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+
+/* ---------- 9 FAQ ---------- */
+.faq { max-width: 800px; margin-inline: auto; }
+.faq .sec-head { text-align: center; margin-inline: auto; }
+.faq details { border-bottom: 1px solid var(--border); }
+.faq details:first-of-type { border-top: 1px solid var(--border); }
+.faq summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 10px 4px; cursor: pointer; list-style: none; font-weight: 700; line-height: 1.5; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; flex: none; width: 10px; height: 10px; margin-right: 6px; border-right: 2px solid var(--gold-600); border-bottom: 2px solid var(--gold-600); transform: rotate(45deg); transition: transform var(--base) ease; }
+.faq details[open] summary::after { transform: rotate(-135deg); }
+.faq details p { padding: 0 4px 16px; color: var(--card-foreground); }
+
+/* ---------- 10 最終 CTA ---------- */
+.final { position: relative; overflow: hidden; display: grid; justify-items: center; gap: 16px; text-align: center; padding: 36px 20px;
+  border-radius: 24px; background: var(--inverse); color: var(--inverse-foreground); }
+.final::before { content: ""; position: absolute; inset: -60% -10% auto; height: 120%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(240,200,117,.34), rgba(240,200,117,0)); }
+.final > * { position: relative; }
+.final__logo { width: 96px; height: 58px; }
+.final .ph-text { background: transparent; border-color: rgba(240,200,117,.6); color: var(--inverse-accent); font: 500 18px/1.6 var(--font-serif); padding: 12px 20px; }
+.final__ctas { display: grid; gap: 10px; width: 100%; max-width: 520px; }
+@media (min-width: 600px) { .final { padding: 48px 32px; } .final__ctas { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- 頁尾 ---------- */
+.site-footer { margin-top: 32px; padding-block: 40px 72px; background: var(--card); border-top: 1px solid var(--border); font-size: 15px; }
+.site-footer__grid { display: grid; gap: 28px; }
+.site-footer h2 { font: 700 16px/1.5 var(--font-serif); margin-bottom: 8px; }
+.site-footer p { color: var(--card-foreground); }
+.site-footer a { color: var(--accent-foreground); text-underline-offset: 4px; }
+.site-footer li a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+.site-footer li a:hover { text-decoration: underline; }
+.footer-status { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 2px 12px; border-radius: 999px; background: var(--accent); color: var(--accent-foreground); font-size: 14px; font-weight: 700; }
+.footer-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-600); }
+.footer-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.footer-contact li { display: block; padding-block: 4px; overflow-wrap: anywhere; }
+.footer-contact li a { display: inline; }
+.footer-disclaimer { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 14px; color: var(--muted-foreground); }
+.footer-disclaimer p { color: var(--muted-foreground); }
+@media (min-width: 900px) {
+  .site-footer__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 4fr); gap: 48px; }
+  .footer-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.proposal-tag { position: fixed; left: 12px; bottom: 12px; z-index: 60; padding: 6px 12px; border-radius: 999px; background: var(--inverse); color: var(--inverse-foreground); font-size: 12px; font-weight: 700; letter-spacing: .06em; box-shadow: 0 6px 16px -8px rgba(32,20,10,.7); pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0s !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  .btn:hover, .svc:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- 圖示與徽章共用定義 -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gA" x1="0" x2="1"><stop offset="0" stop-color="#E8B15A"/><stop offset="1" stop-color="#B5762A"/></linearGradient>
+    <linearGradient id="gB" x1="0" x2="1"><stop offset="0" stop-color="#F6D88F"/><stop offset="1" stop-color="#D89A3E"/></linearGradient>
+    <linearGradient id="gC" x1="0" x2="1"><stop offset="0" stop-color="#FFF3CF"/><stop offset="1" stop-color="#E8B15A"/></linearGradient>
+    <linearGradient id="gRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6D88F"/><stop offset=".5" stop-color="#C9862E"/><stop offset="1" stop-color="#8A5415"/></linearGradient>
+    <radialGradient id="gDisc"><stop offset="0" stop-color="#FFFDF0"/><stop offset=".7" stop-color="#FFF6D8"/><stop offset="1" stop-color="#FCE7A8"/></radialGradient>
+    <linearGradient id="gLogo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8B15A"/><stop offset="1" stop-color="#B5762A"/></linearGradient>
+    <!-- 單根羽毛：基部在 (0,0)，朝 -x 延伸 100 單位 -->
+    <g id="fth">
+      <path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/>
+      <path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/>
+    </g>
+    <g id="rose-pt"><path d="M100 38L111 89 100 100Z" fill="#E8B15A"/><path d="M100 38L89 89 100 100Z" fill="#FCE7A8"/></g>
+    <g id="rose-sm"><path d="M100 60L108 92 100 100Z" fill="#F0C875"/><path d="M100 60L92 92 100 100Z" fill="#FFF6D8"/></g>
+  </defs>
+  <symbol id="logo-mini" viewBox="0 0 72 44">
+    <g fill="url(#gLogo)">
+      <path d="M28 22C21 13 12 8 2 7c6 6 14 12 25 18Z"/><path d="M27 26C20 20 12 17 5 17c5 5 12 9 21 12Z"/><path d="M26 30c-5-3-11-5-16-4 4 3 10 6 16 6Z"/>
+      <g transform="translate(72 0) scale(-1 1)"><path d="M28 22C21 13 12 8 2 7c6 6 14 12 25 18Z"/><path d="M27 26C20 20 12 17 5 17c5 5 12 9 21 12Z"/><path d="M26 30c-5-3-11-5-16-4 4 3 10 6 16 6Z"/></g>
+    </g>
+    <circle cx="36" cy="26" r="10" fill="#FFFDF0" stroke="url(#gLogo)" stroke-width="2"/>
+    <path d="M36 18l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" fill="#B5762A"/>
+  </symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2Z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9Z"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8Z"/></symbol>
+  <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="9" cy="9" r="5.5"/><path d="M14.4 10.1a5.5 5.5 0 1 1-4.3 4.3"/><path d="M9 7v4"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 14c0-3.6-2.6-6-7.5-6 0 4.2 2.7 6 7.5 6Z"/><path d="M12 11.5c0-3.2 2.2-5.5 7-5.5 0 3.7-2.3 5.5-7 5.5Z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.8 13.6c2.5.3 4.2 2.2 4.2 4.9"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M12 4c-4.4 0-8 2.9-8 6.5 0 3.2 2.8 5.9 6.6 6.4l-.4 2.6 3.1-2.5c3.8-.5 6.7-3.2 6.7-6.5C20 6.9 16.4 4 12 4Z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-4 3.5 2.5L16 12l4 4"/></symbol>
+  <symbol id="i-needle" viewBox="0 0 24 24"><path d="M12 2l5 14-5-3-5 3Z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+</svg>
+
+<header class="site-header">
+  <div class="wrap site-header__in">
+    <a class="brand" href="/" aria-label="豐盛之翼學苑 首頁">
+      <svg aria-hidden="true"><use href="#logo-mini"/></svg>豐盛之翼學苑
+    </a>
+    <nav class="nav" aria-label="主導覽（提案示意，不可操作）">
+      <a href="/about">關於我們<svg class="ic" aria-hidden="true"><use href="#i-down"/></svg></a>
+      <a href="/services">療癒與培訓<svg class="ic" aria-hidden="true"><use href="#i-down"/></svg></a>
+      <a href="/testimonials">客戶見證</a>
+      <a href="/media">媒體專訪</a>
+      <a href="/blog">更多<svg class="ic" aria-hidden="true"><use href="#i-down"/></svg></a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn--ghost btn--sm header-line" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><i aria-hidden="true"></i>LINE 諮詢</a>
+      <a class="btn btn--soft btn--sm" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>商城</a>
+      <button class="menu-btn" type="button" aria-label="開啟選單（提案示意）"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1 Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>成為你豐盛之路上的翅膀</p>
+        <h1 id="hero-title"><span>為你的人生開外掛！</span><span><span class="nb">許願成真，</span><span class="nb">就是這麼幸福。</span></span></h1>
+        <p class="hero__desc">豐盛之翼學苑旨在成為大家豐盛之路上的翅膀。無論你正期盼感情的順遂、財富的自由，或是生活的全面好運，我們將透過最白話、最落地的靈性工具，陪你解開內在卡點。讓你從此不再迷惘，活出充滿熱情與使命的幸運人生！</p>
+        <div class="hero__ctas">
+          <a class="btn btn--primary" href="#personas-section">從這裡，開始我的改變</a>
+          <a class="btn btn--ghost" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">加入免費體驗社群：密碼168168</a>
+        </div>
+        <ul class="hero__badges">
+          <li><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>《七週遇見對的人》暢銷書推薦序作者</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>500+個案經驗</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>整合14種以上顯化技術，助你掌握受用一輩子的工具</li>
+        </ul>
+      </div>
+      <figure class="hero__portrait">
+        <div class="ph"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>創辦人形象照（待提供）</div>
+        <figcaption>豐盛之翼學苑創辦人 幸運教主文齡 Keila</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 2 需求入口：展翼羅盤捲動敘事 -->
+  <section class="story" id="personas-section" data-active="-1" aria-labelledby="story-title">
+    <div class="wrap story__stage">
+
+      <div class="story__visual">
+        <h2 class="story__title" id="story-title">為不同階段的你，量身規劃專屬的改變起點</h2>
+
+        <div class="emblem" role="img" aria-label="學苑標誌示意：金色雙翼與羅盤（暫代圖，正式 Logo 待提供）">
+          <div class="emblem__rays"></div>
+          <div class="emblem__glow"></div>
+          <canvas class="emblem__canvas"></canvas>
+          <i class="glint"></i><i class="glint"></i><i class="glint"></i><i class="glint"></i><i class="glint"></i>
+
+          <div class="wing wing--l">
+            <svg class="wing__svg" viewBox="0 0 300 260" aria-hidden="true" focusable="false">
+              <g fill="url(#gA)" stroke="#8A5415" stroke-opacity=".5" stroke-width=".8">
+                <g class="f" style="--d:-28deg"><use href="#fth" transform="translate(286 190) rotate(-22) scale(1.34 1.2)"/></g>
+                <g class="f" style="--d:-35deg"><use href="#fth" transform="translate(286 190) rotate(-13.5) scale(1.62 1.3)"/></g>
+                <g class="f" style="--d:-42deg"><use href="#fth" transform="translate(286 190) rotate(-5) scale(1.9 1.4)"/></g>
+                <g class="f" style="--d:-49deg"><use href="#fth" transform="translate(286 190) rotate(3.5) scale(2.16 1.45)"/></g>
+                <g class="f" style="--d:-56deg"><use href="#fth" transform="translate(286 190) rotate(12) scale(2.38 1.5)"/></g>
+                <g class="f" style="--d:-63deg"><use href="#fth" transform="translate(286 190) rotate(20.5) scale(2.52 1.55)"/></g>
+                <g class="f" style="--d:-70deg"><use href="#fth" transform="translate(286 190) rotate(29) scale(2.58 1.55)"/></g>
+                <g class="f" style="--d:-77deg"><use href="#fth" transform="translate(286 190) rotate(37.5) scale(2.52 1.5)"/></g>
+                <g class="f" style="--d:-84deg"><use href="#fth" transform="translate(286 190) rotate(46) scale(2.36 1.45)"/></g>
+              </g>
+              <g fill="url(#gB)" stroke="#8A5415" stroke-opacity=".42" stroke-width=".8">
+                <g class="f" style="--d:-26deg"><use href="#fth" transform="translate(286 190) rotate(-20) scale(1.04 1.3)"/></g>
+                <g class="f" style="--d:-35deg"><use href="#fth" transform="translate(286 190) rotate(-10) scale(1.24 1.3)"/></g>
+                <g class="f" style="--d:-44deg"><use href="#fth" transform="translate(286 190) rotate(0) scale(1.42 1.3)"/></g>
+                <g class="f" style="--d:-53deg"><use href="#fth" transform="translate(286 190) rotate(10) scale(1.55 1.3)"/></g>
+                <g class="f" style="--d:-62deg"><use href="#fth" transform="translate(286 190) rotate(20) scale(1.62 1.3)"/></g>
+                <g class="f" style="--d:-71deg"><use href="#fth" transform="translate(286 190) rotate(30) scale(1.6 1.3)"/></g>
+                <g class="f" style="--d:-80deg"><use href="#fth" transform="translate(286 190) rotate(40) scale(1.5 1.3)"/></g>
+              </g>
+              <g fill="url(#gC)" stroke="#8A5415" stroke-opacity=".36" stroke-width=".8">
+                <g class="f" style="--d:-28deg"><use href="#fth" transform="translate(286 190) rotate(-20) scale(.66 1.15)"/></g>
+                <g class="f" style="--d:-38deg"><use href="#fth" transform="translate(286 190) rotate(-8) scale(.8 1.15)"/></g>
+                <g class="f" style="--d:-50deg"><use href="#fth" transform="translate(286 190) rotate(6) scale(.9 1.15)"/></g>
+                <g class="f" style="--d:-62deg"><use href="#fth" transform="translate(286 190) rotate(20) scale(.92 1.15)"/></g>
+                <g class="f" style="--d:-74deg"><use href="#fth" transform="translate(286 190) rotate(34) scale(.86 1.15)"/></g>
+              </g>
+            </svg>
+          </div>
+
+          <div class="wing wing--r">
+            <svg class="wing__svg" viewBox="0 0 300 260" aria-hidden="true" focusable="false">
+              <g fill="url(#gA)" stroke="#8A5415" stroke-opacity=".5" stroke-width=".8">
+                <g class="f" style="--d:-28deg"><use href="#fth" transform="translate(286 190) rotate(-22) scale(1.34 1.2)"/></g>
+                <g class="f" style="--d:-35deg"><use href="#fth" transform="translate(286 190) rotate(-13.5) scale(1.62 1.3)"/></g>
+                <g class="f" style="--d:-42deg"><use href="#fth" transform="translate(286 190) rotate(-5) scale(1.9 1.4)"/></g>
+                <g class="f" style="--d:-49deg"><use href="#fth" transform="translate(286 190) rotate(3.5) scale(2.16 1.45)"/></g>
+                <g class="f" style="--d:-56deg"><use href="#fth" transform="translate(286 190) rotate(12) scale(2.38 1.5)"/></g>
+                <g class="f" style="--d:-63deg"><use href="#fth" transform="translate(286 190) rotate(20.5) scale(2.52 1.55)"/></g>
+                <g class="f" style="--d:-70deg"><use href="#fth" transform="translate(286 190) rotate(29) scale(2.58 1.55)"/></g>
+                <g class="f" style="--d:-77deg"><use href="#fth" transform="translate(286 190) rotate(37.5) scale(2.52 1.5)"/></g>
+                <g class="f" style="--d:-84deg"><use href="#fth" transform="translate(286 190) rotate(46) scale(2.36 1.45)"/></g>
+              </g>
+              <g fill="url(#gB)" stroke="#8A5415" stroke-opacity=".42" stroke-width=".8">
+                <g class="f" style="--d:-26deg"><use href="#fth" transform="translate(286 190) rotate(-20) scale(1.04 1.3)"/></g>
+                <g class="f" style="--d:-35deg"><use href="#fth" transform="translate(286 190) rotate(-10) scale(1.24 1.3)"/></g>
+                <g class="f" style="--d:-44deg"><use href="#fth" transform="translate(286 190) rotate(0) scale(1.42 1.3)"/></g>
+                <g class="f" style="--d:-53deg"><use href="#fth" transform="translate(286 190) rotate(10) scale(1.55 1.3)"/></g>
+                <g class="f" style="--d:-62deg"><use href="#fth" transform="translate(286 190) rotate(20) scale(1.62 1.3)"/></g>
+                <g class="f" style="--d:-71deg"><use href="#fth" transform="translate(286 190) rotate(30) scale(1.6 1.3)"/></g>
+                <g class="f" style="--d:-80deg"><use href="#fth" transform="translate(286 190) rotate(40) scale(1.5 1.3)"/></g>
+              </g>
+              <g fill="url(#gC)" stroke="#8A5415" stroke-opacity=".36" stroke-width=".8">
+                <g class="f" style="--d:-28deg"><use href="#fth" transform="translate(286 190) rotate(-20) scale(.66 1.15)"/></g>
+                <g class="f" style="--d:-38deg"><use href="#fth" transform="translate(286 190) rotate(-8) scale(.8 1.15)"/></g>
+                <g class="f" style="--d:-50deg"><use href="#fth" transform="translate(286 190) rotate(6) scale(.9 1.15)"/></g>
+                <g class="f" style="--d:-62deg"><use href="#fth" transform="translate(286 190) rotate(20) scale(.92 1.15)"/></g>
+                <g class="f" style="--d:-74deg"><use href="#fth" transform="translate(286 190) rotate(34) scale(.86 1.15)"/></g>
+              </g>
+            </svg>
+          </div>
+
+          <svg class="compass" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+            <circle cx="100" cy="100" r="94" fill="url(#gDisc)" stroke="url(#gRing)" stroke-width="5"/>
+            <circle cx="100" cy="100" r="86" fill="none" stroke="#B5762A" stroke-opacity=".6" stroke-width="6" stroke-dasharray="1.4 21.115" stroke-dashoffset=".7"/>
+            <circle cx="100" cy="100" r="78" fill="none" stroke="#B5762A" stroke-opacity=".45" stroke-width="1"/>
+            <g opacity=".9">
+              <use href="#rose-sm" transform="rotate(45 100 100)"/><use href="#rose-sm" transform="rotate(135 100 100)"/>
+              <use href="#rose-sm" transform="rotate(225 100 100)"/><use href="#rose-sm" transform="rotate(315 100 100)"/>
+              <use href="#rose-pt"/><use href="#rose-pt" transform="rotate(90 100 100)"/>
+              <use href="#rose-pt" transform="rotate(180 100 100)"/><use href="#rose-pt" transform="rotate(270 100 100)"/>
+            </g>
+            <g class="mark"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/><g class="mark__on"><circle cx="100" cy="6" r="16" fill="#F0C875" opacity=".6"/><path d="M100-6l10 12-10 12-10-12Z" fill="#8A5415" stroke="#FFF6D8" stroke-width="1.2"/></g></g>
+            <g class="mark" transform="rotate(90 100 100)"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/><g class="mark__on"><circle cx="100" cy="6" r="16" fill="#F0C875" opacity=".6"/><path d="M100-6l10 12-10 12-10-12Z" fill="#8A5415" stroke="#FFF6D8" stroke-width="1.2"/></g></g>
+            <g class="mark" transform="rotate(180 100 100)"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/><g class="mark__on"><circle cx="100" cy="6" r="16" fill="#F0C875" opacity=".6"/><path d="M100-6l10 12-10 12-10-12Z" fill="#8A5415" stroke="#FFF6D8" stroke-width="1.2"/></g></g>
+            <g class="mark" transform="rotate(270 100 100)"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/><g class="mark__on"><circle cx="100" cy="6" r="16" fill="#F0C875" opacity=".6"/><path d="M100-6l10 12-10 12-10-12Z" fill="#8A5415" stroke="#FFF6D8" stroke-width="1.2"/></g></g>
+            <g class="needle">
+              <path d="M100 152L105.5 100H94.5Z" fill="#C9862E" stroke="#FFF6D8" stroke-width="1"/>
+              <path d="M100 14L108 100 100 109 92 100Z" fill="#3A2409" stroke="#FFF6D8" stroke-width="1.2" stroke-linejoin="round"/>
+              <path d="M100 14L108 100 100 109Z" fill="#6B4212"/>
+            </g>
+            <circle cx="100" cy="100" r="8" fill="url(#gRing)" stroke="#FFF6D8" stroke-width="1.5"/>
+            <circle cx="100" cy="100" r="2.5" fill="#3A2409"/>
+          </svg>
+        </div>
+
+        <div class="dirs" aria-label="選擇需求方向" hidden>
+          <button type="button" class="dir" id="dir-family" aria-controls="need-family" style="--r:0deg"><svg class="ic" aria-hidden="true"><use href="#i-needle"/></svg>家庭</button>
+          <button type="button" class="dir" id="dir-love" aria-controls="need-love" style="--r:90deg"><svg class="ic" aria-hidden="true"><use href="#i-needle"/></svg>感情</button>
+          <button type="button" class="dir" id="dir-business" aria-controls="need-business" style="--r:180deg"><svg class="ic" aria-hidden="true"><use href="#i-needle"/></svg>事業</button>
+          <button type="button" class="dir" id="dir-starter" aria-controls="need-starter" style="--r:270deg"><svg class="ic" aria-hidden="true"><use href="#i-needle"/></svg>新手</button>
+        </div>
+        <div class="story__rail" aria-hidden="true"><i></i></div>
+      </div>
+
+      <div class="story__panel">
+        <div class="story__intro">
+          <p>身心靈療癒不是迷信，而是幫你的大腦「重新開機、清除雜訊」。不論你處在哪個人生階段，幸運教主文齡 Keila 都為你準備了最理性、安心且溫和的改變地圖。</p>
+          <p class="story__hint"><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg>向下捲動，展開雙翼</p>
+        </div>
+
+        <div class="story__cards">
+
+          <article class="need" id="need-family" aria-labelledby="need-family-t">
+            <header class="need__head">
+              <span class="need__icon"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg></span>
+              <h3 id="need-family-t">家庭與孩子守護</h3>
+            </header>
+            <blockquote class="need__pain">「每天為孩子的課業、情緒操碎了心，還要面對另一半或長輩的壓力。多渴望家裡和睦順利，孩子自動自發，自己也能好好睡個好覺。」</blockquote>
+            <div class="need__stories">
+              <div class="need__story"><h4>媽媽的定心丸</h4><p>孩子原本對讀書沒動力、人際卡關，媽媽幫他遠距預約「人生推進器」祝福後，孩子明顯變得積極，不僅主動分享心事，還說出未來想出國唸書的目標！</p></div>
+              <div class="need__story"><h4>婆媳與夫妻和解</h4><p>面臨極大婆媳壓力的媳婦，為婆婆預約「靈性按摩」清理身心壓力後，婆婆不再把情緒發洩在她身上；也有先生幫容易爆炸的太太預約，兩人終於能心平氣和地好好說話。</p></div>
+            </div>
+            <p class="need__start"><b>起點</b>為辛勞的你提供最深度的安定感。當媽媽的心安定了，整個家就會迎來最溫柔的和諧。</p>
+            <div class="need__ctas">
+              <a class="btn btn--primary" href="/services/group-healing">了解人生推進器</a>
+              <a class="btn btn--ghost" href="/services/spiritual-massage">看靈性按摩介紹</a>
+            </div>
+          </article>
+
+          <article class="need" id="need-love" aria-labelledby="need-love-t">
+            <header class="need__head">
+              <span class="need__icon"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span>
+              <h3 id="need-love-t">幸福真愛與伴侶</h3>
+            </header>
+            <blockquote class="need__pain">「母胎單身、總是遇不到對的人，或是一再陷入『不斷付出卻受傷』的感情舊模式？到底哪裡出了錯，我也想被好好疼愛啊！」</blockquote>
+            <div class="need__stories">
+              <div class="need__story"><h4>母胎單身逆襲</h4><p>透過心靈引渡人一對一對談，精準找出內心深處「害怕受傷」的愛情盲點。母胎單身的女孩成功告白，現在已經順利結婚生子！</p></div>
+              <div class="need__story"><h4>打破爛桃花循環</h4><p>透過練愛大確幸專屬課程陪跑，清空過去的感情包袱。不再委曲求全，活出自信閃耀的自己，順利吸引到真正懂你、疼你的另一半。</p></div>
+            </div>
+            <p class="need__start"><b>起點</b>幫助你重新愛上自己，拔除感情裡的「有毒習慣」。這是一段溫暖陪伴的旅程，幫你打開心房，遇見真正適合你的人。</p>
+            <div class="need__ctas">
+              <a class="btn btn--primary" href="/services/personal-1on1">了解心靈引渡人</a>
+              <a class="btn btn--ghost" href="https://booking.wenling.tw/products/love365" target="_blank" rel="noopener noreferrer">看練愛大確幸介紹</a>
+            </div>
+          </article>
+
+          <article class="need" id="need-business" aria-labelledby="need-business-t">
+            <header class="need__head">
+              <span class="need__icon"><svg class="ic" aria-hidden="true"><use href="#i-coins"/></svg></span>
+              <h3 id="need-business-t">企業求財與事業突破</h3>
+            </header>
+            <blockquote class="need__pain">「身處商場高壓，每天焦慮到不行。面臨業績停滯、找不到神隊友員工，或是投資決策卡關，多渴望能有一股推力，讓財富與事業全面大爆發！」</blockquote>
+            <div class="need__stories">
+              <div class="need__story"><h4>投資人與老闆的神助攻</h4><p>透過豐盛靈氣清理掉「金錢阻礙」後，退休媽媽的股票從虧損 50 萬逆轉正，有操盤手突破個人最高獲利兩千萬！企業主也順利招募到心目中的神隊友員工。</p></div>
+              <div class="need__story"><h4>業績翻倍超順利</h4><p>珠寶店使用煙供祈福，順利打破長期的業績停滯期，創造每月穩定達到200萬元以上的業績。</p></div>
+            </div>
+            <p class="need__start"><b>起點</b>為老闆、創業家、業務員與投資者提供專屬的開運助攻，讓好運與業績自動找上門！</p>
+            <div class="need__ctas">
+              <a class="btn btn--primary" href="/services/abundance-reiki">了解豐盛靈氣</a>
+              <a class="btn btn--ghost" href="/services/smoke-prayer">看煙供祈福介紹</a>
+            </div>
+          </article>
+
+          <article class="need" id="need-starter" aria-labelledby="need-starter-t">
+            <header class="need__head">
+              <span class="need__icon"><svg class="ic" aria-hidden="true"><use href="#i-sprout"/></svg></span>
+              <h3 id="need-starter-t">開啟身心靈事業 (新手入門)</h3>
+            </header>
+            <blockquote class="need__pain">「對身心靈充滿好奇，想找個簡單實用的方法解決自己的煩惱；或是想多一份副業收入，卻不知道從哪裡開始最快賺到錢？」</blockquote>
+            <div class="need__stories">
+              <div class="need__story"><h4>占卜師專業大升級</h4><p>塔羅牌占卜師學習希塔療癒後，從「只能給建議」變成「能實際幫客戶解決困擾」，收費價值大幅提升，開拓出全新的賺錢方向。</p></div>
+              <div class="need__story"><h4>零基礎小白無痛增加收入</h4><p>完全沒有身心靈背景的上班族，學完簡單易懂的金錢靈氣後，開始穩定接案增加收入，甚至能自己開課賺錢，打造完美副業！</p></div>
+            </div>
+            <p class="need__start"><b>起點</b>不論是想療癒自己，還是想發展高收入的第二專長，這裡有最簡單、零門檻的教學，帶你把所學變成實際的收入。</p>
+            <div class="need__ctas">
+              <a class="btn btn--primary" href="/training/theta-basic">了解希塔療癒</a>
+              <a class="btn btn--ghost" href="/training/money-reiki-cert">看金錢靈氣課介紹</a>
+            </div>
+          </article>
+
+        </div>
+
+        <div class="story__foot" hidden>
+          <span class="story__count" aria-hidden="true"><b>1</b> / 4</span>
+          <button type="button" class="story__skip" aria-pressed="false">
+            <svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg>
+            <span class="t-pinned">跳過，直接看全部</span><span class="t-tabs">直接看全部</span><span class="t-all">收合，一次看一個</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3 新手入門引導（文案待提供） -->
+  <section class="sec" aria-labelledby="start-title">
+    <div class="wrap">
+      <div class="card start reveal">
+        <div>
+          <h2 id="start-title">新手入門</h2>
+          <span class="ph-text" style="margin-top:8px">引導文案待提供（一句話）</span>
+        </div>
+        <ol class="start__steps">
+          <li><i>1</i>文案待提供</li>
+          <li><i>2</i>文案待提供</li>
+          <li><i>3</i>文案待提供</li>
+        </ol>
+        <a class="btn btn--ghost" href="/start">第一次體驗從這裡開始<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 精選服務 -->
+  <section class="sec" aria-labelledby="svc-title">
+    <div class="wrap">
+      <div class="sec-head reveal"><h2 id="svc-title">精選服務</h2></div>
+      <ul class="svcs">
+        <li class="reveal" style="--i:0"><a class="card svc" href="/services/group-healing">
+          <span class="svc__icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>
+          <h3>人生推進器｜團體遠距療癒<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></h3>
+          <p>遠距集體能量調頻，1 回合 11 次傳送，無需在線即可持續提升頻率、突破卡關。</p>
+        </a></li>
+        <li class="reveal" style="--i:1"><a class="card svc" href="/services/personal-1on1">
+          <span class="svc__icon"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span>
+          <h3>心靈引渡人｜一對一個人能量療癒<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></h3>
+          <p>深度潛意識溝通與信念轉化，陪你渡過人生卡關的難關，找回輕盈與平靜。</p>
+        </a></li>
+        <li class="reveal" style="--i:2"><a class="card svc" href="/services/abundance-reiki">
+          <span class="svc__icon"><svg class="ic" aria-hidden="true"><use href="#i-coins"/></svg></span>
+          <h3>豐盛靈氣｜全方位能量調頻與願望顯化<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></h3>
+          <p>獨家結合 8 大高頻靈氣（含金錢、百花、愛情、人魚靈氣等），每月梯次遠距傳送，全面提升財富、感情與人氣運勢。</p>
+        </a></li>
+      </ul>
+      <div class="sec-foot reveal"><a class="btn btn--ghost" href="/services">查看全部服務<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+    </div>
+  </section>
+
+  <!-- 5 精選見證（待授權） -->
+  <section class="sec" aria-labelledby="quote-title">
+    <div class="wrap">
+      <div class="sec-head sec-head--tagged reveal">
+        <span class="pending">待授權</span>
+        <p class="eyebrow"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>成功案例精選</p>
+        <h2 id="quote-title">他們，都在這裡找回了人生的主導權</h2>
+        <p>來自不同生命階段、不同課題的真實蛻變故事。</p>
+      </div>
+      <ul class="quotes">
+        <li class="reveal" style="--i:0"><figure class="card quote">
+          <span class="quote__cat">感情／單身</span>
+          <blockquote>「調整完伴侶訂單的 3 個月內，我就遇到了新對象！完全突破了以前對另一半的刻板印象！」</blockquote>
+          <footer>— 感情顯化個案<span>對應服務待確認</span></footer>
+        </figure></li>
+        <li class="reveal" style="--i:1"><figure class="card quote">
+          <span class="quote__cat">家庭／媽媽</span>
+          <blockquote>「幫家裡祈福後，原本晚上容易哭鬧的孩子終於能安穩入睡，家裡的壓力感整個消失了。」</blockquote>
+          <footer>— 家庭祈福個案<span>對應服務待確認</span></footer>
+        </figure></li>
+        <li class="reveal" style="--i:2"><figure class="card quote">
+          <span class="quote__cat">事業／企業主</span>
+          <blockquote>「煙供後老闆不再找麻煩，卡很久的案子順利成交，那週業績直接翻倍！」</blockquote>
+          <footer>— 事業突破個案<span>對應服務待確認</span></footer>
+        </figure></li>
+      </ul>
+      <div class="sec-foot reveal"><a class="btn btn--ghost" href="/testimonials">查看完整案例<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+    </div>
+  </section>
+
+  <!-- 6 創辦人簡介（文案待提供） -->
+  <section class="sec" aria-labelledby="founder-title">
+    <div class="wrap founder">
+      <div class="ph reveal"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>創辦人形象照（待提供）</div>
+      <div class="founder__body reveal" style="--i:1">
+        <p class="eyebrow"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>創辦人簡介</p>
+        <h2 id="founder-title">豐盛之翼學苑創辦人 幸運教主文齡 Keila</h2>
+        <span class="ph-text">簡介文案待提供（2–3 句）</span>
+        <ul class="founder__creds">
+          <li class="ph-text">資歷 1<br>待提供</li>
+          <li class="ph-text">資歷 2<br>待提供</li>
+          <li class="ph-text">資歷 3<br>待提供</li>
+        </ul>
+        <a class="btn btn--ghost" href="/story">認識創辦人<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 媒體精選 -->
+  <section class="sec media" aria-labelledby="media-title">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>媒體專訪與出版紀錄</p>
+        <h2 id="media-title">幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享</h2>
+        <p>以下為幸運教主文齡 Keila公開可查證的出版與媒體受訪紀錄，用最落地的經驗，陪你走過感情與人生的每個卡關。</p>
+      </div>
+      <div class="media__grid">
+        <ul class="books">
+          <li class="book reveal" style="--i:0"><div class="ph">書封<br>（待提供）</div><h3>七週遇見對的人</h3><p>暢銷書改版唯一推薦序作者</p></li>
+          <li class="book reveal" style="--i:1"><div class="ph">書封<br>（待提供）</div><h3>練愛大確幸</h3><p>個人著作・實作手帳</p></li>
+          <li class="book reveal" style="--i:2"><div class="ph">書封<br>（待提供）</div><h3>好女人的情場攻略</h3><p>節目合作／內容參與</p></li>
+        </ul>
+        <ul class="eps">
+          <li class="card ep reveal" style="--i:0">
+            <span class="ep__icon"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg></span>
+            <p class="ep__show">美麗佳人 Podcast</p>
+            <p class="ep__title">S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛</p>
+          </li>
+          <li class="card ep reveal" style="--i:1">
+            <span class="ep__icon"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg></span>
+            <p class="ep__show">好女人的情場攻略 Podcast<em>2022年收聽冠軍單集</em></p>
+            <p class="ep__title">Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！</p>
+          </li>
+          <li class="card ep reveal" style="--i:2">
+            <span class="ep__icon"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg></span>
+            <p class="ep__show">小紀老師的幸福學 Podcast</p>
+            <p class="ep__title">Ep.163 l 如何成為金錢磁鐵</p>
+          </li>
+        </ul>
+      </div>
+      <div class="sec-foot reveal"><a class="btn btn--ghost" href="/media">閱讀媒體專訪<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+    </div>
+  </section>
+
+  <!-- 8 免費資源 -->
+  <section class="sec" aria-label="免費資源">
+    <div class="wrap">
+      <div class="card free reveal">
+        <div class="free__items">
+          <div>
+            <p class="free__type">免費公益直播</p>
+            <h3>【每週免費直播】豐盛之翼學苑公益體驗直播</h3>
+            <p>每週一晚間 21:30–22:30，文齡老師於社群內舉辦免費公益體驗直播，帶你實際感受能量練習與希塔療癒的應用，參與還有機會獲得專屬小禮物。</p>
+          </div>
+          <div>
+            <p class="free__type">療癒支持社群</p>
+            <h3>【免費社群】加入豐盛之翼學苑</h3>
+            <p>每天充滿正能量分享的免費社群，帶著願望進來，也帶著好消息出去。進入社群需輸入密碼 168168。</p>
+          </div>
+        </div>
+        <a class="btn btn--ghost" href="/resources">查看直播社群資訊<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 FAQ 精選 -->
+  <section class="sec" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="faq">
+        <div class="sec-head reveal"><h2 id="faq-title">常見問題</h2></div>
+        <div class="reveal">
+          <details>
+            <summary>療癒／課程多久會有效？</summary>
+            <p>每個人的能量運作節奏不同。有人隔天就能感受到具體轉變，也有人是在數週內逐步改善。身心感受通常顯現較快，之後請留意生活中的細微變化，例如想法變清晰、習慣模式改變，或身邊的人對待你的態度不同了。</p>
+          </details>
+          <details>
+            <summary>這是什麼？會不會是降頭或巫術？</summary>
+            <p>絕對不是降頭或巫術。我們所使用的技術（如希塔療癒、擴大療癒等）皆源自正向、純淨的高頻源頭能量，屬於能量調整與潛意識轉化，非占卜、非通靈，也不涉及任何宗教束縛。</p>
+          </details>
+          <details>
+            <summary>我可以幫家人或朋友預約嗎？</summary>
+            <p>個人一對一療癒需經本人同意並親自參與；團體遠距能量服務（如人生推進器、煙供）則可代為預約，但需先提供對方全名，經確認能量意願無誤後再進行安排。</p>
+          </details>
+          <details>
+            <summary>這些服務／課程可以取代醫療或心理治療嗎？</summary>
+            <p>不行。所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 最終 CTA -->
+  <section class="sec" aria-label="開始諮詢">
+    <div class="wrap">
+      <div class="final reveal">
+        <svg class="final__logo" aria-hidden="true"><use href="#logo-mini"/></svg>
+        <span class="ph-text">收束文案待提供（一句）</span>
+        <div class="final__ctas">
+          <a class="btn btn--on-dark" href="#personas-section">了解適合我的服務</a>
+          <a class="btn btn--line" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>加入官方 LINE 諮詢</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__grid">
+      <div>
+        <a class="brand" href="/"><svg aria-hidden="true"><use href="#logo-mini"/></svg>豐盛之翼學苑</a>
+        <p style="margin-top:8px">用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。</p>
+        <span class="footer-status"><i aria-hidden="true"></i>全球線上遠距服務</span>
+      </div>
+      <nav class="footer-nav" aria-label="頁尾導覽">
+        <div>
+          <h2>關於豐盛之翼學苑</h2>
+          <ul><li><a href="/about">品牌理念</a></li><li><a href="/story">創辦人經歷與故事</a></li><li><a href="/about#partners">合作夥伴</a></li></ul>
+        </div>
+        <div>
+          <h2>療癒與培訓</h2>
+          <ul><li><a href="/services">全部服務</a></li><li><a href="/training">認證班</a></li></ul>
+        </div>
+        <div>
+          <h2>見證與實用內容</h2>
+          <ul><li><a href="/testimonials">客戶見證</a></li><li><a href="/blog">部落格</a></li><li><a href="/resources">免費資源</a></li><li><a href="/media">媒體專訪</a></li></ul>
+        </div>
+      </nav>
+      <div>
+        <h2>官方聯繫與諮詢管道</h2>
+        <p>企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+        <ul class="footer-contact" style="margin-top:8px">
+          <li>LINE：<a href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer">@healer.wenling</a></li>
+          <li>Email：<a href="mailto:lavie@wenling.tw">lavie@wenling.tw</a></li>
+          <li><a href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">訂購商品、服務或課程</a></li>
+          <li><a href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA" target="_blank" rel="noopener noreferrer">輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-disclaimer">
+      <h2>免責聲明</h2>
+      <p>所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p>
+    </div>
+  </div>
+</footer>
+
+<div class="proposal-tag">提案 C・展翼羅盤</div>
+
+<script>
+(function () {
+  'use strict';
+  var doc = document.documentElement;
+  var story = document.getElementById('personas-section');
+  var stage = story.querySelector('.story__stage');
+  var emblem = story.querySelector('.emblem');
+  var header = document.querySelector('.site-header');
+  var dirsBox = story.querySelector('.dirs');
+  var dirs = [].slice.call(story.querySelectorAll('.dir'));
+  var cards = [].slice.call(story.querySelectorAll('.need'));
+  var marks = [].slice.call(story.querySelectorAll('.mark'));
+  var foot = story.querySelector('.story__foot');
+  var skip = story.querySelector('.story__skip');
+  var countEl = story.querySelector('.story__count b');
+
+  var PIN_QUERY = '(min-width: 1024px) and (min-height: 680px) and (prefers-reduced-motion: no-preference)';
+  var mqPin = window.matchMedia(PIN_QUERY);
+  var ANG = [0, 90, 180, 270];      // 北＝家庭、東＝感情、南＝事業、西＝新手
+  var INTRO = 0.14;                 // 開場（雙翼收攏）佔捲動進度的比例
+  var SEG = (1 - INTRO) / 4;
+
+  var expanded = false, pinBlocked = false;
+  var mode = '', active = -2, needle = 0;
+  var startY = 0, dist = 1, target = 0, cur = 0, raf = 0;
+  var state = { glow: 1 };
+
+  dirsBox.hidden = false;
+  foot.hidden = false;
+
+  function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeIO(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+  function setVars(open, glow, ang, p) {
+    var s = story.style;
+    s.setProperty('--open', open.toFixed(4));
+    s.setProperty('--glow', glow.toFixed(4));
+    s.setProperty('--needle', ang.toFixed(2));
+    s.setProperty('--p', p.toFixed(4));
+    state.glow = glow;
+  }
+  function clearVars() {
+    ['--open', '--glow', '--p'].forEach(function (k) { story.style.removeProperty(k); });
+    state.glow = 1;
+  }
+
+  function setActive(i, turnNeedle) {
+    if (i !== active) {
+      active = i;
+      story.setAttribute('data-active', i);
+      cards.forEach(function (c, k) { c.classList.toggle('is-active', k === i); });
+      marks.forEach(function (m, k) { m.classList.toggle('is-on', k === i); });
+      dirs.forEach(function (d, k) {
+        d.classList.toggle('is-active', k === i);
+        if (mode !== 'all') {
+          d.setAttribute('aria-selected', k === i ? 'true' : 'false');
+          d.tabIndex = (k === i || (i < 0 && k === 0)) ? 0 : -1;
+        }
+      });
+      if (countEl && i >= 0) countEl.textContent = i + 1;
+    }
+    if (turnNeedle && i >= 0) {
+      // 走最短路徑轉向，避免從西回到北時倒轉 270 度
+      var k = Math.round((needle - ANG[i]) / 360);
+      needle = ANG[i] + 360 * k;
+      story.style.setProperty('--needle', needle.toFixed(2));
+    }
+  }
+
+  /* ---- 釘住模式：捲動進度 → 變數 ---- */
+  function measure() {
+    startY = story.getBoundingClientRect().top + window.scrollY - header.offsetHeight;
+    dist = Math.max(1, story.offsetHeight - stage.offsetHeight);
+  }
+  function progress() { return clamp((window.scrollY - startY) / dist); }
+  function render(p) {
+    // 雙翼：到第一張卡時已展開約八成五，之後隨捲動緩緩揚到全開；光暈一路累積到最後
+    var open = 0.85 * easeOut(clamp(p / 0.25)) + 0.15 * clamp((p - 0.25) / 0.75);
+    var g = clamp((p - INTRO) / (0.92 - INTRO)); g = 0.3 * clamp(p / INTRO) + 0.7 * g * g * (3 - 2 * g);
+    var f = (p - INTRO) / SEG, i, ang;
+    if (f < 0) {
+      i = -1; ang = -50 + 14 * clamp(p / INTRO);
+    } else {
+      i = Math.min(3, Math.floor(f));
+      var prev = i === 0 ? -36 : ANG[i - 1];
+      ang = prev + (ANG[i] - prev) * easeIO(clamp((f - i) / 0.35));
+    }
+    needle = ang;
+    setVars(open, g, ang, p);
+    setActive(i, false);
+  }
+  function tick() {
+    raf = 0;
+    if (mode !== 'pinned') return;
+    var d = target - cur;
+    if (Math.abs(d) < 0.0006) { cur = target; }
+    else { cur += d * 0.24; raf = requestAnimationFrame(tick); }
+    render(cur);
+  }
+  function onScroll() {
+    if (mode !== 'pinned') return;
+    measure();
+    target = progress();
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function setRoles(on) {
+    if (on) {
+      dirsBox.setAttribute('role', 'tablist');
+      dirs.forEach(function (d) { d.setAttribute('role', 'tab'); });
+      cards.forEach(function (c, k) { c.setAttribute('role', 'tabpanel'); c.setAttribute('aria-labelledby', dirs[k].id); });
+    } else {
+      dirsBox.removeAttribute('role');
+      dirs.forEach(function (d) { d.removeAttribute('role'); d.removeAttribute('aria-selected'); d.tabIndex = 0; });
+      cards.forEach(function (c) { c.removeAttribute('role'); c.setAttribute('aria-labelledby', c.id + '-t'); });
+    }
+  }
+
+  function applyMode() {
+    var next = expanded ? 'all' : (mqPin.matches && !pinBlocked ? 'pinned' : 'tabs');
+    var prevActive = active;
+    mode = next;
+    doc.setAttribute('data-story', next);
+    skip.setAttribute('aria-pressed', expanded ? 'true' : 'false');
+    setRoles(next !== 'all');
+    active = -2;
+
+    if (next === 'pinned') {
+      // 內容放不進舞台（字體放大、視窗太矮）就退回分頁版，不讓內容被裁切
+      if (stage.scrollHeight > stage.clientHeight + 4) { pinBlocked = true; applyMode(); return; }
+      measure();
+      target = cur = progress();
+      render(cur);
+    } else if (next === 'tabs') {
+      clearVars();
+      setActive(prevActive >= 0 ? prevActive : 0, true);
+    } else {
+      clearVars();
+      setActive(-1, false);
+    }
+  }
+
+  function jump(i) {
+    if (mode === 'pinned') {
+      measure();
+      window.scrollTo({ top: startY + dist * (INTRO + SEG * (i + 0.5)), behavior: 'smooth' });
+    } else if (mode === 'tabs') {
+      setActive(i, true);
+    }
+  }
+
+  dirs.forEach(function (d, k) {
+    d.addEventListener('click', function () { jump(k); });
+    d.addEventListener('keydown', function (e) {
+      var step = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : (e.key === 'ArrowLeft' || e.key === 'ArrowUp') ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      var n = (k + step + 4) % 4;
+      dirs[n].focus();
+      jump(n);
+    });
+  });
+
+  skip.addEventListener('click', function () {
+    expanded = !expanded;
+    applyMode();
+    var y = story.getBoundingClientRect().top + window.scrollY - header.offsetHeight;
+    try { window.scrollTo({ top: y, behavior: 'instant' }); } catch (e) { window.scrollTo(0, y); }
+    if (mode === 'pinned') onScroll();
+  });
+
+  // Hero 與最終 CTA 的錨點：釘住模式下直接捲到第一張卡，途中雙翼展開
+  [].forEach.call(document.querySelectorAll('a[href="#personas-section"]'), function (a) {
+    a.addEventListener('click', function (e) {
+      if (mode !== 'pinned') return;
+      e.preventDefault();
+      jump(0);
+    });
+  });
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function () { pinBlocked = false; applyMode(); });
+  window.addEventListener('load', function () { if (mode === 'pinned') { pinBlocked = false; applyMode(); } });
+  if (mqPin.addEventListener) mqPin.addEventListener('change', applyMode);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (mode === 'pinned') applyMode(); });
+
+  applyMode();
+
+  /* ---- 單次進場 ---- */
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('is-in');
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('is-in'); });
+  }
+
+  /* ---- 金色光塵（Canvas 2D）：桌機、舞台在視窗內才跑；否則顯示靜態光點 ---- */
+  (function glints() {
+    var cv = emblem.querySelector('.emblem__canvas');
+    var ctx = cv.getContext ? cv.getContext('2d') : null;
+    var mqOK = window.matchMedia('(min-width: 768px) and (prefers-reduced-motion: no-preference)');
+    if (!ctx || !('IntersectionObserver' in window)) return;
+    var W = 0, H = 0, parts = [], rafId = 0, inView = false, last = 0, N = 16;
+
+    function size() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = cv.clientWidth; H = cv.clientHeight;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function spawn(p, anywhere) {
+      p.x = W * (0.1 + Math.random() * 0.8);
+      p.y = anywhere ? H * Math.random() : H * (0.5 + Math.random() * 0.45);
+      p.r = 0.9 + Math.random() * 1.7;
+      p.vy = 9 + Math.random() * 16;
+      p.vx = (Math.random() - 0.5) * 7;
+      p.life = anywhere ? Math.random() * 3 : 0;
+      p.ttl = 3.2 + Math.random() * 3.6;
+      p.ph = Math.random() * 6.283;
+    }
+    function frame(t) {
+      rafId = requestAnimationFrame(frame);
+      var dt = Math.min(0.05, (t - last) / 1000 || 0); last = t;
+      ctx.clearRect(0, 0, W, H);
+      var g = state.glow;
+      if (g < 0.03) return;
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        p.life += dt;
+        if (p.life > p.ttl) spawn(p, false);
+        p.y -= p.vy * dt; p.x += p.vx * dt;
+        var a = Math.sin(Math.PI * p.life / p.ttl) * (0.6 + 0.4 * Math.sin(t / 320 + p.ph)) * g;
+        if (a <= 0) continue;
+        ctx.globalAlpha = a * 0.3;
+        ctx.fillStyle = '#E8B15A';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 3.4, 0, 6.283); ctx.fill();
+        ctx.globalAlpha = a * 0.95;
+        ctx.fillStyle = '#C9862E';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    function update() {
+      var run = inView && mqOK.matches && !document.hidden;
+      if (run && !rafId) {
+        emblem.classList.add('has-canvas');
+        size();
+        if (!parts.length) { for (var i = 0; i < N; i++) { parts.push({}); spawn(parts[i], true); } }
+        last = performance.now();
+        rafId = requestAnimationFrame(frame);
+      } else if (!run && rafId) {
+        cancelAnimationFrame(rafId); rafId = 0;
+        if (!mqOK.matches) emblem.classList.remove('has-canvas');
+      }
+    }
+    new IntersectionObserver(function (es) { inView = es[0].isIntersecting; update(); }, { threshold: 0.05 }).observe(emblem);
+    document.addEventListener('visibilitychange', update);
+    if (mqOK.addEventListener) mqOK.addEventListener('change', update);
+    window.addEventListener('resize', function () { if (rafId) size(); });
+  })();
+})();
+</script>
+</body>
+</html>

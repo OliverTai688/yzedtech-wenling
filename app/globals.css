@@ -265,3 +265,214 @@ h1, h2, h3, h4, .font-serif-tc {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PLN-004 階段 D：共用樣式（RES-002 §1 首頁定案的視覺語言）
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 次要按鈕與 LINE 按鈕（主按鈕沿用 .gold-btn）。點擊目標至少 44px。 */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-popover);
+  color: var(--color-secondary-foreground);
+  font-weight: 600;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.btn-outline:hover {
+  border-color: var(--color-ring);
+  background: #fff;
+}
+.btn-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  background: var(--color-line);
+  color: var(--color-line-foreground);
+  font-weight: 700;
+  transition: filter 150ms ease;
+}
+.btn-line:hover {
+  filter: brightness(1.06);
+}
+.gold-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+}
+
+/* 主按鈕的金光：進入畫面時掃過一次（RPT-001 §5.3）。 */
+.gold-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.gold-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 253, 240, 0.75) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: gold-sheen 900ms ease-out 600ms 1 both;
+  pointer-events: none;
+}
+.gold-sheen:hover::after {
+  animation: gold-sheen-hover 700ms ease-out 1;
+}
+@keyframes gold-sheen {
+  to {
+    transform: translateX(120%);
+  }
+}
+@keyframes gold-sheen-hover {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+/* 區塊眉批：短金線加小字 */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--color-accent-foreground);
+}
+.eyebrow::before {
+  content: '';
+  width: 1.75rem;
+  height: 1px;
+  background: var(--color-ring);
+}
+
+/* 漸進揭露（BRIEF §4A）：原生 <details>，內容一直在 HTML 裡，不需要 JavaScript。
+   支援的瀏覽器會有高度過渡，不支援的直接開合。 */
+.disclosure {
+  interpolate-size: allow-keywords;
+}
+.disclosure > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.disclosure::details-content {
+  block-size: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: block-size 250ms ease, opacity 250ms ease, content-visibility 250ms allow-discrete;
+}
+.disclosure[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+.disclosure > summary .disclosure-icon {
+  transition: transform 250ms ease;
+}
+.disclosure[open] > summary .disclosure-icon {
+  transform: rotate(45deg);
+}
+
+/* 金翼羅盤（暫代圖，正式 Logo 到位後替換；RPT-001 G1）。
+   --open：雙翼展開程度 0～1；--needle：指針角度（度）。 */
+.emblem {
+  --open: 1;
+  --needle: 0;
+  position: relative;
+  width: min(100%, 460px);
+  aspect-ratio: 460 / 270;
+  margin-inline: auto;
+}
+.emblem__glow {
+  position: absolute;
+  inset: -16% -6%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 253, 240, 0.98) 0, rgba(252, 231, 168, 0.9) 34%, rgba(232, 177, 90, 0.38) 60%, rgba(232, 177, 90, 0) 100%);
+  opacity: calc(0.1 + var(--open) * 0.9);
+  transform: scale(calc(0.5 + var(--open) * 0.5));
+}
+.emblem__rays {
+  position: absolute;
+  inset: -34% -8%;
+  pointer-events: none;
+  background: repeating-conic-gradient(from -4deg at 50% 52%, rgba(201, 134, 46, 0) 0 8deg, rgba(201, 134, 46, 0.2) 8deg 9.5deg, rgba(201, 134, 46, 0) 9.5deg 15deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%);
+  opacity: var(--open);
+  transform: scale(calc(0.7 + var(--open) * 0.3));
+}
+.emblem .wing {
+  position: absolute;
+  top: 1.5%;
+  width: 46%;
+  aspect-ratio: 300 / 260;
+  perspective: 620px;
+  perspective-origin: 95.3% 73%;
+}
+.emblem .wing--l {
+  left: -4%;
+}
+.emblem .wing--r {
+  right: -4%;
+  transform: scaleX(-1);
+}
+.emblem .wing__svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 95.3% 73%;
+  transform: rotateY(calc((1 - var(--open)) * -64deg)) rotateZ(calc((1 - var(--open)) * -8deg));
+}
+.emblem .wing .f {
+  transform-origin: 286px 190px;
+  transform: rotate(calc(var(--d) * (1 - var(--open))));
+}
+.emblem .compass {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 31%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -46%);
+  overflow: visible;
+}
+.emblem .needle {
+  transform-origin: 100px 100px;
+  transform: rotate(calc(var(--needle) * 1deg));
+  transition: transform 600ms cubic-bezier(0.3, 1.35, 0.6, 1);
+}
+.emblem .mark__on {
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+.emblem .mark.is-on .mark__on {
+  opacity: 1;
+}
+
+/* 有手機底部固定 CTA 列的頁面：手機上隱藏右下角的浮動按鈕，並替頁尾留出空間。 */
+@media (max-width: 1023px) {
+  body[data-sticky-cta] #floating-widgets {
+    display: none;
+  }
+  body[data-sticky-cta] footer {
+    padding-bottom: 5rem;
+  }
+}

@@ -1,5 +1,6 @@
-import { Sparkles, MessageCircle, Mail, MessageSquare, Users, AtSign, ShoppingBag, ArrowUpRight } from 'lucide-react';
+import { MessageCircle, Mail, MessageSquare, Users, AtSign, ShoppingBag, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
+import WingsMark from './brand/WingsMark';
 import { Separator } from '@/components/ui/separator';
 import { footerContent, footerNavigation, siteLinks } from '../data';
 
@@ -22,9 +23,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-3 space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#D89A3E] to-[#FCE7A8] flex items-center justify-center shadow-xs">
-                <Sparkles className="w-4 h-4 text-[#3A2409]" />
-              </div>
+              <WingsMark className="h-7 w-auto" />
               <h2 className="text-lg font-bold font-serif text-[#FFFDF0] tracking-wide">豐盛之翼學苑</h2>
             </Link>
             <p className="text-base text-[#B49A76] leading-relaxed max-w-sm">{footerContent.tagline}</p>

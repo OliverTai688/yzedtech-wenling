@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Sparkles, ShoppingBag, MessageCircle } from 'lucide-react';
+import { ShoppingBag, MessageCircle } from 'lucide-react';
+import WingsMark from './brand/WingsMark';
 import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 import { siteLinks } from '../data';
@@ -29,9 +30,7 @@ export default function Header() {
         <div className="flex justify-between items-center gap-3 py-3">
 
           <Link href="/" className="flex items-center gap-3 group select-none shrink-0 min-h-11" id="brand-logo">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FCE7A8] via-[#E8B15A] to-[#C9862E] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300 border border-popover">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <WingsMark className="h-8 w-auto transition-transform duration-300 group-hover:scale-105" />
             <span className="text-lg font-bold font-serif text-card-foreground tracking-wider leading-none">
               豐盛之翼學苑
             </span>

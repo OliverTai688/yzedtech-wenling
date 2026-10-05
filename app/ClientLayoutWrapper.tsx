@@ -21,7 +21,7 @@ export default function ClientLayoutWrapper() {
   }, []);
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3.5 items-end">
+    <div id="floating-widgets" className="fixed bottom-6 right-6 z-40 flex flex-col gap-3.5 items-end">
       {/* Floating LINE Community Shortcut */}
       <a
         href={siteLinks.line}

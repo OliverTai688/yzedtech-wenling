@@ -768,6 +768,7 @@ export const needEntriesIntro = {
 export const needEntries: NeedEntry[] = [
   {
     id: 'family',
+    shortLabel: '家庭',
     iconName: 'heart',
     title: '家庭與孩子守護',
     painPoint:
@@ -790,6 +791,7 @@ export const needEntries: NeedEntry[] = [
   },
   {
     id: 'love',
+    shortLabel: '感情',
     iconName: 'sparkles',
     title: '幸福真愛與伴侶',
     painPoint:
@@ -812,6 +814,7 @@ export const needEntries: NeedEntry[] = [
   },
   {
     id: 'business',
+    shortLabel: '事業',
     iconName: 'coins',
     title: '企業求財與事業突破',
     painPoint:
@@ -834,6 +837,7 @@ export const needEntries: NeedEntry[] = [
   },
   {
     id: 'starter',
+    shortLabel: '新手',
     iconName: 'sprout',
     title: '開啟身心靈事業 (新手入門)',
     painPoint:
@@ -1075,6 +1079,86 @@ export const footerNavigation: NavGroup[] = [
     ],
   },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────
+// PLN-004 階段 D1：首頁（RES-002 §1 定案）。區塊標題與內文取自文案集 v2；
+// 按鈕文字取自需求書 §8.2 的 CTA 清單。
+// ─────────────────────────────────────────────────────────────────────────
+export const homeContent = {
+  needs: {
+    eyebrow: '找到你的起點',
+    tabsLabel: '選擇最接近你現況的方向',
+    storiesLabel: '真實改變故事',
+    startLabel: '專屬起點',
+  },
+  // 精選服務：需求入口前三張卡的第一個 CTA 所指的服務（RES-001 §9 決策 4）。
+  // 標題與副標：Home Block 3（第 161、163 行）；各服務一句話：第 165、174、183 行。
+  services: {
+    eyebrow: '精選服務',
+    heading: '能量療癒服務｜為你的身心靈量身訂做的解方',
+    description: '從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。',
+    items: [
+      { id: 'group-healing', blurb: '強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。' },
+      { id: 'personal-1on1', blurb: '潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。' },
+      { id: 'abundance-reiki', blurb: '整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。' },
+    ],
+    moreLabel: '查看全部服務',
+    itemLabel: '了解詳情',
+  },
+  // 精選見證：Home Block 6（第 214～227 行）各類第一則。客戶尚未確認可公開使用
+  // （RPT-001 C1），authorized 為 false 時首頁不顯示這個區塊。
+  testimonials: {
+    authorized: false,
+    eyebrow: '客戶見證',
+    heading: '他們，都在這裡找回了人生的主導權',
+    description: '來自不同生命階段、不同課題的真實蛻變故事。',
+    items: [
+      { category: '感情／單身', quote: '調整完伴侶訂單的 3 個月內，我就遇到了新對象！完全突破了以前對另一半的刻板印象！', source: '感情顯化個案' },
+      { category: '家庭／媽媽', quote: '幫家裡祈福後，原本晚上容易哭鬧的孩子終於能安穩入睡，家裡的壓力感整個消失了。', source: '家庭祈福個案' },
+      { category: '事業／企業主', quote: '煙供後老闆不再找麻煩，卡很久的案子順利成交，那週業績直接翻倍！', source: '事業突破個案' },
+    ],
+    moreLabel: '查看完整案例',
+  },
+  // 創辦人簡介：短簡介（RPT-001 T2）未到，先用 About 的使命宣言原文（第 328～329 行）。
+  founder: {
+    eyebrow: '創辦人',
+    missionLabel: '我的使命與願景',
+    missionTitle: '在愛與豐盛中綻放靈魂的光芒',
+    mission: '「引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。」',
+    cta: '認識創辦人',
+  },
+  media: { moreLabel: '閱讀媒體專訪' },
+  resources: { eyebrow: '免費資源', moreLabel: '查看免費資源' },
+  // FAQ 精選：Home Block 8（第 310～323 行）的 Q1、Q2、Q3、Q6（RPT-001 C4 的預設）。
+  faq: {
+    heading: '常見問題',
+    items: [
+      {
+        question: '療癒／課程多久會有效？',
+        answer: '每個人的能量運作節奏不同。有人隔天就能感受到具體轉變，也有人是在數週內逐步改善。身心感受通常顯現較快，之後請留意生活中的細微變化，例如想法變清晰、習慣模式改變，或身邊的人對待你的態度不同了。',
+      },
+      {
+        question: '這是什麼？會不會是降頭或巫術？',
+        answer: '絕對不是降頭或巫術。我們所使用的技術（如希塔療癒、擴大療癒等）皆源自正向、純淨的高頻源頭能量，屬於能量調整與潛意識轉化，非占卜、非通靈，也不涉及任何宗教束縛。',
+      },
+      {
+        question: '我可以幫家人或朋友預約嗎？',
+        answer: '個人一對一療癒需經本人同意並親自參與；團體遠距能量服務（如人生推進器、煙供）則可代為預約，但需先提供對方全名，經確認能量意願無誤後再進行安排。',
+      },
+      {
+        question: '這些服務／課程可以取代醫療或心理治療嗎？',
+        answer: '不行。所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。',
+      },
+    ],
+  },
+  // 最終 CTA：收束標語（RPT-001 T3）未到，先用 Hero 的眉批原文。
+  finalCta: {
+    primary: '加入官方 LINE 諮詢',
+    secondary: '了解適合我的服務',
+    shop: '前往商城',
+  },
+  stickyCta: { primary: '了解適合我的服務', line: 'LINE 諮詢' },
+};
 
 // PRD-003 §4.14（PLN-004 Batch A6）：/legal 改用文案集 v2 的《隱私權政策》（第 1589 行起）、
 // 《服務條款》（第 1617 行起）與《免責聲明》（第 1684 行起）全文。以下內容由
