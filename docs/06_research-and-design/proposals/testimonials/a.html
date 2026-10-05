@@ -1,0 +1,171 @@
+<!--
+提案 A｜分類分頁＋引言卡
+概念：頂部四類分頁，一次只顯示一類，每則見證是精簡引言卡（引言、來源、可點擊服務標籤）；未授權時分頁整組換成說明與三個出口。
+動效技術：僅 CSS（面板交叉淡入、.reveal 進場），無 3D、無粒子。
+開關：<html data-state="authorised|unauthorised">，頁面左下角小按鈕可切換（僅供評審預覽，上線時移除）。
+已知弱點：(1) 一次只看一類，訪客要點分頁才看到其他處境，瀏覽量較低；(2) 對應服務僅依來源標示推定，不確定者標「對應服務待確認」。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW" data-state="authorised">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜客戶見證提案A・分類分頁＋引言卡</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.page-head { padding-block: 40px 20px; max-width: 720px; }
+.page-head h1 { margin-top: 10px; }
+.page-head .lead { margin-top: 12px; font-family: var(--font-serif); font-size: 20px; color: var(--card-foreground); }
+.page-head .sub { margin-top: 4px; }
+.tabs-wrap { overflow-x: auto; padding-block: 4px; margin-inline: -24px; padding-inline: 24px; scrollbar-width: none; }
+.tabs-wrap::-webkit-scrollbar { display: none; }
+.tabs { flex-wrap: nowrap; width: max-content; }
+.tab { white-space: nowrap; }
+.tab:focus-visible, .svc:focus-visible, .btn:focus-visible, .toggle:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.panel { margin-top: 20px; display: grid; gap: 16px; }
+.panel[hidden] { display: none; }
+.panel.is-on { animation: fade 250ms ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (min-width: 768px) { .panel { grid-template-columns: 1fr 1fr; gap: 20px; } }
+.tcard { display: flex; flex-direction: column; gap: 16px; position: relative; padding: 24px; }
+.tcard::before { content: '\201C'; position: absolute; top: 4px; right: 18px; font-family: var(--font-serif); font-size: 64px; line-height: 1; color: var(--gold-300, #E8B15A); opacity: .5; }
+.tcard .quote { font-size: 16px; margin: 0; color: var(--card-foreground); }
+.tcard footer { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.src { font-size: 14px; color: var(--muted-foreground); }
+.svc { display: inline-flex; align-items: center; min-height: 44px; padding: 4px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--popover); color: var(--accent-foreground); font-size: 14px; font-weight: 700; }
+.svc:hover { border-color: var(--ring); }
+.svc.tbc { color: var(--muted-foreground); font-weight: 500; border-style: dashed; }
+.pending { position: absolute; top: 10px; left: 14px; font-size: 12px; color: var(--muted-foreground); }
+.tcard { padding-top: 34px; }
+.after { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+@media (min-width: 640px) { .after { flex-direction: row; align-items: center; } }
+.after .note { font-size: 14px; color: var(--muted-foreground); }
+/* 狀態切換 */
+[data-state="authorised"] .when-unauth, [data-state="unauthorised"] .when-auth { display: none; }
+.unauth { margin-top: 24px; max-width: 760px; }
+.unauth h2 { font-size: 22px; }
+.unauth p { margin-top: 12px; }
+.exits { margin-top: 20px; display: grid; gap: 12px; }
+@media (min-width: 768px) { .exits { grid-template-columns: repeat(3, 1fr); } .exits .btn { width: 100%; } }
+.toggle { position: fixed; left: 12px; bottom: 120px; z-index: 60; background: var(--popover); color: var(--secondary-foreground); border: 1px solid var(--border); border-radius: 999px; font-size: 12px; padding: 4px 10px; min-height: 28px; cursor: pointer; font-family: inherit; }
+@media (min-width: 1024px) { .toggle { bottom: 44px; } }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+<div class="container">
+  <div class="page-head">
+    <span class="eyebrow">客戶見證</span>
+    <h1>客戶見證</h1>
+    <p class="lead">他們，都在這裡找回了人生的主導權</p>
+    <p class="sub muted">來自不同生命階段、不同課題的真實蛻變故事。</p>
+  </div>
+
+  <!-- 狀態一：已授權 -->
+  <section class="when-auth" aria-label="見證分類">
+    <div class="tabs-wrap">
+      <div class="tabs" role="tablist" aria-label="見證分類">
+        <button class="tab" role="tab" id="t0" aria-controls="p0" aria-selected="true">感情／單身</button>
+        <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="false" tabindex="-1">家庭／媽媽</button>
+        <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">事業／企業主</button>
+        <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">身心蛻變／其他</button>
+      </div>
+    </div>
+
+    <div class="panel is-on" role="tabpanel" id="p0" aria-labelledby="t0">
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「調整完伴侶訂單的 3 個月內，我就遇到了新對象！完全突破了以前對另一半的刻板印象！」</blockquote>
+        <footer><span class="src">— 感情顯化個案</span><a class="svc tbc" href="/services">對應服務待確認</a></footer></article>
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「原本以為自己很清楚要什麼，做完『伴侶訂單微調』才發現潛意識的限制。清理卡點後，對感情的焦慮感瞬間消失，身邊也開始出現好幾個符合解讀特徵的人！」</blockquote>
+        <footer><span class="src">— 靈魂伴侶解讀個案</span><a class="svc" href="/services/spiritual-reading">靈性解讀與能量療癒</a></footer></article>
+    </div>
+    <div class="panel" role="tabpanel" id="p1" aria-labelledby="t1" hidden>
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「幫家裡祈福後，原本晚上容易哭鬧的孩子終於能安穩入睡，家裡的壓力感整個消失了。」</blockquote>
+        <footer><span class="src">— 家庭祈福個案</span><a class="svc tbc" href="/services">對應服務待確認</a></footer></article>
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「女兒代媽媽預約後，媽媽長期失眠狀況獲得改善，胸口不適感也消失了。」</blockquote>
+        <footer><span class="src">— 家庭療癒個案</span><a class="svc tbc" href="/services">對應服務待確認</a></footer></article>
+    </div>
+    <div class="panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「煙供後老闆不再找麻煩，卡很久的案子順利成交，那週業績直接翻倍！」</blockquote>
+        <footer><span class="src">— 事業突破個案</span><a class="svc" href="/services/smoke-prayer">遠距煙供祈福儀式</a></footer></article>
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「隔天業績提升、三天後獲得升遷通知。」</blockquote>
+        <footer><span class="src">— 事業突破個案</span><a class="svc tbc" href="/services">對應服務待確認</a></footer></article>
+    </div>
+    <div class="panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「透過持續信念挖掘，排除體內負面情緒毒素。沒有特別控制飲食與運動，短短兩個月就瘦了 6 公斤！」</blockquote>
+        <footer><span class="src">— 希塔療癒學員</span><a class="svc tbc" href="/services">對應服務待確認</a></footer></article>
+      <article class="card tcard"><span class="pending">待授權</span>
+        <blockquote class="quote">「Keila 老師精準讀到我的優勢是凝聚團隊，也挖出我很深的卡點——『覺得休息就會害到別人』。重新校正後，我不必再把責任全扛在身上，團隊也變得更主動了。」</blockquote>
+        <footer><span class="src">— 4+1 感知中心個案</span><a class="svc" href="/services/spiritual-reading">靈性解讀與能量療癒</a></footer></article>
+    </div>
+
+    <div class="after">
+      <a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a>
+      <a class="btn btn-outline" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a>
+    </div>
+  </section>
+
+  <!-- 狀態二：未授權 -->
+  <section class="when-unauth unauth card" aria-label="見證授權說明">
+    <h2>見證整理中</h2>
+    <p>我們正在向個案取得正式授權與去識別化整理，確保每一則分享都真實可查證。</p>
+    <div class="exits">
+      <a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a>
+      <a class="btn btn-outline" href="/services">看全部服務</a>
+      <a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a>
+    </div>
+  </section>
+  <div style="height:48px"></div>
+</div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<button class="toggle" id="toggle" type="button">預覽：切換為未授權狀態</button>
+<div class="proposal-tag">提案A・分類分頁＋引言卡</div>
+<script>
+const tabs = [...document.querySelectorAll('.tab')];
+function select(i, focus) {
+  tabs.forEach((t, j) => {
+    const on = i === j;
+    t.setAttribute('aria-selected', on);
+    t.tabIndex = on ? 0 : -1;
+    const p = document.getElementById(t.getAttribute('aria-controls'));
+    p.hidden = !on;
+    p.classList.toggle('is-on', on);
+  });
+  if (focus) tabs[i].focus();
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => select(i));
+  t.addEventListener('keydown', (e) => {
+    const n = tabs.length;
+    if (e.key === 'ArrowRight') { e.preventDefault(); select((i + 1) % n, true); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); select((i + n - 1) % n, true); }
+  });
+});
+const root = document.documentElement, btn = document.getElementById('toggle');
+btn.addEventListener('click', () => {
+  const un = root.dataset.state === 'authorised';
+  root.dataset.state = un ? 'unauthorised' : 'authorised';
+  btn.textContent = un ? '預覽：切換為已授權狀態' : '預覽：切換為未授權狀態';
+});
+</script>
+</body>
+</html>

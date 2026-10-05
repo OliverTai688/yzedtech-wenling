@@ -1,207 +1,122 @@
 import Link from 'next/link';
-import { ArrowRight, ShieldCheck, MessageCircle } from 'lucide-react';
-import { thetaTrainingCourses, certificationCourses, healerCertificationAddOn, siteLinks } from '../data';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ArrowRight, MessageCircle, Plus, ShieldCheck } from 'lucide-react';
+import {
+  certificationCourses,
+  courseBlurbs,
+  healerCertificationAddOn,
+  offeringsContent,
+  siteLinks,
+  thetaTrainingCourses,
+} from '../data';
 
-// PRD-002 §3.3 v1.1（2026-08-21，Batch E）：`/training` 培訓總覽頁，收錄
-// `thetaTrainingCourses`＋`certificationCourses`（希塔培訓／
-// 希塔認證班／療癒師認證，含併入的直覺力培訓加值模組說明），版面比照
-// `/services` 總覽頁（大標題、分類說明、卡片清單），不再依賴 `activeTab`
-// 切換。卡片點擊導向各自的詳細頁 `/training/[id]`
-// （TrainingDetailClientPage.tsx），圖片一律用品牌漸層背景＋文字呈現，
-// 不使用照片。
-//
-// 2026-08-22（客戶回報重疊 bug＋設計系統要求）：原本用 `absolute top-4
-// right-4` 疊放分類徽章在標題右上角，標題較長／換行時會被徽章蓋住。改用
-// shadcn/ui 的 Card／CardHeader／CardTitle／CardContent／CardFooter＋Badge
-// 重寫，徽章移到 CardHeader 內、標題正上方，兩者都在正常文件流中各自佔一行，
-// 不論文字多長都不會互相覆蓋。Card／Badge 的 className 皆有覆寫品牌配色
-// （見 ServicesSection.tsx 同樣的說明：專案 shadcn 色彩 tokens 尚未在
-// app/globals.css 定義，沿用預設 variant 會呈現無色）。
-
-interface TrainingCardData {
+// 認證班（PLN-004 D5；定案見 RES-002 §5）。採提案 B「學習路徑圖」：
+// - 希塔療癒三門課是一條有先後順序的路徑；靈氣認證三門是並列的入口；直覺力訓練即將推出。
+// - 每個節點預設只露出課名與一句話，點開才顯示目標、對象、時數與費用；一次只開一門（BRIEF §4A）。
+// - 用原生 <details>，內容都在 HTML 裡，不需要 JavaScript。
+interface Stop {
   id: string;
-  badgeText: string;
-  title: string;
+  name: string;
   objective: string;
+  targetAudience: string;
   duration: string;
-  tags: string[];
-  ctaLink?: string;
-  comingSoon?: boolean;
+  price?: string;
+  prerequisite?: string;
+  certification?: string;
 }
 
-function TrainingCourseCard({ course }: { course: TrainingCardData }) {
+function CourseStop({ stop, index }: { stop: Stop; index?: number }) {
+  const { itemLabel } = offeringsContent.training;
   return (
-    <Link href={`/training/${course.id}`} className="group block h-full">
-      <div
-        className={`flex h-full flex-col overflow-hidden rounded-2xl border shadow-xs transition-all duration-300 ${
-          course.comingSoon
-            ? 'bg-brand-stone-50/60 border-dashed border-stone-200'
-            : 'bg-white border-stone-100 group-hover:shadow-md group-hover:border-brand-gold-200'
-        }`}
+    <li className="relative pl-10">
+      <span
+        aria-hidden="true"
+        className="absolute left-0 top-3 flex size-7 items-center justify-center rounded-full border-2 border-[#D89A3E] bg-popover text-sm font-bold text-accent-foreground"
       >
-        <Card className="flex flex-1 flex-col rounded-none border-0 bg-transparent p-0 shadow-none ring-0">
-          <CardHeader className="gap-2 px-5 pt-5 sm:px-6">
-            {/* 分類／徽章文字：獨立一行，正常文件流，不會蓋到下方標題 */}
-            <Badge
-              variant="outline"
-              className={`h-auto w-fit whitespace-normal break-words rounded-full px-2.5 py-1 text-sm font-bold ${
-                course.comingSoon
-                  ? 'border-stone-200 bg-stone-100 text-stone-500'
-                  : 'border-brand-gold-200 bg-brand-gold-100 text-brand-gold-600'
-              }`}
-            >
-              {course.badgeText}
-            </Badge>
-            <CardTitle className="text-base sm:text-lg font-bold font-serif leading-relaxed text-brand-stone-900">
-              {course.title}
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="flex-1 space-y-6 px-5 sm:px-6">
-            <div className="rounded-xl border border-brand-gold-150 bg-brand-gold-50/50 p-4 text-base leading-relaxed font-medium text-stone-700">
-              <span className="font-bold text-brand-stone-900">培訓目標：</span>{course.objective}
-            </div>
-
-            {course.tags.length > 0 && (
-              <ul className="space-y-1.5">
-                {course.tags.slice(0, 3).map((tag, tIdx) => (
-                  <li key={tIdx} className="text-base text-stone-600 leading-relaxed">・{tag}</li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-
-          <CardFooter className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-stone-50 bg-transparent px-5 py-4 sm:px-6">
-            <span className="text-sm text-stone-500">{course.duration}</span>
-            <span className="inline-flex items-center gap-1 text-base font-semibold text-brand-pink-600 group-hover:text-brand-pink-700">
-              <span>查看完整介紹</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </span>
-          </CardFooter>
-        </Card>
-      </div>
-    </Link>
+        {index ?? ''}
+      </span>
+      <details name="course" className="disclosure rounded-[18px] border border-border bg-card px-5 shadow-[0_4px_20px_rgba(58,42,24,0.05)] sm:px-6">
+        <summary className="flex min-h-16 items-center justify-between gap-4 py-3">
+          <span>
+            <span className="block font-serif text-lg font-bold leading-snug text-card-foreground">{stop.name}</span>
+            {courseBlurbs[stop.id] && <span className="mt-1 block text-base font-normal text-muted-foreground">{courseBlurbs[stop.id]}</span>}
+          </span>
+          <Plus className="disclosure-icon size-4 shrink-0 text-ring" />
+        </summary>
+        <div className="space-y-3 pb-6 text-base leading-relaxed text-muted-foreground">
+          <p>{stop.objective}</p>
+          <p>
+            <span className="font-bold text-card-foreground">適合對象：</span>
+            {stop.targetAudience}
+          </p>
+          <ul className="flex flex-wrap gap-2 pt-1">
+            {[stop.duration, stop.certification, stop.prerequisite].filter(Boolean).map((fact) => (
+              <li key={fact} className="rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground">
+                {fact}
+              </li>
+            ))}
+          </ul>
+          {stop.price && <p className="text-foreground">{stop.price}</p>}
+          <Link href={`/training/${stop.id}`} className="gold-btn mt-2 px-6 text-base font-bold">
+            {itemLabel}
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </details>
+    </li>
   );
 }
 
 export default function TrainingSection() {
-  const thetaCards: TrainingCardData[] = thetaTrainingCourses.map((c) => ({
-    id: c.id,
-    badgeText: c.level,
-    title: c.name,
-    objective: c.objective,
-    duration: c.duration,
-    tags: c.highlights,
-    ctaLink: c.ctaLink,
-  }));
-
-  const healerCertCards: TrainingCardData[] = certificationCourses.map((c) => ({
-    id: c.id,
-    badgeText: c.badge,
-    title: c.name,
-    objective: c.objective,
-    duration: c.duration,
-    tags: c.curriculum,
-    ctaLink: c.ctaLink,
-    comingSoon: c.status === 'coming-soon',
-  }));
+  const t = offeringsContent.training;
+  const { helper } = offeringsContent;
 
   return (
-    <section id="training-section" className="py-20 bg-linear-to-b from-brand-stone-50 via-brand-pink-50/10 to-brand-stone-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="training-section" className="mx-auto max-w-[920px] px-6 pb-16 pt-10 lg:px-10 lg:pb-24 lg:pt-14">
+      <p className="eyebrow">{t.heading}</p>
+      <h1 className="mt-3 font-serif text-[32px] font-bold leading-snug text-card-foreground md:text-[40px]">{t.title}</h1>
+      <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">{t.description}</p>
 
-        {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="text-sm uppercase tracking-widest text-brand-pink-600 font-bold">Training</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-brand-stone-900 font-serif">
-            國際希塔療癒認證培訓與專業證照課程
-          </h2>
-          <div className="w-12 h-1 bg-linear-to-r from-brand-pink-300 to-brand-gold-300 mx-auto rounded-full"></div>
-          <p className="text-base text-stone-600">
-            從國際希塔療癒證照培訓，到金錢／愛情／人魚靈氣療癒師暨導師認證課程。若想了解一對一能量療癒與工作坊等服務，請前往
-            {' '}
-            <Link href="/services" className="text-brand-pink-600 font-semibold hover:text-brand-pink-700 underline underline-offset-2">
-              服務總覽頁
-            </Link>
-            。
-          </p>
-        </div>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <Link href="/#personas-section" className="btn-outline text-base">
+          {helper.needs}
+          <ArrowRight className="size-4" />
+        </Link>
+        <a href={siteLinks.line} target="_blank" rel="noopener noreferrer" className="btn-outline text-base">
+          <MessageCircle className="size-4 text-line" />
+          {t.lineLabel}
+        </a>
+      </div>
 
-        {/* Category 1: 希塔療癒認證培訓（thetaTrainingCourses；PRD-003 §4.5 已併入原 reikiCourses） */}
-        <div className="mb-16">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <h3 className="text-xl font-bold font-serif text-brand-stone-900">希塔療癒認證培訓</h3>
-            <span className="text-sm text-stone-500">美國 ThetaHealing® 官方國際認證</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {thetaCards.map((course) => (
-              <TrainingCourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        </div>
+      {/* 軌道一：希塔療癒，有先後順序 */}
+      <h2 className="mt-12 font-serif text-xl font-bold text-card-foreground md:text-2xl">{t.thetaTrack}</h2>
+      <ol className="relative mt-5 space-y-4 before:absolute before:bottom-6 before:left-[13px] before:top-6 before:w-[2px] before:bg-gradient-to-b before:from-[#F5D98A] before:to-[#B5762A]">
+        {thetaTrainingCourses.map((course, index) => (
+          <CourseStop key={course.id} stop={course} index={index + 1} />
+        ))}
+      </ol>
+      <p className="mt-5 flex items-start gap-2.5 rounded-xl border border-border bg-popover p-4 text-base leading-relaxed text-muted-foreground">
+        <ShieldCheck className="mt-0.5 size-5 shrink-0 text-ring" />
+        <span>{t.credential}</span>
+      </p>
 
-        {/* Category 3: 專業證照與直覺力培訓（certificationCourses，含併入的直覺力培訓說明） */}
-        <div className="mb-10">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <h3 className="text-xl font-bold font-serif text-brand-stone-900">專業證照與直覺力培訓</h3>
-            <span className="text-sm text-stone-500">療癒師暨導師認證</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
-            {healerCertCards.map((course) => (
-              <TrainingCourseCard key={course.id} course={course} />
-            ))}
-          </div>
+      {/* 軌道二：靈氣認證，三門並列 */}
+      <h2 className="mt-14 font-serif text-xl font-bold text-card-foreground md:text-2xl">{t.reikiTrack}</h2>
+      <ul className="mt-5 space-y-4">
+        {certificationCourses.map((course) => (
+          <CourseStop key={course.id} stop={course} />
+        ))}
+      </ul>
 
-          {/* 直覺力培訓加值模組說明 — PRD-002 §3.3 v1.1：原獨立卡片/詳細頁已移除，
-              併入療癒師認證分類敘述，不再獨立呈現，文字沿用原始措辭。 */}
-          <div className="bg-white rounded-2xl border border-dashed border-stone-200 p-6 sm:p-8 max-w-4xl mx-auto">
-            <span className="text-sm font-bold text-brand-gold-600 uppercase tracking-wider block mb-2">療癒師認證加值模組・即將推出</span>
-            <h4 className="text-lg font-bold font-serif text-brand-stone-900 mb-2">{healerCertificationAddOn.name}</h4>
-            <p className="text-base text-stone-600 leading-relaxed mb-2">
-              <span className="font-bold text-brand-stone-900">培訓目標：</span>{healerCertificationAddOn.objective}
-            </p>
-            <p className="text-base text-stone-500 leading-relaxed mb-4">
-              <span className="font-bold text-brand-stone-900">適合對象：</span>{healerCertificationAddOn.targetAudience}
-            </p>
-            <p className="text-sm text-stone-400 mb-4">{healerCertificationAddOn.note}</p>
-            <a
-              href={healerCertificationAddOn.ctaLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-base font-semibold text-brand-pink-600 hover:text-brand-pink-700"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>搶先登記，開課通知我</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Certification footer banner */}
-        <div className="bg-white rounded-2xl border border-stone-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto shadow-xs">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-brand-gold-100 text-brand-gold-600 rounded-full shrink-0">
-              <ShieldCheck className="w-7 h-7" />
-            </div>
-            <div>
-              <h4 className="text-base font-bold text-brand-stone-900">美國 ThetaHealing® 希塔療癒官方國際認證</h4>
-              {/* copy-qa-reviewer 覆核（2026-08-21）：原「登錄為合格執業療癒師」查無文案集出處，
-                  已改為文案集第 447-448 行「官方認證療癒師／官方認證導師…美國 THInK 總部發證」
-                  的措辭，僅保留有出處的部分。 */}
-              <p className="text-base text-stone-500 mt-1 leading-relaxed">文齡老師為官方認可之國際導師，學員修畢課程並通過評核，即可獲頒美國 THInK 總部發證之官方結業證照。</p>
-            </div>
-          </div>
-          <a
-            href={siteLinks.line}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2.5 rounded-full border border-brand-pink-200 text-brand-pink-600 font-semibold text-base hover:bg-brand-pink-50 transition-colors shrink-0"
-          >
-            加 LINE 洽詢開班日程 ➔
-          </a>
-        </div>
-
+      {/* 直覺力訓練：課程資訊待補（RPT-001 T5） */}
+      <h2 className="mt-14 font-serif text-xl font-bold text-card-foreground md:text-2xl">{t.intuitionTrack}</h2>
+      <div className="mt-5 rounded-[18px] border border-dashed border-ring/50 bg-popover p-6">
+        <span className="rounded-full bg-accent px-3 py-0.5 text-sm font-bold text-accent-foreground">{t.comingSoon}</span>
+        <h3 className="mt-3 font-serif text-lg font-bold text-card-foreground">{healerCertificationAddOn.name}</h3>
+        <p className="mt-2 text-base leading-relaxed text-muted-foreground">{healerCertificationAddOn.objective}</p>
+        <a href={healerCertificationAddOn.ctaLink} target="_blank" rel="noopener noreferrer" className="btn-outline mt-4 text-base">
+          <MessageCircle className="size-4 text-line" />
+          {t.notifyLabel}
+        </a>
       </div>
     </section>
   );

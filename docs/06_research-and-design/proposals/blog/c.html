@@ -1,0 +1,146 @@
+<!--
+提案 C「依主題分區」
+概念：不設篩選，依六大主題固定順序分區，每區標題＋單行文章列，展開才看摘要與閱讀全文；側邊／頂端索引跳區。
+動效技術：原生 details 展開收合（_kit.css）、.reveal 一次性進場、CSS scroll-margin 與平滑捲動、IntersectionObserver 標示目前區段。
+已知弱點：每類僅一篇，分區標題比內容多，顯得空；無搜尋，文章增多後需另加。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜部落格提案C・依主題分區</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 40px 16px; }
+.hero h1 { margin-top: 12px; }
+.hero .lead { margin-top: 12px; color: var(--muted-foreground); max-width: 560px; }
+.hero .cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+.layout { display: block; }
+.index { position: sticky; top: 64px; z-index: 30; margin-inline: -24px; padding: 10px 24px; background: rgba(251,241,221,.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(240,223,160,.7); }
+.index ul { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.index ul::-webkit-scrollbar { display: none; }
+.index a { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 6px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--popover); color: var(--secondary-foreground); font-size: 14px; font-weight: 700; }
+.index a[aria-current="true"] { background: var(--accent); border-color: var(--ring); color: var(--primary-foreground); }
+.index .label { display: none; }
+.topic { scroll-margin-top: 140px; padding-block: 32px 8px; }
+.topic h2 { display: flex; align-items: baseline; gap: 12px; font-size: 26px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+.topic .num { font-size: 14px; letter-spacing: .1em; color: var(--accent-foreground); font-family: var(--font-sans); font-weight: 700; }
+.row-item > summary { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; min-height: 56px; padding-block: 12px; }
+.row-item > summary::after { grid-column: 2; grid-row: 1; align-self: center; }
+.row-item .t { grid-column: 1; font-family: var(--font-serif); font-size: 17px; line-height: 1.5; }
+.row-item .meta { grid-column: 1; font-size: 14px; font-weight: 500; color: var(--muted-foreground); }
+.row-item .body { display: flex; flex-direction: column; gap: 4px; padding-bottom: 12px; }
+.row-item .body p { color: var(--foreground); }
+.end { margin-block: 48px 8px; text-align: center; }
+.end p { color: var(--muted-foreground); margin-bottom: 16px; }
+@media (min-width: 1024px) {
+  .hero { padding-block: 64px 24px; }
+  .layout { display: grid; grid-template-columns: 200px 1fr; gap: 56px; padding-bottom: 48px; }
+  .index { top: 96px; align-self: start; margin: 0; padding: 0; background: none; backdrop-filter: none; border: 0; }
+  .index .label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; letter-spacing: .12em; color: var(--accent-foreground); }
+  .index ul { flex-direction: column; gap: 2px; overflow: visible; border-left: 1px solid var(--border); }
+  .index a { border: 0; border-radius: 0 12px 12px 0; background: none; margin-left: -1px; border-left: 2px solid transparent; padding-inline: 16px; font-size: 16px; }
+  .index a[aria-current="true"] { background: var(--accent); border-left-color: var(--ring); }
+  .topic { scroll-margin-top: 96px; padding-block: 40px 8px; }
+  .topic:first-child { padding-top: 0; }
+  .row-item > summary { grid-template-columns: 1fr auto auto; align-items: center; }
+  .row-item .t { grid-column: 1; }
+  .row-item .meta { grid-column: 2; grid-row: 1; white-space: nowrap; }
+  .row-item > summary::after { grid-column: 3; }
+  .row-item .body { max-width: 680px; }
+}
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <div class="container">
+    <section class="hero">
+      <span class="eyebrow">BLOG</span>
+      <h1>部落格</h1>
+      <p class="lead">依主題找到你現在最需要的那一篇。</p>
+      <div class="cta"><a class="btn btn-outline" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="link" href="/#personas-section">了解適合我的服務 →</a></div>
+    </section>
+
+    <div class="layout">
+      <nav class="index" aria-label="文章主題索引"><p class="label">主題</p>
+        <ul><li><a href="#cat-0">愛情</a></li><li><a href="#cat-1">財運</a></li><li><a href="#cat-2">豐盛靈氣</a></li><li><a href="#cat-3">事業</a></li><li><a href="#cat-4">心路歷程</a></li><li><a href="#cat-5">個案成長</a></ul>
+      </nav>
+      <div class="topics">
+  <section class="topic" id="cat-0" aria-labelledby="h-0">
+    <h2 id="h-0"><span class="num">01</span>愛情</h2>
+    <details class="disclosure row-item">
+      <summary><span class="t">從《七週遇見對的人》談起：愛情不是苦苦等待，而是自我價值的同頻對齊</span><span class="meta">2026-06-20・5 分鐘</span></summary>
+      <div class="body"><p>許多人在感情裡反覆受傷，以為自己不夠好，或者運氣差。事實上，你的伴侶往往是你潛意識信念的精準投影。本文從暢銷書《七週遇見對的人》的核心概念出發，剖析如何透過自我價值對齊，重新啟動幸福磁場。</p><a class="link" href="/blog/post-1">閱讀全文 →</a></div>
+    </details>
+  </section>
+  <section class="topic" id="cat-1" aria-labelledby="h-1">
+    <h2 id="h-1"><span class="num">02</span>財運</h2>
+    <details class="disclosure row-item">
+      <summary><span class="t">金錢能量的流動：如何清理內在匱乏感，走向物質與心靈的雙重豐盛</span><span class="meta">2026-06-12・6 分鐘</span></summary>
+      <div class="body"><p>你對金錢的態度，決定了金錢是否願意留在你身邊。如果你一花錢就感到心痛、賺了錢卻無比焦慮，那你可能正處於「金錢匱乏能量」中。本文教你 3 個立刻能做的豐盛調頻練習。</p><a class="link" href="/blog/post-2">閱讀全文 →</a></div>
+    </details>
+  </section>
+  <section class="topic" id="cat-2" aria-labelledby="h-2">
+    <h2 id="h-2"><span class="num">03</span>豐盛靈氣</h2>
+    <details class="disclosure row-item">
+      <summary><span class="t">日常能量護航：用豐盛靈氣為自己創造一個「幸運體質」磁場</span><span class="meta">2026-05-28・4 分鐘</span></summary>
+      <div class="body"><p>為什麼有的人總是能在關鍵時刻遇到貴人、避開麻煩，彷彿被好運眷顧？這不是天生偏心，而是他們懂得如何維持自己的高頻能量場。本文分享日常三步驟，教你打造防護罩與幸運體質。</p><a class="link" href="/blog/post-3">閱讀全文 →</a></div>
+    </details>
+  </section>
+  <section class="topic" id="cat-3" aria-labelledby="h-3">
+    <h2 id="h-3"><span class="num">04</span>事業</h2>
+    <details class="disclosure row-item">
+      <summary><span class="t">給企業主與高階主管：如何在高壓决策與市場變動中，保持大腦能量的平穩？</span><span class="meta">2026-05-15・5 分鐘</span></summary>
+      <div class="body"><p>身為決策者，你的一個念頭，決定了團隊的方向與數百萬甚至數億業績的走向。當你處於焦慮、得失心極重的能量狀態時，直覺會被雜音覆蓋。本文探討如何為創業者提供穩定的心靈護航。</p><a class="link" href="/blog/post-4">閱讀全文 →</a></div>
+    </details>
+  </section>
+  <section class="topic" id="cat-4" aria-labelledby="h-4">
+    <h2 id="h-4"><span class="num">05</span>心路歷程</h2>
+    <details class="disclosure row-item">
+      <summary><span class="t">從全面崩塌到重生：我如何在人生最黑暗的一年，遇見希塔療癒與自己</span><span class="meta">2026-04-30・7 分鐘</span></summary>
+      <div class="body"><p>文齡老師親自撰寫的靈魂自白。分享 2019 年那段家庭、健康、感情與財務同時崩塌的黑暗歲月，如何在接觸希塔療癒後，看見潛意識裡的限制性信念，並在短短數月內迎來翻轉。</p><a class="link" href="/blog/post-5">閱讀全文 →</a></div>
+    </details>
+  </section>
+  <section class="topic" id="cat-5" aria-labelledby="h-5">
+    <h2 id="h-5"><span class="num">06</span>個案成長</h2>
+    <details class="disclosure row-item">
+      <summary><span class="t">個案陪伴故事：從冰凍三尺的家庭關係，看見潛意識和解的奇蹟起點</span><span class="meta">2026-04-12・6 分鐘</span></summary>
+      <div class="body"><p>一則關於母女心結的深度陪伴紀實。一對互不說話、一見面就冷嘲熱諷的母女，如何透過潛意識信念的看見，解開糾葛二十年的情感鎖鏈，重回彼此接納與擁抱的溫情。</p><a class="link" href="/blog/post-6">閱讀全文 →</a></div>
+    </details>
+  </section>
+      </div>
+    </div>
+
+    <section class="end reveal">
+      <p>讀完想更進一步？</p>
+      <a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a>
+    </section>
+  </div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 C・依主題分區</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+// 索引標示目前區段
+const links = [...document.querySelectorAll('.index a')];
+const so = new IntersectionObserver((es) => es.forEach((e) => {
+  if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + e.target.id)));
+}), { rootMargin: '-30% 0px -60% 0px' });
+document.querySelectorAll('.topic').forEach((s) => so.observe(s));
+</script>
+</body>
+</html>

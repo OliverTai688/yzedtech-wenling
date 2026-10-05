@@ -1,0 +1,117 @@
+<!--
+提案代號：聯絡我們 C
+概念：整頁就是一塊大 LINE 面板（LINE ID＋一顆按鈕＋桌機限定 QR 佔位），其餘四個管道收成下方兩欄精簡清單。
+動效：只用一次性進場 .reveal；Email 複製鈕用極小 JS（clipboard）。
+已知弱點：1) 其他管道被刻意降級，想用 Email／Facebook 的人要往下找；2) QR 目前只是佔位框，真圖到位前桌機左半邊視覺較空。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜聯絡我們 提案C・LINE 為主</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.intro { padding-block: 40px 24px; }
+.intro h1 { margin-top: 12px; }
+.intro p { margin-top: 12px; max-width: 34em; color: var(--muted-foreground); }
+.line-panel { display: grid; gap: 24px; padding: 28px 24px; border-radius: 24px; background: linear-gradient(160deg, #FFFDF0 0%, #FCE7A8 140%); border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(58,42,24,.08); border-top: 6px solid var(--line); }
+.line-panel .tag { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--line-foreground); }
+.line-panel .tag i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.line-id { margin-top: 8px; font-family: var(--font-serif); font-weight: 900; font-size: 32px; line-height: 1.2; color: var(--card-foreground); word-break: break-all; }
+.line-panel .btn-line { width: 100%; margin-top: 20px; min-height: 56px; font-size: 18px; box-shadow: 0 6px 18px rgba(6,199,85,.35); }
+.qr { display: none; }
+.note { margin-top: 16px; font-size: 14px; color: var(--muted-foreground); }
+@media (min-width: 900px) {
+  .line-panel { grid-template-columns: 1fr 240px; align-items: center; padding: 48px; gap: 48px; }
+  .line-panel .btn-line { width: auto; padding-inline: 36px; }
+  .qr { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; aspect-ratio: 1; border: 2px dashed var(--ring); border-radius: 18px; background: var(--popover); text-align: center; padding: 16px; font-size: 14px; color: var(--muted-foreground); }
+  .qr strong { color: var(--card-foreground); font-size: 16px; }
+}
+.others { margin-top: 40px; }
+.others h2 { font-size: 20px; }
+.chan { display: grid; gap: 0 32px; margin-top: 8px; }
+@media (min-width: 768px) { .chan { grid-template-columns: 1fr 1fr; } }
+.chan li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding-block: 8px; border-bottom: 1px solid rgba(240,223,160,.9); }
+.chan .name { font-weight: 700; color: var(--card-foreground); }
+.chan .val { font-size: 14px; color: var(--muted-foreground); overflow-wrap: anywhere; }
+.chan .act { display: flex; align-items: center; gap: 8px; flex: none; }
+.chan .link { font-size: 15px; }
+.copy { min-height: 44px; padding: 4px 14px; font-size: 14px; }
+.comm { margin-top: 28px; padding: 16px 20px; border-radius: 14px; background: var(--accent); color: var(--accent-foreground); font-weight: 600; }
+.sr-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <div class="container">
+    <section class="intro">
+      <span class="eyebrow">CONTACT</span>
+      <h1>聯絡我們</h1>
+      <p>企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+    </section>
+
+    <section class="line-panel reveal" aria-label="官方 LINE">
+      <div>
+        <span class="tag"><i></i>LINE</span>
+        <div class="line-id">@healer.wenling</div>
+        <a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE</a>
+      </div>
+      <div class="qr" role="img" aria-label="LINE QR Code 佔位框">
+        <strong>LINE QR Code</strong>
+        <span>（待提供）佔位框，非真實 QR Code</span>
+      </div>
+    </section>
+
+    <section class="others reveal" aria-label="其他聯絡管道">
+      <h2>其他管道</h2>
+      <ul class="chan">
+        <li>
+          <div><div class="name">Email</div><div class="val">lavie@wenling.tw</div></div>
+          <div class="act"><button class="btn btn-outline copy" type="button" data-copy="lavie@wenling.tw">複製</button><a class="link" href="mailto:lavie@wenling.tw">寄信 →</a></div>
+        </li>
+        <li>
+          <div><div class="name">Facebook</div></div>
+          <div class="act"><a class="link" href="https://m.me/keila.healing">前往 →</a></div>
+        </li>
+        <li>
+          <div><div class="name">LINE 社群</div></div>
+          <div class="act"><a class="link" href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA">加入 →</a></div>
+        </li>
+        <li>
+          <div><div class="name">Instagram</div></div>
+          <div class="act"><a class="link" href="https://www.instagram.com/keila.healing1491">前往 →</a></div>
+        </li>
+      </ul>
+      <p class="comm">輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</p>
+    </section>
+  </div>
+  <div class="section"></div>
+  <div class="sr-live" role="status" id="live"></div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案C・LINE 為主</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+  const t = b.dataset.copy, old = b.textContent;
+  try { await navigator.clipboard.writeText(t); b.textContent = '已複製'; } catch (e) { b.textContent = '請手動複製'; }
+  document.getElementById('live').textContent = b.textContent;
+  setTimeout(() => { b.textContent = old; }, 1800);
+}));
+</script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!--
+提案 C「三步引導」
+概念：把長文案變成三步決策（適合我嗎 → 選方案 → 預約），金色直軌串起三個全寬區塊，上方有捲動同步的進度列。
+動效技術：.reveal 一次性進場、原生 details 展開、IntersectionObserver 同步進度、方案點選高亮並更新按鈕文字。無 3D、無視差。
+已知弱點：(1) 三步區塊都在主流程中，總長度仍長，FAQ 等被推到最後；(2) 方案選擇與「適合我嗎」分屬兩步，使用者若直接跳到預約會略過比較。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜服務詳細頁提案 C・三步引導</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.crumb { font-size: 14px; color: var(--muted-foreground); padding-top: 20px; }
+.crumb a { color: var(--accent-foreground); font-weight: 600; }
+.hero { padding-block: 24px 40px; }
+.hero h1 { margin-top: 12px; }
+.hero .verse { margin-top: 16px; max-width: 34em; font-family: var(--font-serif); font-size: 18px; color: var(--card-foreground); }
+.hero .lede { margin-top: 12px; max-width: 34em; color: var(--muted-foreground); }
+.hero .acts { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.hero .acts .btn-gold { display: none; }
+@media (min-width: 1024px) { .hero .acts .btn-gold { display: inline-flex; } .hero { padding-block: 40px 56px; } }
+
+/* 進度列 */
+.progress { position: sticky; top: 64px; z-index: 30; background: rgba(251,241,221,.96); backdrop-filter: blur(8px); border-block: 1px solid rgba(240,223,160,.7); }
+.progress ol { display: flex; margin: 0; padding: 0; list-style: none; max-width: 1180px; margin-inline: auto; }
+.progress li { flex: 1; }
+.progress a { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; font-size: 14px; font-weight: 600; color: var(--muted-foreground); border-bottom: 3px solid transparent; }
+.progress .n { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--border); display: grid; place-items: center; font-size: 13px; background: var(--popover); }
+.progress a.on { color: var(--card-foreground); border-bottom-color: var(--primary); }
+.progress a.on .n, .progress a.done .n { background: linear-gradient(135deg, #FCE7A8, #D89A3E); border-color: var(--ring); color: var(--primary-foreground); }
+.progress a.done { color: var(--accent-foreground); }
+
+/* 金色直軌 */
+.steps { position: relative; }
+.steps::before { content: ''; position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, #D89A3E 6%, #D89A3E 94%, transparent); }
+@media (min-width: 1024px) { .steps::before { left: 40px; } }
+.step { position: relative; padding-block: 48px; scroll-margin-top: 112px; }
+.step + .step { border-top: 1px dashed var(--border); }
+.step:nth-child(even) { background: rgba(253,246,230,.6); }
+@media (min-width: 768px) { .step { padding-block: 72px; } }
+.step .inner { padding-left: 48px; }
+@media (min-width: 1024px) { .step .inner { padding-left: 72px; } }
+.node { position: absolute; left: -48px; top: 0; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-serif); font-weight: 700; font-size: 18px; background: linear-gradient(135deg, #FCE7A8, #D89A3E); color: var(--primary-foreground); box-shadow: 0 0 0 6px var(--background), 0 4px 14px rgba(201,134,46,.35); }
+.step:nth-child(even) .node { box-shadow: 0 0 0 6px #FBF4E0, 0 4px 14px rgba(201,134,46,.35); }
+@media (min-width: 1024px) { .node { left: -72px; } }
+.step .head { position: relative; }
+.step .head p { margin-top: 8px; color: var(--muted-foreground); }
+.step .more { margin-top: 24px; max-width: 46em; }
+
+/* 步驟 1：自我檢視清單 */
+.check { margin-top: 24px; display: grid; gap: 10px; max-width: 46em; }
+@media (min-width: 768px) { .check { grid-template-columns: 1fr 1fr; max-width: none; } }
+.check li { display: flex; gap: 12px; align-items: flex-start; background: var(--popover); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; font-size: 15px; }
+.check li::before { content: ''; flex: none; width: 18px; height: 18px; margin-top: 4px; border-radius: 50%; border: 1.5px solid var(--ring); background: radial-gradient(circle, var(--gold-fill, #E8B15A) 0 35%, transparent 40%); }
+.skip { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: center; }
+.next-hint { margin-top: 24px; font-weight: 700; color: var(--accent-foreground); display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+
+/* 步驟 2：方案 */
+.plans { margin-top: 24px; display: grid; gap: 14px; }
+@media (min-width: 768px) { .plans { grid-template-columns: repeat(3, 1fr); } }
+.plan { text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 18px; padding: 20px; display: grid; gap: 6px; position: relative; transition: border-color 150ms, box-shadow 250ms, transform 250ms; }
+.plan:hover { border-color: var(--ring); }
+.plan[aria-pressed="true"] { border-color: var(--primary); background: var(--popover); box-shadow: 0 0 0 3px rgba(232,177,90,.35), 0 8px 24px rgba(201,134,46,.18); }
+.plan .pname { font-family: var(--font-serif); font-weight: 700; font-size: 18px; color: var(--card-foreground); }
+.plan .hl { font-size: 15px; color: var(--muted-foreground); }
+.plan .meta { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; }
+.plan .time { font-size: 14px; color: var(--accent-foreground); font-weight: 600; }
+.plan .price { font-family: var(--font-serif); font-weight: 700; font-size: 24px; color: var(--card-foreground); }
+.plan .tick { position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); display: grid; place-items: center; font-size: 13px; color: transparent; }
+.plan[aria-pressed="true"] .tick { background: linear-gradient(135deg, #FCE7A8, #D89A3E); border-color: var(--ring); color: var(--primary-foreground); }
+.plan .chip { justify-self: start; }
+.plan-detail { margin-top: 16px; }
+.plan-detail .disclosure > *:not(summary) strong { color: var(--card-foreground); }
+.pick { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.pick .sel { font-size: 14px; color: var(--muted-foreground); }
+
+/* 步驟 3 */
+.flow { margin-top: 24px; display: grid; gap: 10px; counter-reset: f; }
+@media (min-width: 768px) { .flow { grid-template-columns: repeat(4, 1fr); } }
+.flow li { counter-increment: f; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; font-size: 15px; }
+.flow li::before { content: counter(f); display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-foreground); font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.flow b { display: block; font-family: var(--font-serif); color: var(--card-foreground); }
+.flow span { color: var(--muted-foreground); }
+.book { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; max-width: 520px; }
+@media (min-width: 640px) { .book { flex-direction: row; flex-wrap: wrap; align-items: center; max-width: none; } }
+.book-note { margin-top: 12px; font-size: 14px; color: var(--muted-foreground); max-width: 34em; }
+
+/* 後續收合區 */
+.after { padding-block: 48px; }
+.after .list { margin-top: 20px; max-width: 760px; border-top: 1px solid rgba(240,223,160,.7); }
+.after .disclosure > summary { font-size: 17px; }
+.after .disclosure p + p, .after .disclosure ul + p, .after .disclosure p + ul { margin-top: 10px; }
+.after .disclosure li { padding-left: 14px; position: relative; margin-top: 8px; }
+.after .disclosure li::before { content: ''; position: absolute; left: 0; top: .8em; width: 5px; height: 5px; border-radius: 50%; background: var(--ring); }
+.after .sub { margin-left: 0; padding-left: 16px; border-left: 2px solid var(--border); margin-top: 8px; }
+.after .sub summary { font-weight: 600; font-size: 16px; }
+.pending { display: inline-block; margin-left: 8px; font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 999px; border: 1px dashed var(--ring); color: var(--accent-foreground); background: var(--popover); }
+.testi li { padding-left: 0 !important; }
+.testi li::before { display: none; }
+.testi cite { display: block; margin-top: 4px; font-size: 14px; font-style: normal; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <!-- 第一屏：這是什麼、適不適合我、下一步 -->
+  <section class="hero">
+    <div class="container">
+      <nav class="crumb" aria-label="麵包屑"><a href="/services">全部服務</a> › 心靈引渡人</nav>
+      <h1 style="margin-top:16px">心靈引渡人｜一對一個人能量療癒</h1>
+      <p class="verse">「我不能陪你過河，但能送你一程到彼岸。」</p>
+      <p class="lede">生命的卡點不是終點，而是一次選擇看見、選擇釋放、選擇前往理想人生的契機。</p>
+      <div class="acts">
+        <a class="btn btn-gold book-btn" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+        <a class="btn btn-outline" href="#s1">從第 1 步開始：適合我嗎 ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 進度列 -->
+  <nav class="progress" aria-label="三步進度">
+    <ol>
+      <li><a href="#s1" data-for="s1"><span class="n">1</span>適合我嗎</a></li>
+      <li><a href="#s2" data-for="s2"><span class="n">2</span>選方案</a></li>
+      <li><a href="#s3" data-for="s3"><span class="n">3</span>預約</a></li>
+    </ol>
+  </nav>
+
+  <div class="container steps">
+    <!-- 步驟 1 -->
+    <section class="step" id="s1" aria-labelledby="h1s">
+      <div class="inner">
+        <span class="node" aria-hidden="true">1</span>
+        <div class="head reveal">
+          <span class="eyebrow">STEP 1</span>
+          <h2 id="h1s" style="margin-top:8px">這趟旅程適合這樣的你</h2>
+          <p>如果你正處於以下狀態，這正是你的靈魂發出的求救信號：</p>
+        </div>
+        <ul class="check reveal">
+          <li>反覆卡關：總被特定模式困擾（感情失敗、金錢困境、家庭矛盾、工作不順）。</li>
+          <li>渴望突破：想改善收入、升遷轉職，或迎向人生重要的下一個階段。</li>
+          <li>重大低潮：經歷失戀、親人離世等打擊，感到深深的心痛與無力。</li>
+          <li>慣性依存：想擺脫菸、酒、3C、影劇小說等成癮或逃避行為。</li>
+          <li>內在恐懼：對特定事物焦慮、擔憂，渴望突破自我限制。</li>
+          <li>議題交織：家族紛爭、遺傳或長期反覆不順的複雜困擾。</li>
+        </ul>
+        <div class="more">
+          <details class="disclosure">
+            <summary>為什麼你需要這趟旅程？</summary>
+            <div>
+              <p>理智上都明白，但心裡那一關總是過不去？人生總有某些時刻，像困在一艘不斷打轉的小船上，陷入無形的迴圈：</p>
+              <ul>
+                <li>明明很努力，卻總是在感情中重蹈覆轍、反覆受傷？</li>
+                <li>渴望突破，卻常被莫名的焦慮、自我懷疑與金錢停滯所絆住？</li>
+                <li>工作總是卡關，甚至身體感覺沉重、活力悄悄下滑？</li>
+              </ul>
+              <p>這些「卡住」的感覺，其實是潛意識在向你發出求救訊號。</p>
+              <p>在這裡，我不只聽你說，更會陪你一起潛入內心，找出隱藏在冰山底下的核心癥結。透過冥想引導與潛意識溝通，我們將溫柔地卸下不屬於你的包袱，將限制性信念轉化為支持你的力量。</p>
+              <p>這是一趟專屬於你的「渡口之旅」，無論你帶著什麼樣的傷口來到這裡，都能在這裡稍作停泊，找回重新啟航的平靜與輕盈。</p>
+            </div>
+          </details>
+          <details class="disclosure">
+            <summary>療癒能為你帶來的轉變</summary>
+            <div>
+              <p>這不只是「處理問題」，更是一場靈魂的深度重整：</p>
+              <ul>
+                <li>深層信念重塑：移除潛意識裡的負面限制，讓卡住的人生重新流動。</li>
+                <li>快速突破轉化：精準鬆開核心卡點，當下感受心靈脫胎換骨。</li>
+                <li>多重技術整合：希塔療癒（核心技術）：潛意識連結與信念系統更新。</li>
+                <li>內在小孩與原生家庭療癒：修復童年創傷，找回內在力量。</li>
+                <li>家族與金錢業力清理 / 前世回溯：解開跨世代與深層靈魂印記。</li>
+                <li>情緒釋放與靈氣傳送：促進全身能量場的平衡與流動。</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+        <a class="next-hint" href="#s2">下一步：選方案 ↓</a>
+      </div>
+    </section>
+
+    <!-- 步驟 2 -->
+    <section class="step" id="s2" aria-labelledby="h2s">
+      <div class="inner">
+        <span class="node" aria-hidden="true">2</span>
+        <div class="head reveal">
+          <span class="eyebrow">STEP 2</span>
+          <h2 id="h2s" style="margin-top:8px">服務方案與費用資訊</h2>
+          <p>請依據你目前的狀態選擇方案：</p>
+        </div>
+        <div class="plans reveal" role="group" aria-label="選擇方案">
+          <button class="plan" type="button" aria-pressed="false" data-short="微光啟航" data-name="方案 A：【微光啟航】">
+            <span class="tick" aria-hidden="true">✓</span>
+            <span class="pname">方案 A：【微光啟航】</span>
+            <span class="hl">快速定錨，找回當下平靜</span>
+            <span class="meta"><span class="time">60 分鐘</span><span class="price">$2,600</span></span>
+          </button>
+          <button class="plan" type="button" aria-pressed="true" data-short="核心破浪" data-name="方案 B：【核心破浪】">
+            <span class="tick" aria-hidden="true">✓</span>
+            <span class="chip">主力推薦</span>
+            <span class="pname">方案 B：【核心破浪】</span>
+            <span class="hl">直擊核心，從根源解開生命糾結</span>
+            <span class="meta"><span class="time">90 分鐘</span><span class="price">$3,900</span></span>
+          </button>
+          <button class="plan" type="button" aria-pressed="false" data-short="深海重塑" data-name="方案 C：【深海重塑】">
+            <span class="tick" aria-hidden="true">✓</span>
+            <span class="pname">方案 C：【深海重塑】</span>
+            <span class="hl">全面大掃除，徹底蛻變重整</span>
+            <span class="meta"><span class="time">120 分鐘</span><span class="price">$5,200</span></span>
+          </button>
+        </div>
+        <div class="plan-detail">
+          <details class="disclosure">
+            <summary>適合對象與方案詳細內容</summary>
+            <div>
+              <p><strong>方案 A：【微光啟航】60 分鐘體驗與梳理 ｜ $2,600</strong><br>適合對象：初訪體驗、輕量議題梳理、舊個案能量維護。<br>旅程價值：針對單一輕量困擾進行梳理，透過狀態掃描與能量轉化，讓你立即感受壓力的釋放與心智的清晰。</p>
+              <p><strong>方案 B：【核心破浪】90 分鐘單一議題深度轉化 ｜ $3,900（主力推薦！）</strong><br>適合對象：有明確重大困擾（感情、職場、金錢、原生家庭）。<br>旅程價值：擁有最充裕且完美的療癒節奏。我們有足夠的時間進行深度潛意識溝通、重塑信念系統，並為你找出專屬的療癒處方與未來行動指引。</p>
+              <p><strong>方案 C：【深海重塑】120 分鐘全面梳理與還原 ｜ $5,200</strong><br>適合對象：長期累積壓力、多重議題交織、需要深度修復。<br>旅程價值：不趕時間的深度探索。逐一解開多重信念的結，進行最深層的能量大掃除，在一場療癒中獲得全方位的修復與指引。</p>
+            </div>
+          </details>
+        </div>
+        <div class="pick">
+          <a class="btn btn-outline" href="#s3">就選這個方案，下一步 ↓</a>
+          <span class="sel" aria-live="polite">目前選擇：<b class="sel-name">方案 B：【核心破浪】</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 步驟 3 -->
+    <section class="step" id="s3" aria-labelledby="h3s">
+      <div class="inner">
+        <span class="node" aria-hidden="true">3</span>
+        <div class="head reveal">
+          <span class="eyebrow">STEP 3</span>
+          <h2 id="h3s" style="margin-top:8px">療癒流程與事前準備</h2>
+          <p>進行方式：全程採用線上遠距語音/視訊通話（Zoom），您只需在安靜不受打擾的空間閉眼跟隨引導即可。</p>
+        </div>
+        <ol class="flow reveal" style="padding:0;list-style:none">
+          <li><b>議題聚焦</b><span>（5–10 分鐘）梳理當前困擾，訂定本次療癒的核心目標。</span></li>
+          <li><b>狀態掃描</b><span>進行冥想引導、祈請與個案能量場掃描。</span></li>
+          <li><b>核心療癒</b><span>進行深度潛意識溝通與限制性信念轉換。</span></li>
+          <li><b>整合建議</b><span>給予落地行動指引與實用的生活回饋。</span></li>
+        </ol>
+        <div class="more">
+          <details class="disclosure">
+            <summary>事前準備須知</summary>
+            <div>
+              <p>為確保療癒過程順暢，請於預約時間前準備好以下事項：</p>
+              <ul>
+                <li>空間與設備：請確保處於安靜、個人私密且不受干擾的空間，並準備好耳機與穩定的網路。</li>
+                <li>輔助用品：請隨手準備飲用水、面紙與抱枕。</li>
+                <li>預約資訊：預約時請提供被療癒者的稱呼，以及想要改善的議題簡述。</li>
+              </ul>
+            </div>
+          </details>
+          <details class="disclosure">
+            <summary>能量保護與約定</summary>
+            <div>
+              <ul>
+                <li>完整陪伴保證：若療癒提前完成主要議題，剩餘時間將進行「能量接地整合、卡牌指引或生活落地建議」，確保每次旅程都有完整收尾（不另退費或保留時數）。</li>
+                <li>彈性時間緩衝：享有 10 分鐘免費緩衝時間。若經雙方同意需延長討論，超時每 30 分鐘以 $1,300 計價（單次延長上限為 3 小時）。</li>
+                <li>智慧隱私紀錄：過程將全程錄影，會後提供 AI 重點整理筆記（錄影檔於筆記整理完成後隨即刪除，嚴格保護個人隱私）。</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+        <div class="reveal" style="margin-top:32px">
+          <h3>登岸預約通道</h3>
+          <p class="muted" style="margin-top:6px">給自己一次重新開始的機會，我在渡口陪你一起啟航。</p>
+          <div class="book">
+            <a class="btn btn-gold book-btn" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+            <a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a>
+          </div>
+          <p class="book-note">(完成付款後，請透過私訊提供 3 個方便的時段，我們將儘快為您安排時間)</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 三步之後：收合區 -->
+  <section class="after">
+    <div class="container">
+      <span class="eyebrow">還想多了解一點</span>
+      <div class="list">
+        <details class="disclosure">
+          <summary>個案通常會有什麼樣的體驗與感受？</summary>
+          <div>
+            <p>能量運作時，每個靈魂的感知方式都是獨一無二的。這是一次身體與心靈的自然調節過程：</p>
+            <ul>
+              <li>常見體感反應：過程中有部分個案會感到微熱、頭皮發麻、眼皮快速跳動、眼前發亮，或感覺到股溫熱能量流過身體；也有人會感到肌肉鬆弛、非常放鬆甚至想睡，這些都是能量正在進行調節的自然現象。</li>
+              <li>情緒與生理釋放：在清理深層信念或積壓情緒時，可能會出現流淚、想吐、打嗝或咳嗽等狀況，這代表體內卡住的能量正在獲得釋放。療癒期間或結束後感到口乾舌燥是能量代謝的正常過程，請多補充溫開水。</li>
+              <li>無體感也是正常的：若過程中沒有明顯體感，絕不代表能量沒有運作。能量場調整後的影響會逐漸在接下來的生活、思考模式與事件發展中顯化。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure">
+          <summary>常見問題 FAQ</summary>
+          <div>
+            <details class="disclosure sub"><summary>Q1：療癒多久會有效？</summary>
+              <div><p>每個靈魂都有自己的運作節奏。有人隔天就能感受到生活的具體轉變，也有人是在數週內逐步改善。</p>
+              <p>身心感受通常顯現較快；隨後請多留意生活中的細微變化，例如：想法變清晰了、過往的習慣模式改變了、或是身邊的人對待你的態度不同了。若療癒後出現與人衝突、多夢或浮現舊記憶，這是提示你該面對並跨越該議題，順應並改變後人生就會更加順遂。</p></div></details>
+            <details class="disclosure sub"><summary>Q2：需要預約幾次療癒？</summary>
+              <div><p>單次療癒即可獲得顯著的梳理與改善。但若議題根深蒂固或積壓多年，建議分階段處理。</p>
+              <p>請給自己合理的轉化時間，避免期待一次療癒就能徹底解決累積數十年的問題。療癒師是陪伴你發現癥結並引導方向的引路人，結束後搭配靜心冥想、改變生活習慣與覺察日記，效果會更加持久。若過了一段時間感覺舊模式復發，歡迎隨時再預約維護。</p></div></details>
+            <details class="disclosure sub"><summary>Q3：我可以幫家人或朋友預約嗎？</summary>
+              <div><p>必須經由本人同意，並由本人親自參與。一對一療癒需要當事人具備自願面對內在的意願，無法由他人代為進行。</p></div></details>
+          </div>
+        </details>
+        <details class="disclosure">
+          <summary>個案真實見證<span class="pending">待授權</span></summary>
+          <div>
+            <ul class="testi">
+              <li class="quote">「半年內遇見靈魂伴侶」<cite>— 愛情顯化個案</cite></li>
+              <li class="quote">「信念轉換後愁緒消散了，感覺身心瞬間變乾淨」<cite>— 深層清理個案</cite></li>
+              <li class="quote">「隔天業績提升、三天後獲得升遷通知」<cite>— 事業突破個案</cite></li>
+              <li class="quote">「擺脫對失敗的恐懼，終於有勇氣邁開步伐」<cite>— 恐懼釋放個案</cite></li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure">
+          <summary>免責聲明與注意事項</summary>
+          <div><p>本能量療癒服務屬於身心靈輔助與自我覺察支持，不能取代專業正統醫療與精神醫學診斷。若您有身體生理疾病或精神疾病，請務必優先諮詢專業醫師。過程中絕不使用任何實體醫療器具，亦不販售任何藥品或保健食品。</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="sticky-cta"><a class="btn btn-gold book-btn book-short" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a></div>
+
+<div class="proposal-tag">提案 C・三步引導</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+// 方案選擇：高亮並更新所有預約按鈕文字
+const plans = [...document.querySelectorAll('.plan')];
+function choose(p) {
+  plans.forEach((x) => x.setAttribute('aria-pressed', String(x === p)));
+  document.querySelector('.sel-name').textContent = p.dataset.name;
+  document.querySelectorAll('.book-btn').forEach((b) => {
+    b.textContent = b.classList.contains('book-short') ? '預約・' + p.dataset.short : '立即預約・' + p.dataset.name;
+  });
+}
+plans.forEach((p) => p.addEventListener('click', () => choose(p)));
+choose(plans[1]);
+
+// 進度列：依捲動位置標示目前步驟與已完成步驟
+const links = [...document.querySelectorAll('.progress a')];
+const secs = links.map((a) => document.getElementById(a.dataset.for));
+function sync() {
+  const y = window.innerHeight * 0.4;
+  let cur = -1;
+  secs.forEach((s, i) => { if (s.getBoundingClientRect().top <= y) cur = i; });
+  links.forEach((a, i) => { a.classList.toggle('on', i === cur); a.classList.toggle('done', i < cur); });
+}
+addEventListener('scroll', sync, { passive: true }); sync();
+</script>
+</body>
+</html>

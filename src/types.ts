@@ -238,3 +238,26 @@ export interface LegalDocument {
   intro: string;
   sections: { heading: string; blocks: (string | string[])[] }[];
 }
+
+// 服務／課程詳細頁的完整文案（src/content/offerings.ts，由 scripts/build-offering-content.py 產生）。
+export type ContentBlock =
+  | { type: 'p'; text: string }
+  | { type: 'h'; text: string }
+  | { type: 'list'; items: string[] }
+  | { type: 'table'; header: string[]; rows: string[][] }
+  | { type: 'qa'; items: { q: string; a: string[] }[] };
+
+export type ContentGroup = 'intro' | 'plans' | 'process' | 'proof' | 'faq' | 'notes';
+
+export interface ContentSection {
+  id: string;
+  group: ContentGroup;
+  title: string;
+  blocks: ContentBlock[];
+}
+
+export interface OfferingContent {
+  title: string;
+  lead: ContentBlock[];
+  sections: ContentSection[];
+}

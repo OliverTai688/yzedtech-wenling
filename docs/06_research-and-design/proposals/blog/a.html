@@ -1,0 +1,130 @@
+<!--
+提案 A：分類切換＋文章卡
+概念：分類 chips 與搜尋框篩選卡片格，卡片只露出分類、標題、日期、閱讀時間，摘要由「看摘要」展開。
+動效技術：.reveal 一次性進場、原生 details 展開、篩選時卡片交叉淡入（只動 opacity／transform）。
+已知弱點：(1) 6 篇只有 6 個分類，每類 1 篇，chips 篩選價值低；(2) 摘要收起後卡片只剩標題，缺少吸引點擊的內容線索，也沒有文章內頁連結示意。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜部落格提案A・分類切換與文章卡</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 40px 8px; }
+.hero h1 { margin-top: 8px; }
+.hero .lead { margin-top: 12px; max-width: 560px; }
+.hero .link { margin-top: 4px; }
+.search { margin-top: 20px; display: block; width: 100%; max-width: 480px; min-height: 48px; padding: 8px 20px; border-radius: 999px; border: 1px solid var(--border); background: var(--popover); color: var(--foreground); font: inherit; font-size: 16px; }
+.search:focus-visible, .tab:focus-visible, summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.chips { margin-top: 16px; }
+.chips .n { margin-left: 4px; opacity: .7; font-weight: 500; }
+.status { margin-top: 16px; font-size: 14px; min-height: 24px; }
+.grid { display: grid; gap: 16px; margin-top: 8px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+@media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+.post { padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: opacity 250ms ease, transform 250ms cubic-bezier(.22,1,.36,1); }
+.post.fade { opacity: 0; transform: translateY(8px); }
+.post[hidden] { display: none; }
+.post .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 14px; }
+.post h3 { font-size: 18px; line-height: 1.5; }
+.post .disclosure { margin-top: auto; border-bottom: 0; border-top: 1px solid rgba(240,223,160,.7); }
+.post .disclosure > summary { color: var(--accent-foreground); font-size: 14px; }
+.post .disclosure > p { font-size: 14px; }
+.empty { text-align: center; padding: 32px 0; }
+.reset { margin-top: 8px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="container hero" aria-labelledby="h1">
+    <span class="eyebrow">BLOG</span>
+    <h1 id="h1">部落格</h1>
+    <label class="muted" for="q" style="display:block;margin-top:16px">搜尋文章</label>
+    <input id="q" class="search" type="search" placeholder="輸入關鍵字，例如：金錢、希塔" autocomplete="off" style="margin-top:4px">
+    <div class="tabs chips" role="tablist" aria-label="文章分類"><button class="tab" role="tab" aria-selected="true" data-f="全部">全部 <span class="n">6</span></button><button class="tab" role="tab" aria-selected="false" data-f="愛情">愛情 <span class="n">1</span></button><button class="tab" role="tab" aria-selected="false" data-f="財運">財運 <span class="n">1</span></button><button class="tab" role="tab" aria-selected="false" data-f="豐盛靈氣">豐盛靈氣 <span class="n">1</span></button><button class="tab" role="tab" aria-selected="false" data-f="事業">事業 <span class="n">1</span></button><button class="tab" role="tab" aria-selected="false" data-f="心路歷程">心路歷程 <span class="n">1</span></button><button class="tab" role="tab" aria-selected="false" data-f="個案成長">個案成長 <span class="n">1</span></button></div>
+  </section>
+
+  <section class="container section" style="padding-top:8px" aria-label="文章列表">
+    <p class="status muted" id="status" role="status" aria-live="polite"></p>
+    <ul class="grid" id="grid">
+    <li class="post card reveal" data-cat="愛情" data-text="從《七週遇見對的人》談起：愛情不是苦苦等待，而是自我價值的同頻對齊 許多人在感情裡反覆受傷，以為自己不夠好，或者運氣差。事實上，你的伴侶往往是你潛意識信念的精準投影。本文從暢銷書《七週遇見對的人》的核心概念出發，剖析如何透過自我價值對齊，重新啟動幸福磁場。">
+      <div class="meta"><span class="chip">愛情</span><span class="muted">2026-06-20・5 分鐘</span></div>
+      <h3>從《七週遇見對的人》談起：愛情不是苦苦等待，而是自我價值的同頻對齊</h3>
+      <details class="disclosure"><summary>看摘要</summary><p>許多人在感情裡反覆受傷，以為自己不夠好，或者運氣差。事實上，你的伴侶往往是你潛意識信念的精準投影。本文從暢銷書《七週遇見對的人》的核心概念出發，剖析如何透過自我價值對齊，重新啟動幸福磁場。</p></details>
+    </li>
+    <li class="post card reveal" data-cat="財運" data-text="金錢能量的流動：如何清理內在匱乏感，走向物質與心靈的雙重豐盛 你對金錢的態度，決定了金錢是否願意留在你身邊。如果你一花錢就感到心痛、賺了錢卻無比焦慮，那你可能正處於「金錢匱乏能量」中。本文教你 3 個立刻能做的豐盛調頻練習。">
+      <div class="meta"><span class="chip">財運</span><span class="muted">2026-06-12・6 分鐘</span></div>
+      <h3>金錢能量的流動：如何清理內在匱乏感，走向物質與心靈的雙重豐盛</h3>
+      <details class="disclosure"><summary>看摘要</summary><p>你對金錢的態度，決定了金錢是否願意留在你身邊。如果你一花錢就感到心痛、賺了錢卻無比焦慮，那你可能正處於「金錢匱乏能量」中。本文教你 3 個立刻能做的豐盛調頻練習。</p></details>
+    </li>
+    <li class="post card reveal" data-cat="豐盛靈氣" data-text="日常能量護航：用豐盛靈氣為自己創造一個「幸運體質」磁場 為什麼有的人總是能在關鍵時刻遇到貴人、避開麻煩，彷彿被好運眷顧？這不是天生偏心，而是他們懂得如何維持自己的高頻能量場。本文分享日常三步驟，教你打造防護罩與幸運體質。">
+      <div class="meta"><span class="chip">豐盛靈氣</span><span class="muted">2026-05-28・4 分鐘</span></div>
+      <h3>日常能量護航：用豐盛靈氣為自己創造一個「幸運體質」磁場</h3>
+      <details class="disclosure"><summary>看摘要</summary><p>為什麼有的人總是能在關鍵時刻遇到貴人、避開麻煩，彷彿被好運眷顧？這不是天生偏心，而是他們懂得如何維持自己的高頻能量場。本文分享日常三步驟，教你打造防護罩與幸運體質。</p></details>
+    </li>
+    <li class="post card reveal" data-cat="事業" data-text="給企業主與高階主管：如何在高壓决策與市場變動中，保持大腦能量的平穩？ 身為決策者，你的一個念頭，決定了團隊的方向與數百萬甚至數億業績的走向。當你處於焦慮、得失心極重的能量狀態時，直覺會被雜音覆蓋。本文探討如何為創業者提供穩定的心靈護航。">
+      <div class="meta"><span class="chip">事業</span><span class="muted">2026-05-15・5 分鐘</span></div>
+      <h3>給企業主與高階主管：如何在高壓决策與市場變動中，保持大腦能量的平穩？</h3>
+      <details class="disclosure"><summary>看摘要</summary><p>身為決策者，你的一個念頭，決定了團隊的方向與數百萬甚至數億業績的走向。當你處於焦慮、得失心極重的能量狀態時，直覺會被雜音覆蓋。本文探討如何為創業者提供穩定的心靈護航。</p></details>
+    </li>
+    <li class="post card reveal" data-cat="心路歷程" data-text="從全面崩塌到重生：我如何在人生最黑暗的一年，遇見希塔療癒與自己 文齡老師親自撰寫的靈魂自白。分享 2019 年那段家庭、健康、感情與財務同時崩塌的黑暗歲月，如何在接觸希塔療癒後，看見潛意識裡的限制性信念，並在短短數月內迎來翻轉。">
+      <div class="meta"><span class="chip">心路歷程</span><span class="muted">2026-04-30・7 分鐘</span></div>
+      <h3>從全面崩塌到重生：我如何在人生最黑暗的一年，遇見希塔療癒與自己</h3>
+      <details class="disclosure"><summary>看摘要</summary><p>文齡老師親自撰寫的靈魂自白。分享 2019 年那段家庭、健康、感情與財務同時崩塌的黑暗歲月，如何在接觸希塔療癒後，看見潛意識裡的限制性信念，並在短短數月內迎來翻轉。</p></details>
+    </li>
+    <li class="post card reveal" data-cat="個案成長" data-text="個案陪伴故事：從冰凍三尺的家庭關係，看見潛意識和解的奇蹟起點 一則關於母女心結的深度陪伴紀實。一對互不說話、一見面就冷嘲熱諷的母女，如何透過潛意識信念的看見，解開糾葛二十年的情感鎖鏈，重回彼此接納與擁抱的溫情。">
+      <div class="meta"><span class="chip">個案成長</span><span class="muted">2026-04-12・6 分鐘</span></div>
+      <h3>個案陪伴故事：從冰凍三尺的家庭關係，看見潛意識和解的奇蹟起點</h3>
+      <details class="disclosure"><summary>看摘要</summary><p>一則關於母女心結的深度陪伴紀實。一對互不說話、一見面就冷嘲熱諷的母女，如何透過潛意識信念的看見，解開糾葛二十年的情感鎖鏈，重回彼此接納與擁抱的溫情。</p></details>
+    </li>
+    </ul>
+    <div class="empty muted" id="empty" hidden>沒有符合的文章。<br><button class="btn btn-outline reset" id="reset" type="button">清除條件</button></div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・分類切換與文章卡</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+const posts = [...document.querySelectorAll('.post')];
+const chips = [...document.querySelectorAll('.chips .tab')];
+const q = document.getElementById('q'), status = document.getElementById('status'), empty = document.getElementById('empty');
+let cat = '全部';
+function apply() {
+  const kw = q.value.trim().toLowerCase();
+  let shown = 0;
+  posts.forEach((p) => {
+    const ok = (cat === '全部' || p.dataset.cat === cat) && (!kw || p.dataset.text.toLowerCase().includes(kw));
+    if (ok) {
+      shown++;
+      if (p.hidden) { p.hidden = false; p.classList.add('fade'); requestAnimationFrame(() => requestAnimationFrame(() => p.classList.remove('fade'))); }
+    } else p.hidden = true;
+  });
+  empty.hidden = shown > 0;
+  status.textContent = (cat !== '全部' || kw) ? '顯示 ' + shown + ' 篇' : '';
+}
+chips.forEach((c) => c.addEventListener('click', () => {
+  cat = c.dataset.f;
+  chips.forEach((x) => x.setAttribute('aria-selected', String(x === c)));
+  apply();
+}));
+q.addEventListener('input', apply);
+document.getElementById('reset').addEventListener('click', () => { q.value = ''; chips[0].click(); });
+</script>
+</body>
+</html>

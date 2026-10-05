@@ -1,0 +1,111 @@
+<!-- 提案 C「側邊目錄」（/legal）
+概念：把三份條款當成一份文件閱讀器——桌機左側固定目錄隨捲動標示目前章節，右側全文全部展開；手機改為頂端固定的「跳到…」下拉。
+動效技術：IntersectionObserver 目錄高亮、原生錨點平滑捲動；無 3D、無粒子。
+已知弱點：(1) 全文約 5,000 字仍是一條長頁，目錄只解決定位、不解決篇幅；(2) 條款頁沒有天然轉化點，CTA 只能放目錄底部與頁尾，離閱讀位置較遠；(3) 目前章節高亮仰賴捲動偵測，短章節時偶有跳動。 -->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜免責聲明、隱私權政策與服務條款 提案C・側邊目錄</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.legal-head { padding-block: 40px 24px; }
+.legal-head h1 { margin-top: 12px; }
+.legal-head .docs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.legal-head .docs a { min-height: 44px; display: inline-flex; align-items: center; padding: 6px 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--popover); color: var(--secondary-foreground); font-weight: 700; font-size: 14px; }
+.layout { display: block; padding-bottom: 64px; }
+.jump { position: sticky; top: 64px; z-index: 30; margin-inline: -24px; padding: 10px 24px; background: rgba(251,241,221,.96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.jump label { display: block; font-size: 14px; font-weight: 600; color: var(--accent-foreground); margin-bottom: 4px; }
+.jump select { width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--ring); background: var(--popover); color: var(--card-foreground); font: inherit; font-size: 16px; padding: 6px 12px; }
+.toc { display: none; }
+.reader { max-width: 680px; }
+.doc { padding-top: 40px; scroll-margin-top: 140px; }
+.doc > h2 { padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+.intro { margin-top: 20px; color: var(--card-foreground); font-weight: 500; }
+.doc section { padding-top: 28px; scroll-margin-top: 140px; }
+.doc section h3 { font-size: 18px; margin-bottom: 10px; }
+.doc section p, .doc section li { color: #4A3A28; line-height: 1.9; }
+.doc section p + p, .doc section p + ul { margin-top: 12px; }
+.doc section ul { list-style: decimal; padding-left: 1.4em; display: grid; gap: 10px; }
+.doc section li::marker { color: var(--ring); font-weight: 600; }
+.ph { display: inline-block; padding: 8px 14px; border: 1px dashed var(--ring); border-radius: 10px; font-size: 14px !important; color: var(--muted-foreground) !important; }
+@media (min-width: 1024px) {
+  .jump { display: none; }
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 56px; align-items: start; }
+  .toc { display: block; position: sticky; top: 88px; max-height: calc(100vh - 104px); overflow-y: auto; padding: 20px 18px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; font-size: 14px; }
+  .toc-doc + .toc-doc { margin-top: 18px; }
+  .toc-title { display: flex; align-items: center; min-height: 44px; padding: 4px 10px; font-family: var(--font-serif); font-weight: 700; font-size: 16px; color: var(--card-foreground); border-radius: 10px; }
+  .toc ol { margin: 2px 0 0; padding: 0; list-style: none; border-left: 1px solid var(--border); margin-left: 12px; }
+  .toc li a { display: block; padding: 6px 12px; color: var(--muted-foreground); line-height: 1.5; border-left: 2px solid transparent; margin-left: -1px; transition: color 150ms, background 150ms; }
+  .toc li a:hover { color: var(--accent-foreground); }
+  .toc a.on { color: var(--accent-foreground); font-weight: 700; border-left-color: var(--ring); background: var(--accent); border-radius: 0 8px 8px 0; }
+  .toc-title.on { background: var(--accent); }
+  .toc-cta { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
+  .doc { scroll-margin-top: 90px; } .doc section { scroll-margin-top: 90px; }
+}
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+<div class="container">
+  <div class="legal-head">
+    <h1>免責聲明、隱私權政策與服務條款</h1>
+    <div class="docs" aria-label="三份文件">
+      <a href="#disclaimer">網站服務與課程免責聲明</a><a href="#privacy">隱私權政策</a><a href="#terms">服務條款</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="jump">
+      <label for="jump">跳到…</label>
+      <select id="jump" aria-label="跳到條文"><optgroup label="網站服務與課程免責聲明"><option value="disclaimer">網站服務與課程免責聲明（全文起點）</option><option value="disclaimer-1">1. 服務目的與範圍</option><option value="disclaimer-2">2. 非醫療與專業意見替代聲明</option><option value="disclaimer-3">3. 產品與療效聲明免責</option><option value="disclaimer-4">4. 學習成效與結果不保證</option><option value="disclaimer-5">5. 個人風險承擔與特殊身心狀況聲明</option></optgroup><optgroup label="隱私權政策"><option value="privacy">隱私權政策（全文起點）</option><option value="privacy-1">一、隱私權政策的適用範圍</option><option value="privacy-2">二、個人資料的蒐集、處理及利用方式</option><option value="privacy-3">三、資料之保護</option><option value="privacy-4">四、網網站對外的相關連結</option><option value="privacy-5">五、與第三人共用個人資料之政策</option><option value="privacy-6">六、Cookie 之使用</option><option value="privacy-7">七、隱私權政策之修正</option></optgroup><optgroup label="服務條款"><option value="terms">服務條款（全文起點）</option><option value="terms-1">一、會員服務條款</option><option value="terms-2">二、會員</option><option value="terms-3">三、會員登錄資料</option><option value="terms-4">四、使用行為</option><option value="terms-5">五、本公司專有權利</option><option value="terms-6">六、終止授權</option><option value="terms-7">七、免責事項</option><option value="terms-8">八、修改權</option><option value="terms-9">九、智慧財產權的保護</option><option value="terms-10">十、其他規定</option><option value="terms-11">十一、會員身份終止與本公司通知之義務</option></optgroup></select>
+    </div>
+    <aside class="toc" aria-label="條款目錄">
+      <div class="toc-doc"><a class="toc-title" href="#disclaimer" data-t="disclaimer">網站服務與課程免責聲明</a><ol><li><a href="#disclaimer-1" data-t="disclaimer-1">1. 服務目的與範圍</a></li><li><a href="#disclaimer-2" data-t="disclaimer-2">2. 非醫療與專業意見替代聲明</a></li><li><a href="#disclaimer-3" data-t="disclaimer-3">3. 產品與療效聲明免責</a></li><li><a href="#disclaimer-4" data-t="disclaimer-4">4. 學習成效與結果不保證</a></li><li><a href="#disclaimer-5" data-t="disclaimer-5">5. 個人風險承擔與特殊身心狀況聲明</a></li></ol></div><div class="toc-doc"><a class="toc-title" href="#privacy" data-t="privacy">隱私權政策</a><ol><li><a href="#privacy-1" data-t="privacy-1">一、隱私權政策的適用範圍</a></li><li><a href="#privacy-2" data-t="privacy-2">二、個人資料的蒐集、處理及利用方式</a></li><li><a href="#privacy-3" data-t="privacy-3">三、資料之保護</a></li><li><a href="#privacy-4" data-t="privacy-4">四、網網站對外的相關連結</a></li><li><a href="#privacy-5" data-t="privacy-5">五、與第三人共用個人資料之政策</a></li><li><a href="#privacy-6" data-t="privacy-6">六、Cookie 之使用</a></li><li><a href="#privacy-7" data-t="privacy-7">七、隱私權政策之修正</a></li></ol></div><div class="toc-doc"><a class="toc-title" href="#terms" data-t="terms">服務條款</a><ol><li><a href="#terms-1" data-t="terms-1">一、會員服務條款</a></li><li><a href="#terms-2" data-t="terms-2">二、會員</a></li><li><a href="#terms-3" data-t="terms-3">三、會員登錄資料</a></li><li><a href="#terms-4" data-t="terms-4">四、使用行為</a></li><li><a href="#terms-5" data-t="terms-5">五、本公司專有權利</a></li><li><a href="#terms-6" data-t="terms-6">六、終止授權</a></li><li><a href="#terms-7" data-t="terms-7">七、免責事項</a></li><li><a href="#terms-8" data-t="terms-8">八、修改權</a></li><li><a href="#terms-9" data-t="terms-9">九、智慧財產權的保護</a></li><li><a href="#terms-10" data-t="terms-10">十、其他規定</a></li><li><a href="#terms-11" data-t="terms-11">十一、會員身份終止與本公司通知之義務</a></li></ol></div>
+      <div class="toc-cta"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a></div>
+    </aside>
+    <div class="reader"><article id="disclaimer" class="doc"><h2>網站服務與課程免責聲明</h2><p class="intro">歡迎您使用本網站/平台之服務。在您報名課程、預約諮詢或使用本平台任何服務之前，請務必詳細閱讀以下聲明。當您使用本平台服務，即表示您已充分理解並同意以下條款：</p><section id="disclaimer-1"><h3>1. 服務目的與範圍</h3><p>本平台提供之課程、示範掃描解讀、一對一諮詢、練習會、講座及相關能量療癒服務與商品，其主要目的為激勵並協助學員探索、學習與擴展健康的情緒與靈性知識，進而為自己、家人或顧客提供促進身心平衡的選擇參考。</p></section><section id="disclaimer-2"><h3>2. 非醫療與專業意見替代聲明</h3><p>本平台所提供之所有課程、療癒與相關服務內容，均不構成醫療、心理治療、法律、財務或其他專業意見，亦不得取代專業合格醫師之診斷、建議或治療。若您有任何身體、心理或其他醫學上被視為需進行醫療照護之情形，請務必尋求專業合格的醫師、醫療人員或心理諮商師之協助。請勿因本平台之部分資訊或課程內容而延誤就醫、停止治療、忽略專業醫療建議，或中斷必要的醫療措施。</p></section><section id="disclaimer-3"><h3>3. 產品與療效聲明免責</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="disclaimer-4"><h3>4. 學習成效與結果不保證</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="disclaimer-5"><h3>5. 個人風險承擔與特殊身心狀況聲明</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section></article><article id="privacy" class="doc"><h2>隱私權政策</h2><p class="intro">歡迎您光臨豐盛之翼學苑（以下簡稱本網站），為了讓您能夠安心的使用本網站的各項服務與資訊，特此向您說明本網站的隱私權政策，以保障您的權益，請您詳閱下列內容：</p><section id="privacy-1"><h3>一、隱私權政策的適用範圍</h3><p>隱私權政策內容，包括本網站如何處理在您使用網站服務時收集到的個人識別資料。隱私權政策不適用於本網站以外的相關連結網站，也不適用於非本網站所委託或參與管理的人員。</p></section><section id="privacy-2"><h3>二、個人資料的蒐集、處理及利用方式</h3><ul><li>當您造訪本網站或使用本網站所提供之功能服務時，我們將視該服務功能性質，請您提供必要的個人資料，並在該特定目的範圍內處理及利用您的個人資料；非經您書面同意，本網站不會將個人資料用於其他用途。</li><li>本網站在您使用服務信箱、問卷調查等互動性功能時，會保留您所提供的姓名、電子郵件地址、聯絡方式及使用時間等。</li><li>於一般瀏覽時，伺服器會自行記錄相關行徑，包括您使用連線設備的IP位址、使用時間、使用的瀏覽器、瀏覽及點選資料記錄等，做為我們增進網站服務的參考依據，此記錄為內部應用，決不對外公佈。</li><li>為提供精確的服務，我們會將收集的問卷調查內容進行統計與分析，分析結果之統計數據或說明文字呈現，除供內部研究外，我們會視需要公佈統計數據及說明文字，但不涉及特定個人之資料。</li></ul></section><section id="privacy-3"><h3>三、資料之保護</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="privacy-4"><h3>四、網網站對外的相關連結</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="privacy-5"><h3>五、與第三人共用個人資料之政策</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="privacy-6"><h3>六、Cookie 之使用</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="privacy-7"><h3>七、隱私權政策之修正</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section></article><article id="terms" class="doc"><h2>服務條款</h2><p class="intro">當您開始使用豐盛之翼學苑（以下簡稱本網站），即表示您已閱讀、瞭解並同意接受本服務條款。如果您不同意接受本服務條款，即無法使用豐盛之翼學苑提供的服務。</p><section id="terms-1"><h3>一、會員服務條款</h3><ul><li>本會員服務條款所稱之「會員」，為依照本網站所定之加入會員程序加入完成並通過認證者。</li><li>當您使用本網站服務時，即表示您同意及遵守本服務條款的規定事項及相關法律之規定。</li><li>本網站保留有審核加入會員資格之權利，另外已加入會員者，本網站亦保留有解除其會員資格之權利。</li><li>本會員服務條款之修訂，適用於所有會員，當本網站修訂本服務條款時，將於本網站上公告。</li></ul></section><section id="terms-2"><h3>二、會員</h3><ul><li>使用本網站所提供之會員服務時，於加入會員時所登錄之帳號及密碼使用之。</li><li>會員須善盡帳號及密碼的使用與管理之責任。對於使用該會員之帳號及密碼（無關於會員本身或其他人）利用本網站服務所造成或衍生之所有行為及結果，會員須自行負擔全部責任。</li><li>會員之帳號及密碼遺失，或發現無故遭第三者盜用時，應立即通知本網站連絡掛失，因未即時通知，導致本網站無法有效防止及修改時，所造成的所有損失，會員應自負全責。</li><li>每次結束使用本服務，執行會員之登出並關閉視窗，以確保您的會員權益。</li><li>盜用第三者會員之帳號及密碼，導致第三者或本公司遭其他第三人或行政機關之調查或追訴時，第三者會員或本公司有權向您請求損害賠償，包括但不限於訴訟費用、律師費及商譽損失等。</li></ul></section><section id="terms-3"><h3>三、會員登錄資料</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-4"><h3>四、使用行為</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-5"><h3>五、本公司專有權利</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-6"><h3>六、終止授權</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-7"><h3>七、免責事項</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-8"><h3>八、修改權</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-9"><h3>九、智慧財產權的保護</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-10"><h3>十、其他規定</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section><section id="terms-11"><h3>十一、會員身份終止與本公司通知之義務</h3><p class="ph">（條文全文，實作時由資料帶入）</p></section></article></div>
+  </div>
+</div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 C・側邊目錄</div>
+<script>
+// 目錄高亮：以視窗上緣下方 120px 為基準線，取最後一個已越過基準線的章節
+const secs = [...document.querySelectorAll('.reader section, .reader article')];
+const links = new Map([...document.querySelectorAll('.toc a')].map((a) => [a.dataset.t, a]));
+const sel = document.getElementById('jump');
+let cur = null;
+function spy() {
+  let hit = secs[0];
+  for (const s of secs) { if (s.getBoundingClientRect().top <= 140) hit = s; else break; }
+  if (!hit || hit.id === cur) return;
+  cur = hit.id;
+  links.forEach((a) => a.classList.remove('on'));
+  const doc = hit.closest('article');
+  if (links.get(hit.id)) links.get(hit.id).classList.add('on');
+  if (doc && links.get(doc.id) && doc.id !== hit.id) links.get(doc.id).classList.add('on');
+  const on = links.get(hit.id);
+  if (on && on.offsetParent) { const box = on.closest('.toc'); const r = on.getBoundingClientRect(), b = box.getBoundingClientRect(); if (r.top < b.top + 8 || r.bottom > b.bottom - 8) box.scrollTo({ top: box.scrollTop + r.top - b.top - b.height / 2, behavior: 'smooth' }); }
+  if (sel) sel.value = hit.id;
+}
+let tick = false;
+addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(() => { spy(); tick = false; }); } }, { passive: true });
+spy();
+sel.addEventListener('change', () => { const el = document.getElementById(sel.value); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.replaceState(null, '', '#' + sel.value); } });
+</script>
+</body>
+</html>

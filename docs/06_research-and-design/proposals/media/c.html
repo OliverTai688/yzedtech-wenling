@@ -1,0 +1,165 @@
+<!--
+提案 C「依主題找一集」
+概念：先問訪客想聽什麼，用節目 chips 與標題搜尋篩出 34 集；預設只列 6 集精選，書與合作機構退為窄條。
+動效：.reveal 進場、details 展開、清單重繪時的淡入（只動 transform/opacity）。無 3D。
+已知弱點：(1) 標題搜尋只比對現有集名，無主題標籤資料，搜「金錢」以外的同義詞可能無結果；(2) 書封為佔位框，書的視覺權重低，出版品信任感被壓縮。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜媒體專訪提案C・依主題找一集</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 40px 24px; } @media (min-width: 768px) { .hero { padding-block: 72px 32px; } }
+.hero h1 { margin-top: 12px; max-width: 22em; }
+.hero .lead { margin-top: 12px; max-width: 40em; }
+.finder { margin-top: 24px; }
+.search { width: 100%; min-height: 48px; padding: 8px 20px; border-radius: 999px; border: 1px solid var(--border); background: var(--popover); color: var(--foreground); font: inherit; }
+.search:focus-visible, .tab:focus-visible, .btn:focus-visible, .link:focus-visible, summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.hints { margin-top: 8px; font-size: 14px; color: var(--muted-foreground); }
+.hint { background: none; border: 0; padding: 0 2px; font: inherit; color: var(--accent-foreground); font-weight: 700; text-decoration: underline; cursor: pointer; min-height: 32px; }
+.chips { margin-top: 16px; }
+.status { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; color: var(--muted-foreground); }
+.status b { color: var(--card-foreground); }
+.eps { margin-top: 8px; border-top: 1px solid rgba(240,223,160,.7); }
+.ep { display: grid; gap: 4px; padding: 14px 0; border-bottom: 1px solid rgba(240,223,160,.7); animation: fadein 250ms ease both; }
+@keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.ep .meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; color: var(--muted-foreground); }
+.ep .t { font-weight: 600; color: var(--card-foreground); }
+.ep .go { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.ep .no { font-size: 14px; color: var(--muted-foreground); }
+.badge { font-size: 14px; font-weight: 700; color: var(--accent-foreground); }
+@media (min-width: 768px) { .ep { grid-template-columns: 1fr auto; align-items: center; gap: 24px; } .ep .go { justify-content: flex-end; } }
+.more { margin-top: 20px; text-align: center; }
+.empty { padding: 28px 0; color: var(--muted-foreground); }
+.books { padding-block: 0 8px; }
+.strip { display: grid; gap: 12px; margin-top: 12px; } @media (min-width: 768px) { .strip { grid-template-columns: repeat(3, 1fr); } }
+.book { padding: 16px; display: grid; grid-template-columns: 56px 1fr; gap: 14px; align-items: start; }
+.cover { width: 56px; height: 76px; border: 1px dashed var(--ring); border-radius: 6px; font-size: 12px; line-height: 1.3; color: var(--muted-foreground); display: flex; align-items: center; text-align: center; padding: 4px; background: var(--popover); }
+.book h3 { font-size: 18px; } .book .role { font-size: 14px; color: var(--muted-foreground); }
+.book .disclosure { margin-top: 4px; border: 0; } .book .disclosure > summary { min-height: 44px; font-size: 14px; color: var(--accent-foreground); }
+.book .disclosure > *:not(summary) { font-size: 14px; }
+.book .note { color: var(--accent-foreground); font-weight: 700; }
+.services { margin-block: 24px 0; }
+.services .card { display: grid; gap: 16px; align-items: center; text-align: left; }
+@media (min-width: 768px) { .services .card { grid-template-columns: 1fr auto; } }
+.services .acts { display: flex; flex-wrap: wrap; gap: 12px; }
+.partners { padding-block: 32px 48px; font-size: 14px; color: var(--muted-foreground); }
+.partners ul { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 8px; }
+.partners li::before { content: '◆ '; color: var(--ring); font-size: 10px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="hero container">
+    <span class="eyebrow" id="label"></span>
+    <h1 id="h1"></h1>
+    <p class="lead muted" id="desc"></p>
+    <div class="finder">
+      <label class="sr" for="q">搜尋集名</label>
+      <input class="search" id="q" type="search" placeholder="想聽什麼？輸入關鍵字，例如：失戀、金錢、桃花" autocomplete="off">
+      <p class="hints">試試：<button class="hint" data-q="失戀">失戀</button><button class="hint" data-q="金錢">金錢</button><button class="hint" data-q="桃花">桃花</button><button class="hint" data-q="希塔">希塔</button></p>
+      <div class="tabs chips" id="chips" role="group" aria-label="依節目篩選"></div>
+    </div>
+    <div class="status" aria-live="polite"><span id="count"></span><a class="link" href="/#personas-section">了解適合我的服務 →</a></div>
+    <div class="eps" id="eps"></div>
+    <div class="more"><button class="btn btn-outline" id="more" type="button"></button></div>
+  </section>
+
+  <section class="books container" aria-labelledby="bk">
+    <h2 id="bk" style="font-size:20px">出版與著作</h2>
+    <div class="strip" id="strip"></div>
+  </section>
+
+  <section class="services container reveal" aria-labelledby="sv">
+    <div class="card">
+      <div><span class="eyebrow">聽完之後</span><h2 id="sv" style="margin-top:8px">想把這些變成你的下一步？</h2></div>
+      <div class="acts"><a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a></div>
+    </div>
+  </section>
+
+  <section class="partners container" aria-label="合作與資歷"><b>合作與資歷</b><ul id="partners"></ul></section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 C・依主題找一集</div>
+<script>
+// 資料逐字取自 src/data.ts（mediaIntro / mediaPublications / mediaShows / mediaPartners）
+const D = {"mediaIntro":{"label":"媒體專訪與出版紀錄","heading":"幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享","description":"以下為幸運教主文齡 Keila公開可查證的出版與媒體受訪紀錄，用最落地的經驗，陪你走過感情與人生的每個卡關。"},"mediaPublications":[{"id":"pub-seven-weeks","title":"七週遇見對的人","role":"暢銷書改版唯一推薦序作者","description":"受邀為經典暢銷書撰寫推薦序，幸運教主文齡 Keila帶領本書讀書會超過10年、幫助破百名學員的深厚實務經驗，已成功陪伴無數學員走過低潮，順利脫單、結婚生子，活出自己最美好的樣子。","link":{"label":"博客來購書連結","href":"https://www.books.com.tw/products/0010917426"}},{"id":"pub-love365","title":"練愛大確幸","role":"個人著作・實作手帳","description":"將多年協助個案走過失戀與感情卡關的實務心法，淬鍊成這本專屬的幸福手帳。不只分享改變人生的實作方法，更錄製52則療癒音檔，成為你每天都能輕鬆參與的小練習！","link":{"label":"購買連結","href":"https://booking.wenling.tw/products/love365"}},{"id":"pub-good-woman","title":"好女人的情場攻略","role":"節目合作／內容參與","description":"多次受邀參與節目錄製，並為同名暢銷書的戀愛專家群，分享感情經營與自我價值提升。用最白話的方式，解開你的愛情盲點。","note":"曾創下 2022 年度收聽冠軍、2024 前十名！","link":{"label":"下方收聽 Podcast 精選單集","href":"#media-podcasts"}}],"mediaShows":[{"id":"marie-claire","show":"美麗佳人 Podcast","kind":"podcast","summary":"多集專訪，分享希塔療癒與失戀急診等主題","episodes":[{"title":"S2EP29＃情慾瑪麗｜失戀急診:希塔療癒Ft.療癒師文齡 (上)","href":"https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/65751f59-2024-41a0-b890-335b2f0780d3"},{"title":"S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)","href":"https://web.archive.org/web/20250518033113/https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/78189391-fc1e-409f-807f-b01ca6cd9f2d"},{"title":"S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)","href":"https://web.archive.org/web/20250518033113/https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/9a4466ab-0dc5-43b6-accb-d7893cd35906"},{"title":"S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛","href":"https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw","featured":true}]},{"id":"good-woman","show":"好女人的情場攻略 Podcast","kind":"podcast","summary":"長期合作來賓，2022 年收聽數冠軍、2024 年前十名","episodes":[{"group":"2020 S1","title":"ep95設好日期脫單術","href":"https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/c0f3494c-b283-4c9a-b44e-14955deb0a6f"},{"group":"2020 S1","title":"ep96清理過去，迎接美好愛情","href":"https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/408ef22a-dce0-43ce-8fec-4077be82d06c"},{"group":"2020 S1","title":"ep97愛情也需要設定目標","href":"https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/f385a9c6-d6ee-4d3a-ba31-b14e956c753f"},{"group":"2020 S1","title":"ep98開啟百人約會計劃","href":"https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/cc451cc7-020e-42f2-ace0-e116233315d6"},{"group":"2020 S1","title":"ep99七週遇見對的人讀書會","href":"https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/f7a796df-c7b0-4505-b23a-246af8aa28ad"},{"group":"2022 S3","title":"Ep.099｜失戀急救箱：加速放下前任的五個療癒方法！","href":"https://open.firstory.me/story/cl4l13gnv017h01ygfl3r13t9"},{"group":"2022 S3","title":"Ep.100｜醒醒吧！你總是在愛情裡鬼打牆？這集請務必服用！","href":"https://open.firstory.me/story/cl4nviaac007d01zteuj47jnl"},{"group":"2022 S3","title":"Ep.101｜你知道嗎？有形無形的「約定」正阻礙你遇到理想型？","href":"https://open.firstory.me/story/cl4pg3yez001001wa9q14ezlp"},{"group":"2022 S3","title":"Ep.102｜你的擇偶條件是什麼? 你是嚮往愛情，還是愛上對方?","href":"https://open.firstory.me/story/cl4qqoi9800ni01zy6o8lhtc7"},{"group":"2022 S3","title":"Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！","href":"https://open.firstory.me/story/cl4vg6oez001d01t99rpi2bwd","note":"2022年收聽冠軍單集","featured":true},{"group":"2024 S5","title":"Ep.005｜【鏡子練習】用肯定句創造理想人生","href":"https://open.firstory.me/story/clr4bn1gi030i01tzcvvsboco"},{"group":"2024 S5","title":"Ep.006｜七週遇見對的人 【理想伴侶訂單】秘技來了","href":"https://open.firstory.me/story/clr4bnw3103kw01wv9xdkcala"},{"group":"2024 S5","title":"Ep.007｜【靈魂伴侶】真的存在嗎？什麼是【雙生火焰】?","href":"https://open.firstory.me/story/clr759oav00x301w1dlypg1w1"},{"group":"2024 S5","title":"Ep.008｜【分手失戀】挽回感情的復合攻略是?","href":"https://open.firstory.me/story/clr75al6200zp01x3evigd7h9"}]},{"id":"charming-talk","show":"迷人說 Podcast","kind":"podcast","episodes":[{"title":"迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯","href":"https://web.archive.org/web/20250518033113/https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1"}]},{"id":"happiness-study","show":"小紀老師的幸福學 Podcast","kind":"podcast","episodes":[{"title":"Ep.161 l 打造幸運體質","href":"https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000591850026"},{"title":"Ep.162 l 如何創造貴人","href":"https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000591959880"},{"title":"Ep.163 l 如何成為金錢磁鐵","href":"https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229","featured":true},{"title":"Ep.164 l 如何吸引好桃花","href":"https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000592527540"},{"title":"Ep.165 l 心想事成許願法","href":"https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000592780746"}]},{"id":"pink-hell","show":"粉紅地獄辛辣麵 Podcast","kind":"podcast","episodes":[{"title":"S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！","href":"https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d","featured":true},{"title":"S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！","href":"https://web.archive.org/web/20250518033113/https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6"}]},{"id":"heart-talk","show":"談芯時刻","kind":"podcast","episodes":[{"title":"Ep.246 Stop！停止被潛意識綁架，希塔療癒破除你的限制信念_feat.幸運療癒師文齡 Keila","href":"https://web.archive.org/web/20250518033113/https://chuchu.firstory.io/episodes/clyimzld608pu01zsar0sedw3"},{"title":"Ep.282【談芯時刻】生活卡關了嗎？一起來做個脈輪健檢吧！ _feat.幸運療癒師 文齡 Keila","href":"https://youtu.be/gyfw264Gxwo?si=N3lgDii1Bs2nLpy5","featured":true}]},{"id":"theta-fun","show":"希塔好好玩 YouTube 直播訪談","kind":"youtube","episodes":[{"title":"如何顯化靈魂伴侶及成為專職療癒師💕","href":"https://www.youtube.com/watch?v=XIbfVMbPqLA","featured":true}]},{"id":"love-chat","show":"戀愛潛聊室 YouTube 直播訪談","kind":"youtube","episodes":[{"title":"《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師","href":"https://web.archive.org/web/20250518033113/https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq"},{"title":"分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師","href":"https://web.archive.org/web/20250518033113/https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb"}]},{"id":"island-day","show":"小島好日 YouTube 直播訪談","kind":"youtube","episodes":[{"title":"單身的你，如何尋找對的另一半","href":"https://web.archive.org/web/20250518033113/https://www.youtube.com/watch?v=wwv1UPc1EyA"}]},{"id":"co-cooking","show":"共煮生活實驗室 YouTube 直播訪談","kind":"youtube","episodes":[{"title":"如何成功招桃花"}]},{"id":"zen-life","show":"禪生活的108問 Facebook 直播","kind":"facebook","episodes":[{"title":"教你如何變幸運","href":"https://www.facebook.com/ZenLifeWithYou/videos/797426094675119"}]}],"mediaPartners":["暢銷著作合作《七週遇見對的人》《好女人的情場攻略》","愛山林集團、One&Co商務中心、大誠保險經紀人特邀講師","美國 THINK 官方希塔療癒認證導師"]};
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+$('label').textContent = D.mediaIntro.label; $('h1').textContent = D.mediaIntro.heading; $('desc').textContent = D.mediaIntro.description;
+const all = D.mediaShows.flatMap((s) => s.episodes.map((e) => ({ ...e, show: s.show, sid: s.id, sg: e.group })));
+const st = { show: 'all', q: '', full: false };
+const KIND = { podcast: '', youtube: '', facebook: '' };
+
+const chips = $('chips');
+[{ id: 'all', show: '全部節目', n: all.length }, ...D.mediaShows.map((s) => ({ id: s.id, show: s.show, n: s.episodes.length }))].forEach((s) => {
+  const b = el('button', 'tab', `${s.show}（${s.n}）`); b.type = 'button'; b.dataset.id = s.id; b.setAttribute('aria-selected', s.id === 'all'); chips.append(b);
+});
+chips.addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (!b) return; st.show = b.dataset.id; chips.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', t === b)); render(); });
+$('q').addEventListener('input', (e) => { st.q = e.target.value.trim(); render(); });
+document.querySelectorAll('.hint').forEach((h) => h.addEventListener('click', () => { $('q').value = h.dataset.q; st.q = h.dataset.q; render(); }));
+$('more').addEventListener('click', () => { st.full = !st.full; render(); });
+
+function render() {
+  const filtering = st.show !== 'all' || st.q !== '';
+  let list = all.filter((e) => (st.show === 'all' || e.sid === st.show) && e.title.toLowerCase().includes(st.q.toLowerCase()));
+  const feat = list.filter((e) => e.featured);
+  if (!filtering && !st.full) list = feat;
+  $('count').innerHTML = '';
+  const b = el('b', null, String(list.length));
+  $('count').append(filtering ? '符合的 ' : st.full ? '全部 ' : '精選 ', b, ' 集');
+  const box = $('eps'); box.innerHTML = '';
+  if (!list.length) { box.append(el('p', 'empty', '找不到符合的集名。可換個關鍵字，或清除篩選後瀏覽全部集數。')); }
+  list.forEach((e) => {
+    const r = el('article', 'ep');
+    const meta = el('div', 'meta'); meta.append(el('span', null, e.show + (e.sg ? '・' + e.sg : '')));
+    const t = el('div', 't', e.title);
+    const go = el('div', 'go');
+    if (e.featured) go.append(el('span', 'chip', '精選'));
+    if (e.note) go.append(el('span', 'badge', e.note));
+    if (e.href) { const a = el('a', 'link', '收聽／觀看 ↗'); a.href = e.href; a.target = '_blank'; a.rel = 'noopener'; a.setAttribute('aria-label', '收聽或觀看：' + e.title); go.append(a); }
+    else go.append(el('span', 'no', '連結待確認'));
+    const left = el('div'); left.append(meta, t);
+    r.append(left, go); box.append(r);
+  });
+  const m = $('more');
+  m.parentElement.hidden = filtering;
+  m.textContent = st.full ? '收合，只看精選' : `顯示全部 ${all.length} 集`;
+  m.setAttribute('aria-expanded', st.full);
+}
+render();
+
+const strip = $('strip');
+D.mediaPublications.forEach((p) => {
+  const c = el('article', 'card book'); c.append(el('div', 'cover', '書封（待提供）'));
+  const body = el('div'); body.append(el('h3', null, p.title), el('p', 'role', p.role));
+  const d = el('details', 'disclosure'); d.append(el('summary', null, '內容說明'));
+  const inner = el('div'); inner.append(el('p', null, p.description));
+  if (p.note) inner.append(el('p', 'note', p.note));
+  d.append(inner); body.append(d);
+  const a = el('a', 'link', p.link.label + ' →'); a.href = p.link.href; if (!p.link.href.startsWith('#')) { a.target = '_blank'; a.rel = 'noopener'; }
+  body.append(a); c.append(body); strip.append(c);
+});
+D.mediaPartners.forEach((t) => $('partners').append(el('li', null, t)));
+
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((n) => io.observe(n));
+</script>
+</body>
+</html>

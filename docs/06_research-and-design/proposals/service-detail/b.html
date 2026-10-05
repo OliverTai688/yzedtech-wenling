@@ -1,0 +1,335 @@
+<!doctype html>
+<!--
+提案代號：服務詳細頁 提案 B
+概念：分頁檢視。精簡摘要頭 + 吸附在頁首下方的四分頁，一次只顯示一個面板，方案以並排卡片（手機橫滑）呈現。
+動效技術：分頁面板淡入（CSS keyframes）、原生 details 展開、scroll-snap 橫滑；無 3D、無粒子。
+已知弱點：1) 「適合我嗎」面板內仍有 4 個收起區塊，長文案只是被推到第二層，找不到時要多點一次；
+          2) 分頁預設藏起方案與價格，只想先看價格的訪客要多一步；手機橫滑卡片同一時間只看到約 1.2 張，比較三案不如並排表格直接。
+-->
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜心靈引渡人提案B・分頁檢視</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+main { padding-bottom: 24px; }
+.crumb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; color: var(--muted-foreground); padding-top: 16px; }
+.crumb a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent-foreground); font-weight: 600; }
+
+/* 摘要頭：第一屏只回答「是什麼、適不適合、下一步」 */
+.summary { padding-block: 8px 28px; max-width: 760px; }
+.summary h1 { margin-top: 8px; }
+.summary .sub { margin-top: 6px; font-size: 18px; font-weight: 600; color: var(--accent-foreground); }
+.summary .quote { margin-top: 16px; font-family: var(--font-serif); color: var(--card-foreground); }
+.summary .row { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; }
+.summary .row .btn { flex: 1 1 160px; }
+@media (min-width: 640px) { .summary .row .btn { flex: none; } }
+
+/* 吸附分頁列 */
+.tabbar { position: sticky; top: 64px; z-index: 30; background: rgba(251,241,221,.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(240,223,160,.7); }
+.tabbar .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding-block: 8px; flex-wrap: nowrap; }
+.tabbar .tab { padding-inline: 4px; font-size: 14px; white-space: nowrap; }
+@media (min-width: 768px) { .tabbar .tabs { max-width: 640px; } .tabbar .tab { font-size: 16px; } }
+.tab:focus-visible, .btn:focus-visible, .disclosure > summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+.panel { padding-block: 32px 8px; scroll-margin-top: 140px; }
+.panel:not([hidden]) { animation: panelIn 250ms cubic-bezier(.22,1,.36,1); }
+@keyframes panelIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.panel > h2 { font-size: 24px; }
+.panel .lead { margin-top: 8px; color: var(--muted-foreground); }
+.panel .more { margin-top: 24px; max-width: 760px; }
+.panel .more .disclosure:first-child { border-top: 1px solid rgba(240,223,160,.7); }
+.panel .more p + p, .disclosure ul { margin-top: 10px; }
+.disclosure li { padding-left: 16px; position: relative; margin-top: 8px; }
+.disclosure li::before { content: ''; position: absolute; left: 0; top: .8em; width: 6px; height: 6px; border-radius: 50%; background: var(--gold-600, #B5762A); }
+
+/* 適合我嗎 */
+.fit { margin-top: 20px; display: grid; gap: 10px; max-width: 760px; }
+.fit li { display: flex; gap: 10px; align-items: baseline; }
+.fit li::before { content: '✦'; color: #B5762A; flex: none; }
+.fit b { color: var(--card-foreground); }
+.tag-pending { display: inline-flex; margin-left: 8px; padding: 0 10px; min-height: 24px; align-items: center; border-radius: 999px; border: 1px dashed var(--ring); color: var(--accent-foreground); font-size: 12px; font-weight: 700; }
+
+/* 方案卡：桌機並排，手機橫滑 */
+.plans { margin-top: 20px; display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 14px 24px 12px; margin-inline: -24px; scrollbar-width: none; }
+.plans::-webkit-scrollbar { display: none; }
+.plan { flex: 0 0 82%; scroll-snap-align: center; position: relative; display: flex; flex-direction: column; padding: 24px 20px; }
+.plan .name { font-size: 20px; }
+.plan .hl { margin-top: 4px; color: var(--muted-foreground); }
+.plan .meta { margin-top: 16px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; border-block: 1px solid var(--border); padding-block: 12px; }
+.plan .time { font-weight: 600; color: var(--secondary-foreground); }
+.plan .price { font-family: var(--font-serif); font-size: 28px; font-weight: 700; color: var(--card-foreground); }
+.plan .for { margin-top: 12px; font-size: 14px; }
+.plan .for b { display: block; color: var(--accent-foreground); }
+.plan .disclosure { margin-top: 8px; }
+.plan .btn { margin-top: auto; }
+.plan .disclosure + .btn { margin-top: 12px; }
+.plan.rec { border: 2px solid var(--ring); background: var(--popover); box-shadow: 0 10px 32px rgba(201,134,46,.22); }
+.plan.rec .chip { position: absolute; top: -14px; left: 20px; background: linear-gradient(135deg, #FCE7A8, #D89A3E); color: var(--primary-foreground); }
+@media (min-width: 900px) {
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); overflow: visible; margin-inline: 0; padding-inline: 0; gap: 20px; align-items: stretch; }
+  .plan { flex: none; padding: 28px 24px; }
+  .plan.rec { transform: translateY(-6px); }
+}
+.swipe-hint { margin-top: 4px; font-size: 14px; color: var(--muted-foreground); }
+@media (min-width: 900px) { .swipe-hint { display: none; } }
+.book-note { margin-top: 16px; font-size: 14px; color: var(--muted-foreground); max-width: 760px; }
+
+/* 流程 */
+.steps { margin-top: 20px; display: grid; gap: 12px; counter-reset: s; max-width: 760px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; padding: 14px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; }
+.steps li::before { content: counter(s); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-foreground); font-family: var(--font-serif); font-weight: 700; font-size: 18px; }
+.steps b { display: block; color: var(--card-foreground); }
+
+.note { margin: 40px 0 8px; padding: 16px 20px; border-left: 3px solid #D89A3E; background: var(--card); border-radius: 0 14px 14px 0; font-size: 14px; color: var(--muted-foreground); max-width: 760px; }
+.note b { color: var(--card-foreground); }
+.site-footer { padding-bottom: 96px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <div class="container">
+    <nav class="crumb" aria-label="麵包屑"><a href="/services">全部服務</a><span aria-hidden="true">›</span><span aria-current="page">心靈引渡人</span></nav>
+
+    <!-- 摘要頭 -->
+    <section class="summary" aria-labelledby="t">
+      <h1 id="t">心靈引渡人</h1>
+      <p class="sub">一對一個人能量療癒</p>
+      <p class="quote">「我不能陪你過河，但能送你一程到彼岸。」</p>
+      <div class="row">
+        <a class="btn btn-gold" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+        <a class="btn btn-outline" href="https://lin.ee/N7QHCND">LINE 諮詢</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- 吸附分頁列 -->
+  <div class="tabbar"><div class="container">
+    <div class="tabs" role="tablist" aria-label="服務內容">
+      <button class="tab" role="tab" id="tab-fit" aria-controls="p-fit" aria-selected="true" tabindex="0">適合我嗎</button>
+      <button class="tab" role="tab" id="tab-plan" aria-controls="p-plan" aria-selected="false" tabindex="-1">方案與費用</button>
+      <button class="tab" role="tab" id="tab-flow" aria-controls="p-flow" aria-selected="false" tabindex="-1">流程與準備</button>
+      <button class="tab" role="tab" id="tab-faq" aria-controls="p-faq" aria-selected="false" tabindex="-1">常見問題</button>
+    </div>
+  </div></div>
+
+  <div class="container">
+    <!-- 1 適合我嗎 -->
+    <section class="panel" role="tabpanel" id="p-fit" aria-labelledby="tab-fit">
+      <h2>這趟旅程適合這樣的你</h2>
+      <p class="lead">如果你正處於以下狀態，這正是你的靈魂發出的求救信號：</p>
+      <ul class="fit">
+        <li><span><b>反覆卡關：</b>總被特定模式困擾（感情失敗、金錢困境、家庭矛盾、工作不順）。</span></li>
+        <li><span><b>渴望突破：</b>想改善收入、升遷轉職，或迎向人生重要的下一個階段。</span></li>
+        <li><span><b>重大低潮：</b>經歷失戀、親人離世等打擊，感到深深的心痛與無力。</span></li>
+        <li><span><b>慣性依存：</b>想擺脫菸、酒、3C、影劇小說等成癮或逃避行為。</span></li>
+        <li><span><b>內在恐懼：</b>對特定事物焦慮、擔憂，渴望突破自我限制。</span></li>
+        <li><span><b>議題交織：</b>家族紛爭、遺傳或長期反覆不順的複雜困擾。</span></li>
+      </ul>
+      <div class="more">
+        <details class="disclosure"><summary>為什麼你需要這趟旅程？</summary>
+          <div>
+            <p>理智上都明白，但心裡那一關總是過不去？</p>
+            <p>人生總有某些時刻，像困在一艘不斷打轉的小船上，陷入無形的迴圈：</p>
+            <ul>
+              <li>明明很努力，卻總是在感情中重蹈覆轍、反覆受傷？</li>
+              <li>渴望突破，卻常被莫名的焦慮、自我懷疑與金錢停滯所絆住？</li>
+              <li>工作總是卡關，甚至身體感覺沉重、活力悄悄下滑？</li>
+            </ul>
+            <p>這些「卡住」的感覺，其實是潛意識在向你發出求救訊號。</p>
+            <p>在這裡，我不只聽你說，更會陪你一起潛入內心，找出隱藏在冰山底下的核心癥結。透過冥想引導與潛意識溝通，我們將溫柔地卸下不屬於你的包袱，將限制性信念轉化為支持你的力量。</p>
+            <p>這是一趟專屬於你的「渡口之旅」，無論你帶著什麼樣的傷口來到這裡，都能在這裡稍作停泊，找回重新啟航的平靜與輕盈。</p>
+          </div>
+        </details>
+        <details class="disclosure"><summary>療癒能為你帶來的轉變</summary>
+          <div>
+            <p>這不只是「處理問題」，更是一場靈魂的深度重整：</p>
+            <ul>
+              <li>深層信念重塑：移除潛意識裡的負面限制，讓卡住的人生重新流動。</li>
+              <li>快速突破轉化：精準鬆開核心卡點，當下感受心靈脫胎換骨。</li>
+              <li>多重技術整合：
+                <ul>
+                  <li>希塔療癒（核心技術）：潛意識連結與信念系統更新。</li>
+                  <li>內在小孩與原生家庭療癒：修復童年創傷，找回內在力量。</li>
+                  <li>家族與金錢業力清理 / 前世回溯：解開跨世代與深層靈魂印記。</li>
+                  <li>情緒釋放與靈氣傳送：促進全身能量場的平衡與流動。</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure"><summary>個案通常會有什麼樣的體驗與感受？</summary>
+          <div>
+            <p>能量運作時，每個靈魂的感知方式都是獨一無二的。這是一次身體與心靈的自然調節過程：</p>
+            <ul>
+              <li>常見體感反應：過程中有部分個案會感到微熱、頭皮發麻、眼皮快速跳動、眼前發亮，或感覺到股溫熱能量流過身體；也有人會感到肌肉鬆弛、非常放鬆甚至想睡，這些都是能量正在進行調節的自然現象。</li>
+              <li>情緒與生理釋放：在清理深層信念或積壓情緒時，可能會出現流淚、想吐、打嗝或咳嗽等狀況，這代表體內卡住的能量正在獲得釋放。療癒期間或結束後感到口乾舌燥是能量代謝的正常過程，請多補充溫開水。</li>
+              <li>無體感也是正常的：若過程中沒有明顯體感，絕不代表能量沒有運作。能量場調整後的影響會逐漸在接下來的生活、思考模式與事件發展中顯化。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure"><summary><span>個案真實見證<span class="tag-pending">待授權</span></span></summary>
+          <div>
+            <ul>
+              <li class="quote">「半年內遇見靈魂伴侶」 — 愛情顯化個案</li>
+              <li class="quote">「信念轉換後愁緒消散了，感覺身心瞬間變乾淨」 — 深層清理個案</li>
+              <li class="quote">「隔天業績提升、三天後獲得升遷通知」 — 事業突破個案</li>
+              <li class="quote">「擺脫對失敗的恐懼，終於有勇氣邁開步伐」 — 恐懼釋放個案</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 2 方案與費用 -->
+    <section class="panel" role="tabpanel" id="p-plan" aria-labelledby="tab-plan" hidden>
+      <h2>服務方案與費用資訊</h2>
+      <p class="lead">為了提供最完整且深入的療癒品質，請依據你目前的狀態選擇方案：</p>
+      <div class="plans" id="plans" tabindex="0" aria-label="三個方案，可左右滑動">
+        <article class="card plan">
+          <h3 class="name">方案 A：【微光啟航】</h3>
+          <p class="hl">快速定錨，找回當下平靜</p>
+          <div class="meta"><span class="time">60 分鐘</span><span class="price">$2,600</span></div>
+          <p class="for"><b>適合對象</b>初訪體驗、輕量議題梳理、舊個案能量維護</p>
+          <details class="disclosure"><summary>旅程價值</summary><p>針對單一輕量困擾進行梳理，透過狀態掃描與能量轉化，讓你立即感受壓力的釋放與心智的清晰。</p></details>
+          <a class="btn btn-outline" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+        </article>
+        <article class="card plan rec">
+          <span class="chip">主力推薦</span>
+          <h3 class="name">方案 B：【核心破浪】</h3>
+          <p class="hl">直擊核心，從根源解開生命糾結</p>
+          <div class="meta"><span class="time">90 分鐘</span><span class="price">$3,900</span></div>
+          <p class="for"><b>適合對象</b>有明確重大困擾（感情、職場、金錢、原生家庭）</p>
+          <details class="disclosure"><summary>旅程價值</summary><p>擁有最充裕且完美的療癒節奏。我們有足夠的時間進行深度潛意識溝通、重塑信念系統，並為你找出專屬的療癒處方與未來行動指引。</p></details>
+          <a class="btn btn-gold" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+        </article>
+        <article class="card plan">
+          <h3 class="name">方案 C：【深海重塑】</h3>
+          <p class="hl">全面大掃除，徹底蛻變重整</p>
+          <div class="meta"><span class="time">120 分鐘</span><span class="price">$5,200</span></div>
+          <p class="for"><b>適合對象</b>長期累積壓力、多重議題交織、需要深度修復</p>
+          <details class="disclosure"><summary>旅程價值</summary><p>不趕時間的深度探索。逐一解開多重信念的結，進行最深層的能量大掃除，在一場療癒中獲得全方位的修復與指引。</p></details>
+          <a class="btn btn-outline" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+        </article>
+      </div>
+      <p class="swipe-hint">左右滑動查看全部方案</p>
+      <p class="book-note">完成付款後，請透過私訊提供 3 個方便的時段，我們將儘快為您安排時間</p>
+      <div class="more">
+        <details class="disclosure"><summary>能量保護與約定</summary>
+          <ul>
+            <li>完整陪伴保證：若療癒提前完成主要議題，剩餘時間將進行「能量接地整合、卡牌指引或生活落地建議」，確保每次旅程都有完整收尾（不另退費或保留時數）。</li>
+            <li>彈性時間緩衝：享有 10 分鐘免費緩衝時間。若經雙方同意需延長討論，超時每 30 分鐘以 $1,300 計價（單次延長上限為 3 小時）。</li>
+            <li>智慧隱私紀錄：過程將全程錄影，會後提供 AI 重點整理筆記（錄影檔於筆記整理完成後隨即刪除，嚴格保護個人隱私）。</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- 3 流程與準備 -->
+    <section class="panel" role="tabpanel" id="p-flow" aria-labelledby="tab-flow" hidden>
+      <h2>療癒流程與事前準備</h2>
+      <p class="lead">進行方式：全程採用線上遠距語音/視訊通話（Zoom），您只需在安靜不受打擾的空間閉眼跟隨引導即可。</p>
+      <ol class="steps">
+        <li><span><b>議題聚焦（5–10 分鐘）</b>梳理當前困擾，訂定本次療癒的核心目標。</span></li>
+        <li><span><b>狀態掃描</b>進行冥想引導、祈請與個案能量場掃描。</span></li>
+        <li><span><b>核心療癒</b>進行深度潛意識溝通與限制性信念轉換。</span></li>
+        <li><span><b>整合建議</b>給予落地行動指引與實用的生活回饋。</span></li>
+      </ol>
+      <div class="more">
+        <details class="disclosure"><summary>事前準備須知</summary>
+          <div>
+            <p>為確保療癒過程順暢，請於預約時間前準備好以下事項：</p>
+            <ul>
+              <li>空間與設備：請確保處於安靜、個人私密且不受干擾的空間，並準備好耳機與穩定的網路。</li>
+              <li>輔助用品：請隨手準備飲用水、面紙與抱枕。</li>
+              <li>預約資訊：預約時請提供被療癒者的稱呼，以及想要改善的議題簡述。</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 4 常見問題 -->
+    <section class="panel" role="tabpanel" id="p-faq" aria-labelledby="tab-faq" hidden>
+      <h2>常見問題 FAQ</h2>
+      <div class="more">
+        <details class="disclosure"><summary>Q1：療癒多久會有效？</summary>
+          <div>
+            <p>每個靈魂都有自己的運作節奏。有人隔天就能感受到生活的具體轉變，也有人是在數週內逐步改善。</p>
+            <p>身心感受通常顯現較快；隨後請多留意生活中的細微變化，例如：想法變清晰了、過往的習慣模式改變了、或是身邊的人對待你的態度不同了。若療癒後出現與人衝突、多夢或浮現舊記憶，這是提示你該面對並跨越該議題，順應並改變後人生就會更加順遂。</p>
+          </div>
+        </details>
+        <details class="disclosure"><summary>Q2：需要預約幾次療癒？</summary>
+          <div>
+            <p>單次療癒即可獲得顯著的梳理與改善。但若議題根深蒂固或積壓多年，建議分階段處理。</p>
+            <p>請給自己合理的轉化時間，避免期待一次療癒就能徹底解決累積數十年的問題。療癒師是陪伴你發現癥結並引導方向的引路人，結束後搭配靜心冥想、改變生活習慣與覺察日記，效果會更加持久。若過了一段時間感覺舊模式復發，歡迎隨時再預約維護。</p>
+          </div>
+        </details>
+        <details class="disclosure"><summary>Q3：我可以幫家人或朋友預約嗎？</summary>
+          <p>必須經由本人同意，並由本人親自參與。一對一療癒需要當事人具備自願面對內在的意願，無法由他人代為進行。</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- 免責聲明：不論哪個分頁都看得到 -->
+    <aside class="note" aria-label="免責聲明"><b>免責聲明：</b>本能量療癒服務屬於身心靈輔助與自我覺察支持，不能取代專業正統醫療與精神醫學診斷。若您有身體生理疾病或精神疾病，請務必優先諮詢專業醫師。過程中絕不使用任何實體醫療器具，亦不販售任何藥品或保健食品。</aside>
+  </div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <p style="margin-top:12px">給自己一次重新開始的機會，我在渡口陪你一起啟航。</p>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="sticky-cta"><a class="btn btn-gold" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a></div>
+
+<div class="proposal-tag">提案 B・分頁檢視</div>
+<script>
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+const tabbar = document.querySelector('.tabbar');
+
+function select(i, focus) {
+  tabs.forEach((t, j) => {
+    const on = i === j;
+    t.setAttribute('aria-selected', on);
+    t.tabIndex = on ? 0 : -1;
+    document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+  });
+  if (focus) tabs[i].focus();
+  // 若分頁列已吸附在頁首下方，切換後回到面板頂端，避免停在上一個面板的中段
+  if (tabbar.getBoundingClientRect().top <= 66) {
+    const y = tabbar.offsetTop + tabbar.offsetHeight - 64;
+    window.scrollTo({ top: Math.max(y, 0), behavior: 'auto' });
+  }
+  // 方案分頁：讓推薦方案在手機橫滑列置中
+  if (i === 1) {
+    const row = document.getElementById('plans'), rec = row.querySelector('.rec');
+    if (row.scrollWidth > row.clientWidth) row.scrollLeft = rec.offsetLeft - (row.clientWidth - rec.offsetWidth) / 2;
+  }
+  try { history.replaceState(null, '', '#' + tabs[i].id.replace('tab-', '')); } catch (e) {}
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => select(i));
+  t.addEventListener('keydown', (e) => {
+    let n = null;
+    if (e.key === 'ArrowRight') n = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') n = 0;
+    else if (e.key === 'End') n = tabs.length - 1;
+    if (n !== null) { e.preventDefault(); select(n, true); }
+  });
+});
+const start = tabs.findIndex((t) => '#' + t.id.replace('tab-', '') === location.hash);
+if (start > 0) select(start);
+</script>
+</body>
+</html>

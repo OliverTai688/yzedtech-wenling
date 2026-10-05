@@ -1,0 +1,140 @@
+<!--
+提案 B「從需求出發」・全部服務 /services
+概念：先問訪客的處境（家庭／感情／事業／新手），選一個就只看到兩個對應入口與一句理由；完整 8 項目錄收在下方當備查清單。
+動效技術：一次性 .reveal 進場、需求分頁切換（淡入）、無 3D、無粒子。
+已知弱點：(1) 需求只涵蓋四類，想比較價格／時長的訪客在這頁看不到；(2) 預設需求是「家庭」，與訪客實際處境不符時要多點一次；感情第二入口與新手兩入口是站外／培訓連結，離開服務脈絡。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜全部服務提案B・從需求出發</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 40px 24px; }
+.hero h1 { margin-top: 12px; }
+.hero .ask { margin-top: 12px; color: var(--muted-foreground); }
+.needs { margin-top: 24px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (min-width: 768px) { .needs { grid-template-columns: repeat(4, 1fr); } }
+.needs .tab { width: 100%; font-size: 16px; border-radius: 14px; }
+.panel { margin-top: 16px; animation: fade 250ms ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.panel[hidden] { display: none; }
+.panel .reason { font-family: var(--font-serif); font-size: 18px; color: var(--card-foreground); line-height: 1.7; }
+@media (min-width: 768px) { .panel .reason { font-size: 20px; } }
+.picks { margin-top: 20px; display: grid; gap: 12px; }
+@media (min-width: 768px) { .picks { grid-template-columns: 1fr 1fr; } }
+.pick { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--popover); font-weight: 700; color: var(--card-foreground); }
+.pick:hover { border-color: var(--ring); }
+.pick.primary { background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%); color: var(--primary-foreground); border-color: transparent; box-shadow: 0 4px 14px rgba(201,134,46,.35); }
+.pick small { display: block; font-weight: 500; font-size: 14px; opacity: .8; }
+.unsure { margin-top: 16px; font-size: 14px; }
+.unsure a { color: var(--accent-foreground); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.catalog h2 { margin-bottom: 8px; }
+.catalog .sub { margin-bottom: 8px; }
+.group { margin-top: 28px; }
+.group h3 { font-size: 18px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.item { display: flex; flex-direction: column; gap: 2px; padding-block: 14px; border-bottom: 1px solid rgba(240,223,160,.7); }
+@media (min-width: 768px) { .item { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; } }
+.item .t { font-weight: 700; color: var(--card-foreground); }
+.item .d { font-size: 15px; color: var(--muted-foreground); }
+.item .link { font-size: 15px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="hero container">
+    <span class="eyebrow">能量療癒服務</span>
+    <h1>全部服務</h1>
+    <p class="ask">為不同階段的你，量身規劃專屬的改變起點</p>
+
+    <div class="tabs needs" role="tablist" aria-label="你現在最想改善的是">
+      <button class="tab" role="tab" id="t-family" aria-selected="true" aria-controls="p-family">家庭</button>
+      <button class="tab" role="tab" id="t-love" aria-selected="false" aria-controls="p-love">感情</button>
+      <button class="tab" role="tab" id="t-business" aria-selected="false" aria-controls="p-business">事業</button>
+      <button class="tab" role="tab" id="t-starter" aria-selected="false" aria-controls="p-starter">新手</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-family" aria-labelledby="t-family">
+      <p class="reason">為辛勞的你提供最深度的安定感。當媽媽的心安定了，整個家就會迎來最溫柔的和諧。</p>
+      <div class="picks">
+        <a class="pick primary" href="/services/group-healing">了解人生推進器 <span aria-hidden="true">→</span></a>
+        <a class="pick" href="/services/spiritual-massage">看靈性按摩介紹 <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <div class="panel" role="tabpanel" id="p-love" aria-labelledby="t-love" hidden>
+      <p class="reason">幫助你重新愛上自己，拔除感情裡的「有毒習慣」。這是一段溫暖陪伴的旅程，幫你打開心房，遇見真正適合你的人。</p>
+      <div class="picks">
+        <a class="pick primary" href="/services/personal-1on1">了解心靈引渡人 <span aria-hidden="true">→</span></a>
+        <a class="pick" href="https://booking.wenling.tw/products/love365">看練愛大確幸介紹 <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+    <div class="panel" role="tabpanel" id="p-business" aria-labelledby="t-business" hidden>
+      <p class="reason">為老闆、創業家、業務員與投資者提供專屬的開運助攻，讓好運與業績自動找上門！</p>
+      <div class="picks">
+        <a class="pick primary" href="/services/abundance-reiki">了解豐盛靈氣 <span aria-hidden="true">→</span></a>
+        <a class="pick" href="/services/smoke-prayer">看煙供祈福介紹 <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <div class="panel" role="tabpanel" id="p-starter" aria-labelledby="t-starter" hidden>
+      <p class="reason">不論是想療癒自己，還是想發展高收入的第二專長，這裡有最簡單、零門檻的教學，帶你把所學變成實際的收入。</p>
+      <div class="picks">
+        <a class="pick primary" href="/training/theta-basic">了解希塔療癒 <span aria-hidden="true">→</span></a>
+        <a class="pick" href="/training/money-reiki-cert">看金錢靈氣課介紹 <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+
+    <p class="unsure">還不確定？<a href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a></p>
+  </section>
+
+  <section class="section catalog container" aria-labelledby="all-h">
+    <h2 id="all-h">能量療癒服務｜為你的身心靈量身訂做的解方</h2>
+    <p class="muted sub">從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。</p>
+
+    <div class="group reveal">
+      <h3>一對一</h3>
+      <div class="item"><div><div class="t">心靈引渡人｜一對一個人能量療癒</div><div class="d">潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。</div></div><a class="link" href="/services/personal-1on1">了解詳情 →</a></div>
+      <div class="item"><div><div class="t">靈性解讀與能量療癒</div><div class="d">人生指南針、靈魂伴侶、4+1 感知中心天賦挖掘，為迷惘與抉擇中的你點亮方向。</div></div><a class="link" href="/services/spiritual-reading">了解詳情 →</a></div>
+      <div class="item"><div><div class="t">靈性按摩｜全域氣場修護與脈輪清理</div><div class="d">無需接觸的遠距能量 SPA，溫和清理 14 點脈輪氣場，找回身心和諧與流動。</div></div><a class="link" href="/services/spiritual-massage">了解詳情 →</a></div>
+    </div>
+    <div class="group reveal">
+      <h3>團體療癒</h3>
+      <div class="item"><div><div class="t">人生推進器｜團體遠距療癒</div><div class="d">強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。</div></div><a class="link" href="/services/group-healing">了解詳情 →</a></div>
+      <div class="item"><div><div class="t">豐盛靈氣｜全方位能量調頻與願望顯化</div><div class="d">整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。</div></div><a class="link" href="/services/abundance-reiki">了解詳情 →</a></div>
+    </div>
+    <div class="group reveal">
+      <h3>祈福服務</h3>
+      <div class="item"><div><div class="t">遠距煙供祈福儀式</div><div class="d">古老的焚香上供下施法門，化解無形障礙，為自己與家人累積福報。</div></div><a class="link" href="/services/smoke-prayer">了解詳情 →</a></div>
+      <div class="item"><div><div class="t">五行香水供奉｜佛前加持版</div><div class="d">依你的八字客製五行精油開運配方，精準補足流年運勢缺口。</div></div><a class="link" href="/services/five-elements-perfume">了解詳情 →</a></div>
+    </div>
+    <div class="group reveal">
+      <h3>工作坊</h3>
+      <div class="item"><div><div class="t">能量身心靈主題工作坊</div><div class="d">3～4 小時輕量體驗，把能量工具帶回日常生活，零基礎即可上手。</div></div><a class="link" href="/services/workshop">了解詳情 →</a></div>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 B・從需求出發</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+const tabs = [...document.querySelectorAll('.needs .tab')];
+tabs.forEach((t) => t.addEventListener('click', () => {
+  tabs.forEach((x) => { const on = x === t; x.setAttribute('aria-selected', on); document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
+}));
+</script>
+</body>
+</html>

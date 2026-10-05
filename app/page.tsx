@@ -8,8 +8,8 @@ import {
   HomeMedia,
   ResourcesBand,
   HomeFaq,
-  FinalCta,
 } from '../src/components/home/HomeSections';
+import CtaBand from '../src/components/CtaBand';
 import StickyCtaBar from '../src/components/StickyCtaBar';
 import { homeContent } from '../src/data';
 
@@ -50,7 +50,7 @@ export default function Page() {
           <HomeFaq />
         </PathSection>
       </GoldenPath>
-      <FinalCta />
+      <CtaBand onHome />
       <StickyCtaBar
         primary={{ label: homeContent.stickyCta.primary, href: '#personas-section' }}
         lineLabel={homeContent.stickyCta.line}

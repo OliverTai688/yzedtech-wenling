@@ -1092,16 +1092,12 @@ export const homeContent = {
     startLabel: '專屬起點',
   },
   // 精選服務：需求入口前三張卡的第一個 CTA 所指的服務（RES-001 §9 決策 4）。
-  // 標題與副標：Home Block 3（第 161、163 行）；各服務一句話：第 165、174、183 行。
+  // 標題與副標：Home Block 3（第 161、163 行）；各服務的一句話在 serviceBlurbs。
   services: {
     eyebrow: '精選服務',
     heading: '能量療癒服務｜為你的身心靈量身訂做的解方',
     description: '從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。',
-    items: [
-      { id: 'group-healing', blurb: '強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。' },
-      { id: 'personal-1on1', blurb: '潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。' },
-      { id: 'abundance-reiki', blurb: '整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。' },
-    ],
+    ids: ['group-healing', 'personal-1on1', 'abundance-reiki'],
     moreLabel: '查看全部服務',
     itemLabel: '了解詳情',
   },
@@ -1158,6 +1154,74 @@ export const homeContent = {
     shop: '前往商城',
   },
   stickyCta: { primary: '了解適合我的服務', line: 'LINE 諮詢' },
+};
+
+// 各服務的一句話介紹：文案集 v2 Home Block 3（第 164～186 行）。首頁精選服務與
+// /services 的卡片共用。
+export const serviceBlurbs: Record<string, string> = {
+  "personal-1on1": "潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。",
+  "spiritual-reading": "人生指南針、靈魂伴侶、4+1 感知中心天賦挖掘，為迷惘與抉擇中的你點亮方向。",
+  "spiritual-massage": "無需接觸的遠距能量 SPA，溫和清理 14 點脈輪氣場，找回身心和諧與流動。",
+  "group-healing": "強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。",
+  "workshop": "3～4 小時輕量體驗，把能量工具帶回日常生活，零基礎即可上手。",
+  "smoke-prayer": "古老的焚香上供下施法門，化解無形障礙，為自己與家人累積福報。",
+  "abundance-reiki": "整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。",
+  "five-elements-perfume": "依你的八字客製五行精油開運配方，精準補足流年運勢缺口。"
+};
+
+// 各課程的一句話介紹：文案集 v2 Home Block 4（第 193～205 行）。/training 的路徑節點使用。
+export const courseBlurbs: Record<string, string> = {
+  "theta-basic": "3 天課程，打下潛意識轉化最穩固的基礎，官方認證。",
+  "theta-advanced-dna": "解鎖深度清理與跨維度溝通，讓顯化速度全面升級。",
+  "theta-dig-deeper": "10 大深度信念挖掘技術，徹底破除「鬼打牆」的人生迴圈。",
+  "money-reiki-cert": "從清理金錢業力到療癒師創業，一階到三階完整培訓。",
+  "love-reiki-cert": "8 小時完整實戰大綱，療癒心輪創傷、吸引正緣。",
+  "mermaid-reiki-cert": "喚醒深海魅力，重塑自愛與豐盛能量的覺醒之旅。"
+};
+
+// 服務類型（/services 的類型切換）。歸類待客戶確認（RPT-001 C5）。
+export const serviceTypes: { id: string; label: string; serviceIds: string[] }[] = [
+  { id: 'one-on-one', label: '一對一', serviceIds: ['personal-1on1', 'spiritual-reading', 'spiritual-massage'] },
+  { id: 'group', label: '團體療癒', serviceIds: ['group-healing', 'abundance-reiki'] },
+  { id: 'blessing', label: '祈福服務', serviceIds: ['smoke-prayer', 'five-elements-perfume'] },
+  { id: 'workshop', label: '工作坊', serviceIds: ['workshop'] },
+];
+
+// PLN-004 階段 D2～D5：服務／課程的總覽頁與詳細頁（RES-002 §2～§5）。
+export const offeringsContent = {
+  // 各頁共用的導引與按鈕文字（需求書 §8.2 的 CTA 清單）
+  helper: { needs: '了解適合我的服務', line: '加入官方 LINE 諮詢' },
+  detail: {
+    groups: { intro: '這適合我嗎', plans: '方案與費用', process: '流程與報名', faq: '常見問題', notes: '注意事項', proof: '真實見證' },
+    fitLabel: '適合這樣的你',
+    priceLabel: '費用',
+    durationLabel: '時長與形式',
+    lineLabel: 'LINE 諮詢',
+    serviceBack: '全部服務',
+    courseBack: '認證班',
+    courseCta: '前往報名',
+    pathLabel: '希塔療癒三階課程',
+    pathHere: '你在這裡',
+  },
+  services: {
+    title: '全部服務',
+    allLabel: '全部',
+    itemLabel: '了解詳情',
+  },
+  // /training：標題與說明取自 Home Block 4（第 190～191 行）；系列名稱第 192、200 行。
+  training: {
+    title: '認證班',
+    heading: '成為療癒師，也成為自己生命的專家',
+    description: '如果你渴望更深入地認識自己，甚至將能量療癒發展為第二專長，這裡是你的起點。',
+    thetaTrack: '希塔療癒系列（ThetaHealing®）',
+    reikiTrack: '靈氣認證系列',
+    intuitionTrack: '直覺力訓練',
+    comingSoon: '即將推出',
+    itemLabel: '了解課程',
+    lineLabel: '加 LINE 洽詢開班日程',
+    notifyLabel: '搶先登記，開課通知我',
+    credential: '文齡老師為官方認可之國際導師，學員修畢課程並通過評核，即可獲頒美國 THInK 總部發證之官方結業證照。',
+  },
 };
 
 // PRD-003 §4.14（PLN-004 Batch A6）：/legal 改用文案集 v2 的《隱私權政策》（第 1589 行起）、

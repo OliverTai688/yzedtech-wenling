@@ -1,0 +1,123 @@
+<!--
+提案 A「類型切換」
+概念：H1 下方一排分段控制（全部／一對一／團體療癒／祈福服務／工作坊），即時篩選 8 張精簡卡片，不重新載入。
+動效技術：原生 JS + CSS transition（opacity／translateY），無函式庫；進場 .reveal。
+已知弱點：1) 篩選後每類只有 1–3 張，格子會顯得稀疏，且「比較」只靠並排掃讀，沒有價格／對象等欄位；
+2) 不確定的訪客要自己看懂四種類型名稱，導向 LINE 的入口只有頁尾與格子下方一行，不夠前置。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜全部服務 提案 A・類型切換</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.page-head { padding-block: 40px 24px; }
+@media (min-width: 768px) { .page-head { padding-block: 64px 32px; } }
+.page-head h1 { margin-top: 12px; }
+.page-head .sub { margin-top: 12px; max-width: 40em; color: var(--muted-foreground); }
+.segs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 24px; padding: 4px; width: fit-content; max-width: 100%; background: var(--popover); border: 1px solid var(--border); border-radius: 999px; }
+.seg { min-height: 44px; padding: 6px 18px; border: 0; border-radius: 999px; background: transparent; color: var(--secondary-foreground); font: 700 15px var(--font-sans); cursor: pointer; transition: background 150ms ease, color 150ms ease; }
+.seg:hover { background: rgba(252,231,168,.5); }
+.seg[aria-pressed="true"] { background: var(--accent); color: var(--primary-foreground); box-shadow: inset 0 0 0 1px var(--ring); }
+.seg:focus-visible, .svc-card:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.grid { display: grid; gap: 16px; grid-template-columns: 1fr; padding-block: 8px 48px; }
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+.svc { transition: opacity 250ms ease, transform 250ms cubic-bezier(.22,1,.36,1); }
+.svc[hidden] { display: none; }
+.svc.out { opacity: 0; transform: translateY(12px); }
+.svc-card { display: flex; flex-direction: column; gap: 12px; height: 100%; padding: 24px; transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease; }
+.svc-card:hover { border-color: var(--ring); box-shadow: 0 8px 28px rgba(201,134,46,.18); transform: translateY(-2px); }
+.svc-card h3 { font-size: 20px; }
+.svc-card .foot { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding-top: 8px; }
+.svc-card .chip { border-radius: 14px; line-height: 1.4; padding-block: 4px; }
+.unsure { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; padding: 20px 24px; margin-bottom: 48px; background: var(--popover); border: 1px solid var(--border); border-radius: 18px; }
+.unsure h2 { font-size: 20px; }
+@media (min-width: 640px) { .unsure { flex-direction: row; align-items: center; justify-content: space-between; } }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <div class="container">
+    <div class="page-head">
+      <span class="eyebrow">能量療癒服務</span>
+      <h1>全部服務</h1>
+      <p class="sub">從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。</p>
+      <div class="segs" role="group" aria-label="服務類型"><button type="button" class="seg" data-filter="全部" aria-pressed="true">全部</button><button type="button" class="seg" data-filter="一對一" aria-pressed="false">一對一</button><button type="button" class="seg" data-filter="團體療癒" aria-pressed="false">團體療癒</button><button type="button" class="seg" data-filter="祈福服務" aria-pressed="false">祈福服務</button><button type="button" class="seg" data-filter="工作坊" aria-pressed="false">工作坊</button></div>
+    </div>
+
+    <ul class="grid" id="grid" aria-live="polite">
+    <li class="svc" data-type="一對一"><a class="card svc-card" href="/services/personal-1on1">
+      <h3>心靈引渡人｜一對一個人能量療癒</h3><p class="muted">潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。</p>
+      <span class="foot"><span class="chip">60 / 90 / 120 分鐘（3 種方案可選）</span><span class="link">了解詳情 →</span></span></a></li>
+    <li class="svc" data-type="一對一"><a class="card svc-card" href="/services/spiritual-reading">
+      <h3>靈性解讀與能量療癒</h3><p class="muted">人生指南針、靈魂伴侶、4+1 感知中心天賦挖掘，為迷惘與抉擇中的你點亮方向。</p>
+      <span class="foot"><span class="chip">20-40 分鐘（人生指南針／靈魂伴侶解讀）；1.5-3 小時（4+1 感知中心）</span><span class="link">了解詳情 →</span></span></a></li>
+    <li class="svc" data-type="一對一"><a class="card svc-card" href="/services/spiritual-massage">
+      <h3>靈性按摩｜全域氣場修護與脈輪清理</h3><p class="muted">無需接觸的遠距能量 SPA，溫和清理 14 點脈輪氣場，找回身心和諧與流動。</p>
+      <span class="foot"><span class="chip">單次體驗，另有 3 / 6 / 12 次優惠組</span><span class="link">了解詳情 →</span></span></a></li>
+    <li class="svc" data-type="團體療癒"><a class="card svc-card" href="/services/group-healing">
+      <h3>人生推進器｜團體遠距療癒</h3><p class="muted">強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。</p>
+      <span class="foot"><span class="chip">1 回合 11 次遠距傳送（約 1 個月內完成），建議連續 3 回合以上</span><span class="link">了解詳情 →</span></span></a></li>
+    <li class="svc" data-type="團體療癒"><a class="card svc-card" href="/services/abundance-reiki">
+      <h3>豐盛靈氣｜全方位能量調頻與願望顯化</h3><p class="muted">整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。</p>
+      <span class="foot"><span class="chip">每月梯次，10 或 30 次遠距傳送</span><span class="link">了解詳情 →</span></span></a></li>
+    <li class="svc" data-type="祈福服務"><a class="card svc-card" href="/services/smoke-prayer">
+      <h3>遠距煙供祈福儀式</h3><p class="muted">古老的焚香上供下施法門，化解無形障礙，為自己與家人累積福報。</p>
+      <span class="foot"><span class="chip">單次施作，另有多次預約優惠</span><span class="link">了解詳情 →</span></span></a></li>
+    <li class="svc" data-type="祈福服務"><a class="card svc-card" href="/services/five-elements-perfume">
+      <h3>五行香水供奉｜佛前加持版</h3><p class="muted">依你的八字客製五行精油開運配方，精準補足流年運勢缺口。</p>
+      <span class="foot"><span class="chip">7 天 24 小時佛前供奉</span><span class="link">了解詳情 →</span></span></a></li>
+    <li class="svc" data-type="工作坊"><a class="card svc-card" href="/services/workshop">
+      <h3>能量身心靈主題工作坊</h3><p class="muted">3～4 小時輕量體驗，把能量工具帶回日常生活，零基礎即可上手。</p>
+      <span class="foot"><span class="chip">每場約 3-4 小時</span><span class="link">了解詳情 →</span></span></a></li>
+    </ul>
+
+    <div class="unsure reveal">
+      <h2>為你的身心靈量身訂做的解方</h2>
+      <a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a>
+    </div>
+  </div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・類型切換</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+const segs = document.querySelectorAll('.seg');
+const cards = [...document.querySelectorAll('.svc')];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let timer;
+function apply(filter) {
+  segs.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === filter)));
+  const show = (c) => filter === '全部' || c.dataset.type === filter;
+  clearTimeout(timer);
+  cards.forEach((c) => { if (!show(c)) c.classList.add('out'); });
+  timer = setTimeout(() => {
+    cards.forEach((c) => { c.hidden = !show(c); });
+    cards.filter(show).forEach((c, i) => {
+      c.classList.add('out');
+      void c.offsetWidth;
+      setTimeout(() => c.classList.remove('out'), reduce ? 0 : i * 70);
+    });
+  }, reduce ? 0 : 150);
+}
+segs.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filter)));
+</script>
+</body>
+</html>

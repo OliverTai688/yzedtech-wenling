@@ -1,0 +1,96 @@
+<!-- 提案 A「管道清單」
+概念：單欄五張管道卡依優先順序排列，官方 LINE 最大最醒目，其餘一行一個，掃一眼就能選。
+動效技術：.reveal 一次性進場（依序延遲 70ms）、箭頭 hover 位移；無 3D、無粒子。
+已知弱點：1) 五個管道只有名稱與帳號，缺少「各自適合什麼情境」的說明（不能自行新增文案）；2) 版面平淡，品牌光感與敘事感偏弱。 -->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜聯絡我們提案A・管道清單</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 40px 16px; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; left: 50%; top: -80px; width: 620px; height: 320px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(240,200,117,.4), transparent); pointer-events: none; }
+.hero > * { position: relative; }
+.hero h1 { margin-top: 10px; }
+.hero p { margin: 12px auto 0; max-width: 34em; color: var(--muted-foreground); }
+.list { display: flex; flex-direction: column; gap: 12px; max-width: 680px; margin: 24px auto 0; padding: 0; }
+.ch { display: flex; align-items: center; gap: 16px; min-height: 76px; padding: 14px 18px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 4px 20px rgba(58,42,24,.05); transition: border-color 150ms ease, transform 150ms ease; }
+.ch:hover, .ch:focus-visible { border-color: var(--ring); transform: translateY(-2px); outline: none; }
+.ch .ico { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--gold-700, #8A5415); }
+.ch .ico svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ch .txt { flex: 1; min-width: 0; }
+.ch .name { display: block; font-weight: 700; color: var(--card-foreground); }
+.ch .handle { display: block; font-size: 14px; color: var(--muted-foreground); overflow-wrap: anywhere; }
+.ch .arrow { flex: none; font-size: 20px; color: var(--ring); transition: transform 150ms ease; }
+.ch:hover .arrow { transform: translateX(4px); }
+.ch.primary { min-height: 104px; padding: 20px; background: var(--line); border-color: var(--line); color: var(--line-foreground); box-shadow: 0 6px 20px rgba(6,199,85,.28); }
+.ch.primary .ico { width: 56px; height: 56px; background: rgba(255,255,255,.9); color: var(--line-foreground); }
+.ch.primary .ico svg { width: 28px; height: 28px; }
+.ch.primary .name { font-family: var(--font-serif); font-size: 20px; color: var(--line-foreground); }
+.ch.primary .handle { font-size: 16px; font-weight: 600; color: var(--line-foreground); }
+.ch.primary .arrow { color: var(--line-foreground); font-size: 24px; }
+.rank { flex: none; font-size: 12px; font-weight: 700; color: var(--accent-foreground); width: 14px; text-align: center; }
+.ch.primary .rank { display: none; }
+.note { max-width: 680px; margin: 28px auto 0; text-align: center; font-size: 14px; color: var(--muted-foreground); }
+.note p + p { margin-top: 8px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="container hero">
+    <span class="eyebrow">CONTACT</span>
+    <h1>聯絡我們</h1>
+    <p>官方聯繫與諮詢管道</p>
+  </section>
+
+  <section class="container" style="padding-bottom:48px" aria-label="聯絡管道">
+    <ol class="list" style="list-style:none">
+      <li class="reveal"><a class="ch primary" href="https://lin.ee/N7QHCND">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 11.5C21 7.4 16.97 4 12 4S3 7.4 3 11.5c0 3.6 3.1 6.6 7.3 7.3.4.1.7.3.6.8l-.1.9c0 .3-.2 1 .9.5s5.8-3.4 7.9-5.8c1.5-1.5 1.4-3.2 1.4-3.7z"/></svg></span>
+        <span class="txt"><span class="name">官方 LINE</span><span class="handle">@healer.wenling</span></span>
+        <span class="arrow" aria-hidden="true">→</span></a></li>
+      <li class="reveal" style="transition-delay:70ms"><a class="ch" href="mailto:lavie@wenling.tw">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+        <span class="txt"><span class="name">Email</span><span class="handle">lavie@wenling.tw</span></span>
+        <span class="arrow" aria-hidden="true">→</span></a></li>
+      <li class="reveal" style="transition-delay:140ms"><a class="ch" href="https://m.me/keila.healing">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3.2-6.4"/><path d="M20 4v5h-5"/></svg></span>
+        <span class="txt"><span class="name">Facebook</span><span class="handle">keila.healing</span></span>
+        <span class="arrow" aria-hidden="true">→</span></a></li>
+      <li class="reveal" style="transition-delay:210ms"><a class="ch" href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.4"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5M15 15c3 0 6 1.4 6 4"/></svg></span>
+        <span class="txt"><span class="name">LINE 社群</span><span class="handle">輸入168168加入</span></span>
+        <span class="arrow" aria-hidden="true">→</span></a></li>
+      <li class="reveal" style="transition-delay:280ms"><a class="ch" href="https://www.instagram.com/keila.healing1491">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6"/></svg></span>
+        <span class="txt"><span class="name">Instagram</span><span class="handle">keila.healing1491</span></span>
+        <span class="arrow" aria-hidden="true">→</span></a></li>
+    </ol>
+    <div class="note reveal">
+      <p>企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+      <p>輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</p>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・管道清單</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

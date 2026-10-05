@@ -1,0 +1,339 @@
+<!--
+提案 A「長頁收合」｜服務詳細頁 /services/[id]（範例：心靈引渡人）
+概念：一條連續長頁；第一屏只回答「是什麼、適不適合我、下一步」，其餘文案依決策順序分四組收合，組內一次只開一個；桌機右側固定卡片常駐預約。
+動效技術：原生 <details name> 收合（_kit.css .disclosure）、.reveal 一次性進場、sticky 側欄、手機底部固定列。無 3D、無粒子。
+已知弱點：(1) 收合項目多（約 14 個），訪客要逐一點開，總點擊數偏高，且完整比較三方案需連開三次；(2) 長頁底部才有「預約」說明，若訪客沒用側欄或固定列，預約前缺乏最後確認的位置。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜心靈引渡人 服務詳細頁提案 A・長頁收合</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.crumb { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 44px; font-size: 14px; color: var(--muted-foreground); padding-top: 8px; }
+.crumb a { color: var(--accent-foreground); font-weight: 600; display: inline-flex; align-items: center; min-height: 44px; }
+.layout { display: grid; gap: 32px; padding-bottom: 48px; }
+@media (min-width: 1024px) { .layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 56px; align-items: start; padding-bottom: 80px; } }
+
+/* 第一屏 */
+.hero { padding-block: 16px 8px; }
+.hero h1 { margin-top: 12px; }
+.hero .sub { margin-top: 6px; font-family: var(--font-serif); font-size: 18px; color: var(--accent-foreground); font-weight: 600; }
+.hero .quote { margin-top: 16px; color: var(--muted-foreground); }
+.fit { margin-top: 24px; display: grid; gap: 10px; }
+.fit h2 { font-size: 18px; }
+.fit li { display: flex; gap: 10px; align-items: flex-start; }
+.fit li::before { content: ''; flex: none; width: 8px; height: 8px; margin-top: 11px; border-radius: 50%; background: linear-gradient(135deg, #FCE7A8, #D89A3E); }
+.fit li b { color: var(--card-foreground); }
+.hero-cta { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.hero-cta .from { font-size: 14px; color: var(--muted-foreground); }
+@media (min-width: 640px) { .hero-cta { flex-direction: row; align-items: center; flex-wrap: wrap; } }
+.skip { margin-top: 14px; font-size: 14px; }
+
+/* 分組 */
+.group { margin-top: 40px; }
+.group > header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+.group > header .no { font-family: var(--font-serif); font-weight: 900; font-size: 20px; color: var(--gold-600, #B5762A); }
+.group > header h2 { font-size: 22px; }
+.group > header p { font-size: 14px; color: var(--muted-foreground); margin-left: auto; }
+@media (max-width: 480px) { .group > header p { display: none; } }
+.group .disclosure > summary { font-size: 17px; min-height: 52px; }
+.group .disclosure > summary .sum { display: flex; flex-direction: column; }
+.group .disclosure > summary small { font-weight: 500; font-size: 14px; color: var(--muted-foreground); }
+.body p + p { margin-top: 10px; }
+.body ul { display: grid; gap: 8px; margin-top: 8px; }
+.body li { padding-left: 18px; position: relative; }
+.body li::before { content: ''; position: absolute; left: 2px; top: 12px; width: 6px; height: 6px; border-radius: 50%; background: #D89A3E; }
+.body li ul { margin-top: 6px; }
+.body strong, .body b { color: var(--card-foreground); }
+.plan-price { font-family: var(--font-serif); font-weight: 700; color: var(--accent-foreground); white-space: nowrap; font-size: 18px; }
+.plan-sum { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; }
+.disclosure.rec { background: linear-gradient(180deg, rgba(252,231,168,.35), transparent); border-radius: 12px; padding-inline: 12px; }
+.pending { position: relative; border: 1px dashed var(--ring); border-radius: 14px; padding: 16px 16px 8px; margin-top: 4px; }
+.pending .chip { position: absolute; top: -14px; right: 12px; background: var(--popover); border: 1px solid var(--ring); }
+.pending li { font-family: var(--font-serif); }
+.pending li small { font-family: var(--font-sans); color: var(--muted-foreground); font-size: 14px; }
+.note { margin-top: 12px; font-size: 14px; color: var(--muted-foreground); }
+
+/* 預約區（內容尾端） */
+.booking { margin-top: 48px; text-align: center; }
+.booking h2 { font-size: 24px; }
+.booking .row { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 640px) { .booking .row { flex-direction: row; justify-content: center; } }
+
+/* 桌機側欄 */
+aside { display: none; }
+@media (min-width: 1024px) {
+  aside { display: block; position: sticky; top: 88px; }
+  aside .card { padding: 24px; display: grid; gap: 14px; }
+  aside .label { font-size: 14px; color: var(--muted-foreground); }
+  aside .price { font-family: var(--font-serif); font-weight: 700; font-size: 26px; color: var(--card-foreground); line-height: 1.2; }
+  aside .btn { width: 100%; }
+  aside ul { display: grid; gap: 6px; font-size: 14px; color: var(--muted-foreground); border-top: 1px solid var(--border); padding-top: 12px; }
+  aside li { display: flex; justify-content: space-between; }
+  aside li b { color: var(--card-foreground); }
+}
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main class="container">
+  <nav class="crumb" aria-label="麵包屑"><a href="/services">全部服務</a><span aria-hidden="true">›</span><span aria-current="page">心靈引渡人</span></nav>
+
+  <div class="layout">
+    <div>
+      <!-- 第一屏：是什麼／適不適合我／下一步 -->
+      <section class="hero" aria-labelledby="t">
+        <span class="eyebrow">一對一個人能量療癒</span>
+        <h1 id="t">心靈引渡人</h1>
+        <p class="quote">「我不能陪你過河，但能送你一程到彼岸。」</p>
+        <div class="fit">
+          <h2>這趟旅程適合這樣的你</h2>
+          <ul>
+            <li><span><b>反覆卡關：</b>總被特定模式困擾（感情失敗、金錢困境、家庭矛盾、工作不順）。</span></li>
+            <li><span><b>渴望突破：</b>想改善收入、升遷轉職，或迎向人生重要的下一個階段。</span></li>
+            <li><span><b>重大低潮：</b>經歷失戀、親人離世等打擊，感到深深的心痛與無力。</span></li>
+          </ul>
+        </div>
+        <div class="hero-cta">
+          <a class="btn btn-gold" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+          <a class="btn btn-outline" href="https://lin.ee/N7QHCND">LINE 諮詢</a>
+          <span class="from">$2,600 起・60 / 90 / 120 分鐘</span>
+        </div>
+        <p class="skip muted">想先了解更多？往下依序展開即可。</p>
+      </section>
+
+      <!-- 組一：我適合嗎 -->
+      <section class="group reveal" aria-labelledby="g1">
+        <header><span class="no">1</span><h2 id="g1">先確認：這適合我嗎</h2><p>一次展開一項</p></header>
+        <details class="disclosure" name="g-fit">
+          <summary>為什麼你需要這趟旅程？</summary>
+          <div class="body">
+            <p><strong>理智上都明白，但心裡那一關總是過不去？</strong></p>
+            <p>人生總有某些時刻，像困在一艘不斷打轉的小船上，陷入無形的迴圈：</p>
+            <ul>
+              <li>明明很努力，卻總是在感情中重蹈覆轍、反覆受傷？</li>
+              <li>渴望突破，卻常被莫名的焦慮、自我懷疑與金錢停滯所絆住？</li>
+              <li>工作總是卡關，甚至身體感覺沉重、活力悄悄下滑？</li>
+            </ul>
+            <p style="margin-top:10px">這些「卡住」的感覺，其實是潛意識在向你發出求救訊號。</p>
+            <p>在這裡，我不只聽你說，更會陪你一起潛入內心，找出隱藏在冰山底下的核心癥結。透過冥想引導與潛意識溝通，我們將溫柔地卸下不屬於你的包袱，將限制性信念轉化為支持你的力量。</p>
+            <p>這是一趟專屬於你的「渡口之旅」，無論你帶著什麼樣的傷口來到這裡，都能在這裡稍作停泊，找回重新啟航的平靜與輕盈。</p>
+          </div>
+        </details>
+        <details class="disclosure" name="g-fit">
+          <summary>這趟旅程適合這樣的你（完整六項）</summary>
+          <div class="body">
+            <p>如果你正處於以下狀態，這正是你的靈魂發出的求救信號：</p>
+            <ul>
+              <li><b>反覆卡關：</b>總被特定模式困擾（感情失敗、金錢困境、家庭矛盾、工作不順）。</li>
+              <li><b>渴望突破：</b>想改善收入、升遷轉職，或迎向人生重要的下一個階段。</li>
+              <li><b>重大低潮：</b>經歷失戀、親人離世等打擊，感到深深的心痛與無力。</li>
+              <li><b>慣性依存：</b>想擺脫菸、酒、3C、影劇小說等成癮或逃避行為。</li>
+              <li><b>內在恐懼：</b>對特定事物焦慮、擔憂，渴望突破自我限制。</li>
+              <li><b>議題交織：</b>家族紛爭、遺傳或長期反覆不順的複雜困擾。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure" name="g-fit">
+          <summary>療癒能為你帶來的轉變</summary>
+          <div class="body">
+            <p>這不只是「處理問題」，更是一場靈魂的深度重整：</p>
+            <ul>
+              <li><b>深層信念重塑：</b>移除潛意識裡的負面限制，讓卡住的人生重新流動。</li>
+              <li><b>快速突破轉化：</b>精準鬆開核心卡點，當下感受心靈脫胎換骨。</li>
+              <li><b>多重技術整合：</b>
+                <ul>
+                  <li><b>希塔療癒（核心技術）：</b>潛意識連結與信念系統更新。</li>
+                  <li><b>內在小孩與原生家庭療癒：</b>修復童年創傷，找回內在力量。</li>
+                  <li><b>家族與金錢業力清理 / 前世回溯：</b>解開跨世代與深層靈魂印記。</li>
+                  <li><b>情緒釋放與靈氣傳送：</b>促進全身能量場的平衡與流動。</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- 組二：選方案 -->
+      <section class="group reveal" aria-labelledby="g2">
+        <header><span class="no">2</span><h2 id="g2">選方案與費用</h2><p>依目前的狀態選擇</p></header>
+        <p class="muted" style="margin-bottom:4px">為了提供最完整且深入的療癒品質，請依據你目前的狀態選擇方案：</p>
+        <details class="disclosure" name="g-plan">
+          <summary><span class="plan-sum"><span class="sum">方案 A：【微光啟航】<small>60 分鐘</small></span><span class="plan-price">$2,600</span></span></summary>
+          <div class="body">
+            <p><b>方案亮點：</b>快速定錨，找回當下平靜</p>
+            <p><b>適合對象：</b>初訪體驗、輕量議題梳理、舊個案能量維護</p>
+            <p><b>60 分鐘體驗與梳理 ｜ $2,600</b></p>
+            <p><b>旅程價值：</b>針對單一輕量困擾進行梳理，透過狀態掃描與能量轉化，讓你立即感受壓力的釋放與心智的清晰。</p>
+          </div>
+        </details>
+        <details class="disclosure rec" name="g-plan">
+          <summary><span class="plan-sum"><span class="sum">方案 B：【核心破浪】 <span class="chip">主力推薦</span><small>90 分鐘</small></span><span class="plan-price">$3,900</span></span></summary>
+          <div class="body">
+            <p><b>方案亮點：</b>直擊核心，從根源解開生命糾結</p>
+            <p><b>適合對象：</b>有明確重大困擾（感情、職場、金錢、原生家庭）</p>
+            <p><b>90 分鐘單一議題深度轉化 ｜ $3,900（主力推薦！）</b></p>
+            <p><b>旅程價值：</b>擁有最充裕且完美的療癒節奏。我們有足夠的時間進行深度潛意識溝通、重塑信念系統，並為你找出專屬的療癒處方與未來行動指引。</p>
+          </div>
+        </details>
+        <details class="disclosure" name="g-plan">
+          <summary><span class="plan-sum"><span class="sum">方案 C：【深海重塑】<small>120 分鐘</small></span><span class="plan-price">$5,200</span></span></summary>
+          <div class="body">
+            <p><b>方案亮點：</b>全面大掃除，徹底蛻變重整</p>
+            <p><b>適合對象：</b>長期累積壓力、多重議題交織、需要深度修復</p>
+            <p><b>120 分鐘全面梳理與還原 ｜ $5,200</b></p>
+            <p><b>旅程價值：</b>不趕時間的深度探索。逐一解開多重信念的結，進行最深層的能量大掃除，在一場療癒中獲得全方位的修復與指引。</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- 組三：怎麼進行 -->
+      <section class="group reveal" aria-labelledby="g3">
+        <header><span class="no">3</span><h2 id="g3">療癒怎麼進行</h2><p>流程與準備</p></header>
+        <details class="disclosure" name="g-flow">
+          <summary>療癒方式與進行步驟</summary>
+          <div class="body">
+            <ul>
+              <li><b>進行方式：</b>全程採用線上遠距語音/視訊通話（Zoom），您只需在安靜不受打擾的空間閉眼跟隨引導即可。</li>
+              <li><b>四步驟療癒流程：</b>
+                <ul>
+                  <li><b>議題聚焦（5–10 分鐘）：</b>梳理當前困擾，訂定本次療癒的核心目標。</li>
+                  <li><b>狀態掃描：</b>進行冥想引導、祈請與個案能量場掃描。</li>
+                  <li><b>核心療癒：</b>進行深度潛意識溝通與限制性信念轉換。</li>
+                  <li><b>整合建議：</b>給予落地行動指引與實用的生活回饋。</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure" name="g-flow">
+          <summary>事前準備須知</summary>
+          <div class="body">
+            <p>為確保療癒過程順暢，請於預約時間前準備好以下事項：</p>
+            <ul>
+              <li><b>空間與設備：</b>請確保處於安靜、個人私密且不受干擾的空間，並準備好耳機與穩定的網路。</li>
+              <li><b>輔助用品：</b>請隨手準備飲用水、面紙與抱枕。</li>
+              <li><b>預約資訊：</b>預約時請提供被療癒者的稱呼，以及想要改善的議題簡述。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure" name="g-flow">
+          <summary>能量保護與約定</summary>
+          <div class="body">
+            <ul>
+              <li><b>完整陪伴保證：</b>若療癒提前完成主要議題，剩餘時間將進行「能量接地整合、卡牌指引或生活落地建議」，確保每次旅程都有完整收尾（不另退費或保留時數）。</li>
+              <li><b>彈性時間緩衝：</b>享有 10 分鐘免費緩衝時間。若經雙方同意需延長討論，超時每 30 分鐘以 $1,300 計價（單次延長上限為 3 小時）。</li>
+              <li><b>智慧隱私紀錄：</b>過程將全程錄影，會後提供 AI 重點整理筆記（錄影檔於筆記整理完成後隨即刪除，嚴格保護個人隱私）。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="disclosure" name="g-flow">
+          <summary>個案通常會有什麼樣的體驗與感受？</summary>
+          <div class="body">
+            <p>能量運作時，每個靈魂的感知方式都是獨一無二的。這是一次身體與心靈的自然調節過程：</p>
+            <ul>
+              <li><b>常見體感反應：</b>過程中有部分個案會感到微熱、頭皮發麻、眼皮快速跳動、眼前發亮，或感覺到股溫熱能量流過身體；也有人會感到肌肉鬆弛、非常放鬆甚至想睡，這些都是能量正在進行調節的自然現象。</li>
+              <li><b>情緒與生理釋放：</b>在清理深層信念或積壓情緒時，可能會出現流淚、想吐、打嗝或咳嗽等狀況，這代表體內卡住的能量正在獲得釋放。療癒期間或結束後感到口乾舌燥是能量代謝的正常過程，請多補充溫開水。</li>
+              <li><b>無體感也是正常的：</b>若過程中沒有明顯體感，絕不代表能量沒有運作。能量場調整後的影響會逐漸在接下來的生活、思考模式與事件發展中顯化。</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- 組四：見證與疑問 -->
+      <section class="group reveal" aria-labelledby="g4">
+        <header><span class="no">4</span><h2 id="g4">見證與常見問題</h2><p>還有疑慮時再看</p></header>
+        <details class="disclosure" name="g-trust">
+          <summary>個案真實見證</summary>
+          <div class="body">
+            <div class="pending">
+              <span class="chip">待授權</span>
+              <ul>
+                <li>「半年內遇見靈魂伴侶」<br><small>愛情顯化個案</small></li>
+                <li>「信念轉換後愁緒消散了，感覺身心瞬間變乾淨」<br><small>深層清理個案</small></li>
+                <li>「隔天業績提升、三天後獲得升遷通知」<br><small>事業突破個案</small></li>
+                <li>「擺脫對失敗的恐懼，終於有勇氣邁開步伐」<br><small>恐懼釋放個案</small></li>
+              </ul>
+            </div>
+          </div>
+        </details>
+        <details class="disclosure" name="g-trust">
+          <summary>Q1：療癒多久會有效？</summary>
+          <div class="body">
+            <p>每個靈魂都有自己的運作節奏。有人隔天就能感受到生活的具體轉變，也有人是在數週內逐步改善。</p>
+            <p>身心感受通常顯現較快；隨後請多留意生活中的細微變化，例如：想法變清晰了、過往的習慣模式改變了、或是身邊的人對待你的態度不同了。若療癒後出現與人衝突、多夢或浮現舊記憶，這是提示你該面對並跨越該議題，順應並改變後人生就會更加順遂。</p>
+          </div>
+        </details>
+        <details class="disclosure" name="g-trust">
+          <summary>Q2：需要預約幾次療癒？</summary>
+          <div class="body">
+            <p>單次療癒即可獲得顯著的梳理與改善。但若議題根深蒂固或積壓多年，建議分階段處理。</p>
+            <p>請給自己合理的轉化時間，避免期待一次療癒就能徹底解決累積數十年的問題。療癒師是陪伴你發現癥結並引導方向的引路人，結束後搭配靜心冥想、改變生活習慣與覺察日記，效果會更加持久。若過了一段時間感覺舊模式復發，歡迎隨時再預約維護。</p>
+          </div>
+        </details>
+        <details class="disclosure" name="g-trust">
+          <summary>Q3：我可以幫家人或朋友預約嗎？</summary>
+          <div class="body"><p>必須經由本人同意，並由本人親自參與。一對一療癒需要當事人具備自願面對內在的意願，無法由他人代為進行。</p></div>
+        </details>
+        <details class="disclosure" name="g-trust">
+          <summary>免責聲明與注意事項</summary>
+          <div class="body"><p>本能量療癒服務屬於身心靈輔助與自我覺察支持，不能取代專業正統醫療與精神醫學診斷。若您有身體生理疾病或精神疾病，請務必優先諮詢專業醫師。過程中絕不使用任何實體醫療器具，亦不販售任何藥品或保健食品。</p></div>
+        </details>
+      </section>
+
+      <!-- 預約 -->
+      <section class="booking card reveal" aria-labelledby="bk">
+        <h2 id="bk">登岸預約通道</h2>
+        <p class="muted" style="margin-top:8px">給自己一次重新開始的機會，我在渡口陪你一起啟航。</p>
+        <div class="row">
+          <a class="btn btn-gold" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+          <a class="btn btn-outline" href="https://lin.ee/N7QHCND">LINE 諮詢</a>
+        </div>
+        <p class="note">(完成付款後，請透過私訊提供 3 個方便的時段，我們將儘快為您安排時間)</p>
+      </section>
+    </div>
+
+    <!-- 桌機固定側欄 -->
+    <aside aria-label="預約摘要">
+      <div class="card">
+        <div><p class="label">心靈引渡人｜一對一</p><p class="price">$2,600 – $5,200</p></div>
+        <ul>
+          <li><span>A 微光啟航</span><b>60 分鐘 $2,600</b></li>
+          <li><span>B 核心破浪</span><b>90 分鐘 $3,900</b></li>
+          <li><span>C 深海重塑</span><b>120 分鐘 $5,200</b></li>
+        </ul>
+        <a class="btn btn-gold" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a>
+        <a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="sticky-cta"><a class="btn btn-gold" href="https://booking.wenling.tw/activities/soul-healing">立即預約</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a></div>
+
+<div class="proposal-tag">提案 A・長頁收合</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+// 組內一次只開一個：不支援 <details name> 的瀏覽器用此補強
+document.querySelectorAll('details[name]').forEach((d) => d.addEventListener('toggle', () => {
+  if (!d.open) return;
+  document.querySelectorAll('details[name="' + d.getAttribute('name') + '"]').forEach((o) => { if (o !== d) o.open = false; });
+}));
+</script>
+</body>
+</html>
