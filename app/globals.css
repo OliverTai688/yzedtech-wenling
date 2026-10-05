@@ -1,9 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* `dark:` 只在 .dark 範圍內生效（目前是頁尾），不跟著系統深色模式切換。 */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Noto Sans TC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "Noto Serif TC", Georgia, Cambria, "Times New Roman", Times, serif;
+  /* 字體由 app/layout.tsx 的 next/font 載入（--font-noto-sans／--font-noto-serif），
+     這裡不再另外 @import Google Fonts。 */
+  --font-sans: var(--font-noto-sans), "Noto Sans TC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-noto-serif), "Noto Serif TC", Georgia, Cambria, "Times New Roman", Times, serif;
+
+  /* 語意色 token（RES-001 §7.2）。shadcn 元件與新寫的元件一律用這組名稱，
+     不再直接寫色碼。對比度已依 RES-001 §7.3 調整。 */
+  --color-background: #FBF1DD;
+  --color-foreground: #2E2318;
+  --color-card: #FDF6E6;
+  --color-card-foreground: #3A2A18;
+  --color-popover: #FFFDF0;
+  --color-popover-foreground: #3A2A18;
+  --color-primary: #C9862E;
+  --color-primary-foreground: #3A2409;
+  --color-secondary: #FFFDF0;
+  --color-secondary-foreground: #8A5415;
+  --color-muted: #FDF6E6;
+  --color-muted-foreground: #7A6650;
+  --color-accent: #FCE7A8;
+  --color-accent-foreground: #8A5415;
+  --color-border: #F0DFA0;
+  --color-input: #F0DFA0;
+  --color-ring: #B5762A;
+  --color-destructive: #B3261E;
+  --color-inverse: #20140A;
+  --color-inverse-foreground: #F5E4C8;
+  --color-inverse-accent: #F0C875;
+  --color-line: #06C755;
+  --color-line-foreground: #0B2E18;
 
   /* Keila Healing Visual Specification Color Codes */
   --color-page-bg: #FBF1DD;
@@ -58,9 +89,39 @@
   --color-brand-stone-900: #2E2318;
 }
 
+/* 深色區塊（頁尾、深色橫幅）內的語意色 */
+.dark {
+  --color-background: #20140A;
+  --color-foreground: #F5E4C8;
+  --color-card: #170E07;
+  --color-card-foreground: #F5E4C8;
+  --color-muted: #2A1A0D;
+  --color-muted-foreground: #B49A76;
+  --color-accent: #3A2409;
+  --color-accent-foreground: #F0C875;
+  --color-border: #3A2409;
+  --color-input: #3A2409;
+  --color-ring: #F0C875;
+}
+
 /* Base Body and Global Typography Setup */
 html {
   scroll-behavior: smooth;
+}
+
+/* 減少動態：關閉循環、位移與平滑捲動（RPT-001 §5.6）。
+   motion 元件另由 MotionProvider 的 reducedMotion="user" 處理。 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 body {

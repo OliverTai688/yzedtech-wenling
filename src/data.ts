@@ -16,12 +16,12 @@ export const siteLinks = {
   instagram: 'https://www.instagram.com/keila.healing1491',
 };
 
-// 全站主導覽（PRD-003 §4.3）。Header 的桌機導覽與手機抽屜共用這份資料；
-// 頁尾的分組不同，另見 footerNavigation。顯示名稱依 PRD-003 §2 命名規則。
-// 「療癒與培訓」的「新手入門」待頁面文案到位後再加入（PLN-004 §2）。
-// 「商城」是外部連結按鈕，由 Header／MobileNav 直接引用 siteLinks.shop。
+// 全站主導覽（PRD-003 §4.3 v1.1，RES-001 方案 C）。Header 的桌機導覽與手機抽屜
+// 共用這份資料；頁尾的分組不同，另見 footerNavigation。
+// - 「首頁」由 Logo 承擔，不佔第一層（手機抽屜另外補一個首頁連結）。
+// - 「療癒與培訓」的「新手入門」待頁面文案到位後再加入（PLN-004 §2）。
+// - 「LINE 諮詢」「商城」是外部連結按鈕，由 Header／MobileNav 直接引用 siteLinks。
 export const primaryNavigation: NavGroup[] = [
-  { id: 'home', label: '首頁', href: '/' },
   {
     id: 'about',
     label: '關於我們',
@@ -40,9 +40,15 @@ export const primaryNavigation: NavGroup[] = [
   },
   { id: 'testimonials', label: '客戶見證', href: '/testimonials' },
   { id: 'media', label: '媒體專訪', href: '/media' },
-  { id: 'blog', label: '部落格', href: '/blog' },
-  { id: 'resources', label: '免費資源', href: '/resources' },
-  { id: 'contact', label: '聯絡我們', href: '/contact' },
+  {
+    id: 'more',
+    label: '更多',
+    items: [
+      { id: 'blog', label: '部落格', href: '/blog' },
+      { id: 'resources', label: '免費資源', href: '/resources' },
+      { id: 'contact', label: '聯絡我們', href: '/contact' },
+    ],
+  },
 ];
 
 // Phase 2（PLN-001 Batch D）：以下 8 項энергy-healing 服務內容全數依

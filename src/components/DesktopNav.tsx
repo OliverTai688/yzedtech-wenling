@@ -69,10 +69,10 @@ export default function DesktopNav() {
   const pathname = usePathname();
 
   return (
-    <NavigationMenu viewport={false} className="hidden max-w-none xl:flex" id="desktop-nav">
+    <NavigationMenu viewport={false} className="hidden max-w-none lg:flex" id="desktop-nav">
       <NavigationMenuList className="gap-1">
-        {/* PRD-003 §4.3（2026-10-04）：第一層 8 項全部呈現；「商城」按鈕在 Header.tsx。
-            8 項加按鈕在 1024～1279px 放不下，桌機導覽改從 xl 斷點起顯示（PLN-004 §6）。 */}
+        {/* PRD-003 §4.3 v1.1（方案 C）：第一層 5 項，lg（1024px）起完整顯示；
+            「LINE 諮詢」「商城」按鈕在 Header.tsx。 */}
         {primaryNavigation.map((group) => {
             const active = groupPaths(group).some((path) => isPathActive(pathname, path));
 

@@ -3,18 +3,19 @@ import { Noto_Sans_TC, Noto_Serif_TC } from 'next/font/google';
 import Header from '../src/components/Header';
 import Footer from '../src/components/Footer';
 import ClientLayoutWrapper from './ClientLayoutWrapper';
+import MotionProvider from '../src/components/motion/MotionProvider';
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-sans',
+  variable: '--font-noto-sans',
   display: 'swap',
 });
 
 const notoSerifTC = Noto_Serif_TC({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '900'],
-  variable: '--font-serif',
+  variable: '--font-noto-serif',
   display: 'swap',
 });
 
@@ -36,12 +37,18 @@ export default function RootLayout({
   return (
     <html lang="zh-Hant-TW" className={`${notoSansTC.variable} ${notoSerifTC.variable}`}>
       <body className="antialiased min-h-screen bg-[#FBF1DD] text-[#2E2318]">
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <ClientLayoutWrapper />
-        </div>
+        {/* 沒有 JavaScript 時，進場動效的元素直接顯示（見 src/components/motion/Reveal.tsx） */}
+        <noscript>
+          <style>{'[data-reveal]{opacity:1!important;transform:none!important}'}</style>
+        </noscript>
+        <MotionProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <ClientLayoutWrapper />
+          </div>
+        </MotionProvider>
       </body>
     </html>
   );

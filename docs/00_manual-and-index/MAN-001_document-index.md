@@ -56,6 +56,8 @@
 | 文件號 | 標題 | 狀態 | 摘要 |
 | --- | --- | --- | --- |
 | RES-001 | [第二次修改 UIUX 研究：導覽、轉化路徑、線框與設計 token](../06_research-and-design/RES-001_second-revision-uiux-research.md) | Active | 現況量測（首頁長度、各頁轉化出口、對比度、視覺語言分裂）、4 條轉化路徑與設計規則、3 個導覽方案、各頁線框、語意 token 與粉色替換對照、元件對照、6 項決策（已確認） |
+| RES-002 | [各分頁三提案與 AI 定案紀錄](../06_research-and-design/RES-002_page-proposals-and-selection.md) | Draft | 階段 D 每個分頁的三個 HTML 提案、評分、定案與整合說明；提案檔在 `proposals/`，共用規範見 `proposals/BRIEF.md` |
+| RES-003 | [3D 動畫素材與轉化數據研究](../06_research-and-design/RES-003_3d-motion-assets-and-conversion-evidence.md) | Active | 各做法對轉化的證據強度（速度、固定 CTA、動畫、3D）、8 種 3D／動畫素材方案的授權與取捨、落到設計的 7 項決定、來源清單 |
 
 ## 07_acceptance-and-qa
 
