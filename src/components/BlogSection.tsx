@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { Search, Calendar, Clock, ArrowRight, BookOpen, MessageCircle, X, Sparkles } from 'lucide-react';
-import { blogPosts } from '../data';
+import { blogPosts, siteLinks } from '../data';
 import { BlogPost } from '../types';
 
 interface BlogSectionProps {
@@ -305,7 +305,7 @@ export default function BlogSection({ initialSearchQuery = '' }: BlogSectionProp
                             前往服務頁選擇適合方案
                           </Link>
                           <a
-                            href="https://lin.ee/yo6a6FW"
+                            href={siteLinks.line}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full inline-flex items-center justify-center gap-1 py-2.5 bg-white hover:bg-stone-50 text-stone-800 text-base font-semibold border border-brand-pink-200 rounded-lg text-center"

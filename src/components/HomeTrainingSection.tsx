@@ -1,5 +1,5 @@
 import { Award, Shield, Gem, CheckCircle2, MessageCircle, ExternalLink } from 'lucide-react';
-import { thetaTrainingCourses, certificationCourses } from '../data';
+import { thetaTrainingCourses, certificationCourses, siteLinks } from '../data';
 // 注意：舊的臼井靈氣獨立初/中/高階課程資料已依
 // PRD-001 決策 #6（2026-08-18 使用者確認）移除，不建立可購買/報名的獨立
 // 靈氣課程頁；臼井靈氣僅保留在 About「方法體系」表格中作為技術介紹。
@@ -88,7 +88,7 @@ export default function HomeTrainingSection({ onNavigateToTab }: HomeTrainingSec
                   <div className="pt-3 border-t border-[#F0C875]/15 flex items-center justify-between text-sm">
                     <span className="text-[#B49A76]">{course.certification}</span>
                     <a
-                      href={course.ctaLink || 'https://lin.ee/yo6a6FW'}
+                      href={course.ctaLink || siteLinks.line}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base text-[#F0C875] hover:text-[#FFF] font-semibold flex items-center gap-1 transition-colors"
@@ -142,7 +142,7 @@ export default function HomeTrainingSection({ onNavigateToTab }: HomeTrainingSec
 
                   <div className="pt-3 border-t border-[#F0C875]/15 flex items-center justify-end text-sm">
                     <a
-                      href={course.ctaLink || 'https://lin.ee/yo6a6FW'}
+                      href={course.ctaLink || siteLinks.line}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base text-[#F0C875] hover:text-[#FFF] font-semibold flex items-center gap-1 transition-colors"
@@ -176,7 +176,7 @@ export default function HomeTrainingSection({ onNavigateToTab }: HomeTrainingSec
               填寫開班諮詢單
             </button>
             <a
-              href="https://lin.ee/yo6a6FW"
+              href={siteLinks.line}
               target="_blank"
               rel="noopener noreferrer"
               className="px-5 py-2.5 rounded-full bg-[#06C755] hover:bg-[#05b04b] text-white text-base font-semibold flex items-center gap-1.5 shadow-xs"

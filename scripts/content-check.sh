@@ -76,6 +76,16 @@ check "無「臼井靈氣」導師／大師級誇大用語" \
   "臼井靈氣.{0,4}(導師|大師)" \
   src app
 
+# 7. 品牌名稱誤植（PRD-003 決策 D1：品牌為「豐盛之翼學苑」，需求書的「學院」為筆誤）
+check "無「豐盛之翼學院」品牌誤植" \
+  "豐盛之翼學院" \
+  src app
+
+# 8. 舊官方 LINE 連結殘留（PRD-003 決策 D4：統一為 lin.ee/N7QHCND，且應引用 siteLinks.line）
+check "無舊官方 LINE 連結（lin.ee/yo6a6FW）" \
+  "yo6a6FW" \
+  src app
+
 echo
 if [ "$FAIL" -eq 0 ]; then
   echo "🎉 全部規則通過。記得這只是第二層（自動化防呆），仍需完成第 4.1 節內容溯源比對與第 4.5 節獨立覆核。"

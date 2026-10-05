@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { Sparkles, MessageCircle, Clock, ChevronRight, ShieldAlert, Target } from 'lucide-react';
 import type { ReikiCourse, ThetaTrainingCourse } from '../../../src/types';
-import { testimonials } from '../../../src/data';
+import { testimonials, siteLinks } from '../../../src/data';
 
 // PRD-002 §3.3 v1.1（Batch E）：培訓／認證詳細頁，統一呈現來自
-// `thetaTrainingCourses`／`reikiCourses`／`certificationCourses` 三個陣列的
+// `thetaTrainingCourses`／`certificationCourses` 兩個陣列的
 // 課程資料（欄位形狀略有差異，見 src/types.ts 的 ThetaTrainingCourse／
 // ReikiCourse）。圖片一律用品牌漸層背景＋文字呈現，不使用照片；CTA 一律導向
 // 既有 booking.wenling.tw／LINE 官方帳號，不涉及金流／購物車。
@@ -31,7 +31,7 @@ export default function TrainingDetailClientPage({ course }: TrainingDetailClien
   const curriculum = reiki ? reiki.curriculum : theta!.highlights;
   const badgeText = reiki ? reiki.badge : theta!.level;
   const isComingSoon = reiki?.status === 'coming-soon';
-  const ctaLink = course.ctaLink || 'https://lin.ee/yo6a6FW';
+  const ctaLink = course.ctaLink || siteLinks.line;
   const relatedTestimonials = testimonials.filter((t) => course.testimonialIds?.includes(t.id));
 
   return (

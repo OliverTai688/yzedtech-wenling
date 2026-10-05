@@ -6,7 +6,7 @@
 
 ## 1. 專案概觀
 
-- **品牌**：幸運教主 文齡 Keila
+- **品牌**：豐盛之翼學苑（創辦人：文齡老師 Keila）。依 PRD-003，網站以學苑為品牌主體，文齡老師以創辦人身分呈現
 - **性質**：品牌官網，整合能量療癒服務、希塔療癒與靈氣（金錢／愛情／人魚）雙證照認證培訓；暢銷書《七週遇見對的人》為文齡老師撰寫改版推薦序之真實著作（非本站銷售之課程產品，該課程產品已依 PRD-001 決策 #5 下架）
 - **框架**：Next.js 15（App Router）＋ React 19 ＋ TypeScript
 - **語言**：介面與內容以繁體中文（zh-Hant-TW）為主
@@ -26,7 +26,7 @@ pnpm build            # 正式建置
 pnpm start            # 啟動正式建置後的伺服器
 pnpm lint             # next lint
 pnpm clean            # 清除 .next / dist / server.js
-pnpm content:check    # PLN-002 §4.2 防呆掃描（example.com／已下架課程 identifier／失真背景敘述）
+pnpm content:check    # 防呆掃描（example.com／已下架課程 identifier／失真背景敘述／品牌誤植／舊 LINE 連結）
 ```
 
 目前沒有設定測試框架（無 unit/integration test）。修改程式碼後，至少要能通過 `pnpm lint` 與 `pnpm build`。
@@ -55,12 +55,15 @@ app/                        # Next.js App Router 路由
 ├── not-found.tsx
 ├── globals.css
 ├── about/page.tsx
+├── story/page.tsx
+├── media/page.tsx
+├── training/page.tsx, training/[id]/
 ├── blog/page.tsx, BlogClientPage.tsx
 ├── contact/page.tsx
 ├── faq/page.tsx
 ├── legal/page.tsx
 ├── resources/page.tsx
-├── services/page.tsx, ServicesClientPage.tsx
+├── services/page.tsx, services/[id]/
 └── testimonials/page.tsx
 
 src/
@@ -87,6 +90,8 @@ Path alias：`@/*` → repo 根目錄（見 `tsconfig.json`）。
 ## 5. 開發慣例
 
 - 文案內容一律先進 `src/data.ts` / `src/types.ts`，不要把內容寫死在元件裡。
+- 對外連結（官方 LINE、商城、社群、Email 等）一律引用 `src/data.ts` 的 `siteLinks`，不要在元件裡寫死網址。
+- 文案來源是本機的 `docs/網站文案集.md`（不上傳）。客戶給新版 docx 時，用 `python3 scripts/docx-to-copy-deck.py <docx> docs/網站文案集.md` 轉檔，才能保留內嵌超連結。
 - 元件放在 `src/components/`，檔名與元件名稱一致，使用 PascalCase。
 - 樣式以 Tailwind CSS 為主；動畫使用 `motion`。
 - 新頁面照現有模式：`app/<route>/page.tsx`（server component）＋ 視需要拆出 `<Route>ClientPage.tsx`（client component）。

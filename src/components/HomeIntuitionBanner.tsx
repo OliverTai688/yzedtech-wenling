@@ -1,4 +1,5 @@
 import { Sparkles, Eye, ArrowRight } from 'lucide-react';
+import { siteLinks } from '../data';
 
 // 對應文案集 Block 5｜Section 3：直覺力培訓（Training CTA），文案集本身標註
 // 「⚠️ 待客戶補充」，因此本區塊呈現為 coming-soon 預告，CTA 導向真實 LINE
@@ -35,7 +36,7 @@ export default function HomeIntuitionBanner() {
           {/* Right Action Button */}
           <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3.5 z-10">
             <a
-              href="https://lin.ee/yo6a6FW"
+              href={siteLinks.line}
               target="_blank"
               rel="noopener noreferrer"
               className="gold-btn px-8 py-4 text-base font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all"

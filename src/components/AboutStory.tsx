@@ -179,8 +179,9 @@ export default function AboutStory() {
 
         {/* Team Partners Section — PRD-002 §3.5：合作夥伴（療癒師／協作老師）介紹卡片。
             素材（真實姓名、照片、簡介）尚未提供，先用佔位資料卡版位，之後只需
-            替換 src/data.ts 的 teamPartners 內容即可上線，元件不需再改。 */}
-        <div className="mb-20">
+            替換 src/data.ts 的 teamPartners 內容即可上線，元件不需再改。
+            id="partners"：頁尾「合作夥伴」連結的錨點（PRD-003 §4.13）。 */}
+        <div id="partners" className="mb-20 scroll-mt-24">
           <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
             <span className="text-sm uppercase tracking-widest text-brand-pink-600 font-bold">Our Partners</span>
             <h3 className="text-xl sm:text-2xl font-bold font-serif text-brand-stone-900">

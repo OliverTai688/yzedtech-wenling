@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Download, Play, MessageCircle, FileText, Sparkles, Target, Loader2 } from 'lucide-react';
-import { resources } from '../data';
+import { resources, siteLinks } from '../data';
 import { ResourceItem } from '../types';
 
 export default function ResourcesSection() {
@@ -35,11 +35,11 @@ export default function ResourcesSection() {
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <span className="text-sm uppercase tracking-widest text-brand-pink-600 font-bold">Free Resources</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-brand-stone-900 font-serif">
-            免費能量自養資源與修持工具
+            免費資源
           </h2>
           <div className="w-12 h-1 bg-linear-to-r from-brand-pink-300 to-brand-gold-300 mx-auto rounded-full"></div>
           <p className="text-base text-stone-600">
-            療癒不應設限。文齡老師親自製作多款免費自診手冊與高頻引導冥想，陪伴您在生活中練習敞開、找回寧靜。
+            每週免費公益直播、免費社群與官方 LINE，陪你踏出自我照顧的第一步。
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export default function ResourcesSection() {
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
                 <a
-                  href="https://reurl.cc/8DDd1M"
+                  href={siteLinks.community}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-2 rounded-full bg-brand-pink-600 hover:bg-brand-pink-700 text-white text-base font-semibold"
@@ -147,7 +147,7 @@ export default function ResourcesSection() {
                   加入免費社群體驗
                 </a>
                 <a
-                  href="https://lin.ee/yo6a6FW"
+                  href={siteLinks.line}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-2 rounded-full bg-white border border-brand-pink-200 text-stone-800 text-base font-semibold hover:bg-stone-50"
