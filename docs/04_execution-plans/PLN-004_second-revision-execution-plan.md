@@ -1,6 +1,6 @@
 # PLN-004：第二次修改執行計畫
 
-**狀態：** In Progress（階段 A 完成，尚未 commit；階段 B 待開始）
+**狀態：** In Progress（階段 A 完成，commit `130d97a`；階段 B 完成；階段 C 建議書 RPT-001 已出，待客戶回覆）
 **日期：** 2026-10-04
 **前置 PRD：** [`PRD-003`](../01_product-requirements/PRD-003_second-revision-academy-ia-restructure.md)
 **相關文件：** [`AUD-002`](../05_audits-and-reports/AUD-002_second-revision-requirements-and-copy-v2-audit.md)、[`PLN-001`](./PLN-001_official-copy-rollout-execution-plan.md)（文案集 v1 行號對照，已不適用於現行文案集）
@@ -43,10 +43,10 @@
 
 | 階段 | 內容 | 產出 |
 | --- | --- | --- |
-| B UIUX 研究 | 導覽方案（平鋪或分組）、首頁到 LINE／商城的轉化路徑、各頁線框、色彩 token、元件對照 | `RES-001` |
-| C 圖文缺口建議書 | 以 AUD-002 §8、§9 加上 B 的版型需求整理 | 缺口建議書 |
-| D 品牌實作 | PRD-003 §8 階段 D 清單 | 本文件補批次 D1～Dn、`ACC-003` |
-| E 轉化驗證 | CTA 點擊事件與首次檢視 | 量測設定紀錄 |
+| B UIUX 研究 | 導覽方案（平鋪或分組）、首頁到 LINE／商城的轉化路徑、各頁線框、色彩 token、元件對照 | [`RES-001`](../06_research-and-design/RES-001_second-revision-uiux-research.md)（6 項決策已於 2026-10-05 確認） |
+| C 圖文缺口建議書 | 以 AUD-002 §8、§9 加上 B 的版型需求整理，含動效與捲動效果的缺口 | [`RPT-001`](../05_audits-and-reports/RPT-001_content-asset-and-motion-gap-proposal.md)（待客戶回覆 §8） |
+| D 品牌實作 | PRD-003 §8 階段 D 清單。不依賴素材的工作（RPT-001 §7）可先行，其餘待 P0 素材到位 | 本文件補批次 D1～Dn、`ACC-003` |
+| E 轉化驗證 | 以 Vercel Web Analytics 記錄 CTA 點擊事件與首次檢視 | 量測設定紀錄 |
 
 ---
 
@@ -139,7 +139,7 @@
 
 ### 7.5 已知未完成事項
 
-- **錨點直接載入不會捲動**：直接開啟 `/legal#terms` 這類網址時頁面停在頂端；從頁尾連結點過去則正常。原因未查明，非本階段改動造成。
+- **錨點直接載入不會捲動**：直接開啟 `/legal#terms` 這類網址時頁面停在頂端；從頁尾連結點過去則正常。後續發現預覽視窗在背景時不觸發動畫幀（平滑捲動因此不會執行），這很可能只是預覽環境的現象，需在一般瀏覽器重新確認。
 - **`/faq` 仍可由網址進入**：已移出導覽與頁尾，轉址留到階段 D。
 - **首頁仍有服務八宮格、培訓區塊、直覺力 Banner**：依計畫於階段 D 移除。
 - **客戶見證仍為「整理中」**：待授權確認。

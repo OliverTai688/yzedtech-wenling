@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | PRD-001 | [官方文案內容模組化與 Demo 資料移除](../01_product-requirements/PRD-001_official-copy-content-module-and-demo-data-removal.md) | Active | 全站文字內容一律溯源至 `docs/網站文案集.md`；移除《七週遇見對的人》課程產品與臼井靈氣獨立課程頁 |
 | PRD-002 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構](../01_product-requirements/PRD-002_round4-homepage-brand-partner-product-restructure.md) | Ready for Implementation | v1.1：首頁移除 FAQ、新增合作夥伴區塊、服務／培訓拆為兩個總覽頁＋各自獨立詳細頁（含專屬見證、漸層圖片、直覺力併入療癒師認證）、品牌標示統一為「豐盛之翼學苑」、導覽微調 |
-| PRD-003 | [第二次修改——學苑品牌主體、需求分流首頁與資訊架構重整](../01_product-requirements/PRD-003_second-revision-academy-ia-restructure.md) | Ready for Implementation | v1.0：品牌主體為「豐盛之翼學苑」、首頁改需求分流 10 段、導覽加新手入門／媒體專訪／商城、CTA 分流規則；分 A–E 五階段（文案對齊 → UIUX 研究 → 缺口建議書 → 實作 → 轉化驗證） |
+| PRD-003 | [第二次修改——學苑品牌主體、需求分流首頁與資訊架構重整](../01_product-requirements/PRD-003_second-revision-academy-ia-restructure.md) | Ready for Implementation | v1.1：品牌主體為「豐盛之翼學苑」、首頁改需求分流 10 段、導覽採方案 C（5 項＋LINE／商城按鈕）、CTA 分流規則、三層動效；分 A–E 五階段（文案對齊 → UIUX 研究 → 缺口建議書 → 實作 → 轉化驗證） |
 
 ## 02_architecture-and-rules
 
@@ -49,10 +49,13 @@
 | --- | --- | --- | --- |
 | AUD-001 | [官方文案 vs. 現行網站盤點](../05_audits-and-reports/AUD-001_official-copy-vs-current-site-audit.md) | Active | 逐頁盤點現行網站與文案集的落差、demo 資料殘留清單 |
 | AUD-002 | [第二次修改需求書＋新版文案集 vs. 現行網站落差稽核](../05_audits-and-reports/AUD-002_second-revision-requirements-and-copy-v2-audit.md) | Active | 需求書（2026-09-19）與文案集 v2（2026-10-04）對現行網站的逐頁落差、v1→v2 文案變動、需求書與文案集衝突、查無出處內容、圖文素材缺口初盤 |
+| RPT-001 | [圖文與動效缺口建議書](../05_audits-and-reports/RPT-001_content-asset-and-motion-gap-proposal.md) | Active | 圖像 11 項、文案與確認 19 項、動效 5 項、設定 3 項的缺口與優先級；動效三層系統與逐區塊規格；不等素材可先做的工作；客戶回覆表 |
 
 ## 06_research-and-design
 
-_目前尚無文件。設計探索、方案比較可於此建立 `RES-NNN_<slug>.md`。_
+| 文件號 | 標題 | 狀態 | 摘要 |
+| --- | --- | --- | --- |
+| RES-001 | [第二次修改 UIUX 研究：導覽、轉化路徑、線框與設計 token](../06_research-and-design/RES-001_second-revision-uiux-research.md) | Active | 現況量測（首頁長度、各頁轉化出口、對比度、視覺語言分裂）、4 條轉化路徑與設計規則、3 個導覽方案、各頁線框、語意 token 與粉色替換對照、元件對照、6 項決策（已確認） |
 
 ## 07_acceptance-and-qa
 
