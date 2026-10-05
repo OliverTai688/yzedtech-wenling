@@ -1,4 +1,4 @@
-import { Service, ReikiCourse, ThetaTrainingCourse, ServiceCategory, Testimonial, BlogPost, FAQItem, ResourceItem, TeamPartner, NavGroup, NeedEntry, MediaPublication, MediaShow, LegalDocument } from './types';
+import { Service, ReikiCourse, ThetaTrainingCourse, BlogPost, ResourceItem, NavGroup, NeedEntry, MediaPublication, MediaShow, LegalDocument } from './types';
 
 // 站台連結與聯絡資訊（PRD-003 §4.2）。元件一律引用這裡，不要各自寫死網址。
 // 官方 LINE 依 2026-10-04 決策 D4 統一為 lin.ee/N7QHCND；其餘取自文案集 v2
@@ -356,70 +356,8 @@ export const healerCertificationAddOn = {
   ctaLink: siteLinks.line
 };
 
-// PRD-002 §3.4（Batch F，2026-08-21）：首頁與其他站內呼叫點過去都是用
-// `router.push(\`/services?tab=${serviceId}\`)` 這種「傳 id、由 ServicesSection
-// 內部原地展開」的舊機制。/services、/training 拆成兩個獨立總覽頁＋各自詳細頁後，
-// 改用這個 helper 依 Batch D 補上的 `category` 欄位，判斷某個服務/課程 id 該連到
-// `/services/[id]` 還是 `/training/[id]`，取代呼叫點各自寫死 `/services?tab=xxx`。
-// 查無對應 id 時 fallback 回 `/services` 總覽頁，避免產生 404。
-export function resolveOfferingHref(id: string): string {
-  const allOfferings: { id: string; category: ServiceCategory }[] = [
-    ...services,
-    ...thetaTrainingCourses,
-    ...certificationCourses,
-  ];
-  const match = allOfferings.find((item) => item.id === id);
-  if (!match) return '/services';
-  return match.category === 'energy-healing' ? `/services/${id}` : `/training/${id}`;
-}
-
-// ⚠️ 2026-08-18 本輪瀏覽器視覺 QA 發現：以下 4 筆見證的姓名／居住地／職業／完整前後對照
-// 故事，在 docs/網站文案集.md 裡完全查無出處（文案集第 643～648 行的「個案真實見證」只有
-// 4 句匿名一行見證，無姓名無故事）。依使用者指示，TrustSystem.tsx 與 HomeTestimonialsSection.tsx
-// 已暫時不再 import／渲染這份資料（改顯示「籌備中」提示），這份陣列先保留在檔案裡以免遺失
-// 既有格式，但目前沒有任何元件引用它。待取得真實個案授權後再啟用或整批替換。
-export const testimonials: Testimonial[] = [
-  {
-    id: 'test-1',
-    persona: 'mom',
-    category: '媽媽安心案例',
-    clientName: '林媽媽（台北，家管，育有兩子）',
-    beforeState: '孩子面臨大考時情緒極度敏感、家裡氣氛緊繃。每天嘮叨爭吵，感到心力交瘁、嚴重失眠，家裡像個壓力鍋。',
-    afterState: '透過煙供祈福與客製化家庭能量調整，媽媽學會釋放「掌控焦慮」。奇妙的是，當媽媽頻率放鬆後，大兒子情緒也趨於平穩，能自主安排複習，家庭重回笑聲。',
-    testimonialText: '以前一回到家就很窒息，文齡老師告訴我：媽媽是家裡的風水與定海神針。她幫我們家做的能量清理與遠距祝福，讓我真的感覺到肩膀上的重擔放下了。當我自己睡得好、不再天天盯著孩子罵，孩子反而放鬆發揮出了好成績！真的很感謝文齡老師的溫柔指引。',
-    relatedService: '煙供祈福與家庭能量清理'
-  },
-  {
-    id: 'test-2',
-    persona: 'single',
-    category: '單身愛情轉化案例',
-    clientName: 'Eva（新竹，IC 設計科技業專案經理）',
-    beforeState: '過去五年間反覆遇到「冷暴力、不願承諾、不告而別」的對象。深陷「我是不是不夠好、不配被珍惜」的自我懷疑，對戀愛感到絕望卻又無比渴望。',
-    afterState: '透過靈魂伴侶解讀搭配一對一能量療癒，釋放了童年缺乏父親認同的遺憾。第六個月，在登山社團遇到了體貼、主動、且願意承諾的現任伴侶，目前已穩定交往一年。',
-    testimonialText: '文齡老師的療癒不是那種教你欲擒故縱、撒嬌的戀愛技巧。它是真正的「內在手術」，把我心中那個一直覺得會被丟掉的小女孩抱了回來。當我真正覺得自己「本來就值得被好好對待」時，我的磁場就變了。現任男友對我的珍惜程度，是我以前作夢都不敢想的。個案經驗因人而異，但只要你願意相信，改變真的會發生。',
-    relatedService: '靈性解讀與能量療癒｜靈魂伴侶解讀'
-  },
-  {
-    id: 'test-3',
-    persona: 'business',
-    category: '企業主與業務成長案例',
-    clientName: '陳先生（台中，文創餐飲連鎖品牌創辦人）',
-    beforeState: '品牌面臨融資與拓店決策關口，壓力巨大，情緒易怒，團隊凝聚力下降，常常失眠、靠藥物入睡，決策時充滿得失心的雜音。',
-    afterState: '進行連續 3 個月的金錢靈氣調頻與高階企業主諮詢，釋放了隱形的「破產匱乏焦慮」。心靈平穩後，做出了精準的策略轉型，順利獲得 A 輪投資，業績穩健攀升。',
-    testimonialText: '身為創業者，孤獨感與壓力是常態。文齡老師的專業之處在於她極度有邏輯，完全沒有玄學的故弄玄虛。她從潛意識底層幫我清理了對錢的「不安全感」與「想要控制一切的執念」。當我的能量場變得平穩與大氣，決策就清楚了，團隊和投資人也更能信任我。這幾個月公司順利跨過了兩億的融資目標，這絕對是我最超值的決策支持投資。免責聲明：這不能取代我們的商業努力，但能給予你最強大的心靈護航。',
-    relatedService: '豐盛金錢靈氣與企業主專屬諮詢'
-  },
-  {
-    id: 'test-4',
-    persona: 'mom',
-    category: '媽媽陪伴案例',
-    clientName: '張小姐（高雄，全職媽媽）',
-    beforeState: '產後憂鬱加上婆媳問題，常常無端對丈夫和兩歲的女兒發脾氣，內心充滿了罪惡感，深陷情緒泥淖，感到非常孤立無援。',
-    afterState: '接受 3 次一對一能量療癒，並引導日常自我淨化。學會了「先滋養自己，再照顧家庭」的邊界，情緒風暴退去，找回溫柔力量。',
-    testimonialText: '文齡老師聽我哭了一個小時，她的包容像一個無邊無際的溫暖大海。在療癒過程中，我真的感受到一股溫熱的能量流過我緊繃的胸口。現在我懂得每天留 15 分鐘給自己做靈氣呼吸，家庭關係也前所未有地和諧。',
-    relatedService: '個人一對一能量療癒'
-  }
-];
+// PLN-004 階段 D（2026-10-05）移除：resolveOfferingHref（已無呼叫點）與 4 筆查無出處的
+// 具名見證。見證改用文案集的匿名引言（testimonialQuotes），並以授權開關控制顯示。
 
 export const blogPosts: BlogPost[] = [
   {
@@ -595,62 +533,8 @@ export const blogPosts: BlogPost[] = [
   }
 ];
 
-export const faqs: FAQItem[] = [
-  {
-    id: 'faq-mom-1',
-    persona: 'mom',
-    question: '我的孩子最近面臨升學大考/情緒非常緊繃不穩定，我可以為他做些什麼？',
-    answer: '當孩子情緒緊繃時，媽媽往往比孩子更焦慮。在能量世界中，家庭是一個共享的能量池，而母親通常是家庭的「能量定海神針」。建議媽媽可以先從預約「煙供祈福與家庭能量清理」或「個人一對一能量療癒」開始。當您自己的焦慮與壓力被疏通、內在重回穩定和諧時，孩子自然能感受到這股安全感，情緒也會隨之平穩。我們亦有針對孩子的遠距能量調頻與祝福，以溫和不打擾的方式給予支持。'
-  },
-  {
-    id: 'faq-mom-2',
-    persona: 'mom',
-    question: '家庭健康與平安，可以透過哪些服務來提供穩定的支持？',
-    answer: '我們推薦「定期煙供祈福」與「遠距家庭能量調頻」。煙供是遵循古老傳承、極其溫和而慈悲的能量清理儀式，能有效中和家宅磁場中的雜亂晦澀頻率，為家人祈求平安健康、課業順遂。請注意，能量療癒是優質的心靈保健與能量調頻，絕不能取代正規的醫療、心理諮商與藥物治療。若家人有身體或心理疾病，請務必尋求專業醫師的診斷與協助。'
-  },
-  {
-    id: 'faq-mom-3',
-    persona: 'mom',
-    question: '我從來沒有接觸過能量療癒，會不會很難理解？需要做什麼準備嗎？',
-    answer: '完全不需要任何準備，也不用擔心難以理解。文齡老師擁有多年商務行銷與專案管理背景，最擅長用「溫和、理性、有邏輯」的語言來解構身心靈玄學。在療癒或課程中，您只需要帶著一顆敞開、放鬆的心，像跟朋友喝下午茶一樣即可。老師會用最白話、最溫暖的方式引導您，讓您感到無比安全與放鬆。'
-  },
-  {
-    id: 'faq-single-1',
-    persona: 'single',
-    question: '「靈魂伴侶解讀」是保證能讓我脫單、找到伴侶嗎？',
-    answer: '基於專業倫理與對生命的尊重，我們**絕不做出任何「保證脫單」或「保證吸引到特定對象」的宣稱**。靈魂伴侶解讀的核心，是一套深度的「關係陪伴與內在轉化旅程」。它旨在陪伴您看見並清理過去在關係中反覆卡關、受傷的潛意識信念（如不配得感、遺棄恐懼），並建立健康的自我邊界與高頻自愛狀態。當您的內在頻率回歸圓滿與自信時，自然會提升您在日常中做出合適選擇、吸引健康伴侶的機率。個案的轉化成效因個人投入程度與靈魂藍圖而異。'
-  },
-  {
-    id: 'faq-single-2',
-    persona: 'single',
-    question: '「五行香水供奉」適合什麼狀態的人？遠距真的有效果嗎？',
-    answer: '五行香水供奉極其適合：正經歷分手/失戀創傷、對愛情失去信心、渴望增進個人親和力、或想改善現有伴侶關係者。方案會依您的出生年月日調配專屬桃花與貴人香氛，進行 7 天 24 小時佛前供奉。供奉期間老師會為您撰疏、代為祈願，遠距傳導完全不受空間限制。多數個案在供奉期間或結束後陸續感受到人際與感情氣場的變化，惟成效因人而異，非保證性宣稱。'
-  },
-  {
-    id: 'faq-single-3',
-    persona: 'single',
-    question: '如果我發現自己一直遇到不適合的對象（如渣男/冷暴力），我該怎麼開始調整？',
-    answer: '反覆遇到類似的糟糕對象，是潛意識在向您發出「除錯（Debug）訊號」。這代表您的潛意識底層有一套「我不值得被好好珍惜」的舊程式在運作。建議您可以從「心靈引渡人｜一對一個人能量療癒」開始，由文齡老師帶領您深入探掘這套舊程式的童年或家族根源，看見並將其解除。您也可以搭配「靈性解讀與能量療癒」的靈魂伴侶解讀，進行系統化的能量與觀念重建。'
-  },
-  {
-    id: 'faq-business-1',
-    persona: 'business',
-    question: '「金錢靈氣」是什麼？它能直接增加我的收入或保證業績翻倍嗎？',
-    answer: '金錢靈氣（Money Reiki）是一門專注於「調和個人與金錢能量關係」的系統。我們**絕不承諾任何「保證財富自由、業績翻倍或投資必賺」的財務宣稱**。它的原理是：清理您潛意識中對金錢的「不配得感」、「匱乏恐懼」或「賺錢很辛苦」等限制性信念，拓寬您的豐盛容器。當您消除對於金錢的緊縮恐懼、在財務決策中保持大氣與冷靜時，自然能在商業運作中看清機會、做出更精準的判斷，進而帶來好運與豐盛的循環。'
-  },
-  {
-    id: 'faq-business-2',
-    persona: 'business',
-    question: '「事業與金錢能量調整」對於企業主、業務、投資人有什麼具體幫助？',
-    answer: '身為企業主或投資人，您的決策品質決定了整個團隊與資金的走向。然而，長期的孤獨、業績壓力與市場變動，會讓大腦充滿「得失心雜音」，導致焦慮性決策。能量調整能幫您迅速清理大腦與核心脈輪的壓力殘留，讓您的腦波回歸平穩、清明的狀態，重新喚醒您珍貴的「商業直覺與市場洞察力」。同時，平穩強大的創辦人氣場，也是吸引頂尖人才、優質合作夥伴與大額融資的最佳磁石。'
-  },
-  {
-    id: 'faq-business-3',
-    persona: 'business',
-    question: '這類能量療癒與諮詢服務，可以取代我的商業決策或投資建議嗎？',
-    answer: '**絕對不行。** 我們的所有服務（包括豐盛靈氣、事業能量調整、個人諮詢等）均屬於心靈輔助、自我覺察與日常能量護航，**絕不提供任何具體的商業、法律、稅務、財務或投資建議**。所有商業經營與投資行為均有風險，使用者必須秉持理性，為自己的所有商業決定與財務行為承擔完整責任。'
-  }
-];
+// PLN-004 階段 D（2026-10-05）移除：原 9 題 FAQ 查無文案集出處。首頁用文案集 Block 8
+// 的題目（homeContent.faq），各服務與課程頁用文案集該頁的常見問題。
 
 // 依 docs/網站文案集.md 第 93、117、382-384、1808-1817、1965-1969 行等實際提供之免費資源整理，
 // 不包含任何未經證實存在的音檔／PDF／影片連結
@@ -658,6 +542,7 @@ export const resources: ResourceItem[] = [
   {
     id: 'res-1',
     title: '【每週免費直播】豐盛之翼學苑公益體驗直播',
+    schedule: '每週一晚間 21:30–22:30',
     type: 'video',
     typeName: '免費公益直播',
     description: '每週一晚間 21:30–22:30，文齡老師於社群內舉辦免費公益體驗直播，帶你實際感受能量練習與希塔療癒的應用，參與還有機會獲得專屬小禮物。',
@@ -707,32 +592,8 @@ export const methodologySystems = [
   { id: 14, name: '脈輪與氣場能量療癒', definition: '不需觸碰身體，運用生命氣場進行淨化、充能與修護的科學療癒法。', solves: '身體能量淤堵、莫名疲憊沉重、特定脈輪能量失衡。', suitedFor: '需要快速恢復能量、重視氣場清潔與講求實用感受的人。' }
 ];
 
-// PRD-002 §3.5：合作夥伴（療癒師／協作老師）介紹卡片，佔位資料。
-// 客戶素材（真實姓名、照片、專長、簡介）尚未提供，photoUrl 留空由元件顯示
-// 佔位圖；之後只需替換以下內容即可上線，元件不需改動。
-export const teamPartners: TeamPartner[] = [
-  {
-    id: 'partner-placeholder-1',
-    name: '夥伴老師姓名（待補）',
-    title: '職稱／頭銜（待補）',
-    specialty: '專長領域（待補，例如：靈氣二階認證導師）',
-    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
-  },
-  {
-    id: 'partner-placeholder-2',
-    name: '夥伴老師姓名（待補）',
-    title: '職稱／頭銜（待補）',
-    specialty: '專長領域（待補）',
-    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
-  },
-  {
-    id: 'partner-placeholder-3',
-    name: '夥伴老師姓名（待補）',
-    title: '職稱／頭銜（待補）',
-    specialty: '專長領域（待補）',
-    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
-  }
-];
+// PLN-004 階段 D（2026-10-05）移除：合作夥伴的佔位資料。客戶提供療癒師資料後再建立
+// （RPT-001 G7／T7）。
 
 // ─────────────────────────────────────────────────────────────────────────
 // PRD-003／PLN-004 階段 A（2026-10-04）：以下內容依文案集 v2 轉錄。
@@ -900,6 +761,8 @@ export const mediaPublications: MediaPublication[] = [
   },
 ];
 
+// 文案集的連結多為網站時光機存檔網址。2026-10-05 逐一檢查：原站仍可連線者改回原始網址（其中 7 個存檔網址已 404），
+// 只有原網域已失效的「談芯時刻」保留存檔版。
 const WAYBACK = 'https://web.archive.org/web/20250518033113/';
 const GOOD_WOMAN_S1 = 'https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/';
 const MARIE_CLAIRE = 'https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/';
@@ -914,8 +777,8 @@ export const mediaShows: MediaShow[] = [
     summary: '多集專訪，分享希塔療癒與失戀急診等主題',
     episodes: [
       { title: 'S2EP29＃情慾瑪麗｜失戀急診:希塔療癒Ft.療癒師文齡 (上)', href: `${MARIE_CLAIRE}65751f59-2024-41a0-b890-335b2f0780d3` },
-      { title: 'S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)', href: `${WAYBACK}${MARIE_CLAIRE}78189391-fc1e-409f-807f-b01ca6cd9f2d` },
-      { title: 'S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)', href: `${WAYBACK}${MARIE_CLAIRE}9a4466ab-0dc5-43b6-accb-d7893cd35906` },
+      { title: 'S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)', href: `${MARIE_CLAIRE}78189391-fc1e-409f-807f-b01ca6cd9f2d` },
+      { title: 'S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)', href: `${MARIE_CLAIRE}9a4466ab-0dc5-43b6-accb-d7893cd35906` },
       { title: 'S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛', href: 'https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw', featured: true },
     ],
   },
@@ -946,7 +809,7 @@ export const mediaShows: MediaShow[] = [
     show: '迷人說 Podcast',
     kind: 'podcast',
     episodes: [
-      { title: '迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯', href: `${WAYBACK}https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1` },
+      { title: '迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯', href: `https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1` },
     ],
   },
   {
@@ -954,11 +817,11 @@ export const mediaShows: MediaShow[] = [
     show: '小紀老師的幸福學 Podcast',
     kind: 'podcast',
     episodes: [
-      { title: 'Ep.161 l 打造幸運體質', href: `${WAYBACK}${HAPPINESS_APPLE}1000591850026` },
-      { title: 'Ep.162 l 如何創造貴人', href: `${WAYBACK}${HAPPINESS_APPLE}1000591959880` },
+      { title: 'Ep.161 l 打造幸運體質', href: `${HAPPINESS_APPLE}1000591850026` },
+      { title: 'Ep.162 l 如何創造貴人', href: `${HAPPINESS_APPLE}1000591959880` },
       { title: 'Ep.163 l 如何成為金錢磁鐵', href: 'https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229', featured: true },
-      { title: 'Ep.164 l 如何吸引好桃花', href: `${WAYBACK}${HAPPINESS_APPLE}1000592527540` },
-      { title: 'Ep.165 l 心想事成許願法', href: `${WAYBACK}${HAPPINESS_APPLE}1000592780746` },
+      { title: 'Ep.164 l 如何吸引好桃花', href: `${HAPPINESS_APPLE}1000592527540` },
+      { title: 'Ep.165 l 心想事成許願法', href: `${HAPPINESS_APPLE}1000592780746` },
     ],
   },
   {
@@ -967,7 +830,7 @@ export const mediaShows: MediaShow[] = [
     kind: 'podcast',
     episodes: [
       { title: 'S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！', href: 'https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d', featured: true },
-      { title: 'S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！', href: `${WAYBACK}https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6` },
+      { title: 'S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！', href: `https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6` },
     ],
   },
   {
@@ -995,8 +858,8 @@ export const mediaShows: MediaShow[] = [
     show: '戀愛潛聊室 YouTube 直播訪談',
     kind: 'youtube',
     episodes: [
-      { title: '《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師', href: `${WAYBACK}https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq` },
-      { title: '分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師', href: `${WAYBACK}https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb` },
+      { title: '《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師', href: `https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq` },
+      { title: '分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師', href: `https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb` },
     ],
   },
   {
@@ -1004,7 +867,7 @@ export const mediaShows: MediaShow[] = [
     show: '小島好日 YouTube 直播訪談',
     kind: 'youtube',
     episodes: [
-      { title: '單身的你，如何尋找對的另一半', href: `${WAYBACK}https://www.youtube.com/watch?v=wwv1UPc1EyA` },
+      { title: '單身的你，如何尋找對的另一半', href: `https://www.youtube.com/watch?v=wwv1UPc1EyA` },
     ],
   },
   {
@@ -1057,7 +920,7 @@ export const footerNavigation: NavGroup[] = [
     items: [
       { id: 'about', label: '品牌理念', href: '/about' },
       { id: 'story', label: '創辦人經歷與故事', href: '/story' },
-      { id: 'partners', label: '合作夥伴', href: '/about#partners' },
+      // 「合作夥伴」待客戶提供療癒師資料後再加回（RPT-001 G7／T7）；區塊目前不顯示。
     ],
   },
   {
@@ -1223,6 +1086,75 @@ export const offeringsContent = {
     credential: '文齡老師為官方認可之國際導師，學員修畢課程並通過評核，即可獲頒美國 THInK 總部發證之官方結業證照。',
   },
 };
+
+// PLN-004 階段 D6～D13：其餘內頁（RES-002 §6～§13）。
+export const pagesContent = {
+  about: {
+    title: '關於我們',
+    techniquesLead: '從你想解決的問題，找到對應的技術',
+    definitionLabel: '這是什麼',
+    suitedLabel: '適合什麼樣的人',
+    communityCta: '點我加入免費社群',
+  },
+  story: {
+    title: '創辦人介紹',
+    chaptersLabel: '我的故事：從全面崩塌到重生的轉折',
+    credentialsTitle: '學經歷與專業認證',
+    // 人物卡上的資歷重點：逐字取自文案集「學經歷與專業認證」
+    highlights: [
+      '官方認證導師 (基礎/進階/深度挖掘/神與我/顯化與豐盛) — 美國 THInK 總部發證',
+      '台灣大學 政治學系學士畢業',
+      'PMP專案管理師',
+      '好女人的情場攻略 Podcast 2022收聽數冠軍與2024前十名',
+    ],
+  },
+  testimonials: {
+    title: '客戶見證',
+    // 未授權時的說明（沿用既有文字）
+    pendingNotice: '我們正在向個案取得正式授權與去識別化整理，確保每一則見證都真實可查證。',
+    servicesLabel: '全部服務',
+  },
+  media: {
+    booksLabel: '出版品',
+    featuredLabel: '精選',
+    allShowsLabel: 'Podcast 與直播訪談',
+    partnersLabel: '官方授權認證資歷與合作機構',
+    descriptionLabel: '書籍說明',
+    pendingLink: '連結整理中',
+    episodesUnit: '集',
+  },
+  resources: {
+    title: '免費資源',
+    audienceLabel: '適合對象',
+    passwordLabel: '進入社群密碼',
+    password: '168168',
+  },
+  contact: {
+    title: '聯絡我們',
+    otherLabel: '其他管道',
+    // 目的文字逐字取自既有資料：資源卡的類型名稱、頁尾聯絡說明、社群說明
+    purposes: [
+      { id: 'line', label: '官方預約與諮詢管道', channel: 'line' },
+      { id: 'email', label: '企業開運講座、讀書會導讀合作或個人開班詢問', channel: 'email' },
+      { id: 'community', label: '免費體驗能量療癒、參加線上公益讀書會', channel: 'community' },
+    ],
+  },
+  blog: { title: '部落格', allLabel: '全部', readLabel: '閱讀全文', closeLabel: '關閉' },
+  legal: { title: '免責聲明、隱私權政策與服務條款', lead: '請在預約、購買或報名豐盛之翼學苑的服務與課程前，詳閱以下內容。', expandAll: '全部展開', collapseAll: '全部收合' },
+};
+
+// 客戶見證：文案集 v2 Home Block 6（第 214～227 行）四類共 8 則。授權確認前不顯示
+// （homeContent.testimonials.authorized；RPT-001 C1）。
+export const testimonialQuotes: { category: string; quote: string; source: string }[] = [
+  { category: '感情／單身', quote: '調整完伴侶訂單的 3 個月內，我就遇到了新對象！完全突破了以前對另一半的刻板印象！', source: '感情顯化個案' },
+  { category: '感情／單身', quote: '原本以為自己很清楚要什麼，做完『伴侶訂單微調』才發現潛意識的限制。清理卡點後，對感情的焦慮感瞬間消失，身邊也開始出現好幾個符合解讀特徵的人！', source: '靈魂伴侶解讀個案' },
+  { category: '家庭／媽媽', quote: '幫家裡祈福後，原本晚上容易哭鬧的孩子終於能安穩入睡，家裡的壓力感整個消失了。', source: '家庭祈福個案' },
+  { category: '家庭／媽媽', quote: '女兒代媽媽預約後，媽媽長期失眠狀況獲得改善，胸口不適感也消失了。', source: '家庭療癒個案' },
+  { category: '事業／企業主', quote: '煙供後老闆不再找麻煩，卡很久的案子順利成交，那週業績直接翻倍！', source: '事業突破個案' },
+  { category: '事業／企業主', quote: '隔天業績提升、三天後獲得升遷通知。', source: '事業突破個案' },
+  { category: '身心蛻變／其他', quote: '透過持續信念挖掘，排除體內負面情緒毒素。沒有特別控制飲食與運動，短短兩個月就瘦了 6 公斤！', source: '希塔療癒學員' },
+  { category: '身心蛻變／其他', quote: 'Keila 老師精準讀到我的優勢是凝聚團隊，也挖出我很深的卡點——『覺得休息就會害到別人』。重新校正後，我不必再把責任全扛在身上，團隊也變得更主動了。', source: '4+1 感知中心個案' },
+];
 
 // PRD-003 §4.14（PLN-004 Batch A6）：/legal 改用文案集 v2 的《隱私權政策》（第 1589 行起）、
 // 《服務條款》（第 1617 行起）與《免責聲明》（第 1684 行起）全文。以下內容由

@@ -4,13 +4,37 @@
     {
       "name": "wenling-web",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "next", "dev", "--port", "3100"],
+      "runtimeArgs": [
+        "exec",
+        "next",
+        "dev",
+        "--port",
+        "3100"
+      ],
       "port": 3100
+    },
+    {
+      "name": "wenling-web-prod",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "exec",
+        "next",
+        "start",
+        "--port",
+        "3101"
+      ],
+      "port": 3101
     },
     {
       "name": "proposals",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "3217", "--directory", "docs/06_research-and-design/proposals"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "3217",
+        "--directory",
+        "docs/06_research-and-design/proposals"
+      ],
       "port": 3217
     }
   ]

@@ -8,6 +8,8 @@ const nextConfig = {
       { source: '/training/theta-basic-cert', destination: '/training/theta-basic', permanent: true },
       { source: '/training/theta-adv-cert', destination: '/training/theta-advanced-dna', permanent: true },
       { source: '/training/theta-dig-deeper-cert', destination: '/training/theta-dig-deeper', permanent: true },
+      // PRD-003 §4.14：FAQ 不再是獨立頁，首頁有精選、各服務與課程頁有自己的常見問題
+      { source: '/faq', destination: '/#home-faq', permanent: true },
     ];
   },
 };

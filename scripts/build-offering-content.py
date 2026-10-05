@@ -18,6 +18,7 @@ import json, re, sys, unicodedata, pathlib
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DECK = ROOT / 'docs' / '網站文案集.md'
 OUT = ROOT / 'src' / 'content' / 'offerings.ts'
+PAGES_OUT = ROOT / 'src' / 'content' / 'pages.ts'
 
 RANGES = {
     'personal-1on1': (469, 557), 'spiritual-reading': (557, 639), 'spiritual-massage': (639, 716),
@@ -26,6 +27,8 @@ RANGES = {
     'theta-basic': (1071, 1137), 'theta-advanced-dna': (1137, 1189), 'theta-dig-deeper': (1189, 1255),
     'money-reiki-cert': (1255, 1353), 'love-reiki-cert': (1353, 1434), 'mermaid-reiki-cert': (1434, 1486),
 }
+# 關於我們、創辦人介紹兩頁：以「▍」開頭的行為段落標題。
+PAGE_RANGES = {'about': (327, 374), 'story': (376, 468)}
 AI_NOTES = ('這就為你將', '這份文案', '你可以直接')
 OLD_LINE = 'https://lin.ee/yo6a6FW'
 NEW_LINE = 'https://lin.ee/N7QHCND'
@@ -75,7 +78,7 @@ def group_of(title):
             return gid
     return 'intro'
 
-def parse_blocks(lines):
+def parse_blocks(lines, headerless=False):
     blocks, i = [], 0
     while i < len(lines):
         raw = lines[i]
@@ -94,7 +97,7 @@ def parse_blocks(lines):
                 i += 1
             width = max(len(r) for r in rows)
             rows = [r + [''] * (width - len(r)) for r in rows]
-            blocks.append({'type': 'table', 'header': rows[0], 'rows': rows[1:]})
+            blocks.append({'type': 'table', 'header': [], 'rows': rows} if headerless else {'type': 'table', 'header': rows[0], 'rows': rows[1:]})
             continue
         if re.match(r'^\s*Q\d+\s*[：:｜|]', raw):
             qa = []
@@ -152,6 +155,24 @@ def parse(oid, lines):
             merged.append(sec)
     return {'title': title, 'lead': lead, 'sections': merged}
 
+def parse_page(pid, lines):
+    """以「▍」分段；方法體系的表格已有結構化資料（methodologySystems），這裡略過。"""
+    lines = [l for l in lines if l.strip()]
+    sections, cur = [], None
+    for l in lines:
+        if l.strip().startswith('▍'):
+            cur = {'title': clean(l.strip().lstrip('▍')), 'lines': []}
+            sections.append(cur)
+        elif cur is not None:
+            cur['lines'].append(l)
+    out = []
+    for n, s in enumerate(sections):
+        blocks = parse_blocks(s['lines'], headerless=True)
+        if pid == 'about' and '方法體系' in s['title']:
+            blocks = [b for b in blocks if b['type'] != 'table']
+        out.append({'id': f'{pid}-{n + 1}', 'group': 'intro', 'title': s['title'], 'blocks': blocks})
+    return {'title': '', 'lead': [], 'sections': out}
+
 def texts(o):
     if isinstance(o, str): yield o
     elif isinstance(o, list):
@@ -177,6 +198,18 @@ def main():
         "// 內容為 8 項服務與 6 門課程的完整官方文案（逐字，僅移除表情符號）。\n"
         "import type { OfferingContent } from '../types';\n\n"
         f"export const offeringContent = ({body}) as Record<string, OfferingContent>;\n", encoding='utf-8')
+    pages = {}
+    for pid, (a, b) in PAGE_RANGES.items():
+        pages[pid] = parse_page(pid, deck_lines[a - 1:b - 1])
+        for t in texts(pages[pid]):
+            if len(t) > 6 and norm(t) not in deck_norm:
+                problems.append((pid, t[:50]))
+        print(f"{pid:24s} sections={len(pages[pid]['sections'])} " + ' | '.join(s['title'][:16] + ':' + str(len(s['blocks'])) for s in pages[pid]['sections']))
+    PAGES_OUT.write_text(
+        "// 由 scripts/build-offering-content.py 從 docs/網站文案集.md 產生，請勿手動修改。\n"
+        "// 內容為「關於我們」與「創辦人介紹」兩頁的官方文案（逐字，僅移除表情符號）。\n"
+        "import type { OfferingContent } from '../types';\n\n"
+        f"export const pageContent = ({json.dumps(pages, ensure_ascii=False, indent=2)}) as Record<'about' | 'story', OfferingContent>;\n", encoding='utf-8')
     for oid, o in data.items():
         groups = {}
         for s in o['sections']: groups[s['group']] = groups.get(s['group'], 0) + 1

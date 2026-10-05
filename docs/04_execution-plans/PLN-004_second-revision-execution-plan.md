@@ -1,6 +1,6 @@
 # PLN-004：第二次修改執行計畫
 
-**狀態：** In Progress（階段 A 完成，commit `130d97a`；階段 B 完成；階段 C 建議書 RPT-001 已出，待客戶回覆；階段 D 不依賴素材的批次進行中）
+**狀態：** In Progress（階段 A 完成，commit `130d97a`；階段 B 完成；階段 C 建議書 RPT-001 已出，待客戶回覆；階段 D 不依賴素材的批次 D0–D10、D12 完成，待人工驗收 [`ACC-003`](../07_acceptance-and-qa/ACC-003_second-revision-phase-d-acceptance.md)；D11 餘 `/ui-kit` 與 `ARC-002`）
 **日期：** 2026-10-04
 **前置 PRD：** [`PRD-003`](../01_product-requirements/PRD-003_second-revision-academy-ia-restructure.md)
 **相關文件：** [`AUD-002`](../05_audits-and-reports/AUD-002_second-revision-requirements-and-copy-v2-audit.md)、[`PLN-001`](./PLN-001_official-copy-rollout-execution-plan.md)（文案集 v1 行號對照，已不適用於現行文案集）
@@ -74,14 +74,14 @@
 | 3 | 課程詳細頁 `/training/[id]` | ✅ | ✅ A＋C 學習路徑（RES-002 §3） | ✅ 6 頁共用模板 | ✅ |
 | 4 | 全部服務 `/services` | ✅ | ✅ A 類型切換＋B 導引（RES-002 §4） | ✅ | ✅ |
 | 5 | 認證班 `/training` | ✅ | ✅ B 學習路徑圖（RES-002 §5） | ✅ | ✅ |
-| 6 | 關於我們 `/about` | — | — | — | — |
-| 7 | 創辦人介紹 `/story` | — | — | — | — |
-| 8 | 客戶見證 `/testimonials` | — | — | — | — |
-| 9 | 媒體專訪 `/media` | — | — | — | — |
-| 10 | 免費資源 `/resources` | — | — | — | — |
-| 11 | 聯絡我們 `/contact` | — | — | — | — |
-| 12 | 部落格 `/blog` | — | — | — | — |
-| 13 | 法律頁 `/legal` | — | — | — | — |
+| 6 | 關於我們 `/about` | ✅ | ✅ C 從問題找技術＋B 開場（RES-002 §6） | ✅ | ✅ |
+| 7 | 創辦人介紹 `/story` | ✅ | ✅ A 時間軸＋B 人物卡（RES-002 §7） | ✅ 形象照為佔位 | ✅ |
+| 8 | 客戶見證 `/testimonials` | ✅ | ✅ A 分類分頁；未授權時用 C 的服務出口（RES-002 §8） | ✅ 見證以開關隱藏 | ✅ |
+| 9 | 媒體專訪 `/media` | ✅（B 產出空白，淘汰） | ✅ A 精選＋單一節目清單（RES-002 §9） | ✅ 書封為佔位 | ✅ 含 54 個站外連結檢查 |
+| 10 | 免費資源 `/resources` | ✅ | ✅ B 三步開始＋C 時間卡（RES-002 §10） | ✅ | ✅ |
+| 11 | 聯絡我們 `/contact` | ✅ | ✅ B 依目的分流（RES-002 §11） | ✅ | ✅ |
+| 12 | 部落格 `/blog` | ✅ | ✅ B 主打＋清單，加 A 的分類按鈕（RES-002 §12） | ✅ | ✅ |
+| 13 | 法律頁 `/legal` | ✅ | ✅ A 逐節收合＋C 桌機目錄（RES-002 §13） | ✅ | ✅ |
 
 不走三提案的頁面：`/faq`（改為轉址）、`/start`（新手入門，等文案）、404 頁（只換成統一樣式）。
 
@@ -99,7 +99,7 @@
 
 - 強度預設「光感」，要有財氣豐盛的感受。
 - 加入捲動推進的互動動畫。
-- 評估 three.js 等 3D 做法。實作直接用 `three`（0.186），不加 `@react-three/fiber`；只在瀏覽器端延後載入，並提供靜態替代畫面。
+- 評估 three.js 等 3D 做法。**2026-10-05 更新**：動效以 2D 與版面轉場為主，上線時不載入 three.js，`three` 已從相依移除；Hero 的 3D 金翼等 Logo 向量檔與階段 E 數據再評估。
 - 捲動互動以既有的 `motion` 套件為主。CSS 原生的捲動時間軸在 Firefox 尚未預設支援，只當漸進增強。
 - 參考趨勢：2026 年得獎的 3D 網站以「克制、捲動敘事」為主，單純的粒子背景評價不佳。3D 只用在能強化品牌記憶的位置。
 - 轉化數據與素材評估見 [`RES-003`](../06_research-and-design/RES-003_3d-motion-assets-and-conversion-evidence.md)：3D 定位為品牌記憶而非轉化手段；3D 主角是由 Logo 向量檔產生的金翼；首頁手機加固定 CTA 列；階段 E 比較有無 3D 的點擊率。
@@ -113,14 +113,14 @@
 | D2 | 服務與課程詳細頁（共用模板，含手機底部固定 CTA 列）；文案集 14 段完整內容轉入 `src/content/offerings.ts` | 無 | ✅ |
 | D3 | 全部服務 `/services` | 無 | ✅ |
 | D4 | 認證班 `/training` | 三門課程資訊（標示待補） | ✅（直覺力訓練標示即將推出） |
-| D5 | 關於我們 `/about` | 合作療癒師、夥伴招募（隱藏） | 待辦 |
-| D6 | 創辦人介紹 `/story` | 形象照（佔位） | 待辦 |
-| D7 | 客戶見證 `/testimonials` | 見證授權（未授權維持整理中，但補 CTA） | 待辦 |
-| D8 | 媒體專訪 `/media` | 書封（佔位） | 待辦 |
-| D9 | 免費資源 `/resources`、聯絡我們 `/contact` | 無 | 待辦 |
-| D10 | 部落格 `/blog`、法律頁 `/legal`、`/faq` 轉址 | 無 | 待辦 |
-| D11 | 收尾：移除粉色與舊 token、`/ui-kit`、UI 規範 `ARC-002`、清理未使用的檔案與相依 | 無 | 待辦 |
-| D12 | 驗收 `ACC-003` | — | 待辦 |
+| D5 | 關於我們 `/about` | 合作療癒師、夥伴招募（隱藏） | ✅ |
+| D6 | 創辦人介紹 `/story` | 形象照（佔位） | ✅ |
+| D7 | 客戶見證 `/testimonials` | 見證授權（未授權維持整理中，但補 CTA） | ✅ |
+| D8 | 媒體專訪 `/media` | 書封（佔位） | ✅（11 個媒體連結由存檔網址改回原始網址，見 ACC-003 §4） |
+| D9 | 免費資源 `/resources`、聯絡我們 `/contact` | 無 | ✅ |
+| D10 | 部落格 `/blog`、法律頁 `/legal`、`/faq` 轉址 | 無 | ✅ |
+| D11 | 收尾：移除粉色與舊 token、`/ui-kit`、UI 規範 `ARC-002`、清理未使用的檔案與相依 | 無 | 部分完成：粉色 token、未使用的元件與 `three` 已移除，字型改可變字型；`/ui-kit`、`ARC-002` 未做；`express`／`dotenv`／`tsx`／`@google/genai` 是否移除待確認 |
+| D12 | 驗收 `ACC-003` | — | ✅ 自動檢查完成，待人工驗收 |
 
 新手入門 `/start` 等 T1 文案到位後另開批次。
 

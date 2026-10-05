@@ -149,6 +149,8 @@ export interface FAQItem {
 export interface ResourceItem {
   id: string;
   title: string;
+  /** 固定時段（直播等），顯示為大字 */
+  schedule?: string;
   type: 'pdf' | 'audio' | 'video' | 'article';
   typeName: string;
   description: string;

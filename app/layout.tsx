@@ -5,16 +5,16 @@ import Footer from '../src/components/Footer';
 import ClientLayoutWrapper from './ClientLayoutWrapper';
 import MotionProvider from '../src/components/motion/MotionProvider';
 
+// 不指定 weight＝使用可變字型：一組 @font-face 涵蓋所有粗細。
+// 原本兩套字各載 5 種粗細，光字型樣式表就有 2 × 515KB 且會擋住首次繪製（ACC-003 §5）。
 const notoSansTC = Noto_Sans_TC({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-noto-sans',
   display: 'swap',
 });
 
 const notoSerifTC = Noto_Serif_TC({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '900'],
   variable: '--font-noto-serif',
   display: 'swap',
 });

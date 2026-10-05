@@ -1,188 +1,150 @@
 import Link from 'next/link';
-import { BookOpen, Mic, Video, ExternalLink, Headphones, ArrowRight } from 'lucide-react';
-import { mediaIntro, mediaPublications, mediaShows, mediaPartners } from '../data';
+import { ArrowRight, ArrowUpRight, Mic, Video, Plus } from 'lucide-react';
+import PageHeader, { cardClass, pageShell, sectionTitle } from './PageHeader';
+import { Reveal } from './motion/Reveal';
+import { homeContent, mediaIntro, mediaPartners, mediaPublications, mediaShows, offeringsContent, pagesContent } from '../data';
 import type { MediaEpisode, MediaShow } from '../types';
 
-// PRD-003 §4.7（2026-10-04）：媒體資料改由 src/data.ts 提供（文案集 v2 Home Block 7
-// 與 Media 頁）。variant="home" 只列首頁精選單集並導向 /media；variant="full" 是
-// /media 獨立頁，依節目列出全部集數。階段 A 沿用原卡片版型；精選＋Tabs 的正式版型
-// 於階段 D 依 UIUX 研究調整。
-interface MediaSectionProps {
-  variant?: 'home' | 'full';
-}
-
-const kindLabel: Record<MediaShow['kind'], string> = {
-  podcast: '前往收聽',
-  youtube: '前往觀看',
-  facebook: '前往觀看',
-};
-
-function EpisodeCard({ show, episode }: { show: MediaShow; episode: MediaEpisode }) {
-  const KindIcon = show.kind === 'podcast' ? Mic : Video;
-  return (
-    <div className="brand-card p-6 flex flex-col justify-between hover:border-[#D89A3E] transition-all">
-      <div>
-        <span className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-0.5 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#8A5415] mb-3">
-          <KindIcon className="w-3 h-3" />
+// 媒體專訪（PLN-004 D9；定案見 RES-002 §9）：提案 A 的結構，節目改為單一清單逐一展開。
+// - 三本書只露出書名與角色，說明收起；書封到位前顯示書名（RPT-001 G3）。
+// - 出版品與訪談之間有一條導向服務的區塊（原本這頁有 34 個出站連結、0 個導回服務）。
+// - 精選 6 集固定可見；11 個節目各一列，點開才列出集數，一次開一個（BRIEF §4A）。
+function EpisodeRow({ show, episode }: { show: MediaShow; episode: MediaEpisode }) {
+  const Icon = show.kind === 'podcast' ? Mic : Video;
+  const body = (
+    <>
+      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-popover">
+        <Icon className="size-4 text-ring" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold text-accent-foreground">
           {show.show}
+          {episode.note ? `・${episode.note}` : ''}
         </span>
-        <h4 className="text-base font-bold text-[#3A2A18] font-serif mb-2 leading-snug">{episode.title}</h4>
-        {episode.note && <p className="text-sm text-[#B5762A] font-semibold mb-2">{episode.note}</p>}
-      </div>
-      {episode.href ? (
-        <a
-          href={episode.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 pt-3 border-t border-[#F0DFA0]/70 flex items-center gap-1 text-base text-[#8A5415] hover:text-[#3A2409] font-semibold"
-        >
-          <span>{kindLabel[show.kind]}</span>
-          <ExternalLink className="w-3 h-3" />
-        </a>
-      ) : (
-        <p className="mt-2 pt-3 border-t border-[#F0DFA0]/70 text-sm text-[#9A8060]">連結整理中</p>
-      )}
+        <span className="mt-0.5 block text-base font-medium leading-snug text-card-foreground group-hover:underline">{episode.title}</span>
+      </span>
+    </>
+  );
+  return episode.href ? (
+    <a href={episode.href} target="_blank" rel="noopener noreferrer" className="group flex min-h-11 items-start gap-3 py-3.5">
+      {body}
+      <ArrowUpRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
+    </a>
+  ) : (
+    <div className="flex min-h-11 items-start gap-3 py-3.5">
+      {body}
+      <span className="mt-1 shrink-0 text-sm text-muted-foreground">{pagesContent.media.pendingLink}</span>
     </div>
   );
 }
 
-export default function MediaSection({ variant = 'home' }: MediaSectionProps) {
-  const isFull = variant === 'full';
-  const featured = mediaShows.flatMap((show) =>
-    show.episodes.filter((episode) => episode.featured).map((episode) => ({ show, episode }))
-  );
+export default function MediaSection() {
+  const labels = pagesContent.media;
+  const featured = mediaShows.flatMap((show) => show.episodes.filter((e) => e.featured).map((episode) => ({ show, episode })));
 
   return (
-    <section id="media-section" className="py-20 md:py-28 bg-[#FDF6E6] border-b border-[#F0DFA0]/70">
-      <div className="max-w-[1280px] mx-auto px-6 md:px-14">
+    <div className={pageShell} id="media-section">
+      <PageHeader eyebrow={mediaIntro.label} title={mediaIntro.heading} description={mediaIntro.description} />
 
-        {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF0] border border-[#F0DFA0] text-[#B5762A] text-sm font-semibold">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>{mediaIntro.label}</span>
-          </div>
-          {isFull ? (
-            <h1 className="text-2xl sm:text-3xl md:text-[32px] font-bold text-[#3A2A18] font-serif leading-snug">
-              {mediaIntro.heading}
-            </h1>
-          ) : (
-            <h2 className="text-2xl sm:text-3xl md:text-[32px] font-bold text-[#3A2A18] font-serif leading-snug">
-              {mediaIntro.heading}
-            </h2>
-          )}
-          <p className="text-base text-[#6A5642] leading-relaxed max-w-2xl mx-auto">{mediaIntro.description}</p>
-        </div>
-
-        {/* Publications */}
-        <div className="mb-16">
-          <div className="mb-8 pb-3 border-b border-[#F0DFA0]">
-            <h3 className="text-xl sm:text-2xl font-bold font-serif text-[#3A2A18] flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#B5762A]" />
-              <span>出版品</span>
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
-            {mediaPublications.map((pub) => {
-              const external = pub.link?.href.startsWith('http');
-              return (
-                <div
-                  key={pub.id}
-                  className="brand-card p-6 sm:p-7 flex flex-col justify-between hover:border-[#D89A3E] transition-all"
-                >
+      <section className="mt-12">
+        <h2 className={sectionTitle}>{labels.booksLabel}</h2>
+        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {mediaPublications.map((pub) => {
+            const external = pub.link?.href.startsWith('http');
+            return (
+              <div key={pub.id} className={`${cardClass} flex flex-col p-5`}>
+                <div className="flex gap-4">
+                  <div
+                    data-placeholder="book-cover"
+                    aria-hidden="true"
+                    className="flex aspect-[2/3] w-20 shrink-0 items-center justify-center rounded-lg border border-border bg-[linear-gradient(160deg,#FFFDF0,#FCE7A8)]"
+                  />
                   <div>
-                    {/* 書封佔位：待客戶提供封面圖後替換（AUD-002 §9） */}
-                    <div className="w-full h-40 bg-gradient-to-br from-[#FFFDF0] to-[#FBF1DD] rounded-[18px] border border-[#F0DFA0] shadow-sm mb-6 p-5 flex flex-col justify-between">
-                      <span className="self-start text-sm font-bold text-[#8A5415] bg-[#FFFDF0] px-2.5 py-0.5 rounded-full border border-[#F0DFA0]">
-                        {pub.role}
-                      </span>
-                      <h4 className="my-auto text-center font-serif font-bold text-base sm:text-lg text-[#3A2A18]">
-                        《{pub.title}》
-                      </h4>
-                    </div>
-                    <p className="text-base text-[#6A5642] leading-relaxed mb-3">{pub.description}</p>
-                    {pub.note && <p className="text-sm text-[#B5762A] font-semibold mb-3">{pub.note}</p>}
+                    <p className="text-sm font-bold text-accent-foreground">{pub.role}</p>
+                    <h3 className="mt-1 font-serif text-lg font-bold leading-snug text-card-foreground">《{pub.title}》</h3>
+                    {pub.note && <p className="mt-1 text-sm text-muted-foreground">{pub.note}</p>}
                   </div>
-
-                  {pub.link && (
-                    <a
-                      href={pub.link.href}
-                      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="border-t border-[#F0DFA0]/60 pt-3 flex items-center gap-1 text-base text-[#8A5415] hover:text-[#3A2409] font-semibold"
-                    >
-                      <span>{pub.link.label}</span>
-                      {external && <ExternalLink className="w-3 h-3" />}
-                    </a>
-                  )}
                 </div>
-              );
-            })}
-          </div>
+                <details className="disclosure mt-4 border-t border-border/70">
+                  <summary className="flex min-h-11 items-center justify-between gap-3 text-sm font-bold text-card-foreground">
+                    <span>{labels.descriptionLabel}</span>
+                    <Plus className="disclosure-icon size-4 shrink-0 text-ring" />
+                  </summary>
+                  <p className="pb-3 text-base leading-relaxed text-muted-foreground">{pub.description}</p>
+                </details>
+                {pub.link && (
+                  <a
+                    href={pub.link.href}
+                    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    className="mt-auto inline-flex min-h-11 items-center gap-1.5 text-base font-bold text-accent-foreground hover:underline"
+                  >
+                    {pub.link.label}
+                    {external ? <ArrowUpRight className="size-4" /> : <ArrowRight className="size-4" />}
+                  </a>
+                )}
+              </div>
+            );
+          })}
         </div>
+      </section>
 
-        {/* Podcasts & interviews */}
-        <div id="media-podcasts" className="mb-14 scroll-mt-24">
-          <div className="mb-8 pb-3 border-b border-[#F0DFA0]">
-            <h3 className="text-xl sm:text-2xl font-bold font-serif text-[#3A2A18] flex items-center gap-2">
-              <Headphones className="w-5 h-5 text-[#B5762A]" />
-              <span>{isFull ? 'Podcast 與直播訪談' : 'Podcast 精選訪談'}</span>
-            </h3>
-          </div>
+      <Reveal className={`${cardClass} mt-10 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between`}>
+        <p className="font-serif text-lg font-bold text-card-foreground">{homeContent.services.heading}</p>
+        <Link href="/#personas-section" className="gold-btn shrink-0 px-6 text-base font-bold">
+          {offeringsContent.helper.needs}
+          <ArrowRight className="size-4" />
+        </Link>
+      </Reveal>
 
-          {isFull ? (
-            <div className="space-y-12">
-              {mediaShows.map((show) => (
-                <div key={show.id}>
-                  <h4 className="text-lg font-bold font-serif text-[#3A2A18]">{show.show}</h4>
-                  {show.summary && <p className="text-base text-[#6A5642] mt-1">{show.summary}</p>}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-5">
-                    {show.episodes.map((episode) => (
-                      <EpisodeCard
-                        key={episode.title}
-                        show={show}
-                        episode={episode.group ? { ...episode, note: [episode.group, episode.note].filter(Boolean).join('・') } : episode}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {featured.map(({ show, episode }) => (
-                  <EpisodeCard key={episode.title} show={show} episode={episode} />
+      <section id="media-podcasts" className="mt-12 scroll-mt-24">
+        <h2 className={sectionTitle}>{labels.featuredLabel}</h2>
+        <div className="mt-3 divide-y divide-border/70 border-y border-border/70">
+          {featured.map(({ show, episode }) => (
+            <EpisodeRow key={episode.title} show={show} episode={episode} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className={sectionTitle}>{labels.allShowsLabel}</h2>
+        <div className="mt-3 divide-y divide-border/70 border-y border-border/70">
+          {mediaShows.map((show) => (
+            <details key={show.id} name="media-show" className="disclosure">
+              <summary className="flex min-h-14 items-center justify-between gap-4 py-3">
+                <span>
+                  <span className="block text-base font-bold text-card-foreground">{show.show}</span>
+                  {show.summary && <span className="mt-0.5 block text-sm text-muted-foreground">{show.summary}</span>}
+                </span>
+                <span className="flex shrink-0 items-center gap-3 text-sm text-muted-foreground">
+                  {show.episodes.length} {labels.episodesUnit}
+                  <Plus className="disclosure-icon size-4 text-ring" />
+                </span>
+              </summary>
+              <div className="divide-y divide-border/50 pb-3 pl-2">
+                {show.episodes.map((episode) => (
+                  <EpisodeRow
+                    key={episode.title}
+                    show={show}
+                    episode={episode.group ? { ...episode, note: [episode.group, episode.note].filter(Boolean).join('・') } : episode}
+                  />
                 ))}
               </div>
-              <div className="mt-10 text-center">
-                <Link
-                  href="/media"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FFFDF0] hover:bg-white border border-[#F0DFA0] text-[#8A5415] hover:text-[#3A2409] text-base font-semibold transition-colors"
-                >
-                  <span>閱讀媒體專訪</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </>
-          )}
+            </details>
+          ))}
         </div>
+      </section>
 
-        {/* Partners */}
-        <div className="bg-[#FFFDF0] rounded-2xl p-6 sm:p-8 text-center border border-[#F0DFA0]/80">
-          <span className="text-sm font-bold tracking-widest text-[#8A5415] block mb-5">
-            官方授權認證資歷與合作機構
-          </span>
-          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
-            {mediaPartners.map((partner) => (
-              <div key={partner} className="bg-[#FDF6E6] rounded-xl border border-[#F0DFA0] px-4 py-2 text-sm font-semibold text-[#3A2A18] shadow-xs">
-                {partner}
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </div>
-    </section>
+      <section className="mt-12">
+        <h2 className={sectionTitle}>{labels.partnersLabel}</h2>
+        <ul className="mt-4 space-y-2 text-base leading-relaxed text-muted-foreground">
+          {mediaPartners.map((partner) => (
+            <li key={partner} className="flex gap-2.5">
+              <span aria-hidden="true" className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-[#D89A3E]" />
+              <span>{partner}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
   );
 }

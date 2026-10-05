@@ -58,35 +58,6 @@
   --color-dark-gold-light: #F5E4C8;
   --color-dark-muted: #B49A76;
   --color-dark-subtle: #8A7458;
-
-  /* brand-pink-* / brand-gold-* — 元件內大量使用的 Tailwind utility 色階，
-     但先前從未在 @theme 內定義，導致 bg-brand-pink-500／text-brand-gold-600 等
-     class 完全不會產生任何 CSS（本輪瀏覽器視覺 QA 掃描發現：篩選 pill、分類標籤、
-     hover 強調色、次要按鈕全站皆遺失顏色）。brand-gold-* 對齊既有 design-spec.md
-     金色色票；brand-pink-* 為柔霧玫瑰色，作為愛情／單身主題的輔助強調色（design-spec.md
-     未定義 pink 色票，此處採用與既有咖啡金色調協調的低飽和玫瑰色，而非鮮豔粉色）。 */
-  --color-brand-gold-50: #FFFBEF;
-  --color-brand-gold-100: #FCE7A8;
-  --color-brand-gold-150: #F5D98A;
-  --color-brand-gold-200: #F0DFA0;
-  --color-brand-gold-300: #E8B15A;
-  --color-brand-gold-500: #C9862E;
-  --color-brand-gold-600: #B5762A;
-  --color-brand-gold-700: #8A5415;
-
-  --color-brand-pink-50: #FDF3F1;
-  --color-brand-pink-100: #FBE4E0;
-  --color-brand-pink-150: #F7D5CE;
-  --color-brand-pink-200: #F5C9C2;
-  --color-brand-pink-300: #E8A79C;
-  --color-brand-pink-400: #D98878;
-  --color-brand-pink-500: #C46B5B;
-  --color-brand-pink-600: #A8543F;
-  --color-brand-pink-700: #8A3F2E;
-
-  --color-brand-stone-50: #FAF7F2;
-  --color-brand-stone-800: #3A2E22;
-  --color-brand-stone-900: #2E2318;
 }
 
 /* 深色區塊（頁尾、深色橫幅）內的語意色 */

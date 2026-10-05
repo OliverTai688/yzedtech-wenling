@@ -49,6 +49,20 @@ export default function ContentBlocks({ blocks, idPrefix }: { blocks: ContentBlo
               </ul>
             );
           case 'table':
+            // 沒有表頭的表格（例如研習紀錄）：一列一行，精簡呈現
+            if (block.header.length === 0) {
+              return (
+                <ul key={key} className="divide-y divide-border/60 text-sm">
+                  {block.rows.map((row) => (
+                    <li key={row.join('|')} className="grid grid-cols-1 gap-x-4 gap-y-0.5 py-2 sm:grid-cols-[1.4fr_1fr_auto]">
+                      <span className="font-semibold text-card-foreground">{row[0]}</span>
+                      <span>{row[1]}</span>
+                      <span className="tabular-nums">{row.slice(2).filter(Boolean).join(' ')}</span>
+                    </li>
+                  ))}
+                </ul>
+              );
+            }
             return (
               <div key={key} className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {block.rows.map((row) => (

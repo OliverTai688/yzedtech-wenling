@@ -34,7 +34,7 @@ function isPathActive(pathname: string, path: string) {
 // 專案既有品牌色票（比照 Header.tsx 原本手刻選單的顏色）逐一 override。
 const triggerClass = (active: boolean) =>
   cn(
-    'rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 bg-transparent hover:bg-[#FDF6E6]/60 data-popup-open:bg-[#FDF6E6]/60 data-open:bg-[#FDF6E6]/60',
+    'inline-flex h-10 items-center rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 bg-transparent hover:bg-[#FDF6E6]/60 data-popup-open:bg-[#FDF6E6]/60 data-open:bg-[#FDF6E6]/60',
     active
       ? 'bg-[#FDF6E6] text-[#B5762A] font-semibold border border-[#F0DFA0] shadow-xs hover:bg-[#FDF6E6]'
       : 'text-[#5A4A38] hover:text-[#B5762A]'

@@ -1,10 +1,16 @@
-import BlogClientPage from './BlogClientPage';
+import BlogSection from '../../src/components/BlogSection';
+import CtaBand from '../../src/components/CtaBand';
 
 export const metadata = {
   title: '部落格｜豐盛之翼學苑',
-  description: '最清晰、理性的身心靈保養隨筆。內含愛情關係梳理、金錢豐盛容器拓寬、日常海鹽淨化、能量金光罩等極具實踐性的生活調頻指南。',
+  description: '豐盛之翼學苑的文章：愛情、財運、豐盛靈氣、事業、心路歷程與個案成長。',
 };
 
 export default function Page() {
-  return <BlogClientPage />;
+  return (
+    <>
+      <BlogSection />
+      <CtaBand />
+    </>
+  );
 }
