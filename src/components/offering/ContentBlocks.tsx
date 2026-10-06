@@ -42,7 +42,7 @@ export default function ContentBlocks({ blocks, idPrefix }: { blocks: ContentBlo
               <ul key={key} className="space-y-2">
                 {block.items.map((item) => (
                   <li key={item} className="flex gap-2.5">
-                    <span aria-hidden="true" className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-[#D89A3E]" />
+                    <span aria-hidden="true" className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-gold-to" />
                     <span>{item}</span>
                   </li>
                 ))}

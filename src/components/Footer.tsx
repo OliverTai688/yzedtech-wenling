@@ -1,47 +1,57 @@
-import { MessageCircle, Mail, MessageSquare, Users, AtSign, ShoppingBag, ArrowUpRight } from 'lucide-react';
+import { MessageCircle, Mail, MessageSquare, Users, AtSign, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import WingsMark from './brand/WingsMark';
-import { Separator } from '@/components/ui/separator';
 import { footerContent, footerNavigation, siteLinks } from '../data';
 
-// PRD-003 §4.13（2026-10-04）：頁尾依文案集 v2「網站下方區塊調整」重整。
-// 導覽分三組（footerNavigation），不再沿用 Header 的 primaryNavigation；
-// 刪除「支持」分組與底列「聯絡我們」，免責聲明與條款、隱私權、服務條款排在同一排。
+// 頁尾（2026-10-06 精簡）：內容仍是文案集「網站下方區塊調整」的全部項目（PRD-003 §4.13），
+// 只改呈現方式，對齊金、銀、暖白的設計系統：
+// - 淺色底，一條細線與上方的深色行動區塊分開；不再用深色底、外框與方塊。
+// - 三欄等寬：品牌、導覽（每組一行）、聯繫管道；免責聲明改成一段小字，不加框。
+// - 全站只留一顆實心按鈕給主要行動，所以「訂購」在這裡是文字連結。
 const legalLinks = [
   { label: '免責聲明與條款', href: '/legal#disclaimer' },
   { label: '隱私權保護政策', href: '/legal#privacy' },
   { label: '服務條款', href: '/legal#terms' },
 ];
 
+const link = 'inline-flex min-h-10 items-center gap-2 transition-colors hover:text-card-foreground';
+const heading = 'text-sm font-bold tracking-[0.08em] text-accent-foreground';
+
 export default function Footer() {
+  const contacts = [
+    { href: `mailto:${siteLinks.email}`, label: siteLinks.email, Icon: Mail, external: false },
+    { href: siteLinks.line, label: `LINE ${siteLinks.lineId}`, Icon: MessageCircle, external: true },
+    { href: siteLinks.facebook, label: 'Facebook m.me/keila.healing', Icon: MessageSquare, external: true },
+    { href: siteLinks.instagram, label: 'IG keila.healing1491', Icon: AtSign, external: true },
+  ];
+
   return (
-    <footer className="dark bg-[#20140A] text-[#C7AE8A] border-t border-[#3A2409]">
-      <div className="max-w-[1280px] mx-auto px-6 md:px-14 py-16">
+    <footer className="border-t border-border bg-popover text-base text-muted-foreground">
+      <div className="mx-auto max-w-[1180px] px-6 py-12 lg:px-10 lg:py-14">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-12">
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-10">
-
-          {/* Brand */}
-          <div className="md:col-span-3 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group">
+          {/* 品牌 */}
+          <div>
+            <Link href="/" className="inline-flex min-h-10 items-center gap-2.5">
               <WingsMark className="h-7 w-auto" />
-              <h2 className="text-lg font-bold font-serif text-[#FFFDF0] tracking-wide">豐盛之翼學苑</h2>
+              <span className="font-serif text-lg font-bold tracking-wide text-card-foreground">豐盛之翼學苑</span>
             </Link>
-            <p className="text-base text-[#B49A76] leading-relaxed max-w-sm">{footerContent.tagline}</p>
-            <div className="pt-2 flex items-center gap-3 text-sm text-[#F0C875]">
-              <span className="inline-block w-2 h-2 rounded-full bg-[#06C755]"></span>
-              <span>{footerContent.status}</span>
-            </div>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed">{footerContent.tagline}</p>
+            <p className="mt-4 flex items-center gap-2 text-sm text-accent-foreground">
+              <span aria-hidden="true" className="inline-block size-1.5 rounded-full bg-ring" />
+              {footerContent.status}
+            </p>
           </div>
 
-          {/* Sitemap */}
-          <div className="md:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-8">
+          {/* 導覽：每組一行 */}
+          <nav className="space-y-5">
             {footerNavigation.map((group) => (
               <div key={group.id}>
-                <h3 className="text-sm font-bold text-[#F0C875] tracking-wider mb-3.5">{group.label}</h3>
-                <ul className="space-y-2.5 text-base">
+                <h3 className={heading}>{group.label}</h3>
+                <ul className="mt-1 flex flex-wrap gap-x-5">
                   {group.items!.map((item) => (
                     <li key={item.id}>
-                      <Link href={item.href} className="hover:text-[#FFFDF0] transition-colors">
+                      <Link href={item.href} className={link}>
                         {item.label}
                       </Link>
                     </li>
@@ -49,71 +59,61 @@ export default function Footer() {
                 </ul>
               </div>
             ))}
-          </div>
+          </nav>
 
-          {/* Contact */}
-          <div className="md:col-span-4 space-y-4">
-            <h3 className="text-sm font-bold text-[#F0C875] tracking-wider">{footerContent.contactHeading}</h3>
-            <p className="text-base text-[#B49A76] leading-relaxed">{footerContent.contactIntro}</p>
-            <div className="space-y-2.5 text-base">
-              <a href={`mailto:${siteLinks.email}`} className="flex items-center gap-2 hover:text-[#FFFDF0] transition-colors">
-                <Mail className="w-4 h-4 shrink-0 text-[#F0C875]" />
-                <span>{siteLinks.email}</span>
-              </a>
-              <a href={siteLinks.line} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-[#FFFDF0] transition-colors">
-                <MessageCircle className="w-4 h-4 shrink-0 text-[#06C755]" />
-                <span>LINE {siteLinks.lineId}</span>
-              </a>
-              <a href={siteLinks.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-[#FFFDF0] transition-colors">
-                <MessageSquare className="w-4 h-4 shrink-0 text-[#F0C875]" />
-                <span>Facebook m.me/keila.healing</span>
-              </a>
-              <a href={siteLinks.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-[#FFFDF0] transition-colors">
-                <AtSign className="w-4 h-4 shrink-0 text-[#F0C875]" />
-                <span>IG keila.healing1491</span>
-              </a>
-              <a href={siteLinks.lineCommunity} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 hover:text-[#FFFDF0] transition-colors">
-                <Users className="w-4 h-4 shrink-0 mt-1 text-[#06C755]" />
-                <span>{footerContent.communityNote}</span>
-              </a>
-            </div>
+          {/* 聯繫 */}
+          <div>
+            <h3 className={heading}>{footerContent.contactHeading}</h3>
+            <p className="mt-2 text-sm leading-relaxed">{footerContent.contactIntro}</p>
+            <ul className="mt-2">
+              {contacts.map(({ href, label, Icon, external }) => (
+                <li key={href}>
+                  <a href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={link}>
+                    <Icon className="size-4 shrink-0 text-ring" />
+                    <span>{label}</span>
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a href={siteLinks.lineCommunity} target="_blank" rel="noopener noreferrer" className={`${link} items-start py-2`}>
+                  <Users className="mt-1 size-4 shrink-0 text-ring" />
+                  <span>{footerContent.communityNote}</span>
+                </a>
+              </li>
+            </ul>
             <a
               href={siteLinks.shop}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-[#F0C875]/60 px-4 py-2 text-base font-semibold text-[#F0C875] hover:bg-[#F0C875] hover:text-[#20140A] transition-colors"
+              className={`${link} mt-2 font-bold text-accent-foreground`}
               id="footer-shop-link"
             >
-              <ShoppingBag className="w-4 h-4" />
               <span>{footerContent.shopLabel}</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="size-4" />
             </a>
           </div>
 
         </div>
 
-        <Separator className="mb-10" />
+        {/* 免責聲明：一段小字 */}
+        <p className="mt-10 border-t border-border pt-6 text-sm leading-relaxed">
+          <span className="mr-2 font-bold text-accent-foreground">{footerContent.disclaimerHeading}</span>
+          {footerContent.disclaimer}
+        </p>
 
-        {/* Disclaimer */}
-        <div className="bg-[#170E07] rounded-2xl p-5 sm:p-6 border border-[#3A2409] mb-8 text-base text-[#B49A76] leading-relaxed">
-          <p className="font-semibold text-[#F0C875] mb-1.5">{footerContent.disclaimerHeading}</p>
-          <p>{footerContent.disclaimer}</p>
-        </div>
-
-        {/* Copyright & legal links */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#8A7458]">
-          <p>© 2026 豐盛之翼學苑. All Rights Reserved.</p>
-          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-base">
-            {legalLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="hover:text-[#FFFDF0] transition-colors">
-                  {link.label}
+        {/* 版權與法律連結 */}
+        <div className="mt-4 flex flex-col gap-x-6 gap-y-1 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 豐盛之翼學苑</p>
+          <ul className="flex flex-wrap gap-x-5">
+            {legalLinks.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} className={link}>
+                  {item.label}
                 </Link>
               </li>
             ))}
           </ul>
         </div>
-
       </div>
     </footer>
   );

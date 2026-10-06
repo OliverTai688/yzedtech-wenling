@@ -5,14 +5,14 @@ import { ShoppingBag, MessageCircle } from 'lucide-react';
 import WingsMark from './brand/WingsMark';
 import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
-import { siteLinks } from '../data';
+import { siteLinks, uiLabels } from '../data';
 import { useScrolled } from './motion/useScrolled';
 import { cn } from '@/lib/utils';
 
-// PRD-003 §4.3 v1.1（RES-001 方案 C）：Logo｜導覽 5 項｜LINE 諮詢｜商城。
+// PRD-003 §4.3 v1.1：Logo｜導覽（文案集的三個分組）｜私訊｜商城。
 // - 品牌區只顯示「豐盛之翼學苑」，Logo 同時是回首頁的連結。
-// - 「商城」在所有寬度固定可見；「LINE 諮詢」在 lg 以上顯示，手機由抽屜底部與
-//   浮動按鈕承擔。
+// - 「商城」在所有寬度固定可見；私訊按鈕在 lg 以上顯示，手機由抽屜底部與
+//   浮動按鈕承擔。按鈕文字來自 uiLabels（文案集原文）。
 // - 捲動後加陰影（RPT-001 §5.3）。
 // 導覽本體在 DesktopNav.tsx（lg 以上）與 MobileNav.tsx（lg 以下的抽屜）。
 export default function Header() {
@@ -23,7 +23,7 @@ export default function Header() {
       id="site-header"
       className={cn(
         'sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/70 transition-shadow duration-300',
-        scrolled ? 'shadow-[0_6px_24px_rgba(58,42,24,0.10)]' : 'shadow-none'
+        scrolled ? 'shadow-[0_6px_24px_color-mix(in_srgb,var(--color-card-foreground)_10%,transparent)]' : 'shadow-none'
       )}
     >
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-14">
@@ -45,8 +45,8 @@ export default function Header() {
               className="hidden lg:inline-flex shrink-0 items-center gap-1.5 min-h-11 px-4 rounded-full border border-border bg-popover text-sm font-bold text-secondary-foreground hover:border-ring transition-colors"
               id="header-line-btn"
             >
-              <MessageCircle className="w-4 h-4 text-line" />
-              <span>LINE 諮詢</span>
+              <MessageCircle className="w-4 h-4" />
+              <span>{uiLabels.lineShort}</span>
             </a>
             <a
               href={siteLinks.shop}
@@ -56,7 +56,7 @@ export default function Header() {
               id="header-shop-btn"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>商城</span>
+              <span>{uiLabels.shopShort}</span>
             </a>
             <div className="flex items-center lg:hidden">
               <MobileNav />

@@ -1,0 +1,254 @@
+/* Slide 02 的書。一般頁面模式：標題 → 說明 → 分頁列 → 目前對象的內容（痛點、按鈕、故事、專屬起點，全部依序顯示）。
+   箭頭、書角、頁數圓點與 st-dup（只有舞台才需要的重複內容）在一般頁面不顯示。 */
+.st-dock, .st-stand, .st-arrow, .st-curl, .st-pp__dots, .st-root .st-dup { display: none; }
+.st-bookslide .st-in { display: grid; }
+.st-bookslide .st-capzone, .st-bookslide .st-caps { display: contents; }
+.st-bookslide [data-cap='intro'] { order: 1; }
+.st-bookslide .st-subject { order: 2; display: block; place-items: normal; }
+.st-preface { margin: 14px 0 0; color: var(--st-soft); }
+.st-pp__r, .st-pp__stories { display: grid; gap: 18px; }
+.st-pp__a, .st-pp__story, .st-pp__c { display: grid; gap: 10px; }
+.st-pp__hd { display: flex; align-items: center; gap: 12px; }
+.st-pp__ico {
+  display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%;
+  border: 1.5px solid var(--st-gold-deep); background: var(--color-white); color: var(--st-gold-deep);
+}
+.st-pp__ico svg { width: 20px; height: 20px; }
+.st-pp__ttl { margin: 0; font: 700 22px/1.4 var(--font-serif); color: var(--st-ink); }
+.st-pp__ttl > span { display: inline-block; }
+.st-pp__pain { font: 600 17px/1.75 var(--font-serif); }
+.st-pp__lbl { font-size: 14px; font-weight: 700; letter-spacing: 0.1em; color: var(--st-gold-edge); }
+.st-pp__sub { margin: 0; font: 700 17px/1.5 var(--font-sans); color: var(--st-ink); }
+.st-pp__txt { font-size: 16px; line-height: 1.8; }
+.st-pp__row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) {
+  html.js:not(.st-off) .st-root {
+    --foil: linear-gradient(135deg, var(--st-gold-hi), var(--st-gold-deep) 45%, color-mix(in srgb, var(--st-gold) 60%, var(--st-gold-hi)) 60%, var(--st-gold-edge));
+    & .st-bookslide {
+      /* CSS 排的是書打開後的閱讀大小（--ph／--pw）；闔著時縮小立在地平線上（--ph0，timelines/book.ts 的 measureBook） */
+      --pin: 2;
+      --ph: min(calc(var(--st-sh) - 120px), 560px);
+      --pw: min(calc(var(--ph) * 0.72), calc((100vw - 260px) / 2), 420px);
+      --ph0: calc(var(--st-floor) - 60px);
+      --stand: 20px;
+      --paper: linear-gradient(90deg, var(--color-silver) 0, var(--color-silver-light) 5%, var(--color-white) 18%, var(--st-white) 100%);
+    }
+    & .st-bookslide .st-in { display: block; }
+    & .st-bookslide .st-capzone, & .st-bookslide .st-caps { display: grid; }
+    & .st-bookslide .st-capzone { pointer-events: none; }
+    & .st-bookslide .st-subject { display: grid; place-items: center; height: var(--st-sh); }
+    & .st-stand { display: block; position: absolute; left: 50%; width: 0; top: calc(var(--st-floor) - var(--stand) - var(--ph0)); height: var(--ph0); visibility: hidden; pointer-events: none; }
+    & .st-book { position: relative; width: calc(var(--pw) * 2); height: var(--ph); margin-top: 24px; }
+    & .st-book__shift, & .st-book__art, & .st-book__scene, & .st-book__inner { display: block; position: absolute; inset: 0; }
+    & .st-book__scene { perspective: 2200px; }
+    & .st-dock { display: block; position: absolute; left: 50%; width: var(--dw); height: 0; margin-left: calc(var(--dw) / -2); visibility: hidden; pointer-events: none; }
+    /* 金翼在書的背後當書的翅膀：闔著時對準封面，打開後放大到從對頁兩側露出 */
+    & .st-dock--closed { top: 50%; --dw: calc(var(--pw) * 2.3); }
+    & .st-dock--open { top: 50%; --dw: min(calc(var(--pw) * 3.4), calc(100vw - 24px)); }
+
+    & .st-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    & .st-cover {
+      position: absolute; inset: 0; display: grid; place-items: center; border-radius: 4px 14px 14px 4px;
+      background: linear-gradient(135deg, var(--color-white) 0%, var(--st-white) 46%, color-mix(in srgb, var(--color-silver) 45%, var(--color-background)) 100%);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-gold-deep) 55%, transparent), inset 10px 0 14px -8px color-mix(in srgb, var(--color-silver-foreground) 30%, transparent),
+        0 26px 50px color-mix(in srgb, var(--st-gold-edge) 22%, transparent);
+    }
+    & .st-cover::before {
+      content: ''; position: absolute; inset: 14px 14px 14px 22px; border-radius: 2px 8px 8px 2px; border: 2px solid transparent; background: var(--foil) border-box;
+      -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
+    }
+    & .st-cover::after {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; border-radius: 4px 0 0 4px;
+      background: linear-gradient(90deg, var(--color-silver-deep), var(--color-silver-light) 45%, var(--color-silver) 70%, var(--color-silver-edge));
+    }
+    & .st-cover__seal, & .st-pg__seal {
+      display: grid; place-items: center; width: 46%; max-width: 190px; aspect-ratio: 1; border-radius: 50%;
+      background: var(--color-white); border: 1.5px solid var(--st-gold-deep);
+      outline: 1px dotted color-mix(in srgb, var(--st-gold-deep) 70%, transparent); outline-offset: -8px;
+      box-shadow: 0 8px 14px color-mix(in srgb, var(--st-gold-edge) 18%, transparent);
+    }
+    & .st-cover__mark { width: 74%; }
+    & .st-pg {
+      position: absolute; inset: 0; display: grid; place-items: center; border-radius: 3px 12px 12px 3px;
+      background: linear-gradient(90deg, var(--color-silver) 0, var(--color-silver-light) 5%, var(--color-white) 18%, var(--st-white) 100%);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-silver-deep) 60%, transparent);
+    }
+    & .st-pg__seal { box-shadow: none; }
+    & .st-pg__mark { width: 74%; }
+
+    /* 書頁上的字（真實內容疊在書頁的圖上）。一次只露出目前對象的目前這一頁，其餘 visibility: hidden。 */
+    & .st-preface { position: absolute; z-index: 2; margin: 0; display: grid; align-content: center; font: 500 18px/1.95 var(--font-serif); color: var(--st-ink); text-align: left; }
+    & .st-panel { position: absolute; inset: 0; z-index: 2; display: block; margin: 0; text-align: left; }
+    & .st-panel[data-off] { display: none; }
+    & .st-pp__r, & .st-pp__stories { gap: 0; }
+    & .st-pp__a, & .st-pp__stories, & .st-pp__story, & .st-pp__c { display: flex; flex-direction: column; }
+    & .st-pp__ttl { font-size: 24px; text-wrap: balance; }
+    & .st-pp__txt { color: var(--st-ink); }
+    & .st-pp__row { margin-top: 4px; align-items: center; gap: 4px 16px; }
+    & .st-pp__dots { display: flex; position: absolute; z-index: 5; bottom: 16px; gap: 7px; transform: translateX(-50%); pointer-events: none; }
+    & .st-pp__dots i { width: 6px; height: 6px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--st-gold-deep); }
+    & .st-pp__dots i[data-on] { background: var(--st-gold-deep); }
+
+    /* 翻頁箭頭與書角：導覽用，銀色、安靜，不和頁面上唯一的金色按鈕搶 */
+    & .st-arrow { display: inline-flex; position: absolute; z-index: 6; }
+    & .st-arrow[data-off], & .st-curl[data-off] { display: none; }
+    /* 書闔著（縮小立在地平線上）或已離場時，書頁上的字與翻頁的控制不佔版面（useStage.ts 切換 data-open） */
+    & .st-book:not([data-open]) :is(.st-arrow, .st-curl, .st-panel, .st-preface) { display: none; }
+    & .st-arrow svg { width: 20px; height: 20px; }
+    & .st-arrow__ring { position: absolute; inset: -1px; border-radius: 50%; border: 2px solid var(--st-gold); opacity: 0; pointer-events: none; animation: st-ring 1.5s ease-out 0.9s 2; }
+    & .st-curl { display: block; position: absolute; z-index: 6; right: 0; bottom: 0; width: 48px; height: 48px; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 0 0 12px 0; }
+    & .st-curl::before, & .st-curl::after { content: ''; position: absolute; right: 0; bottom: 0; width: 34px; height: 34px; transform-origin: 100% 100%; transition: transform 0.25s ease; }
+    /* 被掀起的那一角露出下一頁（較深的珠光） */
+    & .st-curl::before { border-radius: 0 0 12px 0; background: linear-gradient(135deg, transparent 50%, color-mix(in srgb, var(--color-silver-deep) 55%, var(--color-white)) 50%, var(--color-silver-light) 78%, var(--st-white) 100%); }
+    /* 折回來的紙角 */
+    & .st-curl::after {
+      clip-path: polygon(0 0, 100% 0, 0 100%); border-radius: 0 0 0 0;
+      background: linear-gradient(135deg, var(--color-silver-light) 0, var(--color-white) 55%, var(--color-silver) 100%);
+      filter: drop-shadow(-2px -2px 3px color-mix(in srgb, var(--color-silver-foreground) 30%, transparent));
+    }
+    & .st-curl:is(:hover, :focus-visible)::before, & .st-curl:is(:hover, :focus-visible)::after { transform: scale(1.25); }
+    & .st-board { position: absolute; background: var(--foil); }
+    & .st-tabs { position: absolute; z-index: 3; display: flex; margin: 0; }
+    & .st-tab { border-radius: 0; box-shadow: inset 0 1px 0 var(--color-white); }
+    & .st-tab[aria-selected='true'] { box-shadow: inset 0 1px 0 var(--color-white), 0 3px 10px color-mix(in srgb, var(--st-gold) 30%, transparent); }
+  }
+
+  @media (min-width: 1024px) {
+    html.js:not(.st-off) .st-root {
+      & .st-book__inner { transform-style: preserve-3d; }
+      & .st-board { left: 50%; top: 0; width: 50%; height: 100%; border-radius: 4px 14px 14px 4px; transform: translateZ(-16px); box-shadow: 0 30px 60px color-mix(in srgb, var(--st-gold-edge) 22%, transparent); }
+      & .st-leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; transform-origin: 0 50%; transform-style: preserve-3d; }
+      & .st-leaf__in { position: absolute; inset: 0; transform-style: preserve-3d; transform: translateZ(calc(var(--i) * -2px)); }
+      & .st-face--back { transform: rotateY(180deg); }
+      & .st-face--back .st-pg { border-radius: 12px 3px 3px 12px; background: linear-gradient(270deg, var(--color-silver) 0, var(--color-silver-light) 5%, var(--color-white) 18%, var(--st-white) 100%); }
+      & .st-leaf + .st-leaf .st-face { inset: 5px 5px 5px 0; }
+      & .st-leaf + .st-leaf .st-face--back { inset: 5px 0 5px 5px; }
+      & .st-face--inside { padding: 5px 0 5px 5px; border-radius: 14px 4px 4px 14px; background: var(--foil); }
+      & .st-face--inside .st-pg { position: relative; inset: auto; height: 100%; }
+      /* 對頁：左頁是圖示、標題、痛點與按鈕；右頁一疊兩頁（故事 → 專屬起點），用箭頭翻 */
+      & .st-preface { left: 50%; right: 0; top: 0; bottom: 0; padding: 0 12% 0 13%; }
+      & .st-pp__l, & .st-pp__r { position: absolute; top: 0; width: 50%; height: 100%; }
+      & .st-pp__l { left: 0; }
+      & .st-pp__r { left: 50%; }
+      & .st-pp__a { height: 100%; gap: 18px; padding: 15% 13% 12% 11%; }
+      & .st-pp__ico { width: 46px; height: 46px; }
+      & .st-pp__pain { font-size: 19px; line-height: 1.9; }
+      & .st-pp__sub { font-size: 18px; }
+      & .st-preface { font-size: 20px; }
+      & [data-lyr] {
+        position: absolute; background: var(--paper); border-radius: 3px 12px 12px 3px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-silver-deep) 60%, transparent);
+        transform-origin: 0 50%; transform: perspective(1600px) rotateY(0deg); backface-visibility: hidden; opacity: 0; visibility: hidden;
+        transition: transform 0.54s cubic-bezier(0.45, 0.05, 0.3, 1), opacity 0.2s linear 0.3s, visibility 0s linear 0.54s;
+      }
+      & [data-lyr][data-s='cur'] { opacity: 1; visibility: visible; transition: transform 0.54s cubic-bezier(0.45, 0.05, 0.3, 1), opacity 0.16s linear, visibility 0s; }
+      & [data-lyr][data-s='past'] { transform: perspective(1600px) rotateY(-100deg); }
+      & [data-lyr] { inset: 5px 5px 5px 0; gap: 12px; padding: 14% 11% 12% 14%; }
+      & .st-pp__stories:not([data-lyr]) { display: contents; }
+      & [data-lyr] > p.st-dup { display: block; }
+      & .st-pp__stories, & .st-pp__story { z-index: 3; }
+      & .st-pp__story[data-lyr] + .st-pp__story { z-index: 2; }
+      & .st-pp__c { z-index: 1; }
+      & .st-pp__story:not([data-lyr]) { gap: 8px; }
+      & .st-pp__story:not([data-lyr]) + .st-pp__story { margin-top: 24px; }
+      & .st-pp__dots { left: 75%; }
+      & .st-arrow { top: 80%; margin-top: -22px; }
+      & .st-arrow--prev { left: -22px; }
+      & .st-arrow--next { right: -22px; }
+      & .st-curl { right: 5px; bottom: 5px; }
+      & .st-tabs { left: calc(100% - 4px); top: 8%; flex-direction: column; gap: 8px; }
+      & .st-tab { width: 72px; height: 54px; padding-left: 6px; border-radius: 0 12px 12px 0; border-left: 0; }
+    }
+  }
+  /* 很矮的手機畫面：書頁較小，痛點那一頁收緊一點，按鈕才不會壓到頁數圓點 */
+  @media (max-width: 1023.98px) and (max-height: 680px) {
+    html.js:not(.st-off) .st-root {
+      & .st-bookslide [data-lyr] { gap: 10px; padding-top: 26px; padding-bottom: 34px; }
+      & .st-bookslide .st-pp__pain { font-size: 16px; line-height: 1.7; }
+      & .st-bookslide .st-pp__dots { bottom: 12px; }
+    }
+  }
+  @media (min-width: 1024px) and (max-height: 760px) {
+    html.js:not(.st-off) .st-root {
+      & .st-pp__ico { width: 40px; height: 40px; }
+      & .st-pp__pain { font-size: 17px; line-height: 1.75; }
+      & .st-pp__sub { font-size: 17px; }
+      & .st-preface { font-size: 18px; }
+      & .st-pp__a { gap: 12px; padding-top: 12%; padding-bottom: 8%; }
+      & [data-lyr] { padding-top: 12%; padding-bottom: 9%; }
+    }
+  }
+  @media (max-width: 1023.98px) {
+    html.js:not(.st-off) .st-root {
+      & .st-bookslide {
+        --pin: 1.5; --avail: calc(var(--st-sh) - var(--st-bar));
+        --ph: min(calc(var(--avail) - 104px), 410px); --pw: min(calc(100vw - 76px), calc(var(--ph) * 0.8));
+        --ph0: calc(var(--st-floor) - 92px); --stand: 52px;
+      }
+      & .st-bookslide .st-subject { height: var(--avail); }
+      & .st-book { width: var(--pw); margin: 26px 0 44px; }
+      /* 單頁：一個對象四頁疊在一起，最上面是第一頁 */
+      & .st-preface { inset: 0; padding: 0 30px 6% 38px; font-size: 17px; line-height: 1.95; }
+      /* 書頂已經有小羅盤，序的那一頁不再放書徽 */
+      & .st-pg__seal { display: none; }
+      & .st-pp__l, & .st-pp__r, & .st-pp__stories { display: contents; }
+      & [data-lyr] {
+        position: absolute; background: var(--paper); border-radius: 3px 12px 12px 3px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-silver-deep) 60%, transparent);
+        transform-origin: 0 50%; transform: perspective(1600px) rotateY(0deg); backface-visibility: hidden; opacity: 0; visibility: hidden;
+        transition: transform 0.54s cubic-bezier(0.45, 0.05, 0.3, 1), opacity 0.2s linear 0.3s, visibility 0s linear 0.54s;
+      }
+      & [data-lyr][data-s='cur'] { opacity: 1; visibility: visible; transition: transform 0.54s cubic-bezier(0.45, 0.05, 0.3, 1), opacity 0.16s linear, visibility 0s; }
+      & [data-lyr][data-s='past'] { transform: perspective(1600px) rotateY(-100deg); }
+      & [data-lyr] { inset: 0; gap: 12px; padding: 30px 32px 40px 34px; }
+      & .st-pp__a { z-index: 4; }
+      & .st-pp__story { z-index: 3; }
+      & .st-pp__story + .st-pp__story { z-index: 2; }
+      & .st-pp__c { z-index: 1; }
+      & .st-pp__ttl { font-size: 21px; }
+      & p.st-dup { display: block; }
+      & a.st-dup { display: inline-flex; }
+      & .st-pp__dots { left: 50%; }
+      & .st-arrow { top: 50%; margin-top: -22px; }
+      & .st-arrow--prev { left: -27px; }
+      & .st-arrow--next { right: -27px; }
+      & .st-dock--closed { --dw: 150vw; }
+      & .st-dock--open { --dw: 165vw; }
+      & .st-board { inset: -4px -4px -4px 0; border-radius: 4px 16px 16px 4px; box-shadow: 0 18px 40px color-mix(in srgb, var(--st-gold-edge) 20%, transparent); }
+      & .st-leaf { position: absolute; inset: 0; z-index: calc(10 - var(--i)); }
+      & .st-leaf__in { position: absolute; inset: 0; perspective: 1400px; }
+      & .st-face { transform-origin: 0 50%; }
+      & .st-face--front { z-index: 2; }
+      & .st-face--back { z-index: 1; }
+      & .st-face--right { display: none; }
+      & .st-tabs { left: 50%; top: calc(100% - 2px); width: min(312px, 100vw - 48px); margin-left: calc(min(312px, 100vw - 48px) / -2); gap: 6px; }
+      & .st-tab { flex: 1; border-radius: 0 0 12px 12px; border-top: 0; }
+    }
+  }
+}
+
+/* 書頂的小羅盤：書打開後，金翼羅盤的羅盤被書擋住，所以把同一個羅盤縮小放在書頂；
+   指針轉向目前對象的方位（0 上、90 右、180 下、270 左），該方位點亮起。只用既有的 WingsCompass，沒有文字。
+   --crest-zoom：金翼羅盤的寬度是羅盤外徑的幾倍（emblemData.ts：寬 590、羅盤半徑 44，四周各留一點邊）。 */
+.st-crest { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) {
+  html.js:not(.st-off) .st-root {
+    & .st-crest {
+      --cs: 72px; --crest-zoom: 6; --ew: calc(var(--cs) * var(--crest-zoom));
+      display: block; position: absolute; z-index: 4; left: 50%; top: 0; width: var(--cs); height: var(--cs); margin: calc(var(--cs) * -0.4) 0 0 calc(var(--cs) / -2);
+      border-radius: 50%; overflow: hidden; background: var(--color-white); pointer-events: none;
+      box-shadow: 0 0 0 1.5px var(--st-gold-deep), 0 0 0 5px var(--color-white), 0 0 0 6px color-mix(in srgb, var(--st-gold-deep) 45%, transparent), 0 10px 20px color-mix(in srgb, var(--st-gold-edge) 26%, transparent);
+    }
+    & .st-crest .emblem { position: absolute; left: calc(50% - var(--ew) * var(--em-cx)); top: calc(50% - var(--ew) / var(--em-ar) * var(--em-cy)); width: var(--ew); max-width: none; margin: 0; }
+    & .st-crest :is(.emblem__glow, .emblem__rays, #wing-l, #wing-r) { display: none; }
+  }
+  @media (max-width: 1023.98px) {
+    html.js:not(.st-off) .st-root {
+      & .st-crest { --cs: 56px; margin-top: calc(var(--cs) * -0.46); }
+    }
+  }
+}
+@keyframes st-ring {
+  from { opacity: 0.9; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.7); }
+}

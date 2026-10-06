@@ -1,0 +1,35 @@
+/* 補充內容的面板：手機是底部面板（停在底部固定列上方），桌機是右側面板。不蓋住頁首與底部固定列。 */
+.st-sheet {
+  position: fixed; z-index: 35; left: 0; right: 0; bottom: var(--st-bar);
+  max-height: calc(100svh - var(--st-hdr) - var(--st-bar) - 28px); overflow-y: auto; overscroll-behavior: contain;
+  display: grid; gap: 12px; padding: 30px 24px 28px;
+  border-radius: 26px 26px 0 0; color: var(--st-ink); font: 400 16px/1.7 var(--font-sans);
+  background: linear-gradient(180deg, var(--color-white), var(--st-white));
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--st-gold) 35%, transparent), 0 -22px 60px color-mix(in srgb, var(--st-gold-edge) 20%, transparent),
+    0 var(--st-bar) 0 var(--st-white);
+}
+.st-sheet__grip {
+  position: absolute; left: 50%; top: 10px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px;
+  background: linear-gradient(180deg, var(--color-silver), var(--color-silver-deep));
+}
+.st-sheet__title { margin: 0; padding-right: 52px; font: 700 20px/1.45 var(--font-serif); color: var(--st-ink); }
+.st-sheet__close { position: absolute; right: 12px; top: 14px; }
+@media (min-width: 1024px) {
+  .st-sheet {
+    z-index: 45; left: auto; right: 24px; bottom: 24px; width: 420px; max-height: calc(100svh - var(--st-hdr) - 48px);
+    border-radius: 26px;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-gold) 30%, transparent), 0 24px 70px color-mix(in srgb, var(--st-gold-edge) 22%, transparent);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .st-sheet[data-state='open'] { animation: st-sheet-in 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
+  .st-sheet[data-state='closed'] { animation: st-sheet-in 0.26s cubic-bezier(0.4, 0, 1, 1) reverse; }
+}
+@keyframes st-sheet-in {
+  from { transform: translateY(104%); }
+}
+@media (min-width: 1024px) {
+  @keyframes st-sheet-in {
+    from { transform: translateX(112%); }
+  }
+}

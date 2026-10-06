@@ -1,0 +1,89 @@
+/* Slide 05 媒體：三本立著的書（CSS 3D；書封是書名，白金配色，與 slide 02 的書同一套材質）。
+   每本書是一個盒子：封面、封底、書背（左）、書口（右）。--ry 是書轉向的角度，--rx 是躺下的角度；
+   只改這兩個自訂屬性與不透明度（RES-005 §1.2）。 */
+.st-media__stage { display: grid; justify-items: center; gap: 40px; }
+.st-media__cap { order: 2; max-width: 22em; text-align: center; text-wrap: balance; }
+.st-shelf { display: flex; justify-content: center; align-items: flex-start; gap: clamp(14px, 4.6vw, 76px); margin: 0; padding: 0; list-style: none; }
+.st-vol { --bw: min(26vw, 118px); --bh: calc(var(--bw) * 1.52); --bd: calc(var(--bw) * 0.2); display: grid; justify-items: center; gap: 22px; }
+.st-vol__box { position: relative; display: block; width: var(--bw); height: var(--bh); perspective: 1100px; }
+/* 地上的影子 */
+.st-vol__box::after {
+  content: ''; position: absolute; left: -12%; right: -12%; bottom: -9px; height: 18px; border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--st-gold-edge) 26%, transparent), transparent);
+}
+.st-vol__in { position: absolute; inset: 0; z-index: 1; display: block; transform-style: preserve-3d; transform-origin: 50% 100%; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 16deg)); }
+.st-vol__face { position: absolute; display: block; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.st-vol__front {
+  inset: 0; display: grid; grid-template-rows: 1fr auto; justify-items: center; align-items: center; gap: 8px; padding: 14% 10% 10% 14%;
+  border-radius: 3px 9px 9px 3px; transform: translateZ(calc(var(--bd) / 2));
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--st-white) 46%, color-mix(in srgb, var(--color-silver) 45%, var(--color-background)) 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-gold-deep) 55%, transparent), inset 9px 0 12px -8px color-mix(in srgb, var(--color-silver-foreground) 30%, transparent);
+}
+/* 燙金的框線（同 slide 02 的封面） */
+.st-vol__front::before {
+  content: ''; position: absolute; inset: 6% 6% 6% 9%; border-radius: 2px 6px 6px 2px; border: 1.5px solid transparent; background: var(--st-foil) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
+}
+.st-vol__t {
+  writing-mode: vertical-rl; max-height: 100%; font: 700 clamp(14px, 3.7vw, 17px)/1.5 var(--font-serif); letter-spacing: 0.14em;
+  color: var(--st-ink); text-wrap: balance;
+}
+.st-vol__seal {
+  display: grid; place-items: center; width: 34%; aspect-ratio: 1; border-radius: 50%; background: var(--color-white);
+  border: 1px solid var(--st-gold-deep);
+}
+.st-vol__mark { width: 74%; height: auto; }
+.st-vol__back { inset: 0; border-radius: 9px 3px 3px 9px; transform: rotateY(180deg) translateZ(calc(var(--bd) / 2)); background: linear-gradient(135deg, var(--color-silver-light), var(--color-silver)); }
+.st-vol__spine, .st-vol__pages { top: 0; bottom: 0; left: calc(50% - var(--bd) / 2); width: var(--bd); }
+.st-vol__spine {
+  display: grid; place-items: center; transform: rotateY(-90deg) translateZ(calc(var(--bw) / 2));
+  background: linear-gradient(90deg, var(--color-silver-deep), var(--color-silver-light) 40%, var(--color-white) 60%, var(--color-silver) 100%);
+  box-shadow: inset 0 10px 0 -8px var(--st-gold-deep), inset 0 -10px 0 -8px var(--st-gold-deep), inset 0 0 0 1px color-mix(in srgb, var(--st-gold-deep) 45%, transparent);
+}
+.st-vol__spine > span { writing-mode: vertical-rl; font: 700 calc(var(--bd) * 0.46) / 1 var(--font-serif); letter-spacing: 0.12em; color: var(--st-gold-edge); white-space: nowrap; }
+.st-vol__pages {
+  top: 3px; bottom: 3px; transform: rotateY(90deg) translateZ(calc(var(--bw) / 2 - 3px));
+  background: repeating-linear-gradient(90deg, var(--color-white) 0 2px, var(--color-silver) 2px 3px);
+}
+/* 該書的整行標題：手機只給輔助科技（畫面上是書封的書名），桌機顯示在書的下方 */
+.st-vol__cap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* 書的下方：Podcast 精選三集（一列一個連結）與「媒體專訪」按鈕 */
+.st-media__more { justify-items: stretch; max-width: 640px; margin-top: 48px; text-align: left; }
+.st-eps { margin: 0; padding: 0; list-style: none; border-top: 1px solid color-mix(in srgb, var(--st-gold) 30%, transparent); }
+.st-eps > li { border-bottom: 1px solid color-mix(in srgb, var(--st-gold) 30%, transparent); }
+.st-ep { display: flex; align-items: flex-start; gap: 12px; min-height: 56px; padding: 14px 0; }
+.st-ep__ic {
+  display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--color-silver-edge); color: var(--st-gold-edge);
+  background: radial-gradient(circle at 34% 28%, var(--color-white) 0, var(--color-silver-light) 30%, var(--color-silver) 62%, var(--color-silver-deep) 100%);
+}
+.st-ep__ic svg { width: 16px; height: 16px; }
+.st-ep__tx { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.st-ep__show { font: 700 14px/1.5 var(--font-sans); color: var(--st-gold-edge); }
+.st-ep__t { font: 500 16px/1.55 var(--font-sans); color: var(--st-ink); }
+.st-ep:hover .st-ep__t { text-decoration: underline; }
+.st-ep__go { flex: none; width: 16px; height: 16px; margin-top: 4px; color: var(--st-soft); }
+
+@media (min-width: 1024px) {
+  .st-media__stage { gap: 44px; }
+  .st-vol { --bw: min(15vw, 190px); width: calc(var(--bw) + 70px); }
+  .st-vol__t { font-size: 22px; }
+  .st-vol__cap { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; text-align: center; text-wrap: balance; font: 500 14px/1.6 var(--font-sans); color: var(--st-soft); }
+}
+
+/* 手機：進入畫面時三本書依序立起（由平躺到直立，略為過頭再回來） */
+@media (max-width: 1023.98px) {
+  .st-root[data-live] .st-vol__in { transition: transform 0.75s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.25s linear; }
+  .st-root[data-live] .st-shelf > li:nth-child(2) .st-vol__in { transition-delay: 0.16s; }
+  .st-root[data-live] .st-shelf > li:nth-child(3) .st-vol__in { transition-delay: 0.32s; }
+  .st-root[data-live] [data-rvg]:not([data-in]) .st-vol__in { --rx: 86deg; opacity: 0; }
+}
+/* 桌機舞台：釘住一個舞台高，三本書先以書背示人，再依序轉正（timelines/rest.ts） */
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) and (min-width: 1024px) {
+  html.js:not(.st-off) .st-root {
+    & .st-media { padding-top: 0; }
+    & .st-media__pin { height: calc(var(--st-h) * 2); }
+    & .st-media__stage { position: sticky; top: var(--st-hdr); height: var(--st-sh); align-content: center; }
+  }
+}

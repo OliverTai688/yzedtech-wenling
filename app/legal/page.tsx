@@ -1,10 +1,9 @@
 import LegalSection from '../../src/components/LegalSection';
 import CtaBand from '../../src/components/CtaBand';
+import { pageMeta } from '../../src/data';
 
-export const metadata = {
-  title: '免責聲明、隱私權政策與服務條款｜豐盛之翼學苑',
-  description: '豐盛之翼學苑的網站服務與課程免責聲明、隱私權政策與服務條款。',
-};
+// <title> 與 description 是文案集原文，集中在 src/data.ts 的 pageMeta。
+export const metadata = pageMeta.legal;
 
 export default function Page() {
   return (

@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑</title>
+<!-- 提案用的頁面外殼（pages-v2）。複製這個檔案，把內容放進 <main>；樣式只用 _kit.css 的 class 與 token。
+     所有文字逐字取自 src/data.ts（文案集原文），不新增任何字。 -->
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../_kit.css">
+<style>
+/* 這一頁才有的排版，只用 token */
+  .page-toc .chip { font-size: 16px; }
+  @media (min-width: 768px) { .page-toc { flex-wrap: wrap; justify-content: center; overflow: visible; } }
+  .book > summary { align-items: center; padding-block: 16px; }
+  .book__cover {
+    display: flex; flex: none; align-items: center; justify-content: center; width: 72px; height: 108px; padding: 8px 6px;
+    border: 1px solid var(--color-border); border-radius: 3px 8px 8px 3px;
+    background: linear-gradient(160deg, var(--color-popover), var(--color-accent));
+    box-shadow: inset 4px 0 0 color-mix(in srgb, var(--color-ring) 30%, transparent), 0 4px 12px color-mix(in srgb, var(--color-card-foreground) 8%, transparent);
+    writing-mode: vertical-rl; text-wrap: balance; font: 700 14px/1.5 var(--font-serif); letter-spacing: 0.08em; color: var(--color-secondary-foreground);
+  }
+  .book__main { display: grid; flex: 1; gap: 4px; min-width: 0; }
+  .book__title { font: 700 18px/1.5 var(--font-serif); }
+  .book__note { font-size: 14px; font-weight: 600; color: var(--color-accent-foreground); }
+  .book .btn-text { margin-top: 4px; }
+  .ep { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; gap: 12px; padding-block: 12px; text-align: left; }
+  .ep > svg { margin-top: 5px; }
+  .ep__main { display: grid; gap: 2px; min-width: 0; }
+  .ep__show { font-size: 14px; }
+  .ep__title { font-weight: 500; line-height: 1.5; color: var(--color-card-foreground); }
+  .ep--pending { color: var(--color-muted-foreground); font-weight: 400; }
+  .ep--pending .ep__note { flex: none; font-size: 14px; }
+  .show__lead { margin-bottom: 8px; color: var(--color-muted-foreground); }
+  .season > summary { min-height: 48px; }
+  .bullets { display: grid; gap: 8px; color: var(--color-muted-foreground); }
+  .bullets li { display: flex; gap: 10px; }
+  .bullets li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 0.7em; border-radius: 999px; background: var(--color-ring); }
+</style>
+</head>
+<body>
+
+<!-- 圖形庫：金翼小標誌（public/brand/emblem-mark.svg）與圖示。用 <svg><use href="#…"/></svg> 取用。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wings-mark" viewBox="0 0 64 46" fill="none"><g stroke="#8A5415" stroke-width=".8" stroke-linejoin="round"><defs><linearGradient id="emk-gold-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EDBB55"/><stop offset="1" stop-color="#B5762A"/></linearGradient><linearGradient id="emk-gold-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3CB6C"/><stop offset="1" stop-color="#D89A3E"/></linearGradient><linearGradient id="emk-gold-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF0BD"/><stop offset="1" stop-color="#F0C96E"/></linearGradient></defs><g id="emk-wing-l"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-wing-r" transform="translate(64 0) scale(-1 1)"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-compass"><circle cx="32" cy="34.54" r="6.16" fill="#FFFDF0"/><circle cx="32" cy="34.54" r="5.14" stroke="url(#emk-gold-2)" stroke-width="1.23"/><path fill="url(#emk-gold-1)" stroke-width=".48" d="M32 29.73L32.87 33.66L35.45 34.54L32.87 35.41L32 39.34L31.13 35.41L28.55 34.54L31.13 33.66Z"/><circle cx="32" cy="34.54" r=".68" fill="#FFFDF0" stroke="none"/></g></g></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-message-square" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+</svg>
+
+<header class="site-header">
+  <div class="site-header__in">
+    <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+    <div class="site-header__side">
+      <ul class="site-nav">
+        <li>
+          <button type="button" class="site-nav__group">關於豐盛之翼學苑<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a><a href="/contact">官方聯繫與諮詢管道</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">療癒與培訓<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/services">服務項目</a><a href="/training">培訓課程</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">見證與實用內容<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a></div>
+        </li>
+      </ul>
+      <a class="btn-quiet" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊諮詢</a>
+      <a class="gold-btn" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>商城</a>
+      <button type="button" class="menu-btn" aria-label="開啟選單"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 媒體專訪：第一個畫面 → 出版品（一次開一本）→ 精選單集 → 節目（一次看一個）→ 合作機構 → 下一站 -->
+  <section class="page-hero">
+    <div class="page-halo" aria-hidden="true"></div>
+    <div class="wrap--narrow page-hero__in">
+      <div class="page-hero__visual" aria-hidden="true"><svg viewBox="0 0 64 46"><use href="#wings-mark"/></svg></div>
+      <p class="eyebrow eyebrow--center">媒體專訪與出版紀錄</p>
+      <h1>幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享</h1>
+      <p class="page-hero__lead">以下為幸運教主文齡 Keila公開可查證的出版與媒體受訪紀錄，用最落地的經驗，陪你走過感情與人生的每個卡關。</p>
+      <div class="page-hero__slot"><nav class="page-toc" aria-label="媒體專訪與出版紀錄"><a class="chip" href="#media-books">出版品</a><a class="chip" href="#media-podcasts">Podcast 精選訪談</a><a class="chip" href="#media-shows">Podcast / 訪談</a><a class="chip" href="#media-partners">官方授權認證資歷與合作機構</a></nav></div>
+    </div>
+  </section>
+
+  <section class="page-section" id="media-books" aria-labelledby="media-books-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="media-books-title">出版品</h2></header>
+      <div class="disclosure-group">
+        <details class="disclosure book" name="media-book" open>
+          <summary>
+            <span class="book__cover" data-placeholder="book-cover" aria-hidden="true">七週遇見對的人</span>
+            <span class="book__main"><span class="book__title">暢銷書《七週遇見對的人》改版唯一推薦序作者</span></span>
+            <svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>
+          </summary>
+          <div class="disclosure__body"><p>受邀為經典暢銷書撰寫推薦序，幸運教主文齡 Keila帶領本書讀書會超過10年、幫助破百名學員的深厚實務經驗，已成功陪伴無數學員走過低潮，順利脫單、結婚生子，活出自己最美好的樣子。</p><a class="btn-text" href="https://www.books.com.tw/products/0010917426" target="_blank" rel="noopener noreferrer">博客來購書連結<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></div>
+        </details>
+        <details class="disclosure book" name="media-book">
+          <summary>
+            <span class="book__cover" data-placeholder="book-cover" aria-hidden="true">練愛大確幸</span>
+            <span class="book__main"><span class="book__title">個人著作：《練愛大確幸》實作手帳</span></span>
+            <svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>
+          </summary>
+          <div class="disclosure__body"><p>將多年協助個案走過失戀與感情卡關的實務心法，淬鍊成這本專屬的幸福手帳。不只分享改變人生的實作方法，更錄製52則療癒音檔，成為你每天都能輕鬆參與的小練習！</p><a class="btn-text" href="https://booking.wenling.tw/products/love365" target="_blank" rel="noopener noreferrer">購買連結<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></div>
+        </details>
+        <details class="disclosure book" name="media-book">
+          <summary>
+            <span class="book__cover" data-placeholder="book-cover" aria-hidden="true">好女人的情場攻略</span>
+            <span class="book__main"><span class="book__title">《好女人的情場攻略》— 節目合作／內容參與</span><span class="book__note">曾創下 2022 年度收聽冠軍、2024 前十名！</span></span>
+            <svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>
+          </summary>
+          <div class="disclosure__body"><p>多次受邀參與節目錄製，並為同名暢銷書的戀愛專家群，分享感情經營與自我價值提升。用最白話的方式，解開你的愛情盲點。</p><a class="btn-text" href="#media-podcasts">下方收聽 Podcast 精選單集<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section page-section--tint" id="media-podcasts" aria-labelledby="media-podcasts-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="media-podcasts-title">Podcast 精選訪談</h2></header>
+      <ul class="rows">
+        <li><a class="btn-text ep" href="https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__show">美麗佳人 Podcast</span><span class="ep__title">S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+        <li><a class="btn-text ep" href="https://open.firstory.me/story/cl4vg6oez001d01t99rpi2bwd" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__show">好女人的情場攻略 Podcast・2022年收聽冠軍單集</span><span class="ep__title">Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+        <li><a class="btn-text ep" href="https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__show">小紀老師的幸福學 Podcast</span><span class="ep__title">Ep.163 l 如何成為金錢磁鐵</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+        <li><a class="btn-text ep" href="https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__show">粉紅地獄辛辣麵 Podcast</span><span class="ep__title">S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+        <li><a class="btn-text ep" href="https://youtu.be/gyfw264Gxwo?si=N3lgDii1Bs2nLpy5" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__show">談芯時刻</span><span class="ep__title">Ep.282【談芯時刻】生活卡關了嗎？一起來做個脈輪健檢吧！ _feat.幸運療癒師 文齡 Keila</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+        <li><a class="btn-text ep" href="https://www.youtube.com/watch?v=XIbfVMbPqLA" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__show">希塔好好玩 YouTube 直播訪談</span><span class="ep__title">如何顯化靈魂伴侶及成為專職療癒師💕</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="page-section" id="media-shows" aria-labelledby="media-shows-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="media-shows-title">Podcast / 訪談</h2></header>
+      <div class="chip-tabs" data-tabs>
+        <div class="chip-tabs__list" role="tablist" aria-label="Podcast / 訪談">
+          <button type="button" role="tab" class="chip" id="shows-tab-marie-claire" aria-controls="shows-marie-claire" aria-selected="true">美麗佳人 Podcast</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-good-woman" aria-controls="shows-good-woman" aria-selected="false">好女人的情場攻略 Podcast</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-charming-talk" aria-controls="shows-charming-talk" aria-selected="false">迷人說 Podcast</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-happiness-study" aria-controls="shows-happiness-study" aria-selected="false">小紀老師的幸福學 Podcast</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-pink-hell" aria-controls="shows-pink-hell" aria-selected="false">粉紅地獄辛辣麵 Podcast</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-heart-talk" aria-controls="shows-heart-talk" aria-selected="false">談芯時刻</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-theta-fun" aria-controls="shows-theta-fun" aria-selected="false">希塔好好玩 YouTube 直播訪談</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-love-chat" aria-controls="shows-love-chat" aria-selected="false">戀愛潛聊室 YouTube 直播訪談</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-island-day" aria-controls="shows-island-day" aria-selected="false">小島好日 YouTube 直播訪談</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-co-cooking" aria-controls="shows-co-cooking" aria-selected="false">共煮生活實驗室 YouTube 直播訪談</button>
+          <button type="button" role="tab" class="chip" id="shows-tab-zen-life" aria-controls="shows-zen-life" aria-selected="false">禪生活的108問 Facebook 直播</button>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-marie-claire" aria-labelledby="shows-tab-marie-claire" data-state="active">
+          <p class="chip-tabs__label">美麗佳人 Podcast</p>
+          <p class="show__lead">多集專訪，分享希塔療癒與失戀急診等主題</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/65751f59-2024-41a0-b890-335b2f0780d3" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">S2EP29＃情慾瑪麗｜失戀急診:希塔療癒Ft.療癒師文齡 (上)</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/78189391-fc1e-409f-807f-b01ca6cd9f2d" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/9a4466ab-0dc5-43b6-accb-d7893cd35906" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-good-woman" aria-labelledby="shows-tab-good-woman" data-state="inactive">
+          <p class="chip-tabs__label">好女人的情場攻略 Podcast</p>
+          <p class="show__lead">長期合作來賓，2022 年收聽數冠軍、2024 年前十名</p>
+          <div class="disclosure-group">
+          <details class="disclosure season" name="season-good-woman" open><summary><span>2020 S1</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/c0f3494c-b283-4c9a-b44e-14955deb0a6f" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">ep95設好日期脫單術</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/408ef22a-dce0-43ce-8fec-4077be82d06c" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">ep96清理過去，迎接美好愛情</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/f385a9c6-d6ee-4d3a-ba31-b14e956c753f" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">ep97愛情也需要設定目標</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/cc451cc7-020e-42f2-ace0-e116233315d6" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">ep98開啟百人約會計劃</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/f7a796df-c7b0-4505-b23a-246af8aa28ad" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">ep99七週遇見對的人讀書會</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul></details>
+          <details class="disclosure season" name="season-good-woman"><summary><span>2022 S3</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/cl4l13gnv017h01ygfl3r13t9" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.099｜失戀急救箱：加速放下前任的五個療癒方法！</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/cl4nviaac007d01zteuj47jnl" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.100｜醒醒吧！你總是在愛情裡鬼打牆？這集請務必服用！</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/cl4pg3yez001001wa9q14ezlp" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.101｜你知道嗎？有形無形的「約定」正阻礙你遇到理想型？</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/cl4qqoi9800ni01zy6o8lhtc7" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.102｜你的擇偶條件是什麼? 你是嚮往愛情，還是愛上對方?</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/cl4vg6oez001d01t99rpi2bwd" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__show">2022年收聽冠軍單集</span><span class="ep__title">Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul></details>
+          <details class="disclosure season" name="season-good-woman"><summary><span>2024 S5</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/clr4bn1gi030i01tzcvvsboco" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.005｜【鏡子練習】用肯定句創造理想人生</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/clr4bnw3103kw01wv9xdkcala" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.006｜七週遇見對的人 【理想伴侶訂單】秘技來了</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/clr759oav00x301w1dlypg1w1" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.007｜【靈魂伴侶】真的存在嗎？什麼是【雙生火焰】?</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://open.firstory.me/story/clr75al6200zp01x3evigd7h9" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.008｜【分手失戀】挽回感情的復合攻略是?</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul></details>
+          </div>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-charming-talk" aria-labelledby="shows-tab-charming-talk" data-state="inactive">
+          <p class="chip-tabs__label">迷人說 Podcast</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-happiness-study" aria-labelledby="shows-tab-happiness-study" data-state="inactive">
+          <p class="chip-tabs__label">小紀老師的幸福學 Podcast</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000591850026" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.161 l 打造幸運體質</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000591959880" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.162 l 如何創造貴人</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.163 l 如何成為金錢磁鐵</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000592527540" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.164 l 如何吸引好桃花</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000592780746" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.165 l 心想事成許願法</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-pink-hell" aria-labelledby="shows-tab-pink-hell" data-state="inactive">
+          <p class="chip-tabs__label">粉紅地獄辛辣麵 Podcast</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-heart-talk" aria-labelledby="shows-tab-heart-talk" data-state="inactive">
+          <p class="chip-tabs__label">談芯時刻</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://web.archive.org/web/20250518033113/https://chuchu.firstory.io/episodes/clyimzld608pu01zsar0sedw3" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.246 Stop！停止被潛意識綁架，希塔療癒破除你的限制信念_feat.幸運療癒師文齡 Keila</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://youtu.be/gyfw264Gxwo?si=N3lgDii1Bs2nLpy5" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">Ep.282【談芯時刻】生活卡關了嗎？一起來做個脈輪健檢吧！ _feat.幸運療癒師 文齡 Keila</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-theta-fun" aria-labelledby="shows-tab-theta-fun" data-state="inactive">
+          <p class="chip-tabs__label">希塔好好玩 YouTube 直播訪談</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://www.youtube.com/watch?v=XIbfVMbPqLA" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">如何顯化靈魂伴侶及成為專職療癒師💕</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-love-chat" aria-labelledby="shows-tab-love-chat" data-state="inactive">
+          <p class="chip-tabs__label">戀愛潛聊室 YouTube 直播訪談</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            <li><a class="btn-text ep" href="https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-island-day" aria-labelledby="shows-tab-island-day" data-state="inactive">
+          <p class="chip-tabs__label">小島好日 YouTube 直播訪談</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://www.youtube.com/watch?v=wwv1UPc1EyA" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">單身的你，如何尋找對的另一半</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-co-cooking" aria-labelledby="shows-tab-co-cooking" data-state="inactive">
+          <p class="chip-tabs__label">共煮生活實驗室 YouTube 直播訪談</p>
+          <ul class="rows">
+            <li><div class="ep ep--pending"><span class="ep__main"><span class="ep__title">如何成功招桃花</span></span><span class="ep__note">連結待更新</span></div></li>
+          </ul>
+        </div>
+        <div class="chip-tabs__panel" role="tabpanel" id="shows-zen-life" aria-labelledby="shows-tab-zen-life" data-state="inactive">
+          <p class="chip-tabs__label">禪生活的108問 Facebook 直播</p>
+          <ul class="rows">
+            <li><a class="btn-text ep" href="https://www.facebook.com/ZenLifeWithYou/videos/797426094675119" target="_blank" rel="noopener noreferrer"><span class="ep__main"><span class="ep__title">教你如何變幸運</span></span><svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section page-section--tint" id="media-partners" aria-labelledby="media-partners-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="media-partners-title">官方授權認證資歷與合作機構</h2></header>
+      <ul class="bullets">
+        <li><span>暢銷著作合作《七週遇見對的人》《好女人的情場攻略》</span></li>
+        <li><span>愛山林集團、One&amp;Co商務中心、大誠保險經紀人特邀講師</span></li>
+        <li><span>美國 THINK 官方希塔療癒認證導師</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <nav class="journey-next">
+    <div class="wrap">
+      <a class="btn-text" href="/testimonials" rel="prev"><svg class="i" aria-hidden="true"><use href="#i-arrow-left"/></svg>真實見證</a>
+      <a class="btn-text" href="/services" rel="next">服務項目<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+  </nav>
+</main>
+
+<!-- 結尾的行動區塊（CtaBand）：每一頁共用，放在「下一站」之後。不要改動。 -->
+<section class="cta-band dark" id="final-cta">
+  <div class="cta-band__in">
+    <svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg>
+    <h2>成為你豐盛之路上的翅膀</h2>
+    <div class="cta-band__actions">
+      <a class="gold-btn" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊官方 LINE</a>
+      <a class="btn-text" href="/#personas-section">從這裡，開始我的改變<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+    <a class="btn-text" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>前往購買<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+  </div>
+</section>
+
+<!-- 頁尾（Footer，淺色）。不要改動。 -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__cols">
+      <div>
+        <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+        <p class="site-footer__tagline">用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。</p>
+        <p class="site-footer__status">全球線上遠距服務</p>
+      </div>
+      <nav class="site-footer__nav">
+        <div><h3>關於豐盛之翼學苑</h3><ul><li><a href="/about">品牌理念</a></li><li><a href="/story">創辦人經歷與故事</a></li></ul></div>
+        <div><h3>療癒與培訓</h3><ul><li><a href="/services">服務項目</a></li><li><a href="/training">培訓課程</a></li></ul></div>
+        <div><h3>見證與實用內容</h3><ul><li><a href="/testimonials">真實見證</a></li><li><a href="/blog">好運blog</a></li><li><a href="/resources">免費資源</a></li><li><a href="/media">媒體專訪</a></li></ul></div>
+      </nav>
+      <div>
+        <h3>官方聯繫與諮詢管道</h3>
+        <p class="site-footer__intro">企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+        <ul>
+          <li><a href="mailto:lavie@wenling.tw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>lavie@wenling.tw</a></li>
+          <li><a href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>LINE @healer.wenling</a></li>
+          <li><a href="https://m.me/keila.healing" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message-square"/></svg>Facebook m.me/keila.healing</a></li>
+          <li><a href="https://www.instagram.com/keila.healing1491" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-at"/></svg>IG keila.healing1491</a></li>
+          <li><a href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</a></li>
+        </ul>
+        <a class="site-footer__shop" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">訂購商品、服務或課程<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+      </div>
+    </div>
+    <p class="site-footer__disclaimer"><b>免責聲明</b>所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p>
+    <div class="site-footer__legal">
+      <p>© 2026 豐盛之翼學苑</p>
+      <ul><li><a href="/legal#disclaimer">免責聲明與條款</a></li><li><a href="/legal#privacy">隱私權保護政策</a></li><li><a href="/legal#terms">服務條款</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+
+<!-- 提案用的互動（對應 ChipTabs、Pager、PageSheet、StickyCtaBar）。沒有這段指令時內容仍然全部讀得到。 -->
+<script>
+(() => {
+  // 分頁：[data-tabs] 內的 role="tab" 與 role="tabpanel"（aria-controls 對應面板的 id）
+  document.querySelectorAll('[data-tabs]').forEach((root) => {
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    const select = (tab, focus) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on);
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).dataset.state = on ? 'active' : 'inactive';
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        select(tabs[(i + step + tabs.length) % tabs.length], true);
+      });
+    });
+    select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
+  });
+
+  // 一次一則：[data-pager]；每一則的 data-label 是它的標題，用作箭頭的 aria-label
+  document.querySelectorAll('[data-pager]').forEach((root) => {
+    const slides = [...root.querySelectorAll('.pager__slide')];
+    const prev = root.querySelector('[data-prev]');
+    const next = root.querySelector('[data-next]');
+    const dots = root.querySelector('.pager__dots');
+    slides.forEach(() => dots.insertAdjacentHTML('beforeend', '<span class="pager__dot"></span>'));
+    let index = 0;
+    const go = (to) => {
+      index = Math.min(slides.length - 1, Math.max(0, to));
+      slides.forEach((s, i) => s.toggleAttribute('data-off', i !== index));
+      [...dots.children].forEach((d, i) => d.toggleAttribute('data-on', i === index));
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+      prev.setAttribute('aria-label', slides[Math.max(0, index - 1)].dataset.label);
+      next.setAttribute('aria-label', slides[Math.min(slides.length - 1, index + 1)].dataset.label);
+    };
+    prev.addEventListener('click', () => go(index - 1));
+    next.addEventListener('click', () => go(index + 1));
+    root.addEventListener('keydown', (e) => {
+      if (e.target.closest('[role="tab"]')) return;
+      if (e.key === 'ArrowLeft') go(index - 1);
+      else if (e.key === 'ArrowRight') go(index + 1);
+    });
+    go(0);
+  });
+
+  // 面板：<button data-sheet="id"> 開啟 <dialog class="page-sheet" id="id">；關閉鈕 [data-close]、Esc、點面板以外
+  document.querySelectorAll('[data-sheet]').forEach((trigger) => {
+    const sheet = document.getElementById(trigger.dataset.sheet);
+    trigger.addEventListener('click', () => sheet.showModal());
+    sheet.addEventListener('click', (e) => {
+      const r = sheet.getBoundingClientRect();
+      const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      if (outside || e.target.closest('[data-close]')) sheet.close();
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1301 @@
+<!doctype html>
+<!--
+  首頁腳本式捲動故事・原型（docs/06_research-and-design/proposals/home-script/BRIEF.md）
+  概念：金翼離開羅盤，一路「成為」每一張 slide 主角身後的翅膀（書、三階段、創辦人、三本書、社群密碼），最後回到羅盤。
+  做法：每張 slide 是一個 CSS sticky 舞台，各有自己的 ScrollTrigger（scrub）；金翼是另一個固定圖層，位置由各舞台裡的停靠點算出。
+  退路：沒有 JavaScript、GSAP 載入失敗、或系統開啟「減少動態效果」時，<html> 沒有 .motion，整頁是一般的直向頁面。
+  文案：全部逐字取自 src/data.ts 與 src/content/stages.ts；slide 標記只用數字。
+-->
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>豐盛之翼學苑</title>
+<script>
+  // .js：有 JavaScript；.motion：預期會啟用捲動動畫（GSAP 沒載到時由頁尾的程式拿掉）。
+  // 手機可視高度不到 620px（例如 iPhone SE）時一張 slide 放不下內容，同樣維持一般頁面。
+  window.__hsShort = function () { return window.innerWidth < 1024 && window.innerHeight < 620; };
+  (function (r) { r.classList.add('js'); if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && !window.__hsShort()) r.classList.add('motion'); })(document.documentElement);
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap">
+<style>
+/* ───────── token（對應 app/globals.css @theme 與 proposals/_kit.css） ───────── */
+:root {
+  --background: #FBF1DD; --foreground: #2E2318;
+  --card: #FDF6E6; --card-foreground: #3A2A18;
+  --popover: #FFFDF0;
+  --primary: #C9862E; --primary-foreground: #3A2409;
+  --secondary-foreground: #8A5415;
+  --muted-foreground: #7A6650;
+  --accent: #FCE7A8; --accent-foreground: #8A5415;
+  --border: #F0DFA0; --ring: #B5762A;
+  --inverse: #20140A; --inverse-foreground: #F5E4C8; --inverse-accent: #F0C875;
+  /* 銀色：金色之後的第二金屬色，只少量使用（設計系統 2026-10-06）。.btn-line 沿用類別名稱，樣式改為銀色。 */
+  --silver-light: #FAFAF8; --silver: #E3E1DC; --silver-deep: #C4C1BA; --silver-edge: #A9A59D; --silver-foreground: #3A2A18;
+  --font-serif: "Noto Serif TC", "Songti TC", serif; --font-sans: "Noto Sans TC", "PingFang TC", sans-serif;
+  --hdr: 64px; --bar: 0px; --tw-w: 760px;
+}
+@media (max-width: 1023.98px) { :root { --bar: calc(68px + env(safe-area-inset-bottom, 0px)); --tw-w: 400px; } }
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+@supports (overflow: clip) { body { overflow-x: clip; } }
+h1, h2, h3 { font-family: var(--font-serif); color: var(--card-foreground); margin: 0; line-height: 1.35; font-weight: 700; }
+h2 { font-size: 22px; } h3 { font-size: 20px; }
+p { margin: 0; } a { color: inherit; text-decoration: none; } ul, ol { margin: 0; padding: 0; list-style: none; }
+svg { display: block; }
+.ico { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.muted { color: var(--muted-foreground); }
+.nb { display: inline-block; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; border-radius: 6px; }
+
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; letter-spacing: .12em; color: var(--accent-foreground); }
+.eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--ring); }
+.num { display: inline-flex; flex: none; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid #D89A3E; background: #F5D98A; font: 700 14px/1 var(--font-serif); color: var(--accent-foreground); }
+.kicker { display: flex; align-items: center; gap: 12px; }
+.head { display: flex; gap: 12px; align-items: flex-start; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 20px; border-radius: 999px; font: 700 16px/1.3 var(--font-sans); cursor: pointer; border: 1px solid transparent; text-align: center; }
+.btn-gold { background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%); color: var(--primary-foreground); box-shadow: 0 4px 14px rgba(201,134,46,.35); }
+.btn-outline { background: var(--popover); border-color: var(--border); color: var(--secondary-foreground); font-weight: 600; }
+.btn-outline:hover { border-color: var(--ring); }
+.btn-line { background: linear-gradient(135deg, var(--silver-light) 0%, var(--silver) 45%, var(--silver-deep) 100%); color: var(--silver-foreground); border: 1px solid var(--silver-edge); box-shadow: 0 3px 10px rgba(110,106,98,.22), inset 0 1px 0 rgba(255,255,255,.9); }
+.btn-inverse { border-color: rgba(240,200,117,.6); color: var(--inverse-accent); background: transparent; font-weight: 600; }
+.btn-sm { font-size: 14px; padding-inline: 14px; }
+
+/* ───────── 頁首（固定；商城按鈕隨時可用） ───────── */
+.site-header { position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--hdr); background: rgba(251,241,221,.95); border-bottom: 1px solid rgba(240,223,160,.7); }
+.site-header .bar { max-width: 1180px; height: 100%; margin-inline: auto; padding-inline: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font: 700 18px/1 var(--font-serif); letter-spacing: .06em; color: var(--card-foreground); }
+.brand svg { width: 40px; height: 24px; }
+.nav { display: none; gap: 4px; }
+.nav details { position: relative; }
+.nav summary, .mnav > summary { list-style: none; cursor: pointer; }
+.nav summary::-webkit-details-marker, .mnav > summary::-webkit-details-marker { display: none; }
+.nav summary { display: flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px; font-size: 14px; font-weight: 500; color: #5A4A38; border-radius: 999px; }
+.nav summary .ico { width: 14px; height: 14px; }
+.nav ul, .mnav__panel { position: absolute; background: var(--popover); border: 1px solid var(--border); box-shadow: 0 12px 30px rgba(58,42,24,.12); }
+.nav ul { top: 100%; left: 0; min-width: 200px; padding: 8px; border-radius: 14px; }
+.nav li a, .mnav__panel a { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; font-size: 16px; }
+.nav li a:hover, .mnav__panel a:hover { background: var(--accent); }
+.site-header .actions { display: flex; gap: 8px; align-items: center; }
+.site-header .only-desktop { display: none; }
+.mnav > summary { display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border); background: var(--popover); color: var(--secondary-foreground); }
+.mnav__panel { top: var(--hdr); left: 0; right: 0; padding: 12px 16px 16px; border-width: 0 0 1px; max-height: calc(100vh - var(--hdr)); overflow-y: auto; }
+.mnav__panel p { margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--accent-foreground); letter-spacing: .08em; }
+.progress { position: absolute; left: 0; right: 0; bottom: -2px; height: 2px; background: linear-gradient(90deg, #F0C875, #B5762A); transform: scaleX(0); transform-origin: 0 50%; display: none; }
+.motion .progress { display: block; }
+@media (min-width: 1024px) { .site-header .bar { padding-inline: 40px; } .nav { display: flex; } .site-header .only-desktop { display: inline-flex; } .mnav { display: none; } }
+
+/* ───────── 手機底部固定列 ───────── */
+.sticky-cta { position: fixed; inset: auto 0 0 0; z-index: 40; display: flex; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(255,253,240,.96); border-top: 1px solid var(--border); }
+.sticky-cta .btn { min-width: 0; }
+.sticky-cta .btn-gold { flex: 1; padding-inline: 10px; font-size: 15px; white-space: nowrap; }
+.sticky-cta .btn-gold.is-long { font-size: 14px; white-space: normal; line-height: 1.25; padding-block: 4px; }
+.sticky-cta .btn-line { flex: none; padding-inline: 14px; font-size: 15px; }
+@media (min-width: 1024px) { .sticky-cta { display: none; } }
+
+/* ───────── 金翼羅盤（暫代圖；部件：左翼、右翼、三層羽毛、羅盤） ───────── */
+.emb { position: relative; width: min(100%, 460px); aspect-ratio: 460 / 270; }
+.emb__glow, .tw__glow { position: absolute; inset: -16% -6%; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(255,253,240,.98) 0, rgba(252,231,168,.9) 34%, rgba(232,177,90,.38) 60%, rgba(232,177,90,0) 100%); }
+.emb__rays, .tw__rays { position: absolute; inset: -34% -8%; pointer-events: none; background: repeating-conic-gradient(from -4deg at 50% 52%, rgba(201,134,46,0) 0 8deg, rgba(201,134,46,.2) 8deg 9.5deg, rgba(201,134,46,0) 9.5deg 15deg); -webkit-mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%); mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%); }
+.wingbox { position: absolute; top: 1.5%; width: 46%; aspect-ratio: 300 / 260; }
+.wingbox--l { left: -4%; } .wingbox--r { right: -4%; }
+.wing { position: absolute; inset: 0; perspective: var(--wp, 620px); perspective-origin: 95.3% 73%; }
+.wing--r { transform: scaleX(-1); }
+.wing__svg { width: 100%; height: 100%; overflow: visible; transform-origin: 95.3% 73%; transform: rotateY(calc((1 - var(--open, 1)) * -64deg)) rotateZ(calc((1 - var(--open, 1)) * -8deg)); }
+.f { transform-origin: 286px 190px; transform: rotate(calc(var(--d) * (1 - var(--open, 1)))); }
+.lay--s1 { opacity: var(--l1, 1); } .lay--s2 { opacity: var(--l2, 1); } .lay--s3 { opacity: var(--l3, 1); }
+.compass { position: absolute; left: 50%; top: 50%; width: 31%; aspect-ratio: 1; margin: -14.26% 0 0 -15.5%; overflow: visible; }
+.needle { transform-origin: 100px 100px; transform: rotate(calc(var(--needle, 0) * 1deg)); }
+
+/* 飛行的金翼：固定圖層，夾在各區塊底色與內容之間（z-index 1；舞台內容是 2） */
+.tw-layer { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; display: none; visibility: hidden; }
+.motion .tw-layer { display: block; } .booted .tw-layer { visibility: visible; }
+.tw { position: absolute; left: 0; top: 0; width: var(--tw-w); aspect-ratio: 460 / 270; margin: calc(var(--tw-w) * -.2935) 0 0 calc(var(--tw-w) / -2); will-change: transform; --wp: calc(var(--tw-w) * 1.348); --open: 1; --gap: 1; --rays: 1; --glow: 1; --l1: 1; --l2: 1; --l3: 1; --dim: 1; }
+.tw__float { position: absolute; inset: 0; opacity: var(--dim); animation: tw-bob 5.5s ease-in-out infinite; }
+@keyframes tw-bob { 50% { transform: translateY(-1.8%); } }
+.tw__rays { opacity: var(--rays); } .tw__glow { opacity: var(--glow); }
+.tw .wingbox--l { transform: translateX(calc((1 - var(--gap)) * 21.7%)); }
+.tw .wingbox--r { transform: translateX(calc((1 - var(--gap)) * -21.7%)); }
+.tw__core { position: absolute; left: 46.5%; top: 45%; width: 7%; aspect-ratio: 1; opacity: calc(1 - var(--gap)); transform: scale(calc(1.25 - var(--gap) * .6)); }
+.booted .emb--live .wingbox, .booted .emb--live .emb__rays, .booted .emb--live .emb__glow { visibility: hidden; }
+.dock { position: absolute; display: block; aspect-ratio: 460 / 270; pointer-events: none; visibility: hidden; }
+
+/* ───────── 共用：一般直向頁面（沒有 .motion 時就是這個樣子） ───────── */
+main { padding-top: var(--hdr); }
+.slide { padding-block: 56px; }
+.stage__in, .wrap { max-width: 1180px; margin-inline: auto; padding-inline: 24px; position: relative; }
+.cue { display: none; }
+.ln { display: block; }
+.plus { position: relative; flex: none; width: 28px; height: 28px; border: 1.5px solid var(--ring); border-radius: 50%; transition: transform .25s ease; }
+.plus::before, .plus::after { content: ''; position: absolute; left: 50%; top: 50%; width: 12px; height: 1.5px; margin: -.75px 0 0 -6px; background: var(--ring); }
+.plus::after { transform: rotate(90deg); }
+details[open] > summary .plus { transform: rotate(45deg); }
+summary { list-style: none; cursor: pointer; } summary::-webkit-details-marker { display: none; }
+.lk { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; color: var(--accent-foreground); }
+.glass { background: rgba(255,253,240,.9); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 20px rgba(58,42,24,.05); }
+
+/* 01 Hero */
+.hero { background: radial-gradient(640px 640px at 100% -10%, rgba(252,231,168,.85), rgba(252,231,168,.3) 55%, transparent 70%), var(--background); }
+.hero .stage__in { display: grid; gap: 28px; }
+.hero__text, .hero__more, .hero__top { display: flex; flex-direction: column; gap: 20px; }
+.hero__top { position: relative; gap: 14px; }
+.hero h1 { font-size: clamp(24px, 7vw, 30px); line-height: 1.3; letter-spacing: -.01em; }
+.gold-text { background: linear-gradient(135deg, #B5762A 0%, #D89A3E 50%, #8A5415 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero__desc { color: var(--muted-foreground); max-width: 36em; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero__badges { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted-foreground); }
+.hero__badges li { display: flex; gap: 6px; align-items: flex-start; }
+.hero__badges .ico { width: 16px; height: 16px; margin-top: 4px; color: var(--ring); }
+.hero__art { display: grid; place-items: center; }
+.hero__emb { position: relative; width: min(100%, 460px); }
+.hero__emb .dock { inset: 0; }
+
+/* 02 需求入口（書） */
+.book { background: linear-gradient(180deg, var(--background), #FBEFD0); }
+.book .head { margin-bottom: 20px; }
+.book-tabs { display: none; }
+.face { margin-bottom: 12px; }
+.face--cover { display: none; }
+.sheet { position: relative; padding: 22px; background: var(--popover); border: 1px solid var(--border); border-radius: 16px; }
+.sheet > * + * { margin-top: 10px; }
+.sheet h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; }
+.pg-ico { display: inline-flex; flex: none; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 50%; background: var(--accent); color: var(--accent-foreground); }
+.pain { font-family: var(--font-serif); font-size: 17px; line-height: 1.75; color: var(--card-foreground); }
+.lbl { font-size: 14px; font-weight: 700; letter-spacing: .1em; color: var(--accent-foreground); }
+.story { border-bottom: 1px solid rgba(240,223,160,.9); }
+.story > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; font-weight: 700; color: var(--card-foreground); }
+.story .plus { width: 22px; height: 22px; } .story .plus::before, .story .plus::after { width: 10px; margin-left: -5px; }
+.story > p { padding-bottom: 12px; color: var(--muted-foreground); }
+.start { color: var(--card-foreground); }
+.pg-cta { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc ol { display: grid; gap: 4px; }
+.toc a { display: flex; align-items: center; gap: 10px; min-height: 48px; font: 700 17px/1.4 var(--font-serif); color: var(--card-foreground); }
+.turn, .back { display: none; }
+.pg-no { display: none; }
+
+/* 03 三階段＋能量療癒服務 */
+.stages { background: linear-gradient(180deg, #FBEFD0, #FFF6DC 60%, #FBF1DD); }
+.stages .stage__in { display: grid; gap: 18px; }
+.s3-num { justify-self: start; }
+.q > summary { display: flex; gap: 12px; align-items: flex-start; }
+.q > summary h2 { flex: 1; }
+.q > summary .plus { margin-top: 3px; }
+.q__body { margin-top: 12px; color: var(--muted-foreground); }
+.ladder, .svc { display: flex; flex-direction: column; gap: 8px; }
+.ladder summary, .svc summary { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 14px; font-weight: 700; color: var(--card-foreground); }
+.ladder summary > span, .svc summary > span { flex: 1; }
+.mini { flex: none; width: 46px; height: 40px; overflow: visible; }
+.body { padding: 0 16px 10px; color: var(--muted-foreground); }
+.s3-head--b { margin-top: 28px; }
+.s3-head--b .btn { margin-top: 14px; }
+.s3-zone, .s3-more { display: none; }
+
+/* 04 創辦人 */
+.founder { background: radial-gradient(90vmax 70vh at 50% 22%, rgba(252,231,168,.95), rgba(252,231,168,.35) 45%, transparent 70%), linear-gradient(180deg, #FBF1DD, #FDF3DC); }
+.founder .stage__in { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+.f-art { position: relative; flex: none; width: 150px; aspect-ratio: 4 / 5; }
+.f-arch { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 999px 999px 18px 18px; border: 1px solid var(--border); background: linear-gradient(180deg, #FFFDF0, #FCE7A8); box-shadow: 0 18px 50px rgba(201,134,46,.22); }
+.f-arch svg { width: 34%; opacity: .75; }
+.f-label { font-size: 14px; font-weight: 700; color: var(--accent-foreground); }
+.f-quote { font-family: var(--font-serif); font-size: 17px; line-height: 1.7; color: var(--card-foreground); max-width: 34em; }
+
+/* 05 媒體（深色） */
+.media { background: linear-gradient(180deg, #20140A, #2A1A0C 60%, #20140A); color: var(--inverse-foreground); }
+.media h2 { color: #FFFDF0; font-size: 19px; line-height: 1.5; }
+.media .eyebrow { color: var(--inverse-accent); } .media .eyebrow::before { background: var(--inverse-accent); }
+.media .stage__in { display: grid; gap: 18px; --bw: 96px; --bh: 146px; --bd: 16px; }
+.m-s1 { display: grid; gap: 18px; }
+.m-shelf { position: relative; }
+.books { display: flex; justify-content: center; gap: 14px; }
+.books li { width: var(--bw); flex: none; }
+.bk { display: block; height: var(--bh); perspective: 900px; }
+.bk-h { display: block; width: 100%; height: 100%; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform .35s cubic-bezier(.22,1,.36,1); }
+.bk:hover .bk-h, .bk:focus-visible .bk-h { transform: translateY(-8px) rotateY(-8deg); }
+.bk3d { display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transform: rotateY(26deg); }
+.bk__cover, .bk__back, .bk__spine, .bk__edge { position: absolute; display: block; }
+.bk__cover { inset: 0; display: flex; align-items: center; justify-content: center; padding: 10px 8px; transform: translateZ(calc(var(--bd) / 2)); backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 2px 6px 6px 2px; writing-mode: vertical-rl; font: 700 15px/1.5 var(--font-serif); letter-spacing: .08em; color: #3A2409; box-shadow: inset 5px 0 8px -4px rgba(58,36,9,.35), 0 0 30px rgba(240,200,117,.18); }
+.bk__cover::after { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(138,84,21,.45); border-radius: 2px 4px 4px 2px; }
+.bk--1 .bk__cover { background: linear-gradient(160deg, #FFFDF0, #F7E9C4); }
+.bk--2 .bk__cover { background: linear-gradient(160deg, #FFF3CF, #F0C875); }
+.bk--3 .bk__cover { background: linear-gradient(160deg, #FDF6E6, #F6D88F); }
+.bk__back { inset: 0; transform: rotateY(180deg) translateZ(calc(var(--bd) / 2)); background: #8A5415; border-radius: 6px 2px 2px 6px; }
+.bk__spine { left: 0; top: 0; width: var(--bd); height: 100%; transform: translateX(calc(var(--bd) / -2)) rotateY(-90deg); background: linear-gradient(90deg, #B5762A, #E8B15A 45%, #C9862E); }
+.bk--1 .bk__spine { background: linear-gradient(90deg, #C9B98C, #F3E6C4 45%, #D9C99A); }
+.bk__edge { right: 0; top: 2px; width: var(--bd); height: calc(100% - 4px); transform: translateX(calc(var(--bd) / 2)) rotateY(90deg); background: repeating-linear-gradient(90deg, #FFFDF0 0 2px, #E3D5B0 2px 3px); }
+.bk__cap { margin-top: 12px; font-size: 14px; line-height: 1.5; color: #D9C29C; }
+.m-label { font-size: 14px; font-weight: 700; letter-spacing: .1em; color: var(--inverse-accent); }
+.m-pods ul { border-top: 1px solid rgba(240,200,117,.25); }
+.m-pods li { border-bottom: 1px solid rgba(240,200,117,.25); }
+.m-pods a { display: flex; gap: 12px; align-items: flex-start; min-height: 48px; padding: 10px 0; }
+.m-pods .ic { display: inline-flex; flex: none; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(240,200,117,.5); color: var(--inverse-accent); }
+.m-pods .ic .ico { width: 16px; height: 16px; }
+.m-pods .tx { flex: 1; min-width: 0; }
+.m-pods .show { display: block; font-size: 14px; font-weight: 700; color: var(--inverse-accent); }
+.m-pods .ep { display: block; line-height: 1.5; color: #FFFDF0; overflow-wrap: anywhere; }
+.m-pods .up { margin-top: 6px; color: #B49A76; }
+.m-more { justify-self: start; }
+
+/* 06 免費社群 */
+.community { background: linear-gradient(180deg, #FBF1DD, rgba(248,223,160,.6) 45%, #FBF1DD); }
+.community .stage__in { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+.c-crest { position: relative; width: 100%; height: 0; }
+.code { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.code__label { font-size: 14px; font-weight: 700; letter-spacing: .1em; color: var(--accent-foreground); }
+.code__digits { display: flex; gap: 6px; perspective: 600px; }
+.code__digits span { display: inline-flex; width: 42px; height: 54px; align-items: center; justify-content: center; border-radius: 10px; background: var(--popover); border: 1px solid #E8B15A; box-shadow: 0 6px 16px rgba(201,134,46,.22); font: 900 28px/1 var(--font-serif); color: #8A5415; }
+.c-intro { max-width: 34em; color: var(--card-foreground); }
+.c-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+/* 07 常見問題（不釘住） */
+.faq { padding: 64px 0 72px; background: var(--background); }
+.faq .wrap { z-index: 2; display: grid; gap: 20px; }
+.faq__head { position: relative; display: flex; align-items: center; gap: 12px; }
+.faq__head .dock { right: 0; top: -20px; width: 120px; }
+.faq details { border-bottom: 1px solid rgba(201,134,46,.3); }
+.faq details:first-child { border-top: 1px solid rgba(201,134,46,.3); }
+.faq summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 60px; padding: 10px 0; font-weight: 700; color: var(--card-foreground); }
+.faq summary .plus { width: 24px; height: 24px; } .faq summary .plus::before, .faq summary .plus::after { width: 10px; margin-left: -5px; }
+.faq details p { padding-bottom: 18px; color: var(--muted-foreground); }
+
+/* 收束與頁尾 */
+.inverse { background: var(--inverse); color: var(--inverse-foreground); }
+.cta-band { overflow: hidden; text-align: center; padding: 72px 24px 64px; background: radial-gradient(820px 420px at 50% 0, rgba(240,200,117,.3), rgba(201,134,46,.1) 55%, transparent 75%), var(--inverse); }
+.cta-band__in { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.cta-band .emb { width: min(78vw, 360px); }
+.cta-band .emb .dock { inset: 0; }
+.cta-band h2 { color: #FFFDF0; font-size: 26px; }
+.cta-band .row { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; }
+.site-footer { padding: 40px 24px calc(40px + var(--bar)); border-top: 1px solid #3A2409; color: #C7AE8A; }
+.site-footer .wrap { z-index: 2; display: grid; gap: 28px; padding-inline: 0; }
+.site-footer h3 { font: 700 14px/1.4 var(--font-sans); letter-spacing: .08em; color: var(--inverse-accent); margin-bottom: 6px; }
+.site-footer a { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+.site-footer a:hover { color: #FFFDF0; }
+.f-brand { display: inline-flex; align-items: center; gap: 8px; font: 700 18px/1 var(--font-serif); color: #FFFDF0; }
+.f-brand svg { width: 40px; height: 24px; }
+.f-status { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--inverse-accent); }
+.f-status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--silver); }
+.f-nav { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.f-disc { padding: 18px 20px; border-radius: 16px; background: #170E07; border: 1px solid #3A2409; color: #B49A76; }
+.f-disc strong { display: block; color: var(--inverse-accent); margin-bottom: 4px; }
+.f-end { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; font-size: 14px; color: #8A7458; }
+
+@media (min-width: 1024px) {
+  h2 { font-size: 30px; }
+  .slide { padding-block: 88px; }
+  .stage__in, .wrap { padding-inline: 40px; }
+  .hero .stage__in { grid-template-columns: 7fr 5fr; align-items: center; }
+  .hero h1 { font-size: 46px; line-height: 1.25; }
+  .hero__desc { font-size: 18px; }
+  .hero__badges { flex-direction: row; flex-wrap: wrap; gap: 6px 22px; }
+  .f-art { width: 190px; }
+  .f-quote { font-size: 20px; }
+  .media h2 { font-size: 24px; }
+  .media .stage__in { --bw: clamp(120px, 11.5vw, 168px); --bh: calc(var(--bw) * 1.49); --bd: calc(var(--bw) * .155); }
+  .bk__cover { font-size: clamp(15px, 1.32vw, 19px); padding: 12px; }
+  .bk__cover::after { inset: 10px; }
+  .books { gap: clamp(20px, 3vw, 40px); }
+  .code__digits span { width: 58px; height: 74px; font-size: 38px; border-radius: 12px; }
+  .code__digits { gap: 10px; }
+  .faq .wrap { grid-template-columns: 4fr 8fr; gap: 48px; }
+  .faq__head { align-self: start; }
+  .faq__head .dock { right: auto; left: 0; top: 64px; width: 240px; }
+  .cta-band h2 { font-size: 32px; }
+  .cta-band .row { flex-direction: row; justify-content: center; max-width: none; }
+  .site-footer .wrap { grid-template-columns: 3fr 5fr 4fr; gap: 40px; padding-inline: 16px; }
+  .f-nav { grid-template-columns: repeat(3, 1fr); }
+  .f-wide { grid-column: 1 / -1; }
+}
+@media (max-width: 1023.98px) { .hero__cta .btn-gold, .c-cta .btn-gold { display: none; } }
+
+/* 一般頁面模式：書的內容是幾張卡片，欄寬收窄好讀；Hero 光芒不撐出橫向捲軸 */
+html:not(.motion) .hero { overflow: hidden; }
+html:not(.motion) .book-wrap, html:not(.motion) .stages .stage__in > * { max-width: 760px; }
+
+/* ═════════ 以下只在 .motion（捲動故事）生效 ═════════ */
+.motion main { padding-top: 0; }
+.motion .slide { padding: 0; height: calc(100vh * (1 + var(--pin))); height: calc(100lvh * (1 + var(--pin))); }
+.motion .stage { position: sticky; top: 0; z-index: 2; height: 100vh; height: 100lvh; }
+.motion .stage__in { height: 100vh; height: 100svh; padding-top: calc(var(--hdr) + 16px); padding-bottom: calc(var(--bar) + 16px); }
+.motion .cue { display: block; position: absolute; left: 50%; bottom: calc(var(--bar) + 18px); width: 26px; height: 40px; margin-left: -13px; border: 1.5px solid var(--ring); border-radius: 14px; opacity: .8; }
+.motion .cue::after { content: ''; position: absolute; left: 50%; top: 8px; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: var(--ring); animation: cue 1.8s ease-in-out infinite; }
+@keyframes cue { 0% { transform: translateY(0); opacity: 1; } 70%, 100% { transform: translateY(14px); opacity: 0; } }
+.motion .ln { overflow: hidden; padding-block: .08em; margin-block: -.08em; } .motion .ln__in { display: block; }
+/* 捲動後才出現的元素：先隱藏（只用 opacity，內容仍在可及性樹內） */
+.motion .hero__desc, .motion .hero__badges li, .motion .hero__cta .btn-outline, .motion .toc li, .motion .rung, .motion .s3-head--b, .motion .s3-list--b,
+.motion .f-label, .motion .f-quote, .motion .bk__cap, .motion .m-label, .motion .m-pods li, .motion .c-intro, .motion .code__digits span { opacity: 0; }
+.motion .s3-head--b, .motion .s3-list--b, .motion .rung, .motion .m-pods li, .motion .hero__cta .btn-outline { pointer-events: none; }
+
+.motion .hero { --pin: .7; } .motion .book { --pin: 1.5; } .motion .stages { --pin: 1.5; } .motion .founder { --pin: .8; } .motion .media { --pin: 1; } .motion .community { --pin: .6; }
+
+/* 書（共用） */
+.motion .book-tabs { display: flex; }
+.motion .tab { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; font: 700 15px/1 var(--font-sans); color: var(--secondary-foreground); background: #F7E3A6; border: 1px solid #E8B15A; cursor: pointer; }
+.motion .tab[aria-selected="true"] { background: #FFFDF0; color: var(--primary-foreground); box-shadow: 0 0 0 2px var(--ring) inset; }
+.motion .face { margin: 0; }
+.motion .sheet { height: 100%; overflow-y: auto; border: 0; border-radius: 0; }
+.motion .face--cover { display: block; }
+.motion .cover { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 4px 14px 14px 4px; background: linear-gradient(135deg, #3A2409, #20140A 60%, #2E1C0B); box-shadow: 0 24px 50px rgba(58,36,9,.35); }
+.motion .cover::before { content: ''; position: absolute; inset: 14px; border: 1.5px solid rgba(240,200,117,.75); border-radius: 2px 8px 8px 2px; }
+.motion .cover::after { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(240,200,117,.35); border-radius: 2px 6px 6px 2px; }
+.motion .cover svg { width: 38%; margin-top: -12%; filter: drop-shadow(0 0 18px rgba(240,200,117,.35)); }
+.motion .pg-no { display: block; position: absolute; bottom: 10px; font: 600 12px/1 var(--font-serif); color: #B49A76; margin: 0; }
+.motion .face--front .pg-no { right: 16px; } .motion .face--back .pg-no { left: 16px; }
+
+@media (min-width: 1024px) {
+  .motion .head { flex-direction: column; gap: 16px; }
+  /* Hero */
+  .motion .hero__text { justify-content: center; gap: 22px; }
+  .motion .hero__more { display: contents; }
+  .motion .hero__cta { order: 1; } .motion .hero__desc { order: 2; } .motion .hero__badges { order: 3; }
+  /* 書：左欄標題、右邊是攤開的書（左右兩頁） */
+  .motion .book { --pw: min(372px, calc((100vw - 436px) / 2)); --ph: min(520px, calc(100svh - 174px)); }
+  .motion .book .stage__in { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 38px; align-items: start; }
+  .motion .book .head { margin: 150px 0 0; max-width: 250px; }
+  .motion .book h2 { font-size: 28px; }
+  .motion .book-wrap { position: relative; width: calc(var(--pw) * 2 + 68px); height: var(--ph); margin-top: 70px; }
+  .motion .book-wrap .dock[data-dock="book-closed"] { left: calc(var(--pw) * -.15); width: calc(var(--pw) * 2.3); top: calc(var(--ph) * .36 - var(--pw) * .675); }
+  .motion .book-wrap .dock[data-dock="book-open"] { left: calc(var(--pw) * .4); width: calc(var(--pw) * 1.2); top: calc(var(--pw) * -.36); }
+  .motion .book-shift { position: absolute; inset: 0; transform: translateX(calc(var(--pw) / -2)); }
+  .motion .book-scene { position: absolute; left: 0; top: 0; width: calc(var(--pw) * 2); height: 100%; perspective: 2200px; z-index: 1; }
+  .motion .bk-book { position: absolute; inset: 0; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
+  .motion .board { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; background: #3A2409; border-radius: 4px 14px 14px 4px; transform: translateZ(-16px); box-shadow: 0 30px 60px rgba(58,36,9,.3); }
+  .motion .leaf + .leaf .face { inset: 5px 5px 5px 0; }
+  .motion .leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; transform-origin: 0 50%; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
+  .motion .leaf__in { position: absolute; inset: 0; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transform: translateZ(calc(var(--i) * -2px)); }
+  .motion .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .motion .face--back { transform: rotateY(180deg); }
+  .motion .sheet { padding: 26px 28px 30px; }
+  .motion .face--front .sheet { border-radius: 3px 12px 12px 3px; background: linear-gradient(90deg, #EADBB3 0, #FBF4DE 5%, #FFFDF0 16%); }
+  .motion .face--back .sheet { border-radius: 12px 3px 3px 12px; background: linear-gradient(270deg, #EADBB3 0, #FBF4DE 5%, #FFFDF0 16%); }
+  .motion .face--preface { padding: 5px 0 5px 5px; background: #3A2409; border-radius: 14px 4px 4px 14px; }
+  .motion .face--preface .sheet { display: flex; align-items: center; font-family: var(--font-serif); font-size: 19px; line-height: 1.9; color: var(--card-foreground); }
+  .motion .toc { height: 100%; display: flex; align-items: center; }
+  .motion .toc ol { width: 100%; gap: 10px; }
+  .motion .toc a { min-height: 56px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; }
+  .motion .toc a:hover { border-color: var(--border); background: rgba(252,231,168,.35); }
+  .motion .sheet--a, .motion .sheet--b { display: flex; flex-direction: column; justify-content: center; }
+  .motion .sheet--b > * { flex: none; }
+  .motion .sheet--a h3 { font-size: 23px; } .motion .sheet--a .pain { margin-top: 18px; font-size: 18px; line-height: 1.9; }
+  .motion .book-tabs { position: absolute; left: calc(var(--pw) * 2 - 6px); top: 34px; flex-direction: column; gap: 8px; z-index: 0; }
+  .motion .tab { width: 74px; height: 58px; padding-left: 8px; border-radius: 0 12px 12px 0; border-left: 0; }
+  /* 三階段 */
+  .motion .stages h2 { font-size: 28px; }
+  .motion .stages .stage__in { display: grid; grid-template-columns: 420px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 60px; row-gap: 16px; }
+  .motion .s3-num { grid-area: 1 / 1; margin-top: 56px; }
+  .motion .s3-head--a, .motion .s3-head--b { grid-area: 2 / 1; margin: 0; align-self: start; }
+  .motion .s3-zone { display: block; position: relative; grid-area: 1 / 2 / 3 / 3; }
+  .motion .s3-list--a, .motion .s3-list--b { grid-area: 1 / 2 / 3 / 3; align-self: end; max-height: 100%; }
+  .motion .ladder { flex-direction: column-reverse; gap: 12px; }
+  .motion .ladder .rung { width: calc(100% - 64px); } .motion .rung:nth-child(2) { margin-left: 32px; } .motion .rung:nth-child(3) { margin-left: 64px; }
+  .motion .ladder summary, .motion .svc summary { min-height: 64px; padding-inline: 18px; }
+  .motion .s3-zone .dock[data-dock="st-low"] { left: calc(50% - 190px); width: 380px; bottom: -110px; }
+  .motion .s3-zone .dock[data-dock="st-rest"] { left: calc(50% - 260px); width: 520px; top: calc(50% - 300px); }
+  /* 創辦人 */
+  .motion .founder .stage__in { justify-content: center; padding-bottom: 56px; }
+  .motion .f-art { width: min(190px, 22svh); }
+  .motion .f-art .dock { left: calc(50% - 280px); width: 560px; top: calc(46% - 164px); }
+  .motion .founder h2 { font-size: 32px; }
+  /* 媒體 */
+  .motion .media .stage__in { grid-template-columns: min(470px, 42%) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; column-gap: 56px; row-gap: 16px; padding-top: calc(var(--hdr) + 48px); padding-bottom: 48px; }
+  .motion .m-s1 { display: contents; }
+  .motion .media .kicker { grid-area: 1 / 1; } .motion .media h2 { grid-area: 2 / 1; } .motion .m-pods { grid-area: 3 / 1; align-self: start; margin-top: 8px; } .motion .m-more { grid-area: 4 / 1; }
+  .motion .m-shelf { grid-area: 1 / 2 / 5 / 3; align-self: center; }
+  .motion .m-shelf .dock { left: calc(50% - 230px); width: 460px; top: -150px; }
+  .motion .m-pods .dock { display: none; }
+  /* 社群 */
+  .motion .community .stage__in { justify-content: center; gap: 16px; }
+  .motion .c-crest { height: 190px; flex: none; }
+  .motion .c-crest .dock { left: calc(50% - 170px); width: 340px; top: -10px; }
+  .motion .community h2 { font-size: 34px; }
+}
+
+@media (max-width: 1023.98px) {
+  .motion .hero { --pin: .6; } .motion .book { --pin: 1.1; } .motion .stages { --pin: 1; } .motion .founder { --pin: .6; } .motion .media { --pin: .9; } .motion .community { --pin: .5; }
+  .motion .stage__in { padding-inline: 24px; }
+  .motion .head .num, .motion .s3-num { margin-top: 0; width: 34px; height: 34px; }
+  /* Hero：標題下方是同一格，先是金翼羅盤，捲動後換成內文 */
+  .motion .hero .stage__in { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 12px; }
+  .motion .hero__text { display: contents; }
+  .motion .hero__top { grid-area: 1 / 1; display: flex; flex-direction: column; gap: 12px; position: relative; }
+  .motion .hero__more { grid-area: 2 / 1; align-self: start; gap: 10px; padding-top: 2px; }
+  .motion .hero__badges { gap: 3px; }
+  .motion .hero__art { grid-area: 2 / 1; align-self: center; padding-bottom: 40px; }
+  .motion .hero__emb { width: min(88vw, 340px, calc((100svh - 330px) * 1.5)); }
+  .motion .hero__top .dock { right: -6px; top: -8px; width: 96px; }
+  /* 書：單頁翻面 */
+  .motion .book .stage__in { display: flex; flex-direction: column; }
+  .motion .book .head { flex: none; margin: 0; }
+  .motion .book-wrap { position: relative; flex: 1; min-height: 0; margin-top: 54px; }
+  .motion .book-shift { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; }
+  .motion .book-scene { position: relative; order: 1; flex: 1; min-height: 0; }
+  .motion .cover, .motion .board { transform: scale(.78); }
+  .motion .face--preface .sheet { transition: none; }
+  .motion .face--preface .sheet, .motion .leaf + .leaf { opacity: 0; }
+  .motion .book-tabs { order: 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .motion .tab { border-radius: 0 0 12px 12px; border-top: 0; }
+  .motion .bk-book { position: absolute; inset: 0; }
+  .motion .board { position: absolute; inset: -4px -4px -4px 0; background: #3A2409; border-radius: 4px 16px 16px 4px; box-shadow: 0 18px 40px rgba(58,36,9,.28); }
+  .motion .leaf { position: absolute; inset: 0; z-index: calc(10 - var(--i)); pointer-events: none; }
+  .motion .leaf__in { position: absolute; inset: 0; perspective: 1400px; }
+  .motion .face { position: absolute; inset: 0; transform-origin: 0 50%; backface-visibility: hidden; -webkit-backface-visibility: hidden; pointer-events: auto; perspective: 1400px; }
+  .motion .face--front { z-index: 2; } .motion .face--back { z-index: 1; }
+  .motion .face--toc { display: none; }
+  .motion .sheet { padding: 18px 18px 22px; border-radius: 3px 12px 12px 3px; background: linear-gradient(90deg, #EADBB3 0, #FBF4DE 4%, #FFFDF0 14%); transform-origin: 0 50%; transition: transform .5s cubic-bezier(.4,0,.2,1), opacity .2s ease .25s, visibility 0s linear 0s; }
+  .motion .face.is-turned > .sheet { transform: rotateY(-104deg); opacity: 0; visibility: hidden; transition: transform .5s cubic-bezier(.4,0,.2,1), opacity .2s ease .25s, visibility 0s linear .5s; }
+  .motion .face--preface .sheet { display: flex; align-items: center; font-family: var(--font-serif); font-size: 18px; line-height: 1.9; color: var(--card-foreground); }
+  .motion .sheet--a { display: flex; flex-direction: column; }
+  .motion .sheet--a .pain { flex: 1; display: flex; align-items: center; font-size: clamp(17px, 2.3svh, 19px); }
+  .motion .pg-cta .btn-gold { background: var(--popover); box-shadow: none; border-color: var(--ring); color: var(--secondary-foreground); }
+  .motion .turn { display: inline-flex; align-self: flex-start; margin-top: 12px; }
+  .motion .sheet--b .lbl:first-of-type { display: flex; align-items: center; gap: 4px; min-height: 44px; margin-top: -8px; }
+  .motion .back { display: inline-flex; width: 44px; height: 44px; margin-left: -12px; align-items: center; justify-content: center; border: 0; background: none; color: var(--accent-foreground); cursor: pointer; }
+  .motion .sheet--b > * + * { margin-top: 6px; }
+  .motion .pg-cta { flex-wrap: nowrap; position: sticky; bottom: -22px; z-index: 1; margin-bottom: -22px; padding: 10px 0 22px; background: linear-gradient(180deg, rgba(255,253,240,0), #FFFDF0 28%); } .motion .pg-cta .btn { flex: 1; min-width: 0; padding-inline: 8px; font-size: 14px; }
+  .motion .book-wrap .dock[data-dock="book-closed"] { left: -18px; right: -18px; top: 6%; }
+  .motion .book-wrap .dock[data-dock="book-open"] { left: calc(50% - 115px); width: 230px; top: -62px; }
+  /* 三階段 */
+  .motion .stages .stage__in { display: grid; grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 12px; row-gap: 12px; }
+  .motion .s3-num { grid-area: 1 / 1; }
+  .motion .s3-head--a, .motion .s3-head--b { grid-area: 1 / 2; margin: 0; }
+  .motion .s3-head--b .btn { display: none; }
+  .motion .q { position: relative; }
+  .motion .stages h2 { font-size: min(20px, 5.1vw); }
+  .motion .stages .q > summary { display: block; position: relative; min-height: 44px; }
+  .motion .stages .q > summary .plus { position: absolute; right: 0; bottom: 0; margin: 0; width: 26px; height: 26px; }
+  .motion .q > .q__body { position: absolute; z-index: 5; left: -46px; right: 0; top: calc(100% + 10px); margin: 0; padding: 14px 16px; background: var(--popover); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 12px 30px rgba(58,42,24,.14); }
+  .motion .s3-zone { display: block; position: relative; grid-area: 2 / 1 / 3 / 3; }
+  .motion .s3-list--a, .motion .s3-list--b { grid-area: 2 / 1 / 3 / 3; align-self: end; max-height: 100%; overflow-y: auto; }
+  .motion .ladder { flex-direction: column-reverse; }
+  .motion .ladder summary > span, .motion .svc summary > span { font-size: 15px; line-height: 1.4; }
+  .motion .s3-more { display: flex; margin-top: 8px; }
+  .motion .s3-zone .dock[data-dock="st-low"] { left: calc(50% - 120px); width: 240px; bottom: -54px; }
+  .motion .s3-zone .dock[data-dock="st-rest"] { left: calc(50% - 125px); width: 250px; top: 4px; }
+  /* 創辦人 */
+  .motion .founder .stage__in { gap: 8px; padding-top: calc(var(--hdr) + 26px); }
+  .motion .f-art { width: min(124px, 17svh); margin-bottom: 6px; }
+  .motion .f-art .dock { left: calc(50% - 180px); width: 360px; top: calc(46% - 106px); }
+  .motion .f-quote { font-size: 16px; }
+  /* 媒體 */
+  .motion .media .stage__in { grid-template-rows: auto minmax(0, 1fr) auto; gap: 10px; }
+  .motion .media h2 { font-size: 18px; }
+  .motion .m-s1 { grid-area: 2 / 1; align-content: start; gap: clamp(40px, 9svh, 72px); }
+  .motion .m-pods { grid-area: 2 / 1; align-self: start; position: relative; padding-top: 112px; }
+  .motion .m-pods .dock { left: calc(50% - 140px); width: 280px; top: -12px; }
+  .motion .m-pods a { padding: 8px 0; }
+  .motion .m-shelf .dock { left: calc(50% - 100px); width: 200px; top: -56px; }
+  .motion .books { transform-origin: 50% 0; }
+  .motion .bk__cap { font-size: 14px; line-height: 1.45; margin-top: 10px; }
+  .motion .m-more { grid-area: 3 / 1; }
+  /* 社群 */
+  .motion .community .stage__in { gap: 10px; justify-content: flex-start; }
+  .motion .c-crest { height: clamp(76px, 18svh, 150px); flex: none; }
+  .motion .community .stage__in > * { flex: none; }
+  .motion .c-crest .dock { left: calc(50% - 115px); width: 230px; top: 0; }
+  .motion .community h2 { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- 圖形素材：金翼（三層羽毛，各層一個 class）與羅盤。正式 Logo 到位後換掉這一段即可。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="wc-gA" x1="0" x2="1"><stop offset="0" stop-color="#E8B15A"/><stop offset="1" stop-color="#B5762A"/></linearGradient>
+    <linearGradient id="wc-gB" x1="0" x2="1"><stop offset="0" stop-color="#F6D88F"/><stop offset="1" stop-color="#D89A3E"/></linearGradient>
+    <linearGradient id="wc-gC" x1="0" x2="1"><stop offset="0" stop-color="#FFF3CF"/><stop offset="1" stop-color="#E8B15A"/></linearGradient>
+    <linearGradient id="wc-gRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6D88F"/><stop offset=".5" stop-color="#C9862E"/><stop offset="1" stop-color="#8A5415"/></linearGradient>
+    <radialGradient id="wc-gDisc"><stop offset="0" stop-color="#FFFDF0"/><stop offset=".7" stop-color="#FFF6D8"/><stop offset="1" stop-color="#FCE7A8"/></radialGradient>
+    <linearGradient id="wm-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8B15A"/><stop offset="1" stop-color="#B5762A"/></linearGradient>
+    <g id="wing-g"><g class="lay lay--s3" fill="url(#wc-gA)" stroke="#8A5415" stroke-opacity="0.5" stroke-width=".8"><g class="f" style="--d:-28deg"><g transform="translate(286 190) rotate(-22) scale(1.34 1.2)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-35deg"><g transform="translate(286 190) rotate(-13.5) scale(1.62 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-42deg"><g transform="translate(286 190) rotate(-5) scale(1.9 1.4)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-49deg"><g transform="translate(286 190) rotate(3.5) scale(2.16 1.45)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-56deg"><g transform="translate(286 190) rotate(12) scale(2.38 1.5)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-63deg"><g transform="translate(286 190) rotate(20.5) scale(2.52 1.55)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-70deg"><g transform="translate(286 190) rotate(29) scale(2.58 1.55)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-77deg"><g transform="translate(286 190) rotate(37.5) scale(2.52 1.5)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-84deg"><g transform="translate(286 190) rotate(46) scale(2.36 1.45)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g></g><g class="lay lay--s2" fill="url(#wc-gB)" stroke="#8A5415" stroke-opacity="0.42" stroke-width=".8"><g class="f" style="--d:-26deg"><g transform="translate(286 190) rotate(-20) scale(1.04 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-35deg"><g transform="translate(286 190) rotate(-10) scale(1.24 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-44deg"><g transform="translate(286 190) rotate(0) scale(1.42 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-53deg"><g transform="translate(286 190) rotate(10) scale(1.55 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-62deg"><g transform="translate(286 190) rotate(20) scale(1.62 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-71deg"><g transform="translate(286 190) rotate(30) scale(1.6 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-80deg"><g transform="translate(286 190) rotate(40) scale(1.5 1.3)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g></g><g class="lay lay--s1" fill="url(#wc-gC)" stroke="#8A5415" stroke-opacity="0.36" stroke-width=".8"><g class="f" style="--d:-28deg"><g transform="translate(286 190) rotate(-20) scale(0.66 1.15)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-38deg"><g transform="translate(286 190) rotate(-8) scale(0.8 1.15)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-50deg"><g transform="translate(286 190) rotate(6) scale(0.9 1.15)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-62deg"><g transform="translate(286 190) rotate(20) scale(0.92 1.15)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g><g class="f" style="--d:-74deg"><g transform="translate(286 190) rotate(34) scale(0.86 1.15)"><path d="M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z" vector-effect="non-scaling-stroke"/><path d="M-8 0Q-52-3-92 1" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g></g></g>
+    <g id="compass-g">
+      <circle cx="100" cy="100" r="94" fill="url(#wc-gDisc)" stroke="url(#wc-gRing)" stroke-width="5"/>
+      <circle cx="100" cy="100" r="86" fill="none" stroke="#B5762A" stroke-opacity=".6" stroke-width="6" stroke-dasharray="1.4 21.115" stroke-dashoffset=".7"/>
+      <circle cx="100" cy="100" r="78" fill="none" stroke="#B5762A" stroke-opacity=".45" stroke-width="1"/>
+      <g opacity=".9">
+        <g transform="rotate(45 100 100)"><path d="M100 60L108 92 100 100Z" fill="#F0C875"/><path d="M100 60L92 92 100 100Z" fill="#FFF6D8"/></g>
+        <g transform="rotate(135 100 100)"><path d="M100 60L108 92 100 100Z" fill="#F0C875"/><path d="M100 60L92 92 100 100Z" fill="#FFF6D8"/></g>
+        <g transform="rotate(225 100 100)"><path d="M100 60L108 92 100 100Z" fill="#F0C875"/><path d="M100 60L92 92 100 100Z" fill="#FFF6D8"/></g>
+        <g transform="rotate(315 100 100)"><path d="M100 60L108 92 100 100Z" fill="#F0C875"/><path d="M100 60L92 92 100 100Z" fill="#FFF6D8"/></g>
+        <g><path d="M100 38L111 89 100 100Z" fill="#E8B15A"/><path d="M100 38L89 89 100 100Z" fill="#FCE7A8"/></g>
+        <g transform="rotate(90 100 100)"><path d="M100 38L111 89 100 100Z" fill="#E8B15A"/><path d="M100 38L89 89 100 100Z" fill="#FCE7A8"/></g>
+        <g transform="rotate(180 100 100)"><path d="M100 38L111 89 100 100Z" fill="#E8B15A"/><path d="M100 38L89 89 100 100Z" fill="#FCE7A8"/></g>
+        <g transform="rotate(270 100 100)"><path d="M100 38L111 89 100 100Z" fill="#E8B15A"/><path d="M100 38L89 89 100 100Z" fill="#FCE7A8"/></g>
+      </g>
+      <g><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/></g>
+      <g transform="rotate(90 100 100)"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/></g>
+      <g transform="rotate(180 100 100)"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/></g>
+      <g transform="rotate(270 100 100)"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/></g>
+      <g class="needle">
+        <path d="M100 152L105.5 100H94.5Z" fill="#C9862E" stroke="#FFF6D8" stroke-width="1"/>
+        <path d="M100 14L108 100 100 109 92 100Z" fill="#3A2409" stroke="#FFF6D8" stroke-width="1.2" stroke-linejoin="round"/>
+        <path d="M100 14L108 100 100 109Z" fill="#6B4212"/>
+      </g>
+      <circle cx="100" cy="100" r="8" fill="url(#wc-gRing)" stroke="#FFF6D8" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="2.5" fill="#3A2409"/>
+    </g>
+    <symbol id="wm" viewBox="0 0 72 44">
+      <g fill="url(#wm-g)"><path d="M28 22C21 13 12 8 2 7c6 6 14 12 25 18Z"/><path d="M27 26C20 20 12 17 5 17c5 5 12 9 21 12Z"/><path d="M26 30c-5-3-11-5-16-4 4 3 10 6 16 6Z"/>
+      <g transform="translate(72 0) scale(-1 1)"><path d="M28 22C21 13 12 8 2 7c6 6 14 12 25 18Z"/><path d="M27 26C20 20 12 17 5 17c5 5 12 9 21 12Z"/><path d="M26 30c-5-3-11-5-16-4 4 3 10 6 16 6Z"/></g></g>
+      <circle cx="36" cy="26" r="10" fill="#FFFDF0" stroke="url(#wm-g)" stroke-width="2"/><path d="M36 18l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" fill="#B5762A"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.9A8.5 8.5 0 1 1 21 11.5Z"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8ZM9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.600-7 10-7 10Z"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800L12 3ZM19 16l.7 2.300L22 19l-2.300.7L19 22l-.7-2.300L16 19l2.300-.7L19 16Z"/></symbol>
+    <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="9" cy="9" r="6"/><path d="M15.500 9.500a6 6 0 1 1-6 9"/><path d="M9 6.500v5M7 9h4"/></symbol>
+    <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-9M12 12c0-4-3-6-7-6 0 4 3 6 7 6ZM12 14c0-3 2.500-5 7-5 0 3.500-2.500 5-7 5Z"/></symbol>
+  </defs>
+</svg>
+
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="/"><svg aria-hidden="true" focusable="false"><use href="#wm"/></svg>豐盛之翼學苑</a>
+    <nav class="nav">
+      <details name="nav"><summary>關於豐盛之翼學苑<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><ul><li><a href="/about">品牌理念</a></li><li><a href="/story">創辦人經歷與故事</a></li><li><a href="/contact">官方聯繫與諮詢管道</a></li></ul></details>
+      <details name="nav"><summary>療癒與培訓<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><ul><li><a href="/services">服務項目</a></li><li><a href="/training">培訓課程</a></li></ul></details>
+      <details name="nav"><summary>見證與實用內容<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><ul><li><a href="/testimonials">真實見證</a></li><li><a href="/blog">好運blog</a></li><li><a href="/resources">免費資源</a></li><li><a href="/media">媒體專訪</a></li></ul></details>
+    </nav>
+    <div class="actions">
+      <a class="btn btn-outline btn-sm only-desktop" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>私訊諮詢</a>
+      <a class="btn btn-gold btn-sm" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">商城<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+      <details class="mnav">
+        <summary aria-label="開啟選單"><svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg></summary>
+        <div class="mnav__panel">
+          <p>關於豐盛之翼學苑</p><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a><a href="/contact">官方聯繫與諮詢管道</a>
+          <p>療癒與培訓</p><a href="/services">服務項目</a><a href="/training">培訓課程</a>
+          <p>見證與實用內容</p><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a>
+        </div>
+      </details>
+    </div>
+  </div>
+  <span class="progress" aria-hidden="true"></span>
+</header>
+
+<!-- 飛行的金翼（裝飾；內容由頁尾的程式填入） -->
+<div class="tw-layer" aria-hidden="true"><div class="tw" id="tw"><div class="tw__float">
+  <div class="tw__rays"></div><div class="tw__glow"></div>
+  <div class="wingbox wingbox--l"><div class="wing wing--l"><svg class="wing__svg" viewBox="0 0 300 260" focusable="false"></svg></div></div>
+  <div class="wingbox wingbox--r"><div class="wing wing--r"><svg class="wing__svg" viewBox="0 0 300 260" focusable="false"></svg></div></div>
+  <svg class="tw__core" viewBox="0 0 40 40" focusable="false"><circle cx="20" cy="20" r="17" fill="#FFF6D8" opacity=".6"/><path d="M20 2l5 13 13 5-13 5-5 13-5-13-13-5 13-5Z" fill="url(#wc-gRing)" stroke="#FFF6D8" stroke-width="1.2"/></svg>
+</div></div></div>
+
+<main id="main">
+
+<!-- ═════ 01 Hero ═════ -->
+<section id="hero" class="slide hero">
+  <div class="stage"><div class="stage__in">
+    <div class="hero__text">
+      <div class="hero__top">
+        <p class="kicker"><span class="num" aria-hidden="true">01</span><span class="eyebrow">成為你豐盛之路上的翅膀</span></p>
+        <h1><span class="ln">為你的人生開外掛！</span><span class="ln gold-text">許願成真，就是這麼幸福。</span></h1>
+        <span class="dock" data-dock="hero-perch"></span>
+      </div>
+      <div class="hero__more">
+        <p class="hero__desc">豐盛之翼學苑旨在成為大家豐盛之路上的翅膀。無論你正期盼感情的順遂、財富的自由，或是生活的全面好運，我們將透過最白話、最落地的靈性工具，陪你解開內在卡點。讓你從此不再迷惘，活出充滿熱情與使命的幸運人生！</p>
+        <div class="hero__cta">
+          <a class="btn btn-gold" href="#personas-section">從這裡，開始我的改變<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-outline btn-sm" data-at=".62" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">加入免費體驗社群：密碼168168<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+        </div>
+        <ul class="hero__badges">
+          <li><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>《七週遇見對的人》暢銷書推薦序作者</li>
+          <li><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>500+個案經驗</li>
+          <li><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>整合14種以上顯化技術，助你掌握受用一輩子的工具</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hero__art">
+      <div class="hero__emb">
+        <div class="emb emb--live emb--hero" role="img" aria-label="金色雙翼與羅盤">
+          <div class="emb__rays"></div><div class="emb__glow"></div>
+          <div class="wingbox wingbox--l"><div class="wing wing--l"><svg class="wing__svg" viewBox="0 0 300 260" focusable="false"><use href="#wing-g"/></svg></div></div>
+          <div class="wingbox wingbox--r"><div class="wing wing--r"><svg class="wing__svg" viewBox="0 0 300 260" focusable="false"><use href="#wing-g"/></svg></div></div>
+          <svg class="compass" viewBox="0 0 200 200" focusable="false"><use href="#compass-g"/></svg>
+        </div>
+        <span class="dock" data-dock="hero"></span>
+      </div>
+    </div>
+    <span class="cue" aria-hidden="true"></span>
+  </div></div>
+</section>
+
+<!-- ═════ 02 需求入口：一本可以翻的書 ═════ -->
+<section id="personas-section" class="slide book">
+  <div class="stage"><div class="stage__in">
+    <div class="head">
+      <span class="num" aria-hidden="true">02</span>
+      <h2 id="needs-h"><span class="nb">為不同階段的你，</span><span class="nb">量身規劃專屬的</span><span class="nb">改變起點</span></h2>
+    </div>
+    <div class="book-wrap">
+      <span class="dock" data-dock="book-closed"></span><span class="dock" data-dock="book-open"></span>
+      <div class="book-shift">
+        <div class="book-tabs">
+          <a class="tab" id="tab-family" href="#need-family" data-need="0">家庭</a>
+          <a class="tab" id="tab-love" href="#need-love" data-need="1">感情</a>
+          <a class="tab" id="tab-business" href="#need-business" data-need="2">事業</a>
+          <a class="tab" id="tab-starter" href="#need-starter" data-need="3">新手</a>
+        </div>
+        <div class="book-scene"><div class="bk-book">
+          <div class="board" aria-hidden="true"></div>
+
+          <div class="leaf" style="--i:0"><div class="leaf__in">
+            <div class="face face--front face--cover" aria-hidden="true"><div class="cover"><svg viewBox="0 0 200 200" focusable="false"><use href="#compass-g"/></svg></div></div>
+            <div class="face face--back face--preface"><div class="sheet"><p>身心靈療癒不是迷信，而是幫你的大腦「重新開機、清除雜訊」。不論你處在哪個人生階段，幸運教主文齡 Keila 都為你準備了最理性、安心且溫和的改變地圖。</p></div></div>
+          </div></div>
+
+          <div class="leaf" style="--i:1"><div class="leaf__in">
+            <div class="face face--front face--toc"><div class="sheet"><nav class="toc" aria-labelledby="needs-h"><ol>
+              <li><a href="#need-family" data-need="0"><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-heart"/></svg></span>家庭與孩子守護</a></li>
+              <li><a href="#need-love" data-need="1"><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-sparkles"/></svg></span>幸福真愛與伴侶</a></li>
+              <li><a href="#need-business" data-need="2"><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-coins"/></svg></span>企業求財與事業突破</a></li>
+              <li><a href="#need-starter" data-need="3"><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-sprout"/></svg></span>開啟身心靈事業 (新手入門)</a></li>
+            </ol></nav></div></div>
+            <div class="face face--back" id="need-family" data-need="0" data-part="a"><div class="sheet sheet--a">
+              <h3><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-heart"/></svg></span>家庭與孩子守護</h3>
+              <p class="pain">「每天為孩子的課業、情緒操碎了心，還要面對另一半或長輩的壓力。多渴望家裡和睦順利，孩子自動自發，自己也能好好睡個好覺。」</p>
+              <button class="turn btn btn-outline btn-sm" type="button" aria-expanded="false" aria-controls="need-family-b">真實改變故事<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+              <span class="pg-no" aria-hidden="true">1</span>
+            </div></div>
+          </div></div>
+
+          <div class="leaf" style="--i:2"><div class="leaf__in">
+            <div class="face face--front" id="need-family-b" data-need="0" data-part="b"><div class="sheet sheet--b">
+              <p class="lbl"><button class="back" type="button" aria-label="家庭與孩子守護"><svg class="ico" aria-hidden="true"><use href="#i-back"/></svg></button>真實改變故事</p>
+              <details class="story" name="st-family"><summary>媽媽的定心丸<i class="plus" aria-hidden="true"></i></summary><p>孩子原本對讀書沒動力、人際卡關，媽媽幫他遠距預約「人生推進器」祝福後，孩子明顯變得積極，不僅主動分享心事，還說出未來想出國唸書的目標！</p></details>
+              <details class="story" name="st-family"><summary>婆媳與夫妻和解<i class="plus" aria-hidden="true"></i></summary><p>面臨極大婆媳壓力的媳婦，為婆婆預約「靈性按摩」清理身心壓力後，婆婆不再把情緒發洩在她身上；也有先生幫容易爆炸的太太預約，兩人終於能心平氣和地好好說話。</p></details>
+              <p class="lbl">專屬起點</p>
+              <p class="start">為辛勞的你提供最深度的安定感。當媽媽的心安定了，整個家就會迎來最溫柔的和諧。</p>
+              <div class="pg-cta"><a class="btn btn-gold btn-sm" href="/services/group-healing">了解人生推進器</a><a class="btn btn-outline btn-sm" href="/services/spiritual-massage">看靈性按摩介紹</a></div>
+              <span class="pg-no" aria-hidden="true">2</span>
+            </div></div>
+            <div class="face face--back" id="need-love" data-need="1" data-part="a"><div class="sheet sheet--a">
+              <h3><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-sparkles"/></svg></span>幸福真愛與伴侶</h3>
+              <p class="pain">「母胎單身、總是遇不到對的人，或是一再陷入『不斷付出卻受傷』的感情舊模式？到底哪裡出了錯，我也想被好好疼愛啊！」</p>
+              <button class="turn btn btn-outline btn-sm" type="button" aria-expanded="false" aria-controls="need-love-b">真實改變故事<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+              <span class="pg-no" aria-hidden="true">3</span>
+            </div></div>
+          </div></div>
+
+          <div class="leaf" style="--i:3"><div class="leaf__in">
+            <div class="face face--front" id="need-love-b" data-need="1" data-part="b"><div class="sheet sheet--b">
+              <p class="lbl"><button class="back" type="button" aria-label="幸福真愛與伴侶"><svg class="ico" aria-hidden="true"><use href="#i-back"/></svg></button>真實改變故事</p>
+              <details class="story" name="st-love"><summary>母胎單身逆襲<i class="plus" aria-hidden="true"></i></summary><p>透過心靈引渡人一對一對談，精準找出內心深處「害怕受傷」的愛情盲點。母胎單身的女孩成功告白，現在已經順利結婚生子！</p></details>
+              <details class="story" name="st-love"><summary>打破爛桃花循環<i class="plus" aria-hidden="true"></i></summary><p>透過練愛大確幸專屬課程陪跑，清空過去的感情包袱。不再委曲求全，活出自信閃耀的自己，順利吸引到真正懂你、疼你的另一半。</p></details>
+              <p class="lbl">專屬起點</p>
+              <p class="start">幫助你重新愛上自己，拔除感情裡的「有毒習慣」。這是一段溫暖陪伴的旅程，幫你打開心房，遇見真正適合你的人。</p>
+              <div class="pg-cta"><a class="btn btn-gold btn-sm" href="/services/personal-1on1">了解心靈引渡人</a><a class="btn btn-outline btn-sm" href="https://booking.wenling.tw/products/love365" target="_blank" rel="noopener noreferrer">看練愛大確幸介紹<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a></div>
+              <span class="pg-no" aria-hidden="true">4</span>
+            </div></div>
+            <div class="face face--back" id="need-business" data-need="2" data-part="a"><div class="sheet sheet--a">
+              <h3><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-coins"/></svg></span>企業求財與事業突破</h3>
+              <p class="pain">「身處商場高壓，每天焦慮到不行。面臨業績停滯、找不到神隊友員工，或是投資決策卡關，多渴望能有一股推力，讓財富與事業全面大爆發！」</p>
+              <button class="turn btn btn-outline btn-sm" type="button" aria-expanded="false" aria-controls="need-business-b">真實改變故事<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+              <span class="pg-no" aria-hidden="true">5</span>
+            </div></div>
+          </div></div>
+
+          <div class="leaf" style="--i:4"><div class="leaf__in">
+            <div class="face face--front" id="need-business-b" data-need="2" data-part="b"><div class="sheet sheet--b">
+              <p class="lbl"><button class="back" type="button" aria-label="企業求財與事業突破"><svg class="ico" aria-hidden="true"><use href="#i-back"/></svg></button>真實改變故事</p>
+              <details class="story" name="st-business"><summary>投資人與老闆的神助攻<i class="plus" aria-hidden="true"></i></summary><p>透過豐盛靈氣清理掉「金錢阻礙」後，退休媽媽的股票從虧損 50 萬逆轉正，有操盤手突破個人最高獲利兩千萬！企業主也順利招募到心目中的神隊友員工。</p></details>
+              <details class="story" name="st-business"><summary>業績翻倍超順利<i class="plus" aria-hidden="true"></i></summary><p>珠寶店使用煙供祈福，順利打破長期的業績停滯期，創造每月穩定達到200萬元以上的業績。</p></details>
+              <p class="lbl">專屬起點</p>
+              <p class="start">為老闆、創業家、業務員與投資者提供專屬的開運助攻，讓好運與業績自動找上門！</p>
+              <div class="pg-cta"><a class="btn btn-gold btn-sm" href="/services/abundance-reiki">了解豐盛靈氣</a><a class="btn btn-outline btn-sm" href="/services/smoke-prayer">看煙供祈福介紹</a></div>
+              <span class="pg-no" aria-hidden="true">6</span>
+            </div></div>
+            <div class="face face--back" id="need-starter" data-need="3" data-part="a"><div class="sheet sheet--a">
+              <h3><span class="pg-ico" aria-hidden="true"><svg class="ico"><use href="#i-sprout"/></svg></span>開啟身心靈事業 (新手入門)</h3>
+              <p class="pain">「對身心靈充滿好奇，想找個簡單實用的方法解決自己的煩惱；或是想多一份副業收入，卻不知道從哪裡開始最快賺到錢？」</p>
+              <button class="turn btn btn-outline btn-sm" type="button" aria-expanded="false" aria-controls="need-starter-b">真實改變故事<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+              <span class="pg-no" aria-hidden="true">7</span>
+            </div></div>
+          </div></div>
+
+          <div class="leaf" style="--i:5"><div class="leaf__in">
+            <div class="face face--front" id="need-starter-b" data-need="3" data-part="b"><div class="sheet sheet--b">
+              <p class="lbl"><button class="back" type="button" aria-label="開啟身心靈事業 (新手入門)"><svg class="ico" aria-hidden="true"><use href="#i-back"/></svg></button>真實改變故事</p>
+              <details class="story" name="st-starter"><summary>占卜師專業大升級<i class="plus" aria-hidden="true"></i></summary><p>塔羅牌占卜師學習希塔療癒後，從「只能給建議」變成「能實際幫客戶解決困擾」，收費價值大幅提升，開拓出全新的賺錢方向。</p></details>
+              <details class="story" name="st-starter"><summary>零基礎小白無痛增加收入<i class="plus" aria-hidden="true"></i></summary><p>完全沒有身心靈背景的上班族，學完簡單易懂的金錢靈氣後，開始穩定接案增加收入，甚至能自己開課賺錢，打造完美副業！</p></details>
+              <p class="lbl">專屬起點</p>
+              <p class="start">不論是想療癒自己，還是想發展高收入的第二專長，這裡有最簡單、零門檻的教學，帶你把所學變成實際的收入。</p>
+              <div class="pg-cta"><a class="btn btn-gold btn-sm" href="/training/theta-basic">了解希塔療癒</a><a class="btn btn-outline btn-sm" href="/training/money-reiki-cert">看金錢靈氣課介紹</a></div>
+              <span class="pg-no" aria-hidden="true">8</span>
+            </div></div>
+          </div></div>
+        </div></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ═════ 03 三階段，結尾接能量療癒服務 ═════ -->
+<section id="home-stages" class="slide stages">
+  <div class="stage"><div class="stage__in">
+    <span class="num s3-num" aria-hidden="true">03</span>
+    <div class="s3-head--a">
+      <details class="q" name="s3a"><summary><h2><span class="nb">這些技術之間的關係是什麼？</span><span class="nb">可以搭配使用嗎？</span></h2><i class="plus" aria-hidden="true"></i></summary>
+        <p class="q__body">這 14 項技術就像是一個「完整的個人蛻變工具箱」，它們之間不僅不衝突，還能產生極其強大的加乘效果（Synergy）。針對你當下的不同狀態，這套系統能提供最精準的三階段支援：</p></details>
+    </div>
+    <div class="s3-zone" aria-hidden="true"><span class="dock" data-dock="st-low"></span><span class="dock" data-dock="st-rest"></span></div>
+    <ol class="ladder s3-list--a">
+      <li class="rung glass" data-at=".2" data-until=".62"><details name="s3a"><summary><svg class="mini" viewBox="0 0 300 260" style="--l1:var(--lit,1);--l2:.16;--l3:.16" aria-hidden="true" focusable="false"><use href="#wing-g"/></svg><span>第一階段：淨化與釋放 (Cleansing &amp; Releasing)</span><i class="plus" aria-hidden="true"></i></summary>
+        <div class="body"><p>當你感到極度疲憊或卡關時，我們會先運用 煦陽靈氣 疏通身體經絡與卡卡的感受，並以 獨角獸靈氣 帶來深度的能量淨化；接著透過 希塔療癒 深入潛意識，拔除造成痛苦的根源信念。若有外在阻礙，則會搭配 脈輪與氣場能量療癒 或是 煙供 進行全面掃除。</p><a class="lk" href="/services/smoke-prayer">遠距煙供祈福儀式<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+      <li class="rung glass" data-at=".36" data-until=".62"><details name="s3a"><summary><svg class="mini" viewBox="0 0 300 260" style="--l1:.16;--l2:var(--lit,1);--l3:.16" aria-hidden="true" focusable="false"><use href="#wing-g"/></svg><span>第二階段：滋養與修復 (Nourishing &amp; Healing)</span><i class="plus" aria-hidden="true"></i></summary>
+        <div class="body"><p>釋放舊有模式後，身心靈極度需要被溫柔地接住。這時我們可以透過 彩虹靈氣 修補靈魂能量，運用 百花靈氣 與 臼井靈氣 帶來如花朵般的撫慰與深層放鬆。同時搭配客製化的 香水供 調整五行頻率，給予你最完整的能量滋養。</p><a class="lk" href="/services/five-elements-perfume">五行香水供奉｜佛前加持版<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+      <li class="rung glass" data-at=".52" data-until=".62"><details name="s3a"><summary><svg class="mini" viewBox="0 0 300 260" style="--l1:.16;--l2:.16;--l3:var(--lit,1)" aria-hidden="true" focusable="false"><use href="#wing-g"/></svg><span>第三階段：顯化與推進 (Manifesting &amp; Accelerating)</span><i class="plus" aria-hidden="true"></i></summary>
+        <div class="body"><p>當身心恢復純淨與力量，就是迎來奇蹟的時候了。為了加速顯化，我們會疊加 金錢靈氣、鬱金香熱情靈氣 或是提升魅力的 人魚靈氣；並啟動 人生推進器 勇敢斷捨離，最後再透過 獨角獸靈氣 大幅提升顯化速度，讓你順利承接宇宙源源不絕的好運！</p><a class="lk" href="/services/group-healing">人生推進器｜團體遠距療癒<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+    </ol>
+    <div class="s3-head--b" id="featured-services" data-at=".84">
+      <details class="q" name="s3b"><summary><h2><span class="nb">能量療癒服務｜</span><span class="nb">為你的身心靈量身訂做的解方</span></h2><i class="plus" aria-hidden="true"></i></summary>
+        <p class="q__body">從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。</p></details>
+      <a class="btn btn-outline" href="/services">服務項目<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+    <div class="s3-list--b" data-at=".84">
+      <ul class="svc">
+        <li class="glass"><details name="s3b"><summary><span>人生推進器｜團體遠距療癒</span><i class="plus" aria-hidden="true"></i></summary><div class="body"><p>強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。</p><a class="lk" href="/services/group-healing">了解詳細服務說明<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+        <li class="glass"><details name="s3b"><summary><span>心靈引渡人｜一對一個人能量療癒</span><i class="plus" aria-hidden="true"></i></summary><div class="body"><p>潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。</p><a class="lk" href="/services/personal-1on1">了解詳細服務說明<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+        <li class="glass"><details name="s3b"><summary><span>豐盛靈氣｜全方位能量調頻與願望顯化</span><i class="plus" aria-hidden="true"></i></summary><div class="body"><p>整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。</p><a class="lk" href="/services/abundance-reiki">了解詳細服務說明<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+      </ul>
+      <a class="btn btn-outline s3-more" href="/services">服務項目<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div></div>
+</section>
+
+<!-- ═════ 04 創辦人 ═════ -->
+<section id="founder" class="slide founder">
+  <div class="stage"><div class="stage__in">
+    <div class="f-art">
+      <span class="dock" data-dock="founder"></span>
+      <div class="f-arch" data-placeholder="founder-portrait" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><path d="M20 2l5 13 13 5-13 5-5 13-5-13-13-5 13-5Z" fill="url(#wc-gRing)" stroke="#FFF6D8" stroke-width="1.2"/></svg></div>
+    </div>
+    <p class="kicker"><span class="num" aria-hidden="true">04</span><span class="eyebrow">創辦人</span></p>
+    <h2>豐盛之翼學苑創辦人 <span class="nb">幸運教主文齡 Keila</span></h2>
+    <p class="f-label">我的使命與願景｜在愛與豐盛中綻放靈魂的光芒</p>
+    <p class="f-quote">「引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。」</p>
+    <a class="btn btn-outline f-btn" href="/story">創辦人經歷與故事<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </div></div>
+</section>
+
+<!-- ═════ 05 媒體：三本書與 Podcast ═════ -->
+<section id="media-section" class="slide media">
+  <div class="stage"><div class="stage__in">
+    <p class="kicker"><span class="num" aria-hidden="true">05</span><span class="eyebrow">媒體專訪與出版紀錄</span></p>
+    <div class="m-s1">
+      <h2>幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享</h2>
+      <div class="m-shelf">
+        <span class="dock" data-dock="media"></span>
+        <ul class="books">
+          <li class="bk--1"><a class="bk" href="/media"><span class="bk-h"><span class="bk3d"><span class="bk__back" aria-hidden="true"></span><span class="bk__spine" aria-hidden="true"></span><span class="bk__edge" aria-hidden="true"></span><span class="bk__cover" data-placeholder="book-cover"><span><span class="nb">《七週遇見</span><span class="nb">對的人》</span></span></span></span></span></a><p class="bk__cap">暢銷書《七週遇見對的人》改版唯一推薦序作者</p></li>
+          <li class="bk--2"><a class="bk" href="/media"><span class="bk-h"><span class="bk3d"><span class="bk__back" aria-hidden="true"></span><span class="bk__spine" aria-hidden="true"></span><span class="bk__edge" aria-hidden="true"></span><span class="bk__cover" data-placeholder="book-cover"><span>《練愛大確幸》</span></span></span></span></a><p class="bk__cap">個人著作：《練愛大確幸》實作手帳</p></li>
+          <li class="bk--3"><a class="bk" href="/media"><span class="bk-h"><span class="bk3d"><span class="bk__back" aria-hidden="true"></span><span class="bk__spine" aria-hidden="true"></span><span class="bk__edge" aria-hidden="true"></span><span class="bk__cover" data-placeholder="book-cover"><span><span class="nb">《好女人的</span><span class="nb">情場攻略》</span></span></span></span></span></a><p class="bk__cap">《好女人的情場攻略》— 節目合作／內容參與</p></li>
+        </ul>
+      </div>
+    </div>
+    <div class="m-pods" id="media-podcasts" data-at=".82">
+      <span class="dock" data-dock="media-mini"></span>
+      <p class="m-label">Podcast 精選訪談</p>
+      <ul>
+        <li><a href="https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw" target="_blank" rel="noopener noreferrer"><span class="ic" aria-hidden="true"><svg class="ico"><use href="#i-mic"/></svg></span><span class="tx"><span class="show">美麗佳人 Podcast</span><span class="ep">S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛</span></span><svg class="ico up" aria-hidden="true"><use href="#i-up"/></svg></a></li>
+        <li><a href="https://open.firstory.me/story/cl4vg6oez001d01t99rpi2bwd" target="_blank" rel="noopener noreferrer"><span class="ic" aria-hidden="true"><svg class="ico"><use href="#i-mic"/></svg></span><span class="tx"><span class="show">好女人的情場攻略 Podcast</span><span class="ep">Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！</span></span><svg class="ico up" aria-hidden="true"><use href="#i-up"/></svg></a></li>
+        <li><a href="https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229" target="_blank" rel="noopener noreferrer"><span class="ic" aria-hidden="true"><svg class="ico"><use href="#i-mic"/></svg></span><span class="tx"><span class="show">小紀老師的幸福學 Podcast</span><span class="ep">Ep.163 l 如何成為金錢磁鐵</span></span><svg class="ico up" aria-hidden="true"><use href="#i-up"/></svg></a></li>
+      </ul>
+    </div>
+    <a class="btn btn-inverse m-more" href="/media">媒體專訪<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </div></div>
+</section>
+
+<!-- ═════ 06 免費社群 ═════ -->
+<section id="free-resources" class="slide community">
+  <div class="stage"><div class="stage__in">
+    <div class="c-crest" aria-hidden="true"><span class="dock" data-dock="community"></span></div>
+    <p class="kicker"><span class="num" aria-hidden="true">06</span><span class="eyebrow">免費資源</span></p>
+    <h2>加入免費社群【豐盛之翼學苑】</h2>
+    <p class="code"><span class="code__label">加入密碼：</span><span class="code__digits"><span>1</span><span>6</span><span>8</span><span>1</span><span>6</span><span>8</span></span></p>
+    <p class="c-intro">這裡每天都有滿滿的正能量，歡迎你帶著願望進來，也帶著好消息出去！社群內每週都會舉辦免費的公益直播，參與直播還有機會得到專屬小禮物 。</p>
+    <div class="c-cta">
+      <a class="btn btn-gold" id="community-cta" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">加入免費體驗社群：密碼168168<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+      <a class="btn btn-outline" href="/resources">免費資源<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div></div>
+</section>
+
+<!-- ═════ 07 常見問題（不釘住） ═════ -->
+<section id="home-faq" class="faq">
+  <div class="wrap">
+    <div class="faq__head"><span class="num" aria-hidden="true">07</span><h2>常見問題</h2><span class="dock" data-dock="faq"></span></div>
+    <div class="faq__list">
+      <details name="home-faq"><summary>療癒／課程多久會有效？<i class="plus" aria-hidden="true"></i></summary><p>每個人的能量運作節奏不同。有人隔天就能感受到具體轉變，也有人是在數週內逐步改善。身心感受通常顯現較快，之後請留意生活中的細微變化，例如想法變清晰、習慣模式改變，或身邊的人對待你的態度不同了。</p></details>
+      <details name="home-faq"><summary>這是什麼？會不會是降頭或巫術？<i class="plus" aria-hidden="true"></i></summary><p>絕對不是降頭或巫術。我們所使用的技術（如希塔療癒、擴大療癒等）皆源自正向、純淨的高頻源頭能量，屬於能量調整與潛意識轉化，非占卜、非通靈，也不涉及任何宗教束縛。</p></details>
+      <details name="home-faq"><summary>我可以幫家人或朋友預約嗎？<i class="plus" aria-hidden="true"></i></summary><p>個人一對一療癒需經本人同意並親自參與；團體遠距能量服務（如人生推進器、煙供）則可代為預約，但需先提供對方全名，經確認能量意願無誤後再進行安排。</p></details>
+      <details name="home-faq"><summary>這些服務／課程可以取代醫療或心理治療嗎？<i class="plus" aria-hidden="true"></i></summary><p>不行。所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═════ 收束：金翼回到羅盤 ═════ -->
+<section id="final-cta" class="cta-band inverse">
+  <div class="cta-band__in">
+    <div class="emb emb--live emb--foot" aria-hidden="true">
+      <div class="emb__glow"></div>
+      <div class="wingbox wingbox--l"><div class="wing wing--l"><svg class="wing__svg" viewBox="0 0 300 260" focusable="false"><use href="#wing-g"/></svg></div></div>
+      <div class="wingbox wingbox--r"><div class="wing wing--r"><svg class="wing__svg" viewBox="0 0 300 260" focusable="false"><use href="#wing-g"/></svg></div></div>
+      <svg class="compass" viewBox="0 0 200 200" focusable="false"><use href="#compass-g"/></svg>
+      <span class="dock" data-dock="footer"></span>
+    </div>
+    <h2>成為你豐盛之路上的翅膀</h2>
+    <div class="row">
+      <a class="btn btn-line" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>私訊官方 LINE</a>
+      <a class="btn btn-inverse" href="#personas-section">從這裡，開始我的改變<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+    <a class="lk" style="color:var(--inverse-accent)" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-bag"/></svg>前往購買<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+  </div>
+</section>
+
+<footer class="site-footer inverse">
+  <div class="wrap">
+    <div>
+      <a class="f-brand" href="/"><svg aria-hidden="true" focusable="false"><use href="#wm"/></svg>豐盛之翼學苑</a>
+      <p style="margin-top:10px;color:#B49A76">用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。</p>
+      <p class="f-status" style="margin-top:12px">全球線上遠距服務</p>
+    </div>
+    <div class="f-nav">
+      <div><h3>關於豐盛之翼學苑</h3><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a></div>
+      <div><h3>療癒與培訓</h3><a href="/services">服務項目</a><a href="/training">培訓課程</a></div>
+      <div><h3>見證與實用內容</h3><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a></div>
+    </div>
+    <div>
+      <h3>官方聯繫與諮詢管道</h3>
+      <p style="color:#B49A76">企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+      <a href="mailto:lavie@wenling.tw">lavie@wenling.tw</a>
+      <a href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer">@healer.wenling</a>
+      <a href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA" target="_blank" rel="noopener noreferrer">輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</a>
+      <a class="btn btn-inverse btn-sm" style="display:inline-flex;margin-top:8px" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">訂購商品、服務或課程<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+    </div>
+    <div class="f-disc f-wide"><strong>免責聲明</strong>所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</div>
+    <div class="f-end f-wide"><span>© 2026 豐盛之翼學苑</span><a href="/legal">免責聲明與條款</a></div>
+  </div>
+</footer>
+
+<!-- 手機底部固定列：主按鈕＋私訊諮詢 -->
+<div class="sticky-cta">
+  <a class="btn btn-gold" id="bar-primary" href="#personas-section">從這裡，開始我的改變</a>
+  <a class="btn btn-line" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>私訊諮詢</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/MotionPathPlugin.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+
+  /* ── 不論有沒有動畫都啟用的小功能 ── */
+  // 同一組 <details name> 一次只開一個（舊瀏覽器的後備）
+  document.addEventListener('toggle', function (e) {
+    var d = e.target;
+    if (!d || d.tagName !== 'DETAILS' || !d.open) return;
+    var name = d.getAttribute('name');
+    if (name) $$('details[name="' + name + '"]').forEach(function (o) { if (o !== d) o.open = false; });
+  }, true);
+  // 點選單以外的地方就收起頁首選單
+  document.addEventListener('click', function (e) {
+    $$('.site-header details[open]').forEach(function (d) { if (!d.contains(e.target)) d.open = false; });
+  });
+
+  var gsap = window.gsap, ST = window.ScrollTrigger;
+  if (!gsap || !ST || !root.classList.contains('motion')) { root.classList.remove('motion'); if (!gsap || !ST) return; }
+  gsap.registerPlugin(ST);
+  if (window.MotionPathPlugin) gsap.registerPlugin(window.MotionPathPlugin);
+  ST.config({ ignoreMobileResize: true });
+
+  // 飛行的金翼：把靜態素材裡的羽毛複製成真正的節點，才能逐層、逐根操作
+  var tw = $('#tw'), twRays = $('.tw__rays', tw);
+  $$('.wing__svg', tw).forEach(function (svg) { svg.innerHTML = $('#wing-g').innerHTML; });
+
+  var mm = null, rebuilding = false;
+
+  function setup(D) {
+    var undo = [];
+    var SCRUB = D ? 0.5 : true;
+    var slides = {};
+
+    function rel(el, anc) { var x = 0, y = 0, n = el; while (n && n !== anc) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; } return { x: x, y: y }; }
+    function mkTL(id, opts) {
+      var sec = document.getElementById(id), stage = $('.stage', sec);
+      var tl = gsap.timeline({
+        defaults: { ease: 'none', lazy: false },
+        scrollTrigger: Object.assign({ trigger: sec, start: 'top top', end: function () { return '+=' + Math.max(1, sec.offsetHeight - stage.offsetHeight); }, scrub: SCRUB, invalidateOnRefresh: true }, opts || {})
+      });
+      slides[id] = tl.scrollTrigger;
+      return tl;
+    }
+    // 中文沒有空白，SplitText 分不出行；這裡依實際折行位置自己分行
+    function splitLines(el) {
+      var text = el.textContent;
+      var seg = (window.Intl && Intl.Segmenter) ? Array.from(new Intl.Segmenter('zh-Hant', { granularity: 'grapheme' }).segment(text), function (s) { return s.segment; }) : Array.from(text);
+      el.textContent = '';
+      var spans = seg.map(function (ch) { var s = document.createElement('span'); s.textContent = ch; el.appendChild(s); return s; });
+      var lines = [], cur = null, top = null;
+      spans.forEach(function (s) { var t = s.offsetTop; if (top === null || Math.abs(t - top) > 4) { cur = []; lines.push(cur); top = t; } cur.push(s.textContent); });
+      el.textContent = '';
+      var inner = lines.map(function (chars) {
+        var m = document.createElement('span'); m.className = 'ln';
+        var i = document.createElement('span'); i.className = 'ln__in'; i.textContent = chars.join('');
+        m.appendChild(i); el.appendChild(m); return i;
+      });
+      undo.push(function () { el.textContent = text; });
+      return inner;
+    }
+    function show(tl, els, at, from, dur, stagger) {
+      tl.fromTo(els, Object.assign({ opacity: 0 }, from || {}), { opacity: 1, x: 0, y: 0, duration: dur || .12, stagger: stagger || 0, ease: 'power2.out' }, at);
+    }
+
+    /* ── 01 Hero ── */
+    (function () {
+      var tl = mkTL('hero');
+      var desc = $('.hero__desc'), lines = splitLines(desc), badges = $$('.hero__badges li'), sec2 = $('.hero__cta .btn-outline');
+      gsap.set(desc, { opacity: 1 }); gsap.set(lines, { opacity: 0 });
+      tl.to('.cue', { opacity: 0, duration: .08 }, 0);
+      if (D) {
+        tl.fromTo(lines, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .2, stagger: .045, ease: 'power2.out' }, .08);
+        show(tl, sec2, .36, { x: -14 }, .14); tl.set(sec2, { pointerEvents: 'auto' }, .4);
+        show(tl, badges, .44, { y: 14 }, .14, .05);
+        tl.fromTo('.emb--hero', { '--needle': 0 }, { '--needle': 180, duration: .32, ease: 'power2.inOut' }, .62);
+      } else {
+        tl.fromTo('.emb--hero', { scale: 1, opacity: 1 }, { scale: .5, opacity: 0, duration: .26, ease: 'power2.in' }, .1);
+        tl.fromTo(lines, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .22, stagger: .04, ease: 'power2.out' }, .3);
+        show(tl, sec2, .56, { y: 12 }, .14); tl.set(sec2, { pointerEvents: 'auto' }, .6);
+        show(tl, badges, .64, { y: 12 }, .14, .05);
+      }
+      tl.set({}, {}, 1);
+    })();
+
+    /* ── 手機底部固定列的主按鈕：預設 → 書裡翻到的對象 → 社群 ── */
+    var bar = $('#bar-primary');
+    var barDefault = { label: bar.textContent, href: bar.getAttribute('href'), ext: false };
+    var barState = { need: -1, community: false };
+    var needCta = [0, 1, 2, 3].map(function (i) { var a = $('.face[data-need="' + i + '"][data-part="b"] .pg-cta a'); return { label: a.textContent.trim(), href: a.getAttribute('href'), ext: a.target === '_blank' }; });
+    var comm = $('#community-cta'), commCta = { label: comm.textContent.trim(), href: comm.getAttribute('href'), ext: true };
+    function updateBar() {
+      var o = barState.community ? commCta : (barState.need >= 0 ? needCta[barState.need] : barDefault);
+      if (bar.textContent === o.label) return;
+      bar.textContent = o.label; bar.setAttribute('href', o.href);
+      bar.classList.toggle('is-long', o.label.length > 12);
+      if (o.ext) { bar.target = '_blank'; bar.rel = 'noopener noreferrer'; } else { bar.removeAttribute('target'); bar.removeAttribute('rel'); }
+    }
+    undo.push(function () { barState = { need: -1, community: false }; updateBar(); });
+    ST.create({ trigger: '#free-resources', start: 'top 55%', onEnter: function () { barState.community = true; updateBar(); }, onLeaveBack: function () { barState.community = false; updateBar(); } });
+
+    /* ── 02 書 ── */
+    (function () {
+      var sec = $('#personas-section'), leaves = $$('.leaf', sec), shift = $('.book-shift', sec), scene = $('.book-scene', sec);
+      var tabs = $$('.tab', sec), tablist = $('.book-tabs', sec), faces = $$('.face[data-need]', sec), tocLinks = $$('.toc a', sec);
+      var preface = $('.face--preface', sec), toc = $('.face--toc', sec), cover = $('.face--cover', sec);
+      var cur = -9, marks, T;
+      var tl = mkTL('personas-section', {
+        onUpdate: function (self) { setState(stateAt(self.progress)); },
+        onToggle: function (self) { barState.need = self.isActive ? cur - 2 : -1; updateBar(); }
+      });
+      function hide(el, v) { el.inert = v; if (v) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); }
+      function stateAt(p) { var s = 0; marks.forEach(function (m) { if (p >= m) s++; }); return s; }
+      function sync() {
+        var need = cur - 2;
+        faces.forEach(function (f) {
+          var on = +f.dataset.need === need;
+          if (!on) f.classList.remove('is-turned');
+          var a = $('.face[data-need="' + f.dataset.need + '"][data-part="a"]', sec);
+          var turned = a.classList.contains('is-turned');
+          hide(f, !on || (!D && (f.dataset.part === 'b') !== turned));
+          var t = $('.turn', f); if (t) t.setAttribute('aria-expanded', String(turned));
+        });
+        hide(preface, cur > 1); hide(toc, cur !== 1);
+      }
+      function setState(s) {
+        if (s === cur) return; cur = s;
+        var need = s - 2;
+        tabs.forEach(function (t, i) { var on = i === need; t.setAttribute('aria-selected', String(on)); t.tabIndex = (on || (need < 0 && i === 0)) ? 0 : -1; });
+        sync();
+        if (tl.scrollTrigger && tl.scrollTrigger.isActive) { barState.need = need; updateBar(); }
+      }
+      function goNeed(k) { var st = tl.scrollTrigger; window.scrollTo({ top: Math.round(st.start + T[k] * (st.end - st.start)), behavior: 'smooth' }); }
+
+      // 分頁語意（只在動畫模式加上；一般頁面模式是四張卡片與錨點連結）
+      tablist.setAttribute('role', 'tablist'); tablist.setAttribute('aria-labelledby', 'needs-h'); if (D) tablist.setAttribute('aria-orientation', 'vertical');
+      tabs.forEach(function (t, i) { t.setAttribute('role', 'tab'); t.setAttribute('aria-controls', t.getAttribute('href').slice(1) + ' ' + t.getAttribute('href').slice(1) + '-b'); });
+      faces.forEach(function (f) { f.setAttribute('role', 'tabpanel'); f.setAttribute('aria-labelledby', tabs[+f.dataset.need].id); });
+      undo.push(function () {
+        tablist.removeAttribute('role'); tablist.removeAttribute('aria-labelledby'); tablist.removeAttribute('aria-orientation');
+        tabs.forEach(function (t) { ['role', 'aria-controls', 'aria-selected', 'tabindex'].forEach(function (a) { t.removeAttribute(a); }); });
+        faces.concat([preface, toc]).forEach(function (f) { f.removeAttribute('role'); f.removeAttribute('aria-labelledby'); f.classList.remove('is-turned'); hide(f, false); });
+      });
+
+      function onClick(e) {
+        var t = e.target.closest('.tab, .toc a, .turn, .back'); if (!t || !sec.contains(t)) return;
+        if (t.matches('.tab, .toc a')) { e.preventDefault(); goNeed(+t.dataset.need); return; }
+        var face = t.closest('.face'), a = $('.face[data-need="' + face.dataset.need + '"][data-part="a"]', sec), b = $('.face[data-need="' + face.dataset.need + '"][data-part="b"]', sec);
+        a.classList.toggle('is-turned', t.matches('.turn')); sync();
+        var f = t.matches('.turn') ? $('.back', b) : $('.turn', a); if (f) f.focus({ preventScroll: true });
+      }
+      function onKey(e) {
+        var t = e.target.closest('.tab'); if (!t) return;
+        var i = tabs.indexOf(t), n = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); goNeed(i); return; }
+        if (n === undefined) return;
+        e.preventDefault(); n = (n + tabs.length) % tabs.length; tabs[n].focus({ preventScroll: true }); goNeed(n);
+      }
+      sec.addEventListener('click', onClick); sec.addEventListener('keydown', onKey);
+      undo.push(function () { sec.removeEventListener('click', onClick); sec.removeEventListener('keydown', onKey); });
+
+      if (D) {
+        var F = [[.05, .19], [.27, .37], [.47, .57], [.65, .75], [.83, .93]];
+        tl.fromTo(shift, { x: function () { return -leaves[0].offsetWidth / 2; } }, { x: 0, duration: .14, ease: 'power2.inOut' }, .05);
+        F.forEach(function (f, i) { tl.fromTo(leaves[i], { rotationY: 0 }, { rotationY: -180, duration: f[1] - f[0], ease: 'power1.inOut' }, f[0]); });
+        show(tl, $$('.toc li', sec), .13, { x: 14 }, .06, .025);
+        marks = F.map(function (f) { return (f[0] + f[1]) / 2; }); T = [.42, .61, .79, .97];
+      } else {
+        var by = function (need, part) { return $('.face[data-need="' + need + '"][data-part="' + part + '"]', sec); };
+        var FM = [[.05, .15, [cover]], [.25, .34, [preface]], [.46, .55, [by(0, 'a'), by(0, 'b')]], [.66, .75, [by(1, 'a'), by(1, 'b')]], [.86, .94, [by(2, 'a'), by(2, 'b')]]];
+        tl.fromTo([$('.cover', sec), $('.board', sec)], { scale: .78 }, { scale: 1, duration: .1, ease: 'power2.out' }, .05);
+        tl.fromTo([$('.sheet', preface)].concat(leaves.slice(1)), { opacity: 0 }, { opacity: 1, duration: .03 }, .1);
+        FM.forEach(function (f) {
+          var d = f[1] - f[0];
+          tl.fromTo(f[2], { rotationY: 0 }, { rotationY: -100, duration: d, ease: 'power1.in' }, f[0])
+            .fromTo(f[2], { opacity: 1 }, { opacity: 0, duration: d * .35 }, f[0] + d * .65)
+            .set(f[2], { visibility: 'hidden' }, f[1]);
+        });
+        marks = FM.map(function (f) { return (f[0] + f[1]) / 2; }); T = [.4, .61, .81, .97];
+      }
+      tl.set({}, {}, 1);
+      setState(0);
+    })();
+
+    /* ── 03 三階段 → 能量療癒服務 ── */
+    var RT = [.16, .32, .48];
+    (function () {
+      var sec = $('#home-stages'), rungs = $$('.rung', sec), A = [$('.s3-head--a', sec), $('.s3-list--a', sec)], B = [$('.s3-head--b', sec), $('.s3-list--b', sec)], scene = -1;
+      var tl = mkTL('home-stages', { onUpdate: function (self) { var s = self.progress < .7 ? 0 : 1; if (s !== scene) { scene = s; $$('details[open]', sec).forEach(function (d) { d.open = false; }); } } });
+      rungs.forEach(function (r, i) {
+        show(tl, r, RT[i] - .07, { x: 30 }, .1);
+        tl.set(r, { pointerEvents: 'auto' }, RT[i] - .03);
+        tl.fromTo($('.mini', r), { '--lit': .16 }, { '--lit': 1, duration: .06 }, RT[i] - .02);
+      });
+      tl.fromTo(A, { opacity: 1, y: 0 }, { opacity: 0, y: -26, duration: .08, ease: 'power1.in' }, .64).set(A, { pointerEvents: 'none' }, .68);
+      show(tl, B, .71, { y: 30 }, .12, .03); tl.set(B, { pointerEvents: 'auto' }, .74);
+      tl.set({}, {}, 1);
+    })();
+
+    /* ── 04 創辦人 ── */
+    (function () {
+      var sec = $('#founder'), h2 = $('h2', sec), lab = $('.f-label', sec), q = $('.f-quote', sec), btn = $('.f-btn', sec), ql = splitLines(q);
+      gsap.set(q, { opacity: 1 }); gsap.set(ql, { opacity: 0 });
+      var tl = mkTL('founder');
+      tl.fromTo(btn, { y: function () { return -(btn.offsetTop - (h2.offsetTop + h2.offsetHeight) - 14); } }, { y: 0, duration: .3, ease: 'power2.inOut' }, .06);
+      show(tl, lab, .22, { y: 10 }, .12);
+      tl.fromTo(ql, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .22, stagger: .07, ease: 'power2.out' }, .3);
+      tl.set({}, {}, 1);
+    })();
+
+    /* ── 05 媒體 ── */
+    (function () {
+      var sec = $('#media-section'), books = $$('.bk3d', sec), caps = $$('.bk__cap', sec), pods = $$('.m-pods li', sec), label = $('.m-label', sec);
+      var tl = mkTL('media-section');
+      tl.fromTo(books, { rotationY: 26, y: 0 }, { rotationY: 6, y: -6, duration: .2, stagger: .07, ease: 'power2.out' }, .04);
+      show(tl, caps, .1, { y: 10 }, .14, .07);
+      if (D) {
+        show(tl, label, .42, { y: 10 }, .1);
+        show(tl, pods, .46, { y: 16 }, .14, .08); tl.set(pods, { pointerEvents: 'auto' }, .5);
+      } else {
+        var h2 = $('h2', sec), ul = $('.books', sec), s1 = $('.m-s1', sec), stg = $('.stage', sec);
+        tl.to([h2].concat(caps), { opacity: 0, duration: .1, ease: 'power1.in' }, .48)
+          .fromTo(ul, { y: 0, scale: 1 }, { y: function () { return rel(s1, stg).y - rel(ul, stg).y; }, scale: .62, duration: .2, ease: 'power2.inOut' }, .5);
+        show(tl, label, .64, { y: 10 }, .1);
+        show(tl, pods, .66, { y: 16 }, .14, .06); tl.set(pods, { pointerEvents: 'auto' }, .7);
+      }
+      tl.set({}, {}, 1);
+    })();
+
+    /* ── 06 社群 ── */
+    (function () {
+      var sec = $('#free-resources'), digits = $$('.code__digits span', sec), intro = $('.c-intro', sec), il = splitLines(intro);
+      gsap.set(intro, { opacity: 1 }); gsap.set(il, { opacity: 0 });
+      // 密碼的六個數字在這張 slide 滑進來的途中翻出來，釘住時已經完整
+      gsap.fromTo(digits, { rotationX: -90, opacity: 0 }, { rotationX: 0, opacity: 1, duration: .5, stagger: .1, ease: 'back.out(1.6)', scrollTrigger: { trigger: sec, start: 'top 55%', end: 'top top', scrub: SCRUB } });
+      var tl = mkTL('free-resources');
+      tl.fromTo(il, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .3, stagger: .1, ease: 'power2.out' }, .1);
+      tl.set({}, {}, 1);
+    })();
+
+    // 頁首的進度線
+    gsap.to('.progress', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: true } });
+
+    /* ── 金翼的整段飛行：以捲動位置（px）為時間的一條時間軸，版面一有變動就重算 ── */
+    var docks = {}; $$('.dock').forEach(function (d) { docks[d.dataset.dock] = d; });
+    var master = null, maxScroll = 1, proxy = { t: 0 };
+    function render() { if (master) master.time(proxy.t * maxScroll); }
+    gsap.to(proxy, { t: 1, ease: 'none', onUpdate: render, scrollTrigger: { start: 0, end: 'max', scrub: SCRUB } });
+    function build() {
+      if (master) master.kill();
+      master = null;
+      var TW = tw.offsetWidth, vh = window.innerHeight;
+      maxScroll = Math.max(1, ST.maxScroll(window));
+      var tl = gsap.timeline({ paused: true, defaults: { ease: 'none', lazy: false, overwrite: false } });
+      var S = {}, ready = true; Object.keys(slides).forEach(function (id) { var st = slides[id]; S[id] = { s: st.start, e: st.end, L: st.end - st.start }; if (!(S[id].L > 0)) ready = false; });
+      if (!ready) return; // 有 ScrollTrigger 還沒量好，等下一次 refresh
+      function P(name) { var d = docks[name], st = d.closest('.stage'), p = rel(d, st); return { x: p.x + d.offsetWidth / 2, y: p.y + d.offsetHeight / 2, scale: d.offsetWidth / TW }; }
+      function PG(name) { var d = docks[name], r = d.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + window.pageYOffset + r.height / 2, scale: r.width / TW }; }
+      function fly(t0, t1, a, b, o) {
+        o = o || {}; var d = Math.max(1, t1 - t0);
+        var mid = { x: (a.x + b.x) / 2 + (o.bx || 0), y: (a.y + b.y) / 2 + (o.by || 0) };
+        if (window.MotionPathPlugin) tl.to(tw, { duration: d, ease: o.ease || 'sine.inOut', motionPath: { path: [mid, { x: b.x, y: b.y }], curviness: 1.3 } }, t0);
+        else tl.to(tw, { duration: d, x: b.x, y: b.y, ease: o.ease || 'sine.inOut' }, t0);
+        tl.to(tw, { duration: d, scale: b.scale, ease: 'sine.inOut' }, t0);
+        if (o.rot) tl.to(tw, { rotation: o.rot, duration: d * .45, ease: 'sine.out' }, t0).to(tw, { rotation: 0, duration: d * .45, ease: 'sine.inOut' }, t0 + d * .55);
+        if (o.flap !== false) [.56, 1, .6, o.open == null ? 1 : o.open].forEach(function (v, i) { tl.to(tw, { '--open': v, duration: d / 4, ease: 'sine.inOut' }, t0 + i * d / 4); });
+        tl.to(tw, { '--gap': 0, duration: d * .28, ease: 'sine.inOut' }, t0);
+        if (o.gap) tl.to(tw, { '--gap': o.gap, duration: d * .28, ease: 'sine.inOut' }, t0 + d * .72);
+      }
+      var H = S.hero, B = S['personas-section'], St = S['home-stages'], F = S.founder, M = S['media-section'], C = S['free-resources'];
+      var DIM = .3;
+
+      // 01：停在羅盤上
+      var hero = P('hero'), cur = hero;
+      gsap.set(tw, { x: hero.x, y: hero.y, scale: hero.scale, rotation: 0, '--open': 1, '--gap': 1, '--rays': 1, '--glow': 1, '--l1': 1, '--l2': 1, '--l3': 1, '--dim': 1 });
+      gsap.set(twRays, { rotation: 0 });
+      if (D) {
+        cur = { x: hero.x, y: hero.y - 34, scale: hero.scale * .94 };
+        tl.to(tw, { y: cur.y, scale: cur.scale, '--open': .84, duration: H.L * .4, ease: 'sine.inOut' }, H.s + H.L * .58)
+          .to(tw, { '--gap': 0, '--rays': 0, '--glow': .5, duration: H.L * .3, ease: 'sine.inOut' }, H.s + H.L * .68);
+      } else {
+        cur = P('hero-perch');
+        fly(H.s + H.L * .1, H.s + H.L * .46, hero, cur, { bx: 40, by: -30, flap: false });
+        tl.to(tw, { '--gap': 0, '--rays': 0, '--glow': .3, '--open': .82, duration: H.L * .3, ease: 'sine.inOut' }, H.s + H.L * .1);
+      }
+      // 01 → 02：飛到書的背後，書成了金翼的身體
+      var bc = P('book-closed'), bo = P('book-open'), d0 = B.s - H.e;
+      fly(H.e, B.s, cur, bc, { bx: D ? -200 : 70, by: D ? 150 : 90, rot: D ? -9 : 8, gap: 1 });
+      tl.to(tw, { '--glow': .8, duration: d0 * .3, ease: 'sine.inOut' }, H.e + d0 * .7);
+      // 02：書打開，金翼退到書頂
+      tl.to(tw, { x: bo.x, y: bo.y, scale: bo.scale, '--open': .9, '--glow': .5, duration: B.L * .14, ease: 'power2.inOut' }, B.s + B.L * .05);
+      // 02 → 03：沉到書後，褪成淡色，從畫面底部探出頭
+      var lo = P('st-low'), re = P('st-rest'), d1 = St.s - B.e, stage3 = $('#home-stages .stage');
+      tl.to(tw, { x: lo.x, duration: d1, ease: 'sine.inOut' }, B.e)
+        .to(tw, { y: lo.y, duration: d1, ease: 'power1.in' }, B.e)
+        .to(tw, { scale: lo.scale, '--open': .5, '--gap': 0, '--glow': 0, duration: d1 * .6, ease: 'sine.inOut' }, B.e)
+        .to(tw, { '--l1': DIM, '--l2': DIM, '--l3': DIM, duration: d1 * .3 }, B.e + d1 * .15);
+      // 03：由下往上，依序遇到三個階段，每一階點亮一層羽毛
+      var prev = St.s + St.L * .03;
+      $$('#home-stages .rung').forEach(function (r, i) {
+        var t = St.s + St.L * RT[i], k = (i + 1) / 4, sc = lo.scale + (re.scale - lo.scale) * k;
+        var ry = rel(r, stage3).y - TW * sc * .587 * .22, rx = D ? rel(r, stage3).x + r.offsetWidth / 2 : re.x + [-1, 1, -1][i] * 30;
+        tl.to(tw, { y: ry, x: rx, scale: sc, duration: t - prev, ease: 'sine.inOut' }, prev);
+        var v = { duration: St.L * .07, ease: 'sine.out' }; v['--l' + (i + 1)] = 1; v['--open'] = [.62, .78, .92][i];
+        tl.to(tw, v, t - St.L * .03);
+        prev = t;
+      });
+      tl.to(tw, { x: re.x, y: re.y, scale: re.scale, '--open': 1, '--glow': 1, '--rays': .4, duration: St.s + St.L * .6 - prev, ease: 'sine.inOut' }, prev);
+      // 03 → 04：三層都亮了，飛到創辦人身後
+      var fo = P('founder'), d2 = F.s - St.e;
+      fly(St.e, F.s, re, fo, { bx: D ? -260 : 120, by: 70, rot: D ? 8 : -8, gap: 1 });
+      tl.to(tw, { '--rays': 1, duration: d2 * .3 }, St.e + d2 * .7);
+      tl.to(twRays, { rotation: 22, duration: F.L + d2 * .3 }, F.s - d2 * .3);
+      // 04 → 05：收小，停在中間那本書後面
+      var me = P('media'), d3 = M.s - F.e;
+      fly(F.e, M.s, fo, me, { bx: D ? 200 : -100, by: 50, rot: D ? -8 : 8, gap: 1 });
+      tl.to(tw, { '--rays': 0, '--glow': .4, duration: d3 * .5 }, F.e);
+      if (!D) { var mini = P('media-mini'); tl.to(tw, { x: mini.x, y: mini.y, scale: mini.scale, duration: M.L * .2, ease: 'power2.inOut' }, M.s + M.L * .5); me = mini; }
+      // 05 → 06：帶著密碼
+      var co = P('community'), d4 = C.s - M.e;
+      fly(M.e, C.s, me, co, { bx: D ? -220 : 110, by: 60, rot: D ? 9 : -8 });
+      tl.to(tw, { '--rays': .55, '--glow': 1, duration: d4 * .4 }, M.e + d4 * .5);
+      // 06 → 07 → 頁尾：回到羅盤
+      var fq = PG('faq'), ft = PG('footer');
+      var t1 = Math.max(C.e + 10, fq.y - vh * .42), t2 = Math.min(maxScroll, Math.max(t1 + 10, ft.y - vh * .5));
+      var a1 = { x: fq.x, y: fq.y - t1, scale: fq.scale }, a2 = { x: ft.x, y: ft.y - t2, scale: ft.scale };
+      fly(C.e, t1, co, a1, { bx: D ? -120 : 60, by: 40, rot: D ? -7 : 7 });
+      tl.to(tw, { '--rays': 0, '--glow': .4, '--dim': D ? .5 : .3, duration: (t1 - C.e) * .3 }, C.e);
+      fly(t1, t2, a1, a2, { bx: D ? 140 : -50, by: 0, rot: D ? 6 : -6, gap: 1 });
+      tl.to(tw, { '--rays': 1, '--glow': 1, '--dim': 1, duration: (t2 - t1) * .4 }, t1 + (t2 - t1) * .6);
+      if (maxScroll > t2 + 1) tl.to(tw, { y: ft.y - maxScroll, duration: maxScroll - t2 }, t2);
+      tl.set({}, {}, maxScroll);
+      master = tl; render();
+    }
+    ST.addEventListener('refresh', build);
+    undo.push(function () { ST.removeEventListener('refresh', build); if (master) master.kill(); master = null; gsap.set(tw, { clearProps: 'all' }); gsap.set(twRays, { clearProps: 'all' }); });
+    ST.refresh();
+    gsap.delayedCall(.2, function () { if (!master) ST.refresh(); });
+
+    /* ── 鍵盤：焦點落在「還沒捲到所以看不見」的元素時，捲到它出現的位置 ── */
+    function onFocus(e) {
+      var t = e.target; if (!t.matches || !t.matches(':focus-visible')) return;
+      var h = t.closest('[data-at]'); if (!h) return;
+      var sec = h.closest('.slide'), st = sec && slides[sec.id]; if (!st) return;
+      var a = parseFloat(h.dataset.at), u = parseFloat(h.dataset.until || '1'), y = window.pageYOffset, p = (y - st.start) / (st.end - st.start);
+      if (p < a || p > u) window.scrollTo(0, Math.round(st.start + (st.end - st.start) * Math.min(u, a + .04)));
+    }
+    document.addEventListener('focusin', onFocus);
+    // 頁內錨點：捲到該 slide 的起點；#featured-services 捲到 03 的後半
+    function target(hash) {
+      if (hash === '#featured-services') { var s3 = slides['home-stages']; return s3.start + (s3.end - s3.start) * .86; }
+      var el = hash.length > 1 && document.getElementById(hash.slice(1)); if (!el) return null;
+      return slides[el.id] ? slides[el.id].start : el.getBoundingClientRect().top + window.pageYOffset - 64;
+    }
+    function onAnchor(e) {
+      var a = e.target.closest('a[href^="#"]'); if (!a || e.defaultPrevented) return;
+      var y = target(a.getAttribute('href')); if (y === null) return;
+      e.preventDefault(); window.scrollTo({ top: Math.round(y), behavior: 'smooth' });
+      if (history.replaceState) history.replaceState(null, '', a.getAttribute('href'));
+    }
+    function onHash() { var y = target(location.hash); if (y !== null) window.scrollTo(0, Math.round(y)); }
+    document.addEventListener('click', onAnchor); window.addEventListener('hashchange', onHash);
+    // FAQ 展開會改變頁面長度，重算
+    function onToggle(e) { if (e.target.closest && e.target.closest('.faq')) setTimeout(function () { ST.refresh(); }, 60); }
+    document.addEventListener('toggle', onToggle, true);
+    undo.push(function () { document.removeEventListener('focusin', onFocus); document.removeEventListener('click', onAnchor); window.removeEventListener('hashchange', onHash); document.removeEventListener('toggle', onToggle, true); });
+    if (location.hash) setTimeout(onHash, 50);
+
+    return function () { undo.reverse().forEach(function (f) { f(); }); };
+  }
+
+  var short = window.__hsShort();
+  function boot() {
+    mm = gsap.matchMedia();
+    if (short) { root.classList.remove('motion', 'booted'); return; }
+    mm.add({ desktop: '(min-width: 1024px) and (prefers-reduced-motion: no-preference)', mobile: '(max-width: 1023.98px) and (prefers-reduced-motion: no-preference)' }, function (ctx) {
+      root.classList.add('motion', 'booted');
+      var cleanup = setup(!!ctx.conditions.desktop);
+      return function () { cleanup(); if (!rebuilding) root.classList.remove('motion', 'booted'); };
+    });
+  }
+  function rebuild() {
+    if (!mm) return;
+    var y = window.pageYOffset; short = window.__hsShort(); rebuilding = true; mm.revert(); boot(); rebuilding = false;
+    if (short) { ST.refresh(); return; }
+    window.scrollTo(0, y); ST.refresh();
+  }
+  // 等字型到位再開始（分行與停靠點都依實際排版計算）；最多等 1.2 秒
+  var started = false;
+  function start() { if (started) return; started = true; boot(); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { if (started) rebuild(); else start(); }); setTimeout(start, 1200); } else start();
+  var lastW = window.innerWidth, rt;
+  window.addEventListener('resize', function () { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(rt); rt = setTimeout(rebuild, 250); });
+})();
+</script>
+</body>
+</html>

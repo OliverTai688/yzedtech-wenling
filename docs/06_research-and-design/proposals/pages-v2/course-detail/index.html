@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑</title>
+<!-- 提案用的頁面外殼（pages-v2）。複製這個檔案，把內容放進 <main>；樣式只用 _kit.css 的 class 與 token。
+     所有文字逐字取自 src/data.ts（文案集原文），不新增任何字。 -->
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../_kit.css">
+<style>
+/* 這一頁自己的樣式（實作時是 Tailwind class）。顏色只用 token。 */
+.crumb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--color-muted-foreground); }
+.crumb a { display: inline-flex; min-height: 44px; align-items: center; font-weight: 600; color: var(--color-accent-foreground); }
+.crumb .i { width: 14px; height: 14px; }
+.crumb__here, .crumb .i--next { display: none; }
+@media (min-width: 640px) { .crumb__here, .crumb .i--next { display: inline; } .crumb .i--back { display: none; } }
+.page-hero__slot .page-hero__actions { margin-top: 0; }
+@media (min-width: 640px) { .page-hero__slot .page-hero__actions { width: 100%; } }
+.offering { padding-block: 32px; }
+.offering > * + * { margin-top: 24px; }
+.path { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.path__step { display: flex; height: 100%; min-height: 80px; flex-direction: column; align-items: center; gap: 8px; padding: 12px 8px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-popover); text-align: center; text-wrap: balance; font-size: 14px; font-weight: 700; line-height: 1.375; color: var(--color-card-foreground); }
+.path__step b { display: flex; width: 28px; height: 28px; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-accent-foreground); }
+.path__step[aria-current] { border-color: var(--color-ring); background: var(--color-accent); color: var(--color-primary-foreground); }
+.path__step[aria-current] b { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-primary-foreground); }
+.price { padding: 16px 20px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-card); font-weight: 700; color: var(--color-card-foreground); }
+.jumps { display: flex; flex-wrap: wrap; gap: 8px; }
+.groups > * + * { margin-top: 20px; }
+.section { scroll-margin-top: 80px; }
+.section > summary h2 { font: 700 16px/1.375 var(--font-sans); }
+.section__body { padding: 4px 0 28px; }
+.deck { color: var(--color-muted-foreground); }
+.deck > * + * { margin-top: 16px; }
+.deck h3 { font: 700 16px/1.6 var(--font-sans); color: var(--color-accent-foreground); }
+.dots > li { display: flex; gap: 10px; }
+.dots > li + li { margin-top: 12px; }
+.dots > li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 0.7em; border-radius: 999px; background: var(--color-gold-to); }
+.dots b { color: var(--color-card-foreground); }
+.col { font-size: 14px; font-weight: 600; color: var(--color-accent-foreground); }
+.plans__head { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 8px; }
+.plans__head span + span { padding-right: 28px; }
+.plan > summary { min-height: 48px; padding: 8px 0; }
+.plan > summary > span:last-child { display: flex; flex: none; align-items: center; gap: 12px; color: var(--color-accent-foreground); font-variant-numeric: tabular-nums; }
+.plan dl { padding-bottom: 16px; }
+.plan dl > div + div { margin-top: 12px; }
+.plan dd { margin-top: 2px; }
+.qa > summary { min-height: 48px; padding: 8px 0; }
+.back-cta { display: none; justify-content: center; }
+@media (min-width: 1024px) { .offering { padding-block: 56px; } .offering > * + * { margin-top: 32px; } .section > summary h2 { font-size: 18px; } .back-cta { display: flex; } }
+</style>
+</head>
+<body>
+
+<!-- 圖形庫：金翼小標誌（public/brand/emblem-mark.svg）與圖示。用 <svg><use href="#…"/></svg> 取用。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wings-mark" viewBox="0 0 64 46" fill="none"><g stroke="#8A5415" stroke-width=".8" stroke-linejoin="round"><defs><linearGradient id="emk-gold-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EDBB55"/><stop offset="1" stop-color="#B5762A"/></linearGradient><linearGradient id="emk-gold-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3CB6C"/><stop offset="1" stop-color="#D89A3E"/></linearGradient><linearGradient id="emk-gold-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF0BD"/><stop offset="1" stop-color="#F0C96E"/></linearGradient></defs><g id="emk-wing-l"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-wing-r" transform="translate(64 0) scale(-1 1)"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-compass"><circle cx="32" cy="34.54" r="6.16" fill="#FFFDF0"/><circle cx="32" cy="34.54" r="5.14" stroke="url(#emk-gold-2)" stroke-width="1.23"/><path fill="url(#emk-gold-1)" stroke-width=".48" d="M32 29.73L32.87 33.66L35.45 34.54L32.87 35.41L32 39.34L31.13 35.41L28.55 34.54L31.13 33.66Z"/><circle cx="32" cy="34.54" r=".68" fill="#FFFDF0" stroke="none"/></g></g></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-message-square" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+</svg>
+
+<header class="site-header">
+  <div class="site-header__in">
+    <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+    <div class="site-header__side">
+      <ul class="site-nav">
+        <li>
+          <button type="button" class="site-nav__group">關於豐盛之翼學苑<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a><a href="/contact">官方聯繫與諮詢管道</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">療癒與培訓<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/services">服務項目</a><a href="/training">培訓課程</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">見證與實用內容<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a></div>
+        </li>
+      </ul>
+      <a class="btn-quiet" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊諮詢</a>
+      <a class="gold-btn" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>商城</a>
+      <button type="button" class="menu-btn" aria-label="開啟選單"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 1. 第一個畫面（PageHero）：麵包屑、金翼小標誌、眉批、H1、文案集的第一句、這個項目自己的金色按鈕、私訊的文字連結 -->
+  <div data-line-text="希塔療癒 基礎 DNA 課程 (ThetaHealing®)">
+  <section class="page-hero">
+    <div class="page-halo" aria-hidden="true"></div>
+    <div class="wrap--narrow page-hero__in">
+      <div class="page-hero__before"><nav class="crumb" aria-label="麵包屑"><svg class="i i--back" aria-hidden="true"><use href="#i-chevron-left"/></svg><a href="/training">培訓課程</a><svg class="i i--next" aria-hidden="true"><use href="#i-chevron-right"/></svg><span class="crumb__here">希塔療癒 基礎 DNA 課程 (ThetaHealing®)</span></nav></div>
+      <div class="page-hero__visual" aria-hidden="true"><svg viewBox="0 0 64 46"><use href="#wings-mark"/></svg></div>
+      <p class="eyebrow eyebrow--center">希塔療癒系列（ThetaHealing®）</p>
+      <h1>希塔療癒 基礎 DNA 課程 (ThetaHealing®)</h1>
+      <p class="page-hero__lead">讓潛意識成為你的貴人，一場從覺察到蛻變的靈魂旅程，帶你重新書寫自己的人生劇本。</p>
+      <div class="page-hero__slot"><div class="page-hero__actions">
+        <a class="gold-btn" data-cta="offering-primary" href="https://booking.wenling.tw/activities/basicDNA" target="_blank" rel="noopener noreferrer">報名<svg class="i " aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+        <a class="btn-text" data-cta="offering-line" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i " aria-hidden="true"><use href="#i-message"/></svg>私訊諮詢</a>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- 2. 內文：一欄。課程先放學習路徑與費用的原文；接著是開場其餘的段落（一次一頁）、頁內小導覽、段落清單 -->
+  <section class="page-section">
+    <div class="wrap--narrow offering">
+      <ol class="path" aria-label="希塔療癒系列（ThetaHealing®）"><li><div class="path__step" aria-current="step"><b>1</b>基礎 DNA 課程</div></li><li><a class="path__step" href="/training/theta-advanced-dna"><b>2</b>進階 DNA 課程</a></li><li><a class="path__step" href="/training/theta-dig-deeper"><b>3</b>深度信念挖掘班</a></li></ol>
+      <p class="price">課程費用： NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）</p>
+
+      <div class="groups" id="offering-sections">
+        <div class="disclosure-group">
+          <details class="disclosure section" id="theta-basic-6" name="offering-sections"><summary><h2>你將在基礎班學到 (課程大綱)</h2><svg class="i " aria-hidden="true"><use href="#i-plus"/></svg></summary><div class="section__body"><div class="pager" data-pager role="group" aria-label="你將在基礎班學到 (課程大綱)"><div class="pager__track" aria-live="polite"><div class="pager__slide" data-label="你將在基礎班學到 (課程大綱) 1"><div class="deck"><p>這 3 天的課程，將為你打下最穩固的潛意識轉化基礎：</p><ul class="dots"><li><span><b>希塔波冥想入門：</b> 學會連結源頭與高我。</span></li><li><span><b>解讀與掃描：</b> 感應自己與他人的身心狀態與特質。</span></li><li><span><b>四個信念層面轉化：</b> 核心、遺傳、歷史、靈魂層面。</span></li><li><span><b>信念挖掘技巧：</b> 精準找出根源，釋放恐懼。</span></li><li><span><b>顯化練習：</b> 啟動心想事成的能量流。</span></li></ul></div></div><div class="pager__slide" data-label="你將在基礎班學到 (課程大綱) 2" data-off><div class="deck"><ul class="dots"><li><span><b>淨化與保護：</b> 清理負能量與詛咒、遠離負面干擾。</span></li><li><span><b>靈界連結：</b> 連結守護天使與指導靈。</span></li><li><span><b>靈魂伴侶/貴人：</b> 召喚與準備迎接對的人。</span></li><li><span><b>DNA 啟動：</b> 激活青春與活力，年輕化調整。</span></li><li><span><b>未來解讀：</b> 預視潛能與選擇最佳人生路徑。</span></li></ul></div></div></div><div class="pager__nav"><button type="button" class="icon-btn" data-prev><svg class="i " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><div class="pager__dots" aria-hidden="true"></div><button type="button" class="icon-btn" data-next><svg class="i " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div></div></details>
+          <details class="disclosure section" id="theta-basic-2" name="offering-sections"><summary><h2>什麼是希塔療癒？</h2><svg class="i " aria-hidden="true"><use href="#i-plus"/></svg></summary><div class="section__body"><div class="pager" data-pager role="group" aria-label="什麼是希塔療癒？"><div class="pager__track" aria-live="polite"><div class="pager__slide" data-label="什麼是希塔療癒？ 1"><div class="deck"><p>希塔療癒（ThetaHealing®）由美國創辦人 Vianna Stibal 所創，是一門結合「冥想、潛意識覺察與能量轉化」的技術。</p></div></div><div class="pager__slide" data-label="什麼是希塔療癒？ 2" data-off><div class="deck"><p>透過導引腦波進入 θ 波狀態（Theta Brainwave），你可以連結到宇宙的創造源頭，以「無條件的愛」快速釋放潛意識中不再需要的信念、恐懼與限制。它不只是靈性修行，更是一門讓理性與感性協調運作的自我覺察方法，一門「科學與靈性完美結合」的深度轉化技術。</p></div></div></div><div class="pager__nav"><button type="button" class="icon-btn" data-prev><svg class="i " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><div class="pager__dots" aria-hidden="true"></div><button type="button" class="icon-btn" data-next><svg class="i " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div></div></details>
+          <details class="disclosure section" id="theta-basic-4" name="offering-sections"><summary><h2>給已在靈性道路上的你 (同業專屬)</h2><svg class="i " aria-hidden="true"><use href="#i-plus"/></svg></summary><div class="section__body"><div class="pager" data-pager role="group" aria-label="給已在靈性道路上的你 (同業專屬)"><div class="pager__track" aria-live="polite"><div class="pager__slide" data-label="給已在靈性道路上的你 (同業專屬) 1"><div class="deck"><p>—— 占卜師、靈氣師、塔羅師、通靈師、催眠師</p></div></div><div class="pager__slide" data-label="你是否曾經有這樣的經驗：" data-off><div class="deck"><h3>你是否曾經有這樣的經驗：</h3><ul class="dots"><li><span>解讀得很準確，但卻難以協助個案真正「改變現實」？</span></li><li><span>能量傳送花費大量時間，反而消耗自己的能量？</span></li><li><span>想進階學習，但找不到能與原本系統相容的法門？</span></li></ul><p>希塔療癒可以完美整合你的現有能力！ 它不是要取代你原本的專業，而是讓你進入全新的能量維度，讓你的法門變得更有生命力：</p></div></div><div class="pager__slide" data-label="給已在靈性道路上的你 (同業專屬) 3" data-off><div class="deck"><ul class="dots"><li><span><b>占卜師 × 希塔：</b> 快速覺察牌面背後的潛意識信念，讀得更準、導得更深，開始能幫客戶「解決問題」。</span></li><li><span><b>靈氣師 × 希塔：</b> 可在短時間大量傳送能量、設定長效場域，節省時間又維持強度。</span></li><li><span>塔羅 / 水晶 / 能量師 × 希塔： 覺察力與感知力明顯提升，開啟新的直覺管道與創作靈感。</span></li></ul></div></div><div class="pager__slide" data-label="給已在靈性道路上的你 (同業專屬) 4" data-off><div class="deck"><ul class="dots"><li><span><b>催眠師 × 希塔：</b> 進入潛意識層次更快，個案反應更清晰，協助效率大幅提高。</span></li></ul><p>(許多學員在學完後，結合靈氣創造出全新系統、開拓了多元事業道路，甚至開發出屬於自己的品牌課程！)</p></div></div></div><div class="pager__nav"><button type="button" class="icon-btn" data-prev><svg class="i " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><div class="pager__dots" aria-hidden="true"></div><button type="button" class="icon-btn" data-next><svg class="i " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div></div></details>
+          <details class="disclosure section" id="theta-basic-1" name="offering-sections"><summary><h2>我的故事：從全面崩塌到重生的轉折</h2><svg class="i " aria-hidden="true"><use href="#i-plus"/></svg></summary><div class="section__body"><div class="pager" data-pager role="group" aria-label="我的故事：從全面崩塌到重生的轉折"><div class="pager__track" aria-live="polite"><div class="pager__slide" data-label="我的故事：從全面崩塌到重生的轉折 1"><div class="deck"><p>2019 年的下半年，是我生命中最黑暗的時刻。 那段時間，所有的挑戰彷彿約好了一起降臨：家庭爭吵分裂、職場背負沉重誤會、外婆突然中風、感情深受創傷，我的身上甚至還背負了百萬的負債。那時的我，幾乎每天醒來都只想問蒼天：「為什麼這些事都發生在我身上？」</p></div></div><div class="pager__slide" data-label="我的故事：從全面崩塌到重生的轉折 2" data-off><div class="deck"><p>直到我接觸了「希塔療癒（ThetaHealing®）」，這成為了我生命的終極轉捩點。</p></div></div><div class="pager__slide" data-label="我的故事：從全面崩塌到重生的轉折 3" data-off><div class="deck"><p>透過冥想進入 θ（Theta）腦波狀態，我終於鼓起勇氣，看見自己內在深層的限制性信念——原來我一直覺得自己「不值得被愛」、「不值得成功」。當我開始改寫這些信念、釋放恐懼與罪惡感後，不可思議的奇蹟開始一一顯化：</p></div></div><div class="pager__slide" data-label="我的故事：從全面崩塌到重生的轉折 4" data-off><div class="deck"><ul class="dots"><li><span><b>從百萬負債翻轉為年收百萬：</b> 離開 9 年的工作全職投入療癒，第 3 個月的收入就超越了過去當上班族的時期。</span></li><li><span><b>遇見契合度 90% 的靈魂伴侶：</b> 上完課的半年內，順利吸引到符合九成條件的理想伴侶。</span></li></ul></div></div><div class="pager__slide" data-label="我的故事：從全面崩塌到重生的轉折 5" data-off><div class="deck"><ul class="dots"><li><span><b>影響力擴展：</b> 受邀至《好女人的情場攻略》、《美麗佳人Podcast》分享故事，並成為暢銷書《七週遇見對的人》改版推薦序作者。</span></li></ul></div></div><div class="pager__slide" data-label="我的故事：從全面崩塌到重生的轉折 6" data-off><div class="deck"><p>這趟旅程，更開啟了我意想不到的生命禮物。原本自認是「麻瓜」的我，靈通感知力快速被開發；心想事成的速度變快，吸引了無數極棒的合作夥伴；我也不再陷入情緒內耗，而是學會快速覺察並化解生活的不順心。現在的我，每年擁有破百次的個案經驗，已協助無數人重啟人生。</p></div></div><div class="pager__slide" data-label="我的故事：從全面崩塌到重生的轉折 7" data-off><div class="deck"><p>「真正的療癒，不是逃離現實，而是重新看見內在的光。」 希塔療癒帶給我的，是一種能量上真正的「自由」。如果你也想拿回生命的主導權，歡迎你來到這裡。</p></div></div></div><div class="pager__nav"><button type="button" class="icon-btn" data-prev><svg class="i " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><div class="pager__dots" aria-hidden="true"></div><button type="button" class="icon-btn" data-next><svg class="i " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div></div></details>
+          <details class="disclosure section" id="theta-basic-3" name="offering-sections"><summary><h2>為什麼選擇跟 Keila 學？</h2><svg class="i " aria-hidden="true"><use href="#i-plus"/></svg></summary><div class="section__body"><div class="pager" data-pager role="group" aria-label="為什麼選擇跟 Keila 學？"><div class="pager__track" aria-live="polite"><div class="pager__slide" data-label="為什麼選擇跟 Keila 學？ 1"><div class="deck"><ul class="dots"><li><span>理性 × 感性並重的教學風格 我擁有台大政治系畢業與數位行銷業界 9 年的邏輯底蘊，搭配 14 門以上能量療癒專業。我會以「結構化」的方式帶領你理解信念是如何形成的，同時用「最柔軟的愛」協助你釋放與轉化。</span></li></ul></div></div><div class="pager__slide" data-label="為什麼選擇跟 Keila 學？ 2" data-off><div class="deck"><ul class="dots"><li><span>安全而溫暖的學習空間 在我的課堂中，沒有對錯、沒有比較。每個人都能被看見、被理解。你可以用自己的速度，溫柔地回到與靈魂最契合的狀態。</span></li></ul></div></div><div class="pager__slide" data-label="為什麼選擇跟 Keila 學？ 3" data-off><div class="deck"><ul class="dots"><li><span>實際落地的能量應用 希塔不只是高空的理論，而是能落地用在生活中的覺察力。你將學會如何把它應用在：人際關係、事業方向、財富顯化與健康平衡，讓靈性成為你日常最有力量的工具。</span></li></ul></div></div></div><div class="pager__nav"><button type="button" class="icon-btn" data-prev><svg class="i " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><div class="pager__dots" aria-hidden="true"></div><button type="button" class="icon-btn" data-next><svg class="i " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div></div></details>
+        </div>
+        <div class="disclosure-group">
+          <details class="disclosure section" id="theta-basic-8" name="offering-sections"><summary><h2>報名專屬福利</h2><svg class="i " aria-hidden="true"><use href="#i-plus"/></svg></summary><div class="section__body"><div class="pager" data-pager role="group" aria-label="報名專屬福利"><div class="pager__track" aria-live="polite"><div class="pager__slide" data-label="基礎班專屬好禮"><div class="deck"><h3>基礎班專屬好禮</h3><ul class="dots"><li><span><b>官方認證：</b> 結業即頒發美國 THInK 官方認證證書。</span></li><li><span><b>學習延伸：</b> 贈送「主題複習會錄影檔」，強化進階應用。</span></li><li><span><b>終身福利：</b> 享有終身免費複訓資格。</span></li><li><span><b>專屬療癒好物：</b> 贈送乳香精油乙瓶，協助冥想與靜心。</span></li></ul></div></div><div class="pager__slide" data-label="進階連報加碼送" data-off><div class="deck"><h3>進階連報加碼送</h3><ul class="dots"><li><span><b>報名三階必修：</b>贈《希塔好好玩》書籍乙本。</span></li><li><span><b>報名任四門課：</b>贈「靈氣能量香氛」乙瓶 (可客製運勢：愛情 / 財運 / 貴人)。</span></li><li><span><b>報名任五門課：</b>再贈《豐盛 18 天線上課程》＋《滿願迎貴人祈福儀式》。</span></li></ul></div></div><div class="pager__slide" data-label="報名專屬福利 3" data-off><div class="deck"><p>【報名注意事項與退費規範】 注意！因能量課程一經報名，即享有專屬學員群組相關學習資源。所有課程一經售出，恕不接受退款。 但您可以保留兩年期間參與課程，或選擇更換為等值的療癒服務與產品。</p></div></div></div><div class="pager__nav"><button type="button" class="icon-btn" data-prev><svg class="i " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><div class="pager__dots" aria-hidden="true"></div><button type="button" class="icon-btn" data-next><svg class="i " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div></div></details>
+        </div>
+        <div class="disclosure-group">
+          <details class="disclosure section" id="theta-basic-7" name="offering-sections"><summary><h2>課程資訊與報名方式</h2><svg class="i " aria-hidden="true"><use href="#i-plus"/></svg></summary><div class="section__body"><div class="pager" data-pager role="group" aria-label="課程資訊與報名方式"><div class="pager__track" aria-live="polite"><div class="pager__slide" data-label="課程資訊與報名方式 1"><div class="deck"><ul class="dots"><li><span><b>上課形式：</b> 實體 (台北松江南京捷運站附近) ＆ 線上 (Zoom) 同步開課</span></li><li><span><b>報名連結：</b>https://booking.wenling.tw/activities/basicDNA</span></li></ul></div></div><div class="pager__slide" data-label="課程資訊與報名方式 2" data-off><div class="deck"><ul class="dots"><li><span><b>課程時間：</b> (範例) 2026/7/27（一）~ 7/31（五）10:00-16:00 平日白天班 (含午休) ( 歡迎 1 人即可私訊約課，需要連續天數至少18小時)</span></li><li><span><b>課程費用：</b> NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）</span></li></ul></div></div><div class="pager__slide" data-label="課程資訊與報名方式 3" data-off><div class="deck"><ul class="dots"><li><span><b>兩人同行：</b> 每人折 NT$ 200</span></li><li><span><b>四人團報：</b> 每人折 NT$ 500</span></li></ul></div></div></div><div class="pager__nav"><button type="button" class="icon-btn" data-prev><svg class="i " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><div class="pager__dots" aria-hidden="true"></div><button type="button" class="icon-btn" data-next><svg class="i " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div></div></details>
+        </div>
+      </div>
+      <!-- 桌機沒有底部固定列：在段落之後留一個回到主要行動的文字連結 -->
+      <p class="back-cta"><a class="btn-text" data-cta="offering-secondary" href="https://booking.wenling.tw/activities/basicDNA" target="_blank" rel="noopener noreferrer">報名<svg class="i " aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></p>
+    </div>
+  </section>
+  </div>
+
+  <!-- 3. 下一站（JourneyNext） -->
+  <nav class="journey-next">
+    <div class="wrap">
+      <a class="btn-text" href="/training" rel="prev"><svg class="i " aria-hidden="true"><use href="#i-arrow-left"/></svg>培訓課程</a>
+      <a class="btn-text" href="/resources" rel="next">免費資源<svg class="i " aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+  </nav>
+</main>
+
+<!-- 結尾的行動區塊（CtaBand）：每一頁共用，放在「下一站」之後。不要改動。 -->
+<section class="cta-band dark" id="final-cta">
+  <div class="cta-band__in">
+    <svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg>
+    <h2>成為你豐盛之路上的翅膀</h2>
+    <div class="cta-band__actions">
+      <a class="gold-btn" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊官方 LINE</a>
+      <a class="btn-text" href="/#personas-section">從這裡，開始我的改變<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+    <a class="btn-text" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>前往購買<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+  </div>
+</section>
+
+<!-- 頁尾（Footer，淺色）。不要改動。 -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__cols">
+      <div>
+        <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+        <p class="site-footer__tagline">用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。</p>
+        <p class="site-footer__status">全球線上遠距服務</p>
+      </div>
+      <nav class="site-footer__nav">
+        <div><h3>關於豐盛之翼學苑</h3><ul><li><a href="/about">品牌理念</a></li><li><a href="/story">創辦人經歷與故事</a></li></ul></div>
+        <div><h3>療癒與培訓</h3><ul><li><a href="/services">服務項目</a></li><li><a href="/training">培訓課程</a></li></ul></div>
+        <div><h3>見證與實用內容</h3><ul><li><a href="/testimonials">真實見證</a></li><li><a href="/blog">好運blog</a></li><li><a href="/resources">免費資源</a></li><li><a href="/media">媒體專訪</a></li></ul></div>
+      </nav>
+      <div>
+        <h3>官方聯繫與諮詢管道</h3>
+        <p class="site-footer__intro">企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+        <ul>
+          <li><a href="mailto:lavie@wenling.tw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>lavie@wenling.tw</a></li>
+          <li><a href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>LINE @healer.wenling</a></li>
+          <li><a href="https://m.me/keila.healing" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message-square"/></svg>Facebook m.me/keila.healing</a></li>
+          <li><a href="https://www.instagram.com/keila.healing1491" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-at"/></svg>IG keila.healing1491</a></li>
+          <li><a href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</a></li>
+        </ul>
+        <a class="site-footer__shop" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">訂購商品、服務或課程<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+      </div>
+    </div>
+    <p class="site-footer__disclaimer"><b>免責聲明</b>所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p>
+    <div class="site-footer__legal">
+      <p>© 2026 豐盛之翼學苑</p>
+      <ul><li><a href="/legal#disclaimer">免責聲明與條款</a></li><li><a href="/legal#privacy">隱私權保護政策</a></li><li><a href="/legal#terms">服務條款</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<!-- 手機底部固定列（StickyCtaBar）：捲過 520px 後出現。金色那顆換成這一頁唯一的行動；銀色圓鈕固定是私訊。 -->
+<div class="sticky-bar">
+  <div class="sticky-bar__in">
+    <a class="gold-btn" href="https://booking.wenling.tw/activities/basicDNA" target="_blank" rel="noopener noreferrer">報名</a>
+    <a class="btn-silver btn-silver--round" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer" aria-label="私訊諮詢"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg></a>
+  </div>
+</div>
+
+<!-- 提案用的互動（對應 ChipTabs、Pager、PageSheet、StickyCtaBar）。沒有這段指令時內容仍然全部讀得到。 -->
+<script>
+(() => {
+  // 分頁：[data-tabs] 內的 role="tab" 與 role="tabpanel"（aria-controls 對應面板的 id）
+  document.querySelectorAll('[data-tabs]').forEach((root) => {
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    const select = (tab, focus) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on);
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).dataset.state = on ? 'active' : 'inactive';
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        select(tabs[(i + step + tabs.length) % tabs.length], true);
+      });
+    });
+    select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
+  });
+
+  // 一次一則：[data-pager]；每一則的 data-label 是它的標題，用作箭頭的 aria-label
+  document.querySelectorAll('[data-pager]').forEach((root) => {
+    const slides = [...root.querySelectorAll('.pager__slide')];
+    const prev = root.querySelector('[data-prev]');
+    const next = root.querySelector('[data-next]');
+    const dots = root.querySelector('.pager__dots');
+    slides.forEach(() => dots.insertAdjacentHTML('beforeend', '<span class="pager__dot"></span>'));
+    let index = 0;
+    const go = (to) => {
+      index = Math.min(slides.length - 1, Math.max(0, to));
+      slides.forEach((s, i) => s.toggleAttribute('data-off', i !== index));
+      [...dots.children].forEach((d, i) => d.toggleAttribute('data-on', i === index));
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+      prev.setAttribute('aria-label', slides[Math.max(0, index - 1)].dataset.label);
+      next.setAttribute('aria-label', slides[Math.min(slides.length - 1, index + 1)].dataset.label);
+    };
+    prev.addEventListener('click', () => go(index - 1));
+    next.addEventListener('click', () => go(index + 1));
+    root.addEventListener('keydown', (e) => {
+      if (e.target.closest('[role="tab"]')) return;
+      if (e.key === 'ArrowLeft') go(index - 1);
+      else if (e.key === 'ArrowRight') go(index + 1);
+    });
+    go(0);
+  });
+
+  // 面板：<button data-sheet="id"> 開啟 <dialog class="page-sheet" id="id">；關閉鈕 [data-close]、Esc、點面板以外
+  document.querySelectorAll('[data-sheet]').forEach((trigger) => {
+    const sheet = document.getElementById(trigger.dataset.sheet);
+    trigger.addEventListener('click', () => sheet.showModal());
+    sheet.addEventListener('click', (e) => {
+      const r = sheet.getBoundingClientRect();
+      const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      if (outside || e.target.closest('[data-close]')) sheet.close();
+    });
+  });
+
+  // 手機底部固定列：捲過 520px 後出現
+  const bar = document.querySelector('.sticky-bar');
+  if (bar) {
+    const sync = () => bar.toggleAttribute('data-on', scrollY > 520);
+    addEventListener('scroll', sync, { passive: true });
+    sync();
+  }
+})();
+</script>
+<script>
+// 這一頁多的兩個小行為（對應 SectionBehavior）：點頁內小導覽就展開那一段；展開後如果跑到頁首底下，捲回來。
+(() => {
+  const settle = (el, always) => setTimeout(() => { if (always || el.getBoundingClientRect().top < 72) el.scrollIntoView({ block: 'start' }); }, 280);
+  document.querySelectorAll('a[data-open-section]').forEach((a) => a.addEventListener('click', (ev) => {
+    const el = document.getElementById(a.getAttribute('href').slice(1)); if (!el) return;
+    ev.preventDefault(); el.open = true; settle(el, true);
+  }));
+  document.querySelectorAll('details.section').forEach((d) => d.addEventListener('toggle', () => { if (d.open) settle(d, false); }));
+})();
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@
   --accent: #FCE7A8;      --accent-foreground: #8A5415;
   --border: #F0DFA0;      --ring: #B5762A;
   --inverse: #20140A;     --inverse-foreground: #F5E4C8;  --inverse-accent: #F0C875;
-  --line: #06C755;        --line-foreground: #0B2E18;
+  --silver-light: #FAFAF8; --silver: #E3E1DC; --silver-deep: #C4C1BA; --silver-edge: #A9A59D; --silver-foreground: #3A2A18;
   --font-serif: "Noto Serif TC", serif;  --font-sans: "Noto Sans TC", sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; }
@@ -37,7 +37,7 @@ p { margin: 0; } a { color: inherit; text-decoration: none; } ul { margin: 0; pa
 .btn-gold { background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%); color: var(--primary-foreground); box-shadow: 0 4px 14px rgba(201,134,46,.35); }
 .btn-outline { background: var(--popover); border-color: var(--border); color: var(--secondary-foreground); font-weight: 600; }
 .btn-outline:hover { border-color: var(--ring); }
-.btn-line { background: var(--line); color: var(--line-foreground); }
+.btn-line { background: linear-gradient(135deg, var(--silver-light) 0%, var(--silver) 45%, var(--silver-deep) 100%); color: var(--silver-foreground); border: 1px solid var(--silver-edge); box-shadow: 0 3px 10px rgba(110,106,98,.22), inset 0 1px 0 rgba(255,255,255,.9); }
 .link { color: var(--accent-foreground); font-weight: 700; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
 
 /* 卡片 */

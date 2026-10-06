@@ -1,0 +1,44 @@
+/* Slide 03 的放射圖（舞台模式）。一般頁面模式的清單樣式在 stage.css。 */
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) {
+  html.js:not(.st-off) .st-root {
+    & .st-routes .st-in { display: block; }
+    & .st-routes .st-capzone { display: grid; top: 14px; }
+    & .st-routes .st-caps { display: grid; }
+    & .st-routes [data-cap='b'], & .st-routes .st-act { margin-top: 0; }
+
+    & .st-fan { display: block; position: absolute; left: 0; top: 0; overflow: hidden; }
+    & .st-fan path, & .st-fan line { fill: none; stroke: var(--st-gold-deep); stroke-width: 1.2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    & .st-ray { opacity: 0; }
+    & .st-arc--ghost { stroke: color-mix(in srgb, var(--st-gold-deep) 28%, transparent); }
+
+    & .st-nodes { display: block; margin: 0; }
+    & .st-node {
+      position: absolute; left: 0; top: 0; display: inline-flex; gap: 2px; min-width: 44px; min-height: 44px;
+      font: 700 16px/1.45 var(--font-sans); color: var(--st-ink); visibility: hidden; opacity: 0;
+    }
+    & .st-node__in { display: inline-flex; gap: inherit; align-items: inherit; flex-direction: inherit; }
+    & .st-node__dot { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 0; background: none; box-shadow: none; }
+    & .st-node__dot::before {
+      content: ''; width: 12px; height: 12px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, var(--st-gold-hi), var(--st-gold) 55%, var(--st-gold-deep));
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--st-gold-hi) 60%, transparent), 0 0 14px 6px var(--color-popover);
+    }
+    & .st-node__t {
+      display: block; width: max-content; max-width: var(--lw, 164px); text-wrap: balance;
+      text-shadow: 0 0 3px var(--st-white), 0 0 6px var(--st-white), 0 0 10px var(--st-white), 0 0 14px var(--st-white);
+    }
+    /* 標籤相對於圓點的位置：圓點的中心對準 left／top */
+    & .st-node[data-al='al'] { flex-direction: column-reverse; align-items: flex-start; transform: translate(-22px, calc(-100% + 22px)); text-align: left; }
+    & .st-node[data-al='ar'] { flex-direction: column-reverse; align-items: flex-end; transform: translate(calc(-100% + 22px), calc(-100% + 22px)); text-align: right; }
+    & .st-node[data-al='ac'] { flex-direction: column-reverse; align-items: center; transform: translate(-50%, calc(-100% + 22px)); text-align: center; }
+    & .st-node[data-al='l'] { flex-direction: row-reverse; align-items: center; transform: translate(calc(-100% + 22px), -50%); text-align: right; }
+    & .st-node[data-al='r'] { flex-direction: row; align-items: center; transform: translate(-22px, -50%); text-align: left; }
+    & .st-node[data-al='al'] .st-node__t { padding-left: 10px; }
+    & .st-node[data-al='ar'] .st-node__t { padding-right: 10px; }
+    & .st-node .st-node__t { padding-bottom: var(--lift, 0px); }
+    & .st-nodes .st-more { display: none; }
+  }
+  @media (max-width: 1023.98px) {
+    html.js:not(.st-off) .st-root .st-node { font-size: 14px; }
+  }
+}

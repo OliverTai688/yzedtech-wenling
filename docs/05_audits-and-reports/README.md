@@ -10,3 +10,4 @@
 ## 既有文件
 
 - [`AUD-001_official-copy-vs-current-site-audit.md`](./AUD-001_official-copy-vs-current-site-audit.md) — 官方文案集 vs. 現有網站內容稽核。
+- [`RPT-002_site-experience-evaluation-and-next-steps.md`](./RPT-002_site-experience-evaluation-and-next-steps.md) — 整體網站體驗評估：框架、評分、缺口與下一步。

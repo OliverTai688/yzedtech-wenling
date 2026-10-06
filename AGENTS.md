@@ -11,7 +11,7 @@
 - **框架**：Next.js 15（App Router）＋ React 19 ＋ TypeScript
 - **語言**：介面與內容以繁體中文（zh-Hant-TW）為主
 - **內容型態**：全站文案集中於 `src/data.ts`（靜態資料）＋ `src/types.ts`（型別定義）。目前**沒有資料庫、沒有後端 API layer**。
-- **AI 相依**：已安裝 `@google/genai`（Gemini），但目前尚未串接任何 `app/api` route。若要導入 AI 功能（例如聊天諮詢、內容生成），需先在 `docs/01_product-requirements` 建立 PRD 再開發。
+- **AI 相依**：無。`@google/genai` 從未串接，已於 2026-10-05 移除（PLN-005 決定 3）。若要導入 AI 功能（例如聊天諮詢、內容生成），需先在 `docs/01_product-requirements` 建立 PRD 再開發。
 
 ---
 
@@ -37,50 +37,49 @@ pnpm content:check    # 防呆掃描（example.com／已下架課程 identifier�
 
 - **Framework**：Next.js 15（App Router），React 19，TypeScript 5.8
 - **樣式**：Tailwind CSS 4（`@tailwindcss/postcss`）
-- **動畫**：`motion`（Framer Motion 的後繼套件）
+- **動畫**：`motion`（Framer Motion 的後繼套件）；首頁的捲動故事用 `gsap`＋`ScrollTrigger`（經 `@gsap/react` 的 `useGSAP`）
 - **圖示**：`lucide-react`
-- **AI**：`@google/genai`（Gemini，尚未串接）
-- **其他 devDependencies**：`express`、`dotenv`、`tsx` — 目前未見對應的伺服器進入點，若要使用請先確認用途並在 PRD/ARC 文件中說明，避免留下未使用的相依。
+- **互動元件**：`radix-ui`（Tabs 等原件）、原生 `<details>` 收合
+- **量測**：`@vercel/analytics`，只透過 `lib/track.ts` 呼叫（自訂事件需 Vercel Pro 方案）
+- 未使用的 `express`、`dotenv`、`tsx`、`@google/genai` 已於 2026-10-05 移除。新增相依前先確認用途並在 PRD/ARC 文件中說明。
 
 ---
 
 ## 4. 專案結構
 
 ```text
-app/                        # Next.js App Router 路由
-├── layout.tsx               # Root layout：字體（Noto Sans/Serif TC）、Header/Footer、ClientLayoutWrapper
-├── page.tsx                 # 首頁
-├── HomeClientPage.tsx
-├── ClientLayoutWrapper.tsx
-├── not-found.tsx
-├── globals.css
-├── about/page.tsx
-├── story/page.tsx
-├── media/page.tsx
-├── training/page.tsx, training/[id]/
-├── blog/page.tsx, BlogClientPage.tsx
-├── contact/page.tsx
-├── faq/page.tsx
-├── legal/page.tsx
-├── resources/page.tsx
-├── services/page.tsx, services/[id]/
-└── testimonials/page.tsx
+app/                        # Next.js App Router 路由（路由不可任意增減，見 PRD-004 §3）
+├── layout.tsx               # Root layout：字體（Noto Sans/Serif TC 可變字型）、Header/Footer、MotionProvider、SiteInteractions
+├── page.tsx                 # 首頁（七張 slide 的故事舞台，見 RES-005 與 ARC-002 §7）
+├── ClientLayoutWrapper.tsx  # 右下角浮動按鈕
+├── not-found.tsx, globals.css
+├── about/ story/ media/ testimonials/ resources/ contact/ blog/ legal/
+├── services/page.tsx, services/[id]/page.tsx
+└── training/page.tsx, training/[id]/page.tsx
 
 src/
-├── components/               # 所有版面區塊元件（PascalCase）
-│   ├── Header.tsx / Footer.tsx
-│   ├── Hero.tsx / AboutStory.tsx / Personas.tsx / TrustSystem.tsx
-│   ├── ServicesSection.tsx / HomeServicesGrid.tsx / HomeTrainingSection.tsx
-│   ├── BlogSection.tsx / ResourcesSection.tsx / MediaSection.tsx
-│   ├── FAQSection.tsx / ContactSection.tsx / LegalSection.tsx
-│   ├── HomeIntuitionBanner.tsx / HomeTestimonialsSection.tsx
-│   └── NotFoundPage.tsx
-├── data.ts                   # 全站靜態內容（services、courses、blog posts、testimonials、FAQ、resources）
-├── types.ts                  # 對應型別：Service / ReikiCourse / Testimonial / BlogPost / FAQItem / ResourceItem
-└── index.css
+├── components/               # 版面區塊元件（PascalCase）
+│   ├── Header / DesktopNav / MobileNav / Footer / CtaBand / StickyCtaBar / PageHeader
+│   ├── SiteInteractions.tsx  # 全站點擊：量測事件、LINE 帶話
+│   ├── AboutStory / StorySection / TrustSystem / MediaSection / ResourcesSection
+│   ├── ContactSection / BlogSection / LegalSection / ServicesSection / TrainingSection / NotFoundPage
+│   ├── page/                 # 分頁共用：PageHero、PageSection、ChipTabs、PageSheet、Pager、JourneyNext（PLN-006）
+│   ├── about/ story/ services/ training/ media/ blog/ resources/ legal/  # 各分頁自己的小元件
+│   ├── stage/                # 首頁的故事舞台：HomeStage、各張 slide、StageSheet、stage*.css、timelines/（GSAP）
+│   ├── offering/             # 服務與課程詳細頁：OfferingDetail、ContentBlocks
+│   ├── motion/               # Reveal、CountUp、MotionProvider、useScrolled
+│   └── brand/                # WingsCompass、WingsMark（替代圖形，正式 Logo 到位後替換）；
+│                             #   emblemData.ts 由 `node scripts/emblem/build-react.mjs` 產生
+├── content/                  # 由文案集產生或整理的內容：offerings.ts、pages.ts、stages.ts
+├── data.ts                   # 全站靜態內容與 siteLinks
+└── types.ts
 
-assets/                       # 靜態資源
-docs/                         # 專案文件庫（見第 5 節）
+components/ui/                # shadcn 元件：button、navigation-menu、separator、sheet
+lib/                          # utils、track（量測出口）、need（記住選擇）、chapter（目前章節）
+scripts/                      # docx-to-copy-deck.py、build-offering-content.py、content-check.sh
+│                             # emblem/：金翼羅盤的幾何模組與四張 SVG 的產生腳本（規範見 proposals/emblem/BRIEF.md）
+public/brand/                 # 金翼羅盤 SVG：emblem-open／folded／exploded／mark（由 scripts/emblem 產生，不要手改）
+docs/                         # 專案文件庫（見第 6 節）
 ```
 
 Path alias：`@/*` → repo 根目錄（見 `tsconfig.json`）。
@@ -89,11 +88,12 @@ Path alias：`@/*` → repo 根目錄（見 `tsconfig.json`）。
 
 ## 5. 開發慣例
 
-- 文案內容一律先進 `src/data.ts` / `src/types.ts`，不要把內容寫死在元件裡。
+- **文案只能逐字取自客戶的 `網站文案集.docx`（本機轉檔 `docs/網站文案集.md`），不可自行撰寫、改寫或摘要任何對訪客顯示的文字**；docx 沒有的就不放文字，改用數字或圖示，並列為待客戶提供。細則見 [`ARC-002`](./docs/02_architecture-and-rules/ARC-002_ui-and-interaction-rules.md) §1。
+- 文案內容一律先進 `src/data.ts` / `src/types.ts`（或 `src/content/**`），不要把內容寫死在元件裡。
 - 對外連結（官方 LINE、商城、社群、Email 等）一律引用 `src/data.ts` 的 `siteLinks`，不要在元件裡寫死網址。
 - 文案來源是本機的 `docs/網站文案集.md`（不上傳）。客戶給新版 docx 時，用 `python3 scripts/docx-to-copy-deck.py <docx> docs/網站文案集.md` 轉檔，才能保留內嵌超連結。
 - 元件放在 `src/components/`，檔名與元件名稱一致，使用 PascalCase。
-- 樣式以 Tailwind CSS 為主；動畫使用 `motion`。
+- 樣式以 Tailwind CSS 為主；動畫使用 `motion`。UI、動效與互動規則見 `ARC-002`。
 - 新頁面照現有模式：`app/<route>/page.tsx`（server component）＋ 視需要拆出 `<Route>ClientPage.tsx`（client component）。
 - 修改或新增功能前，先確認是否需要建立 PRD／執行計畫（見下方文件流程）。
 - 提交前執行 `pnpm lint` 與 `pnpm build`，確保沒有型別或建置錯誤。

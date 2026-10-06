@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import OfferingDetail from '../../../src/components/offering/OfferingDetail';
 import { offeringContent } from '../../../src/content/offerings';
-import { certificationCourses, offeringsContent, siteLinks, thetaTrainingCourses } from '../../../src/data';
+import { certificationCourses, courseBlurbs, offeringMeta, offeringsContent, pageMeta, siteLinks, thetaTrainingCourses } from '../../../src/data';
 
 const allTrainingItems = [...thetaTrainingCourses, ...certificationCourses];
 
@@ -13,20 +13,20 @@ export function generateStaticParams() {
   return allTrainingItems.map((item) => ({ id: item.id }));
 }
 
+// <title> 是課程名稱加學苑名，description 是文案集 Home Block 4 的一句話（courseBlurbs）。
 export async function generateMetadata({ params }: TrainingDetailPageProps) {
   const { id } = await params;
   const course = allTrainingItems.find((c) => c.id === id);
   if (!course) {
-    return { title: '找不到此課程｜豐盛之翼學苑' };
+    return pageMeta.home;
   }
-  return {
-    title: `${course.name}｜豐盛之翼學苑`,
-    description: course.objective,
-  };
+  return offeringMeta(course.name, courseBlurbs[id]);
 }
 
-// 課程詳細頁（PLN-004 D3；定案見 RES-002 §3）。與服務詳細頁共用 OfferingDetail；
+// 課程詳細頁（PLN-006 P3；提案見 proposals/pages-v2/course-detail/PAGE.md）。與服務詳細頁共用 OfferingDetail；
 // 希塔療癒三門課另外顯示「學習路徑」，標出這門課在三階中的位置。
+// 費用是文案集的條列原文（src/data.ts 的 price）。facts 的每一行都已經在該課程的「課程資訊」段落裡
+// （同一份原文），所以不在頁首重複。
 export default async function Page({ params }: TrainingDetailPageProps) {
   const { id } = await params;
   const theta = thetaTrainingCourses.find((c) => c.id === id);
@@ -36,24 +36,21 @@ export default async function Page({ params }: TrainingDetailPageProps) {
     notFound();
   }
   const labels = offeringsContent;
-  const facts = theta
-    ? [theta.duration, theta.certification, ...(theta.prerequisite ? [theta.prerequisite] : [])]
-    : [course.duration];
 
   return (
     <OfferingDetail
+      route="course-detail"
       back={{ label: labels.detail.courseBack, href: '/training' }}
       eyebrow={theta ? labels.training.thetaTrack : labels.training.reikiTrack}
       title={course.name}
-      facts={facts}
       price={course.price}
       cta={{ label: labels.detail.courseCta, href: course.ctaLink ?? siteLinks.line }}
       content={offeringContent[id]}
-      fallbackDescription={course.objective}
-      audience={course.targetAudience}
+      fallbackDescription={courseBlurbs[id]}
       path={
         theta
           ? {
+              label: labels.training.thetaTrack,
               steps: thetaTrainingCourses.map((c) => ({
                 id: c.id,
                 name: c.level,

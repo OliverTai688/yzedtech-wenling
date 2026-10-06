@@ -1,15 +1,16 @@
 import BlogSection from '../../src/components/BlogSection';
 import CtaBand from '../../src/components/CtaBand';
+import JourneyNext from '../../src/components/page/JourneyNext';
+import { pageMeta } from '../../src/data';
 
-export const metadata = {
-  title: '部落格｜豐盛之翼學苑',
-  description: '豐盛之翼學苑的文章：愛情、財運、豐盛靈氣、事業、心路歷程與個案成長。',
-};
+// <title> 與 description 是文案集原文，集中在 src/data.ts 的 pageMeta。
+export const metadata = pageMeta.blog;
 
 export default function Page() {
   return (
     <>
       <BlogSection />
+      <JourneyNext route="/blog" />
       <CtaBand />
     </>
   );
