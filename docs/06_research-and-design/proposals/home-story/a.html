@@ -1,0 +1,385 @@
+<!--
+提案 A「一條路走到底」：一條金色路徑貫穿全頁，五章是路上 01–05 的站點，路徑隨捲動由淺金延伸到飽和金。
+金翼羅盤每到一站多張開一點（01 收攏、05 全開）；三階段是同一條線上連續三個節點，點節點展開原文（一次一個）。
+背景色溫由奶油走到金；左緣／頁首下方有 5 點進度可跳章；手機底部列主按鈕隨章節與所選方向改變。
+互動：捲動、單點；原生 details、無吸附無舞台。已知弱點：羅盤由 JS 繪製、每章各一個，單一羅盤沿線移動需 sticky 而未採用。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜首頁提案 A・一條路走到底</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700;900&display=swap">
+<style>
+/* 分頁提案共用樣式（首頁定案後的視覺語言，RES-002 §1）。
+   第 2 頁起的提案一律 <link rel="stylesheet" href="../_kit.css">，只另外寫該頁專屬的樣式。
+   這份樣式對應實作端 app/globals.css 與 src/components/home/* 的寫法。 */
+
+:root {
+  --background: #FBF1DD;  --foreground: #2E2318;
+  --card: #FDF6E6;        --card-foreground: #3A2A18;
+  --popover: #FFFDF0;
+  --primary: #C9862E;     --primary-foreground: #3A2409;
+  --secondary: #FFFDF0;   --secondary-foreground: #8A5415;
+  --muted: #FDF6E6;       --muted-foreground: #7A6650;
+  --accent: #FCE7A8;      --accent-foreground: #8A5415;
+  --border: #F0DFA0;      --ring: #B5762A;
+  --inverse: #20140A;     --inverse-foreground: #F5E4C8;  --inverse-accent: #F0C875;
+  --line: #06C755;        --line-foreground: #0B2E18;
+  --font-serif: "Noto Serif TC", serif;  --font-sans: "Noto Sans TC", sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3, h4 { font-family: var(--font-serif); color: var(--card-foreground); margin: 0; line-height: 1.3; }
+h1 { font-size: 32px; } h2 { font-size: 26px; } h3 { font-size: 20px; }
+@media (min-width: 768px) { h1 { font-size: 40px; } h2 { font-size: 32px; } }
+p { margin: 0; } a { color: inherit; text-decoration: none; } ul { margin: 0; padding: 0; list-style: none; }
+.muted { color: var(--muted-foreground); }
+.container { max-width: 1180px; margin-inline: auto; padding-inline: 24px; }
+@media (min-width: 1024px) { .container { padding-inline: 40px; } }
+.section { padding-block: 48px; } @media (min-width: 768px) { .section { padding-block: 80px; } }
+
+/* 眉批 */
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; letter-spacing: .12em; color: var(--accent-foreground); }
+.eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--ring); }
+
+/* 按鈕：一個畫面最多一顆 .btn-gold */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 22px; border-radius: 999px; font-weight: 700; font-size: 16px; cursor: pointer; border: 1px solid transparent; font-family: inherit; }
+.btn-gold { background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%); color: var(--primary-foreground); box-shadow: 0 4px 14px rgba(201,134,46,.35); }
+.btn-outline { background: var(--popover); border-color: var(--border); color: var(--secondary-foreground); font-weight: 600; }
+.btn-outline:hover { border-color: var(--ring); }
+.btn-line { background: var(--line); color: var(--line-foreground); }
+.link { color: var(--accent-foreground); font-weight: 700; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+
+/* 卡片 */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 4px 20px rgba(58,42,24,.05); padding: 24px; }
+@media (min-width: 640px) { .card { padding: 32px; } }
+.chip { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 12px; border-radius: 999px; background: var(--accent); color: var(--accent-foreground); font-size: 14px; font-weight: 700; }
+.quote { border-left: 3px solid #D89A3E; padding-left: 16px; font-style: italic; }
+
+/* 漸進揭露：原生 details，內容一直在 HTML 裡 */
+.disclosure { interpolate-size: allow-keywords; border-bottom: 1px solid rgba(240,223,160,.7); }
+.disclosure > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding-block: 8px; font-weight: 700; color: var(--card-foreground); }
+.disclosure > summary::-webkit-details-marker { display: none; }
+.disclosure > summary::after { content: '+'; color: var(--ring); font-size: 20px; line-height: 1; transition: transform 250ms ease; }
+.disclosure[open] > summary::after { transform: rotate(45deg); }
+.disclosure::details-content { block-size: 0; opacity: 0; overflow: hidden; transition: block-size 250ms ease, opacity 250ms ease, content-visibility 250ms allow-discrete; }
+.disclosure[open]::details-content { block-size: auto; opacity: 1; }
+.disclosure > *:not(summary) { padding-bottom: 16px; color: var(--muted-foreground); }
+
+/* 分頁（一次顯示一個面板；未選中的用 hidden 屬性） */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tab { min-height: 44px; padding: 6px 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--popover); color: var(--secondary-foreground); font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--ring); color: var(--primary-foreground); }
+
+/* 進場：只播一次；主標題不要套用 */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 250ms ease, transform 250ms cubic-bezier(.22,1,.36,1); }
+.reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } * { animation: none !important; } }
+
+/* 頁首（方案 C，示意用，不必可操作） */
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(251,241,221,.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(240,223,160,.7); }
+.site-header .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; }
+.site-header .brand { font-family: var(--font-serif); font-weight: 700; font-size: 18px; letter-spacing: .08em; color: var(--card-foreground); }
+.site-header nav { display: none; gap: 22px; font-size: 14px; font-weight: 500; color: #5A4A38; }
+.site-header .actions { display: flex; gap: 8px; align-items: center; }
+.site-header .actions .btn { min-height: 44px; padding-inline: 16px; font-size: 14px; }
+.site-header .only-desktop { display: none; }
+@media (min-width: 1024px) { .site-header nav { display: flex; } .site-header .only-desktop { display: inline-flex; } .site-header .only-mobile { display: none; } }
+
+/* 頁尾與深色 CTA 區塊 */
+.inverse { background: var(--inverse); color: var(--inverse-foreground); }
+.inverse h2 { color: #FFFDF0; }
+.cta-band { position: relative; overflow: hidden; text-align: center; padding: 64px 24px; }
+.cta-band::before { content: ''; position: absolute; left: 50%; top: 0; width: 820px; height: 420px; transform: translate(-50%, -33%); border-radius: 50%; background: radial-gradient(closest-side, rgba(240,200,117,.38), rgba(201,134,46,.14) 55%, transparent); pointer-events: none; }
+.cta-band > * { position: relative; }
+.cta-band .row { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+@media (min-width: 640px) { .cta-band .row { flex-direction: row; justify-content: center; align-items: center; } }
+.btn-inverse { border-color: rgba(240,200,117,.6); color: var(--inverse-accent); background: transparent; font-weight: 600; }
+.site-footer { padding: 28px 24px 96px; font-size: 14px; color: #A08660; text-align: center; border-top: 1px solid #3A2409; }
+
+/* 手機底部固定 CTA 列（最多兩顆按鈕） */
+.sticky-cta { position: fixed; inset: auto 0 0 0; z-index: 40; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,253,240,.95); backdrop-filter: blur(8px); border-top: 1px solid var(--border); }
+.sticky-cta .btn { flex: 1; }
+.sticky-cta .btn-line { flex: none; }
+@media (min-width: 1024px) { .sticky-cta { display: none; } }
+
+/* 提案標籤 */
+.proposal-tag { position: fixed; left: 12px; bottom: 84px; z-index: 60; background: #20140A; color: #F5E4C8; font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+@media (min-width: 1024px) { .proposal-tag { bottom: 12px; } }
+
+@property --open { syntax: '<number>'; inherits: true; initial-value: 1; }
+:root { --lx: 31px; --pad: 68px; }
+@media (min-width: 1024px) { :root { --lx: 40px; --pad: 112px; } }
+body { padding-bottom: 72px; }
+@media (min-width: 1024px) { body { padding-bottom: 0; } }
+.path { position: relative; max-width: 1080px; margin-inline: auto; }
+.path::before, .path-fill { content: ''; position: absolute; left: calc(var(--lx) - 1.5px); top: 56px; bottom: 0; width: 3px; border-radius: 3px; }
+.path::before { z-index: 1; background: linear-gradient(#F0DFA0, #E8B15A 60%, #C9862E); opacity: .55; }
+.path-fill { background: linear-gradient(#E8B15A, #B5762A); box-shadow: 0 0 12px rgba(201,134,46,.7); transform-origin: top; transform: scaleY(var(--p, 0)); z-index: 1; }
+.chapter { position: relative; padding: 48px 16px 56px var(--pad); overflow-x: clip; scroll-margin-top: 100px; }
+@media (min-width: 1024px) { .chapter { padding: 80px 0 88px var(--pad); scroll-margin-top: 80px; } }
+.node { position: absolute; z-index: 2; left: calc(var(--lx) - 19px); top: 48px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-serif); font-weight: 700; font-size: 14px; background: var(--popover); border: 2px solid var(--gold-ring, #E8B15A); color: var(--secondary-foreground); transition: background 250ms, box-shadow 250ms; }
+@media (min-width: 1024px) { .node { top: 80px; width: 44px; height: 44px; left: calc(var(--lx) - 22px); } }
+.chapter.reached .node { background: linear-gradient(135deg, #FCE7A8, #D89A3E); color: var(--primary-foreground); box-shadow: 0 0 0 5px rgba(240,200,117,.45); }
+.ch1 { background: linear-gradient(#FBF1DD, #F9E8C2); } .ch2 { background: linear-gradient(#F9E8C2, #F6DEA6); }
+.ch3 { background: linear-gradient(#F6DEA6, #F1D083); } .ch4 { background: linear-gradient(#F1D083, #EBC167); } .ch5 { background: linear-gradient(#EBC167, #E4AF4E); }
+.chapter > .bgfull { display: none; }
+.chapter-wrap { position: relative; }
+.chapter-wrap::before { content: ''; position: absolute; inset: 0; z-index: -1; }
+.stack > * + * { margin-top: 16px; }
+.chead { display: grid; gap: 12px; align-items: center; margin-bottom: 20px; }
+@media (min-width: 1024px) { .chead { grid-template-columns: 1fr 300px; gap: 32px; } }
+.ch4 .muted, .ch5 .muted, .ch3 .muted { color: #5A4733; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.row .btn { flex: 1 1 auto; }
+/* emblem */
+.emblem { --needle: 0; position: relative; width: min(100%, 230px); aspect-ratio: 460 / 270; margin: 18px 0 8px; transition: --open 1100ms cubic-bezier(.22,1,.36,1); }
+.emblem--lg { width: min(100%, 340px); margin-inline: auto; }
+@media (min-width: 1024px) { .emblem { width: 300px; } .emblem--lg { width: 460px; } }
+.js .emblem { --open: var(--o0, 0); } .js .chapter.is-in .emblem, .js .cta-band.is-in .emblem { --open: var(--o1, 1); }
+.emblem__glow { position: absolute; inset: -16% -6%; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(255,253,240,.98) 0, rgba(252,231,168,.9) 34%, rgba(232,177,90,.38) 60%, rgba(232,177,90,0) 100%); opacity: calc(.1 + var(--open) * .9); transform: scale(calc(.5 + var(--open) * .5)); }
+.emblem__rays { position: absolute; inset: -34% -8%; pointer-events: none; background: repeating-conic-gradient(from -4deg at 50% 52%, rgba(201,134,46,0) 0 8deg, rgba(201,134,46,.2) 8deg 9.5deg, rgba(201,134,46,0) 9.5deg 15deg); -webkit-mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%); mask-image: radial-gradient(closest-side, transparent 34%, #000 52%, transparent 100%); opacity: var(--open); transform: scale(calc(.7 + var(--open) * .3)); }
+.emblem .wing { position: absolute; top: 1.5%; width: 46%; aspect-ratio: 300 / 260; perspective: 620px; perspective-origin: 95.3% 73%; }
+.emblem .wing--l { left: -4%; } .emblem .wing--r { right: -4%; transform: scaleX(-1); }
+.emblem .wing__svg { width: 100%; height: 100%; overflow: visible; transform-origin: 95.3% 73%; transform: rotateY(calc((1 - var(--open)) * -64deg)) rotateZ(calc((1 - var(--open)) * -8deg)); }
+.emblem .wing .f { transform-origin: 286px 190px; transform: rotate(calc(var(--d) * (1 - var(--open)))); }
+.emblem .compass { position: absolute; left: 50%; top: 50%; width: 31%; aspect-ratio: 1; transform: translate(-50%, -46%); overflow: visible; }
+.emblem .needle { transform-origin: 100px 100px; transform: rotate(calc(var(--needle) * 1deg)); transition: transform 600ms cubic-bezier(.3,1.35,.6,1); }
+.emblem .mark__on { opacity: 0; transition: opacity 250ms; } .emblem .mark.is-on .mark__on { opacity: 1; }
+/* hero */
+.hero-grid { display: grid; gap: 8px; }
+@media (min-width: 1024px) { .hero-grid { grid-template-columns: 1fr 460px; gap: 48px; align-items: center; } }
+.h1l { display: block; } .hero-more { margin-top: 24px; } .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { white-space: normal; }
+/* needs */
+.tabs { margin-top: 20px; } .tab { flex: 1 1 0; padding-inline: 8px; }
+.panel { margin-top: 16px; } .panel .pain { margin-top: 8px; font-size: 15px; } .panel .start { margin-top: 10px; font-weight: 600; }
+.panel .stories { margin-top: 8px; }
+/* stages on the line */
+.stages { margin-top: 20px; }
+.stage { position: relative; }
+.stage::before { content: ''; position: absolute; z-index: 2; left: calc(var(--lx) - var(--pad) - 9px); top: 15px; width: 18px; height: 18px; border-radius: 50%; background: var(--popover); border: 3px solid var(--gold-600, #B5762A); transition: background 250ms, box-shadow 250ms; }
+@media (min-width: 1024px) { .stage::before { left: calc(var(--lx) - var(--pad) - 9px); } }
+.stage[open]::before { background: #E8B15A; box-shadow: 0 0 0 5px rgba(240,200,117,.55); }
+.stage > summary { font-family: var(--font-serif); font-size: 17px; }
+.stage[open] > summary { color: var(--accent-foreground); }
+.stage > p { color: var(--card-foreground); }
+.stage b { color: var(--accent-foreground); }
+.grid { display: grid; gap: 16px; margin-top: 20px; }
+@media (min-width: 768px) { .grid.g3 { grid-template-columns: repeat(3, 1fr); } }
+.svc { display: flex; flex-direction: column; gap: 8px; } .svc h3 { font-size: 18px; }
+.pub { padding: 8px 20px; } .pub summary small { display: block; font-weight: 500; font-size: 14px; }
+.res { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 20px; }
+.quote-card { margin-top: 12px; }
+.sub { margin-top: 48px; padding-top: 8px; scroll-margin-top: 100px; }
+.cta-band .row { justify-content: center; } .cta-band { position: relative; }
+.cta-band .emblem { margin: 0 auto 8px; }
+/* progress dots */
+.dots { position: fixed; z-index: 45; top: 64px; left: 0; right: 0; height: 30px; display: flex; justify-content: center; align-items: center; background: rgba(251,241,221,.9); backdrop-filter: blur(6px); border-bottom: 1px solid rgba(240,223,160,.6); }
+.dots a { position: relative; display: grid; place-items: center; width: 44px; height: 30px; font-size: 12px; font-weight: 700; color: transparent; }
+.dots a::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: transparent; border: 2px solid var(--gold-600, #B5762A); transition: transform 250ms, background 250ms; }
+.dots a.on::before { background: #C9862E; transform: scale(1.35); box-shadow: 0 0 0 4px rgba(240,200,117,.55); }
+.dots a.done::before { background: #E8B15A; }
+@media (min-width: 1024px) {
+  .dots { top: 50%; left: 14px; right: auto; transform: translateY(-50%); flex-direction: column; height: auto; width: 44px; background: none; border: 0; backdrop-filter: none; gap: 4px; }
+  .dots a { height: 40px; } .dots a::before { position: absolute; left: 8px; }
+  .dots a span { margin-left: 18px; color: var(--muted-foreground); }
+  .dots a { color: var(--muted-foreground); justify-content: start; padding-left: 28px; } .dots a.on { color: var(--primary-foreground); }
+}
+.sticky-cta { transform: translateY(110%); transition: transform 250ms ease; } .sticky-cta.on { transform: none; }
+@media (prefers-reduced-motion: reduce) { .emblem, .emblem .needle, .stage::before, .node { transition: none !important; } .sticky-cta { transition: none; } }
+
+</style>
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<nav class="dots" aria-label="章節進度">
+  <a href="#ch1" aria-label="01"><span>01</span></a><a href="#ch2" aria-label="02"><span>02</span></a><a href="#ch3" aria-label="03"><span>03</span></a><a href="#ch4" aria-label="04"><span>04</span></a><a href="#ch5" aria-label="05"><span>05</span></a>
+</nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="wc-gA" x1="0" x2="1"><stop offset="0" stop-color="#E8B15A"/><stop offset="1" stop-color="#B5762A"/></linearGradient>
+<linearGradient id="wc-gB" x1="0" x2="1"><stop offset="0" stop-color="#F6D88F"/><stop offset="1" stop-color="#D89A3E"/></linearGradient>
+<linearGradient id="wc-gC" x1="0" x2="1"><stop offset="0" stop-color="#FFF3CF"/><stop offset="1" stop-color="#E8B15A"/></linearGradient>
+<linearGradient id="wc-gRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6D88F"/><stop offset=".5" stop-color="#C9862E"/><stop offset="1" stop-color="#8A5415"/></linearGradient>
+<radialGradient id="wc-gDisc"><stop offset="0" stop-color="#FFFDF0"/><stop offset=".7" stop-color="#FFF6D8"/><stop offset="1" stop-color="#FCE7A8"/></radialGradient>
+</defs></svg>
+
+<main>
+<div class="path" id="path"><div class="path-fill" id="pathfill" aria-hidden="true"></div>
+
+<section class="chapter ch1" id="ch1" style="--o0:0;--o1:.06">
+  <span class="node" aria-hidden="true">01</span>
+  <div class="hero-grid">
+    <div class="stack">
+      <p class="eyebrow">成為你豐盛之路上的翅膀</p>
+      <h1><span class="h1l">為你的人生開外掛！</span><span class="h1l">許願成真，就是這麼幸福。</span></h1>
+      <div class="row"><a class="btn btn-gold" href="#personas-section">從這裡，開始我的改變</a><a class="btn btn-outline" href="https://reurl.cc/8DDd1M">加入免費體驗社群：密碼168168</a></div>
+    </div>
+    <div data-emblem="lg"></div>
+  </div>
+  <div class="hero-more reveal">
+    <p class="muted">豐盛之翼學苑旨在成為大家豐盛之路上的翅膀。無論你正期盼感情的順遂、財富的自由，或是生活的全面好運，我們將透過最白話、最落地的靈性工具，陪你解開內在卡點。讓你從此不再迷惘，活出充滿熱情與使命的幸運人生！</p>
+    <div class="chips"><span class="chip">《七週遇見對的人》暢銷書推薦序作者</span><span class="chip"><span data-count="500">500</span>+個案經驗</span><span class="chip">整合<span data-count="14">14</span>種以上顯化技術，助你掌握受用一輩子的工具</span></div>
+  </div>
+</section>
+
+<section class="chapter ch2" id="personas-section" style="--o0:.06;--o1:.3">
+  <span class="node" aria-hidden="true">02</span>
+  <div class="chead"><div class="stack"><p class="eyebrow">找到你的起點</p><h2>為不同階段的你，量身規劃專屬的改變起點</h2><p class="muted">身心靈療癒不是迷信，而是幫你的大腦「重新開機、清除雜訊」。不論你處在哪個人生階段，幸運教主文齡 Keila 都為你準備了最理性、安心且溫和的改變地圖。</p></div><div data-emblem="sm"></div></div>
+  <p class="muted" style="font-size:14px">選擇最接近你現況的方向</p>
+  <div class="tabs" role="tablist" aria-label="選擇最接近你現況的方向" id="needtabs"><button class="tab" role="tab" id="t-family" aria-controls="p-family" aria-selected="true" data-i="0" data-cta="了解人生推進器|/services/group-healing">家庭</button><button class="tab" role="tab" id="t-love" aria-controls="p-love" aria-selected="false" data-i="1" data-cta="了解心靈引渡人|/services/personal-1on1">感情</button><button class="tab" role="tab" id="t-business" aria-controls="p-business" aria-selected="false" data-i="2" data-cta="了解豐盛靈氣|/services/abundance-reiki">事業</button><button class="tab" role="tab" id="t-starter" aria-controls="p-starter" aria-selected="false" data-i="3" data-cta="了解希塔療癒|/training/theta-basic">新手</button></div>
+  <div class="card panel" role="tabpanel" id="p-family" aria-labelledby="t-family">
+<h3>家庭與孩子守護</h3><p class="pain">「每天為孩子的課業、情緒操碎了心，還要面對另一半或長輩的壓力。多渴望家裡和睦順利，孩子自動自發，自己也能好好睡個好覺。」</p><p class="start">為辛勞的你提供最深度的安定感。當媽媽的心安定了，整個家就會迎來最溫柔的和諧。</p>
+<div class="stories"><details class="disclosure" name="story"><summary>媽媽的定心丸</summary><p>孩子原本對讀書沒動力、人際卡關，媽媽幫他遠距預約「人生推進器」祝福後，孩子明顯變得積極，不僅主動分享心事，還說出未來想出國唸書的目標！</p></details><details class="disclosure" name="story"><summary>婆媳與夫妻和解</summary><p>面臨極大婆媳壓力的媳婦，為婆婆預約「靈性按摩」清理身心壓力後，婆婆不再把情緒發洩在她身上；也有先生幫容易爆炸的太太預約，兩人終於能心平氣和地好好說話。</p></details></div><div class="row"><a class="btn btn-gold" href="/services/group-healing">了解人生推進器</a><a class="btn btn-outline" href="/services/spiritual-massage">看靈性按摩介紹</a></div></div>
+<div class="card panel" role="tabpanel" id="p-love" aria-labelledby="t-love" hidden>
+<h3>幸福真愛與伴侶</h3><p class="pain">「母胎單身、總是遇不到對的人，或是一再陷入『不斷付出卻受傷』的感情舊模式？到底哪裡出了錯，我也想被好好疼愛啊！」</p><p class="start">幫助你重新愛上自己，拔除感情裡的「有毒習慣」。這是一段溫暖陪伴的旅程，幫你打開心房，遇見真正適合你的人。</p>
+<div class="stories"><details class="disclosure" name="story"><summary>母胎單身逆襲</summary><p>透過心靈引渡人一對一對談，精準找出內心深處「害怕受傷」的愛情盲點。母胎單身的女孩成功告白，現在已經順利結婚生子！</p></details><details class="disclosure" name="story"><summary>打破爛桃花循環</summary><p>透過練愛大確幸專屬課程陪跑，清空過去的感情包袱。不再委曲求全，活出自信閃耀的自己，順利吸引到真正懂你、疼你的另一半。</p></details></div><div class="row"><a class="btn btn-gold" href="/services/personal-1on1">了解心靈引渡人</a><a class="btn btn-outline" href="https://booking.wenling.tw/products/love365">看練愛大確幸介紹</a></div></div>
+<div class="card panel" role="tabpanel" id="p-business" aria-labelledby="t-business" hidden>
+<h3>企業求財與事業突破</h3><p class="pain">「身處商場高壓，每天焦慮到不行。面臨業績停滯、找不到神隊友員工，或是投資決策卡關，多渴望能有一股推力，讓財富與事業全面大爆發！」</p><p class="start">為老闆、創業家、業務員與投資者提供專屬的開運助攻，讓好運與業績自動找上門！</p>
+<div class="stories"><details class="disclosure" name="story"><summary>投資人與老闆的神助攻</summary><p>透過豐盛靈氣清理掉「金錢阻礙」後，退休媽媽的股票從虧損 50 萬逆轉正，有操盤手突破個人最高獲利兩千萬！企業主也順利招募到心目中的神隊友員工。</p></details><details class="disclosure" name="story"><summary>業績翻倍超順利</summary><p>珠寶店使用煙供祈福，順利打破長期的業績停滯期，創造每月穩定達到200萬元以上的業績。</p></details></div><div class="row"><a class="btn btn-gold" href="/services/abundance-reiki">了解豐盛靈氣</a><a class="btn btn-outline" href="/services/smoke-prayer">看煙供祈福介紹</a></div></div>
+<div class="card panel" role="tabpanel" id="p-starter" aria-labelledby="t-starter" hidden>
+<h3>開啟身心靈事業 (新手入門)</h3><p class="pain">「對身心靈充滿好奇，想找個簡單實用的方法解決自己的煩惱；或是想多一份副業收入，卻不知道從哪裡開始最快賺到錢？」</p><p class="start">不論是想療癒自己，還是想發展高收入的第二專長，這裡有最簡單、零門檻的教學，帶你把所學變成實際的收入。</p>
+<div class="stories"><details class="disclosure" name="story"><summary>占卜師專業大升級</summary><p>塔羅牌占卜師學習希塔療癒後，從「只能給建議」變成「能實際幫客戶解決困擾」，收費價值大幅提升，開拓出全新的賺錢方向。</p></details><details class="disclosure" name="story"><summary>零基礎小白無痛增加收入</summary><p>完全沒有身心靈背景的上班族，學完簡單易懂的金錢靈氣後，開始穩定接案增加收入，甚至能自己開課賺錢，打造完美副業！</p></details></div><div class="row"><a class="btn btn-gold" href="/training/theta-basic">了解希塔療癒</a><a class="btn btn-outline" href="/training/money-reiki-cert">看金錢靈氣課介紹</a></div></div>
+
+</section>
+
+<div class="chapter-wrap" id="ch3-wrap">
+<section class="chapter ch3" id="ch3" style="--o0:.3;--o1:.55">
+  <span class="node" aria-hidden="true">03</span>
+  <div class="chead"><div class="stack"><h2>這些技術之間的關係是什麼？可以搭配使用嗎？</h2><p class="muted">這 14 項技術就像是一個「完整的個人蛻變工具箱」，它們之間不僅不衝突，還能產生極其強大的加乘效果（Synergy）。針對你當下的不同狀態，這套系統能提供最精準的三階段支援：</p></div><div data-emblem="sm"></div></div>
+  <div class="stages"><details class="disclosure stage" name="stage" open><summary>第一階段：淨化與釋放 (Cleansing & Releasing)</summary><p>當你感到極度疲憊或卡關時，我們會先運用 <b>煦陽靈氣</b> 疏通身體經絡與卡卡的感受，並以 <b>獨角獸靈氣</b> 帶來深度的能量淨化；接著透過 <b>希塔療癒</b> 深入潛意識，拔除造成痛苦的根源信念。若有外在阻礙，則會搭配 <b>脈輪與氣場能量療癒</b> 或是 <b>煙供</b> 進行全面掃除。</p></details><details class="disclosure stage" name="stage"><summary>第二階段：滋養與修復 (Nourishing & Healing)</summary><p>釋放舊有模式後，身心靈極度需要被溫柔地接住。這時我們可以透過 <b>彩虹靈氣</b> 修補靈魂能量，運用 <b>百花靈氣</b> 與 <b>臼井靈氣</b> 帶來如花朵般的撫慰與深層放鬆。同時搭配客製化的 <b>香水供</b> 調整五行頻率，給予你最完整的能量滋養。</p></details><details class="disclosure stage" name="stage"><summary>第三階段：顯化與推進 (Manifesting & Accelerating)</summary><p>當身心恢復純淨與力量，就是迎來奇蹟的時候了。為了加速顯化，我們會疊加 <b>金錢靈氣</b>、<b>鬱金香熱情靈氣</b> 或是提升魅力的 <b>人魚靈氣</b>；並啟動 <b>人生推進器</b> 勇敢斷捨離，最後再透過 <b>獨角獸靈氣</b> 大幅提升顯化速度，讓你順利承接宇宙源源不絕的好運！</p></details></div>
+  <div class="sub" id="featured-services">
+    <p class="eyebrow">精選服務</p>
+    <h2 style="margin-top:8px">能量療癒服務｜為你的身心靈量身訂做的解方</h2>
+    <p class="muted" style="margin-top:8px">從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。</p>
+    <ul class="grid g3"><li class="card svc"><h3>人生推進器｜團體遠距療癒</h3><p class="muted">強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。</p><a class="link" href="/services/group-healing">了解詳情 →</a></li><li class="card svc"><h3>心靈引渡人｜一對一個人能量療癒</h3><p class="muted">潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。</p><a class="link" href="/services/personal-1on1">了解詳情 →</a></li><li class="card svc"><h3>豐盛靈氣｜全方位能量調頻與願望顯化</h3><p class="muted">整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。</p><a class="link" href="/services/abundance-reiki">了解詳情 →</a></li></ul>
+    <div class="row"><a class="btn btn-gold" href="/services">查看全部服務</a></div>
+  </div>
+</section>
+</div>
+
+<section class="chapter ch4" id="ch4" style="--o0:.55;--o1:.78">
+  <span class="node" aria-hidden="true">04</span>
+  <div class="chead" id="founder"><div class="stack"><p class="eyebrow">創辦人</p><p class="muted" style="font-weight:600">我的使命與願景</p><h2>在愛與豐盛中綻放靈魂的光芒</h2><p class="quote">「引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。」</p><div class="row"><a class="btn btn-gold" href="/story">認識創辦人</a></div></div><div data-emblem="sm"></div></div>
+  <div class="sub" id="media-section">
+    <p class="eyebrow">媒體專訪與出版紀錄</p>
+    <h2 style="margin-top:8px;font-size:22px">幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享</h2>
+    <p class="muted" style="margin-top:8px">以下為幸運教主文齡 Keila公開可查證的出版與媒體受訪紀錄，用最落地的經驗，陪你走過感情與人生的每個卡關。</p>
+    <div class="grid g3"><details class="disclosure card pub" name="pub"><summary><span>七週遇見對的人<small class="muted">暢銷書改版唯一推薦序作者</small></span></summary><p>受邀為經典暢銷書撰寫推薦序，幸運教主文齡 Keila帶領本書讀書會超過10年、幫助破百名學員的深厚實務經驗，已成功陪伴無數學員走過低潮，順利脫單、結婚生子，活出自己最美好的樣子。</p><a class="link" href="https://www.books.com.tw/products/0010917426">博客來購書連結 →</a></details><details class="disclosure card pub" name="pub"><summary><span>練愛大確幸<small class="muted">個人著作・實作手帳</small></span></summary><p>將多年協助個案走過失戀與感情卡關的實務心法，淬鍊成這本專屬的幸福手帳。不只分享改變人生的實作方法，更錄製52則療癒音檔，成為你每天都能輕鬆參與的小練習！</p><a class="link" href="https://booking.wenling.tw/products/love365">購買連結 →</a></details><details class="disclosure card pub" name="pub"><summary><span>好女人的情場攻略<small class="muted">節目合作／內容參與</small></span></summary><p>多次受邀參與節目錄製，並為同名暢銷書的戀愛專家群，分享感情經營與自我價值提升。用最白話的方式，解開你的愛情盲點。</p><p><b>曾創下 2022 年度收聽冠軍、2024 前十名！</b></p><a class="link" href="/media#media-podcasts">下方收聽 Podcast 精選單集 →</a></details></div>
+    <div class="row"><a class="btn btn-outline" href="/media">閱讀媒體專訪</a></div>
+  </div>
+</section>
+
+<section class="chapter ch5" id="ch5" style="--o0:.78;--o1:1">
+  <span class="node" aria-hidden="true">05</span>
+  <div class="chead" id="free-resources"><div class="stack"><p class="eyebrow">免費資源</p></div><div data-emblem="sm"></div></div>
+  <ul class="grid g3"><li class="card res"><span class="chip">免費公益直播</span><details class="disclosure" name="res"><summary>【每週免費直播】豐盛之翼學苑公益體驗直播</summary><p>每週一晚間 21:30–22:30，文齡老師於社群內舉辦免費公益體驗直播，帶你實際感受能量練習與希塔療癒的應用，參與還有機會獲得專屬小禮物。</p></details><a class="link" href="https://reurl.cc/8DDd1M">查看直播社群資訊 →</a></li><li class="card res"><span class="chip">療癒支持社群</span><details class="disclosure" name="res"><summary>【免費社群】加入豐盛之翼學苑</summary><p>每天充滿正能量分享的免費社群，帶著願望進來，也帶著好消息出去。進入社群需輸入密碼 168168。</p></details><a class="link" href="https://reurl.cc/8DDd1M">點我加入免費社群 →</a></li><li class="card res"><span class="chip">官方預約與諮詢管道</span><details class="disclosure" name="res"><summary>【LINE 官方】加入文齡的療癒日常官方帳號</summary><p>透過官方 LINE 帳號即時發問、預約各項服務，並掌握最新開班與活動情報。</p></details><a class="link" href="https://lin.ee/N7QHCND">點我加入 LINE 官方帳號 →</a></li></ul>
+  <div class="row"><a class="btn btn-gold" href="/resources">查看免費資源</a></div>
+  <div class="sub" id="home-faq"><h2>常見問題</h2><div class="card" style="margin-top:16px;padding-block:8px"><details class="disclosure" name="faq"><summary>療癒／課程多久會有效？</summary><p>每個人的能量運作節奏不同。有人隔天就能感受到具體轉變，也有人是在數週內逐步改善。身心感受通常顯現較快，之後請留意生活中的細微變化，例如想法變清晰、習慣模式改變，或身邊的人對待你的態度不同了。</p></details><details class="disclosure" name="faq"><summary>這是什麼？會不會是降頭或巫術？</summary><p>絕對不是降頭或巫術。我們所使用的技術（如希塔療癒、擴大療癒等）皆源自正向、純淨的高頻源頭能量，屬於能量調整與潛意識轉化，非占卜、非通靈，也不涉及任何宗教束縛。</p></details><details class="disclosure" name="faq"><summary>我可以幫家人或朋友預約嗎？</summary><p>個人一對一療癒需經本人同意並親自參與；團體遠距能量服務（如人生推進器、煙供）則可代為預約，但需先提供對方全名，經確認能量意願無誤後再進行安排。</p></details><details class="disclosure" name="faq"><summary>這些服務／課程可以取代醫療或心理治療嗎？</summary><p>不行。所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p></details></div></div>
+</section>
+</div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步" style="--o0:.78;--o1:1">
+  <div data-emblem="sm"></div>
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="#personas-section">了解適合我的服務</a><a class="btn btn-inverse" href="https://booking.wenling.tw/">前往商城</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="sticky-cta" id="sticky"><a class="btn btn-gold" id="sticky-main" href="#personas-section">了解適合我的服務</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a></div>
+<div class="proposal-tag">提案 A・一條路走到底</div>
+
+<script>
+(function () {
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (RM) document.documentElement.classList.remove('js');
+  // 羽毛層（與 WingsCompass.tsx 相同）
+  var FEATHER = 'M0 0C-20-9-64-12-94-2Q-101 1-97 5C-66 10-22 7 0 0Z', VEIN = 'M-8 0Q-52-3-92 1';
+  var LAYERS = [['url(#wc-gA)', .5, [[-22,1.34,1.2,-28],[-13.5,1.62,1.3,-35],[-5,1.9,1.4,-42],[3.5,2.16,1.45,-49],[12,2.38,1.5,-56],[20.5,2.52,1.55,-63],[29,2.58,1.55,-70],[37.5,2.52,1.5,-77],[46,2.36,1.45,-84]]],
+    ['url(#wc-gB)', .42, [[-20,1.04,1.3,-26],[-10,1.24,1.3,-35],[0,1.42,1.3,-44],[10,1.55,1.3,-53],[20,1.62,1.3,-62],[30,1.6,1.3,-71],[40,1.5,1.3,-80]]],
+    ['url(#wc-gC)', .36, [[-20,.66,1.15,-28],[-8,.8,1.15,-38],[6,.9,1.15,-50],[20,.92,1.15,-62],[34,.86,1.15,-74]]]];
+  function wing(side) {
+    var g = LAYERS.map(function (L) {
+      return '<g fill="' + L[0] + '" stroke="#8A5415" stroke-opacity="' + L[1] + '" stroke-width=".8">' + L[2].map(function (f) {
+        return '<g class="f" style="--d:' + f[3] + 'deg"><g transform="translate(286 190) rotate(' + f[0] + ') scale(' + f[1] + ' ' + f[2] + ')"><path d="' + FEATHER + '" vector-effect="non-scaling-stroke"/><path d="' + VEIN + '" fill="none" stroke="#FFF8E1" stroke-opacity=".6" stroke-width=".7" vector-effect="non-scaling-stroke"/></g></g>';
+      }).join('') + '</g>';
+    }).join('');
+    return '<div class="wing wing--' + side + '"><svg class="wing__svg" viewBox="0 0 300 260" aria-hidden="true" focusable="false">' + g + '</svg></div>';
+  }
+  var MARKS = [0, 90, 180, 270];
+  function compass() {
+    var k = [45,135,225,315].map(function (a) { return '<g transform="rotate(' + a + ' 100 100)"><path d="M100 60L108 92 100 100Z" fill="#F0C875"/><path d="M100 60L92 92 100 100Z" fill="#FFF6D8"/></g>'; }).join('');
+    var m = MARKS.map(function (a) { return '<g transform="rotate(' + a + ' 100 100)"><path d="M100 38L111 89 100 100Z" fill="#E8B15A"/><path d="M100 38L89 89 100 100Z" fill="#FCE7A8"/></g>'; }).join('');
+    var mk = MARKS.map(function (a, i) { return '<g class="mark" data-m="' + i + '" transform="rotate(' + a + ' 100 100)"><path d="M100-2l7 8-7 8-7-8Z" fill="#FFF6D8" stroke="#B5762A" stroke-width="1.2"/><g class="mark__on"><circle cx="100" cy="6" r="16" fill="#F0C875" opacity=".6"/><path d="M100-6l10 12-10 12-10-12Z" fill="#8A5415" stroke="#FFF6D8" stroke-width="1.2"/></g></g>'; }).join('');
+    return '<svg class="compass" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><circle cx="100" cy="100" r="94" fill="url(#wc-gDisc)" stroke="url(#wc-gRing)" stroke-width="5"/><circle cx="100" cy="100" r="86" fill="none" stroke="#B5762A" stroke-opacity=".6" stroke-width="6" stroke-dasharray="1.4 21.115" stroke-dashoffset=".7"/><circle cx="100" cy="100" r="78" fill="none" stroke="#B5762A" stroke-opacity=".45" stroke-width="1"/><g opacity=".9">' + k + m + '</g>' + mk + '<g class="needle"><path d="M100 152L105.5 100H94.5Z" fill="#C9862E" stroke="#FFF6D8"/><path d="M100 14L108 100 100 109 92 100Z" fill="#3A2409" stroke="#FFF6D8" stroke-width="1.2" stroke-linejoin="round"/><path d="M100 14L108 100 100 109Z" fill="#6B4212"/></g><circle cx="100" cy="100" r="8" fill="url(#wc-gRing)" stroke="#FFF6D8" stroke-width="1.5"/><circle cx="100" cy="100" r="2.5" fill="#3A2409"/></svg>';
+  }
+  document.querySelectorAll('[data-emblem]').forEach(function (h) {
+    var e = document.createElement('div');
+    e.className = 'emblem' + (h.dataset.emblem === 'lg' ? ' emblem--lg' : '');
+    e.setAttribute('role', 'img'); e.setAttribute('aria-label', '金色雙翼與羅盤');
+    e.innerHTML = '<div class="emblem__rays"></div><div class="emblem__glow"></div>' + wing('l') + wing('r') + compass();
+    h.replaceWith(e);
+  });
+
+  // 方向選擇：指針轉向、被記住、底部列主按鈕跟著變
+  var tabs = [].slice.call(document.querySelectorAll('#needtabs .tab')), panels = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
+  var chosen = null;
+  function pick(i, save) {
+    tabs.forEach(function (t, j) { t.setAttribute('aria-selected', j === i); panels[j].hidden = j !== i; });
+    document.querySelectorAll('.emblem').forEach(function (e) {
+      e.style.setProperty('--needle', i * 90);
+      e.querySelectorAll('.mark').forEach(function (m) { m.classList.toggle('is-on', +m.dataset.m === i); });
+    });
+    chosen = i;
+    if (save) try { localStorage.setItem('wl-need', i); } catch (e) {}
+    stickyUpdate();
+  }
+  tabs.forEach(function (t, i) { t.addEventListener('click', function () { pick(i, true); }); });
+  try { var s = localStorage.getItem('wl-need'); if (s !== null && tabs[+s]) pick(+s, false); } catch (e) {}
+
+  // 底部固定列
+  var CH = [].slice.call(document.querySelectorAll('#ch1,#ch2,#ch3,#ch4,#ch5')), dots = [].slice.call(document.querySelectorAll('.dots a'));
+  var sticky = document.getElementById('sticky'), main = document.getElementById('sticky-main'), cur = 0;
+  function stickyUpdate() {
+    var label = '了解適合我的服務', href = '#personas-section';
+    if (cur === 4) { label = '加入免費體驗社群：密碼168168'; href = 'https://reurl.cc/8DDd1M'; }
+    else if (chosen !== null && cur >= 1) { var c = tabs[chosen].dataset.cta.split('|'); label = c[0]; href = c[1]; }
+    main.textContent = label; main.setAttribute('href', href);
+    sticky.classList.toggle('on', cur >= 1);
+  }
+  // 捲動：路徑進度、章節、色溫
+  var path = document.getElementById('path'), fill = document.getElementById('pathfill'), ticking = false;
+  function frame() {
+    ticking = false;
+    var vh = innerHeight, r = path.getBoundingClientRect(), p = Math.max(0, Math.min(1, (vh * .55 - r.top - 56) / (r.height - 56)));
+    fill.style.setProperty('--p', p.toFixed(4));
+    var n = 0; CH.forEach(function (c, i) { if (c.getBoundingClientRect().top <= vh * .45) n = i; });
+    CH.forEach(function (c, i) { c.classList.toggle('reached', i <= n); });
+    dots.forEach(function (d, i) { d.classList.toggle('on', i === n); d.classList.toggle('done', i < n); if (i === n) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
+    if (n !== cur) { cur = n; stickyUpdate(); }
+  }
+  addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
+  addEventListener('resize', frame); frame(); stickyUpdate();
+
+  // 進場：章節羅盤展開、reveal、數字
+  var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); if (e.target.dataset.count) count(e.target); } }); }, { threshold: .1 });
+  document.querySelectorAll('.chapter,.cta-band,.reveal,[data-count]').forEach(function (el) { io.observe(el); });
+  function count(el) {
+    var to = +el.dataset.count; if (RM) return; var t0 = performance.now();
+    (function step(t) { var k = Math.min(1, (t - t0) / 900); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0);
+  }
+})();
+</script>
+</body>
+</html>

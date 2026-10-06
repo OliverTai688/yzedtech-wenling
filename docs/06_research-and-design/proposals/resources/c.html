@@ -1,0 +1,131 @@
+<!--
+提案 C「一個主行動」
+概念：整頁就是一張「下一場直播」卡（每週一 21:30–22:30）＋社群密碼＋一顆主按鈕；另外兩項資源退為下方兩列細列。
+動效：只用 .reveal 進場、原生 details 展開、密碼複製的小回饋；無 3D、無粒子。
+已知弱點：(1) 主按鈕連到社群短網址，與「免費社群」列連結相同，兩處去向重複；
+(2) 只有固定的週時段、沒有倒數或日期，訪客無法一眼判斷「這週還趕得上嗎」；另沒有任何見證／圖像佐證，信任感全靠文案。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜免費資源提案C・一個主行動</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { position: relative; overflow: hidden; padding-block: 40px 48px; }
+.hero::before { content: ''; position: absolute; left: 50%; top: -120px; width: 760px; height: 460px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(240,200,117,.45), rgba(252,231,168,.18) 60%, transparent); pointer-events: none; }
+.hero > * { position: relative; }
+.hero h1 { margin-top: 12px; }
+.hero .lead { margin-top: 10px; max-width: 34em; }
+@media (min-width: 768px) { .hero { padding-block: 72px 80px; } }
+
+.next { margin-top: 28px; max-width: 640px; padding: 24px; border-radius: 22px; border-color: var(--ring); box-shadow: 0 10px 40px rgba(201,134,46,.22); background: linear-gradient(180deg, var(--popover), var(--card)); }
+.next .label { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.next h2 { font-size: 20px; margin-top: 12px; }
+.slot { margin-top: 16px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.slot .day { font-family: var(--font-serif); font-weight: 900; font-size: 44px; line-height: 1.1; color: var(--accent-foreground); }
+.slot .time { font-family: var(--font-serif); font-weight: 700; font-size: 28px; color: var(--card-foreground); font-variant-numeric: tabular-nums; }
+.slot .every { font-size: 14px; font-weight: 600; color: var(--muted-foreground); }
+.pw { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px 10px 16px; border: 1px dashed var(--ring); border-radius: 14px; background: var(--background); }
+.pw small { display: block; font-size: 14px; color: var(--muted-foreground); line-height: 1.4; }
+.pw strong { font-family: var(--font-serif); font-size: 26px; letter-spacing: .14em; color: var(--card-foreground); font-variant-numeric: tabular-nums; }
+.pw .btn { min-height: 44px; padding-inline: 16px; font-size: 14px; }
+.next .go { margin-top: 20px; display: flex; }
+.next .go .btn { width: 100%; font-size: 17px; min-height: 52px; }
+.next .for { margin-top: 14px; font-size: 14px; color: var(--muted-foreground); }
+@media (min-width: 640px) { .next { padding: 32px; } .slot .day { font-size: 56px; } .next .go .btn { width: auto; padding-inline: 36px; } }
+
+.more { padding-block: 8px 56px; }
+.more h2 { font-size: 20px; margin-bottom: 4px; }
+.row-item { max-width: 760px; }
+.row-item .disclosure > summary { align-items: flex-start; padding-block: 14px; }
+.row-item .t { display: block; font-family: var(--font-serif); font-size: 17px; line-height: 1.5; }
+.row-item .chip { margin-bottom: 6px; }
+.row-item .body { display: grid; gap: 10px; justify-items: start; }
+.row-item .body .btn { margin-top: 4px; }
+.toast { font-size: 14px; color: var(--accent-foreground); font-weight: 600; min-height: 24px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">免費資源</span>
+      <h1>免費資源</h1>
+      <p class="lead muted">想先免費體驗能量療癒、還在觀望哪一項服務適合自己者。</p>
+
+      <article class="card next reveal" aria-labelledby="next-title">
+        <div class="label"><span class="chip">免費公益直播</span><span class="every">下一場</span></div>
+        <h2 id="next-title">【每週免費直播】豐盛之翼學苑公益體驗直播</h2>
+        <p class="slot" aria-label="每週一 21:30 到 22:30">
+          <span class="day">每週一</span>
+          <span class="time">21:30–22:30</span>
+        </p>
+        <div class="pw">
+          <div><small>進入社群需輸入密碼</small><strong id="pw">168168</strong></div>
+          <button class="btn btn-outline" id="copy" type="button" aria-describedby="toast">複製密碼</button>
+        </div>
+        <p class="toast" id="toast" role="status" aria-live="polite"></p>
+        <div class="go"><a class="btn btn-gold" href="https://reurl.cc/8DDd1M">查看直播社群資訊</a></div>
+        <p class="for">參與還有機會獲得專屬小禮物。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="more" aria-labelledby="more-h">
+    <div class="container">
+      <h2 id="more-h" class="reveal">還有兩個免費的下一步</h2>
+
+      <div class="row-item reveal">
+        <details class="disclosure">
+          <summary><span><span class="chip">療癒支持社群</span><span class="t">【免費社群】加入豐盛之翼學苑</span></span></summary>
+          <div class="body">
+            <p>每天充滿正能量分享的免費社群，帶著願望進來，也帶著好消息出去。進入社群需輸入密碼 168168。</p>
+            <p class="muted">渴望在身心靈路上有溫暖夥伴陪伴、想獲得第一手活動與直播資訊者。</p>
+            <a class="btn btn-outline" href="https://reurl.cc/8DDd1M">點我加入免費社群</a>
+          </div>
+        </details>
+      </div>
+
+      <div class="row-item reveal">
+        <details class="disclosure">
+          <summary><span><span class="chip">官方預約與諮詢管道</span><span class="t">【LINE 官方】加入文齡的療癒日常官方帳號</span></span></summary>
+          <div class="body">
+            <p>透過官方 LINE 帳號即時發問、預約各項服務，並掌握最新開班與活動情報。</p>
+            <p class="muted">想直接預約服務、或有課程開班時程疑問者。</p>
+            <a class="btn btn-line" href="https://lin.ee/N7QHCND">點我加入 LINE 官方帳號</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 C・一個主行動</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+// 複製密碼：失敗時靜默，密碼仍顯示在畫面上
+document.getElementById('copy').addEventListener('click', async () => {
+  const t = document.getElementById('toast');
+  try { await navigator.clipboard.writeText('168168'); t.textContent = '已複製'; }
+  catch (e) { t.textContent = '請手動輸入 168168'; }
+  setTimeout(() => { t.textContent = ''; }, 2000);
+});
+</script>
+</body>
+</html>

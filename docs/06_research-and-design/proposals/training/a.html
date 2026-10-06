@@ -1,0 +1,218 @@
+<!-- 提案 A「三分頁」(認證班 /training)
+概念：H1 下用三個分頁（希塔療癒／靈氣認證／直覺力訓練）一次只顯示一組課程，每門課是緊湊卡片，證照一行帶過。
+動效：分頁切換交叉淡入（opacity/transform）、.reveal 進場、details 展開；無 3D、無粒子。方向鍵移動分頁。
+已知弱點：1) 課程目標句很長（不可改寫），三欄卡片在桌機仍偏滿；2) 訪客需切換分頁才看到另兩組，直覺力頁內容最少，且頁內沒有日期／場次資料。 -->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜認證班提案A・三分頁</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.page-head { padding-top: 40px; padding-bottom: 8px; }
+.page-head h1 { margin-top: 12px; }
+.page-head .lead { margin-top: 12px; max-width: 40em; color: var(--muted-foreground); }
+.tabbar { position: sticky; top: 64px; z-index: 30; background: rgba(251,241,221,.95); backdrop-filter: blur(8px); padding-block: 12px; margin-top: 16px; }
+.tabbar .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.tabbar .tab { flex: 1 0 auto; white-space: nowrap; }
+.tab:focus-visible, .btn:focus-visible, .link:focus-visible, summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.cred { display: flex; gap: 12px; align-items: flex-start; margin-top: 12px; padding: 12px 16px; border: 1px solid var(--border); border-left: 3px solid #D89A3E; border-radius: 12px; background: var(--popover); font-size: 14px; color: var(--card-foreground); }
+.cred strong { color: var(--accent-foreground); white-space: nowrap; }
+.cred ul { display: flex; flex-direction: column; gap: 2px; }
+.panel { padding-top: 20px; animation: swap 250ms cubic-bezier(.22,1,.36,1); }
+.panel[hidden] { display: none; }
+@keyframes swap { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.grid { display: grid; gap: 16px; }
+@media (min-width: 900px) { .grid { grid-template-columns: repeat(3, 1fr); } .grid.one { grid-template-columns: minmax(0, 560px); } }
+.course { display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+.course .lv { font-size: 14px; font-weight: 600; letter-spacing: .08em; color: var(--accent-foreground); }
+.course h3 { font-size: 20px; }
+.course .obj { font-size: 16px; color: var(--muted-foreground); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip.soft { background: var(--popover); border: 1px solid var(--border); }
+.course .disclosure { margin-top: auto; }
+.course dl { margin: 0; font-size: 14px; display: grid; gap: 8px; }
+.course dt { font-weight: 700; color: var(--card-foreground); }
+.course dd { margin: 0; }
+.course .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 4px; }
+.soon { text-align: left; }
+.panel-ask { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; align-items: stretch; padding: 20px 24px; border-radius: 18px; border: 1px dashed var(--ring); }
+.panel-ask p { font-weight: 600; color: var(--card-foreground); }
+@media (min-width: 640px) { .panel-ask { flex-direction: row; align-items: center; justify-content: space-between; } }
+.tabbar .tab .n { font-weight: 500; opacity: .75; margin-left: 4px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="container page-head">
+    <span class="eyebrow">TRAINING</span>
+    <h1>認證班</h1>
+    <p class="lead">成為療癒師，也成為自己生命的專家</p>
+  </section>
+
+  <div class="tabbar"><div class="container">
+    <div class="tabs" role="tablist" aria-label="認證班分類">
+      <button class="tab" role="tab" id="t-theta" aria-controls="p-theta" aria-selected="true" tabindex="0">希塔療癒</button>
+      <button class="tab" role="tab" id="t-reiki" aria-controls="p-reiki" aria-selected="false" tabindex="-1">靈氣認證</button>
+      <button class="tab" role="tab" id="t-intuition" aria-controls="p-intuition" aria-selected="false" tabindex="-1">直覺力訓練</button>
+    </div>
+  </div></div>
+
+  <div class="container" style="padding-bottom:64px">
+
+    <!-- 希塔療癒 -->
+    <section class="panel" role="tabpanel" id="p-theta" aria-labelledby="t-theta">
+      <h2 style="font-size:20px">希塔療癒系列（ThetaHealing®）</h2>
+      <div class="cred"><strong>官方認證</strong><ul>
+        <li>基礎 DNA：美國 THInK 官方認證證書</li>
+        <li>進階 DNA：官方「進階療癒師」國際證照</li>
+        <li>深度信念挖掘班：官方授權「挖掘療癒師」國際證照</li></ul></div>
+      <div class="grid" style="margin-top:16px">
+        <article class="card course reveal">
+          <span class="lv">基礎 DNA (Basic DNA)</span>
+          <h3>希塔療癒 基礎 DNA 課程 (ThetaHealing®)</h3>
+          <p class="obj">學會連結源頭與高我、感應自己與他人的身心狀態，掌握四個信念層面（核心/遺傳/歷史/靈魂）轉化與顯化練習的完整核心步驟。</p>
+          <div class="chips"><span class="chip soft">初學者</span><span class="chip soft">3 天密集認證</span><span class="chip">NT$ 20,000</span></div>
+          <details class="disclosure"><summary>形式、對象與優惠</summary>
+            <dl><dt>形式</dt><dd>3 天密集認證（實體台北松江南京站附近／線上 Zoom 同步）</dd>
+            <dt>適合對象</dt><dd>初學者、想學會自我潛意識調頻與改寫命運藍圖者</dd>
+            <dt>費用</dt><dd>NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）；兩人同行每人折 NT$200，四人團報每人折 NT$500</dd></dl></details>
+          <div class="foot"><a class="btn btn-outline" href="/training/theta-basic">了解課程</a></div>
+        </article>
+        <article class="card course reveal" style="transition-delay:70ms">
+          <span class="lv">進階 DNA (Advanced DNA)</span>
+          <h3>希塔療癒 進階 DNA 課程 (Advanced DNA)</h3>
+          <p class="obj">透過 3R 深度挖掘徹底拔除怨恨、後悔、被拒絕三大深層阻礙，並學習萬物連結、跨維度溝通與生活中的希塔魔法應用。</p>
+          <div class="chips"><span class="chip soft">已完成基礎 DNA</span><span class="chip soft">18 小時以上</span><span class="chip">單堂 NT$ 20,000</span></div>
+          <details class="disclosure"><summary>形式、對象與優惠</summary>
+            <dl><dt>形式</dt><dd>18 小時以上（可拆天數，1 人即可私訊約課）</dd>
+            <dt>適合對象</dt><dd>已完成基礎 DNA、渴望加速自我轉化與修補心輪者</dd>
+            <dt>費用</dt><dd>單堂 NT$ 20,000；2 人同行每人折 NT$200，4 人團報每人折 NT$500</dd></dl></details>
+          <div class="foot"><a class="btn btn-outline" href="/training/theta-advanced-dna">了解課程</a></div>
+        </article>
+        <article class="card course reveal" style="transition-delay:140ms">
+          <span class="lv">深度探掘 (Dig Deeper)</span>
+          <h3>希塔療癒 深度信念挖掘班 (Digging Deeper)</h3>
+          <p class="obj">掌握 10 大深度信念挖掘技術（基礎架構、恐懼、3R、疾病、遺傳層、歷史層、顯化、自我挖掘、困境與美德、誓言與感覺），精準直達潛意識根源。</p>
+          <div class="chips"><span class="chip soft">需完成希塔療癒基礎班與進階班</span><span class="chip soft">4-5 日</span><span class="chip">單堂 NT$ 20,000</span></div>
+          <details class="disclosure"><summary>形式、對象與優惠</summary>
+            <dl><dt>形式</dt><dd>4-5 日，10:00-16:00（含午休 1 小時）</dd>
+            <dt>適合對象</dt><dd>想成為專業執業療癒師、或在信念清理上遇到瓶頸者（需完成基礎班與進階班）</dd>
+            <dt>費用</dt><dd>單堂 NT$ 20,000（支持刷卡、分期）；2 人合報／複訓每人另折 NT$200，4 人團報／複訓每人另折 NT$500</dd></dl></details>
+          <div class="foot"><a class="btn btn-outline" href="/training/theta-dig-deeper">了解課程</a></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 靈氣認證 -->
+    <section class="panel" role="tabpanel" id="p-reiki" aria-labelledby="t-reiki" hidden>
+      <h2 style="font-size:20px">靈氣認證系列</h2>
+      <div class="cred"><strong>證書</strong><ul>
+        <li>金錢靈氣：三階合報完訓可授課</li>
+        <li>愛情靈氣：含官方證書</li>
+        <li>人魚靈氣：完課頒發證書</li></ul></div>
+      <div class="grid" style="margin-top:16px">
+        <article class="card course">
+          <span class="lv">三階合報最划算</span>
+          <h3>金錢靈氣療癒師與導師授證課程</h3>
+          <p class="obj">透過定期符號點化與操作，解除深層金錢阻礙與潛意識匱乏信念，自動化清除財務能量業力，打造零透支的穩定現金流。</p>
+          <div class="chips"><span class="chip soft">1 人即可彈性排課</span><span class="chip">三階合報 NT$14,899</span></div>
+          <details class="disclosure"><summary>形式、對象與優惠</summary>
+            <dl><dt>形式</dt><dd>場次安排中，1 人即可彈性排課（三階可拆 2-4 次完成）</dd>
+            <dt>適合對象</dt><dd>占卜師／塔羅師／占星師、深陷金錢困境者、身心靈入門者，或想成為金錢靈氣導師者</dd>
+            <dt>費用</dt><dd>三階合報 NT$14,899（一世發久久！原價 NT$18,000，完訓可授課）；一階單報 NT$6,000（無證書）；複訓（三階）NT$7,500（須出示證書，含所有贈品）；新生 2 人團報 NT$14,299／人；新生 4 人以上團報 NT$13,889／人</dd></dl></details>
+          <div class="foot"><a class="btn btn-outline" href="/training/money-reiki-cert">了解課程</a></div>
+        </article>
+        <article class="card course">
+          <span class="lv">含官方證書</span>
+          <h3>愛情靈氣證照課程 (鬱金香熱情靈氣導師班)</h3>
+          <p class="obj">獨家整合鬱金香熱情靈氣 × 百花靈氣 × 希塔療癒，療癒愛的創傷、吸引靈魂伴侶，並取得可收費的專業技能，完訓即可接案或開課。</p>
+          <div class="chips"><span class="chip soft">8 小時</span><span class="chip">初訓費用 NT$12,520</span></div>
+          <details class="disclosure"><summary>形式、對象與優惠</summary>
+            <dl><dt>形式</dt><dd>8 小時（實體台北松江南京站工作室＋線上同步開課）</dd>
+            <dt>適合對象</dt><dd>在人際或愛情關係中常感到受傷缺乏安全感者、想斬斷爛桃花者，或已具備占卜/塔羅背景想補足轉化技能者</dd>
+            <dt>費用</dt><dd>初訓費用 NT$12,520（含官方證書、課本、教材電子檔，支援 6-24 期無卡分期）；雙人／四人以上團報另享超值折價優惠；其他老師學員複訓享優惠價（不含證書與課本），Keila 既有愛情靈氣學員免費複訓</dd></dl></details>
+          <div class="foot"><a class="btn btn-outline" href="/training/love-reiki-cert">了解課程</a></div>
+        </article>
+        <article class="card course">
+          <span class="lv">完課頒發證書</span>
+          <h3>人魚靈氣證照課程 (Mermaid Reiki)</h3>
+          <p class="obj">結合「魅力法則」與「豐盛意識」，透過神聖符文點化，提升個人魅力與自尊、釋放情感創傷，並顯化豐盛好運。</p>
+          <div class="chips"><span class="chip soft">6-8 小時</span><span class="chip">NT$ 12,520</span></div>
+          <details class="disclosure"><summary>形式、對象與優惠</summary>
+            <dl><dt>形式</dt><dd>6-8 小時，可拆兩次（線上同步直播＋實體課）</dd>
+            <dt>適合對象</dt><dd>對海洋與人魚傳說有莫名親近感、想找回自尊與魅力、或想成為人魚靈氣療癒師者</dd>
+            <dt>費用</dt><dd>NT$ 12,520（支援刷卡／分期付款）</dd></dl></details>
+          <div class="foot"><a class="btn btn-outline" href="/training/mermaid-reiki-cert">了解課程</a></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 直覺力訓練 -->
+    <section class="panel" role="tabpanel" id="p-intuition" aria-labelledby="t-intuition" hidden>
+      <h2 style="font-size:20px">直覺力培訓</h2>
+      <div class="cred"><strong>狀態</strong><ul><li>即將推出</li></ul></div>
+      <div class="grid one" style="margin-top:16px">
+        <article class="card course soon">
+          <span class="lv">即將推出</span>
+          <h3>直覺力訓練｜喚醒你與生俱來的靈通天賦</h3>
+          <p class="obj">透過系統化的直覺力訓練，學會清晰接收、辨識並運用自己的靈通感知，讓直覺成為你人生中最可靠的指引。</p>
+          <div class="chips"><span class="chip">即將推出</span></div>
+          <details class="disclosure"><summary>適合對象與進度</summary>
+            <dl><dt>適合對象</dt><dd>曾在某個瞬間準確預感到即將發生的事、想開發與生俱來直覺力者</dd>
+            <dt>進度</dt><dd>課程大綱製作中，內容將依官方文案更新</dd></dl></details>
+          <div class="foot"><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 登記</a></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="panel-ask" id="ask">
+      <p>想知道開課日期？</p>
+      <a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 詢問開課日期</a>
+    </div>
+  </div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・三分頁</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+const observe = (root) => root.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+observe(document);
+
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+function select(tab, focus) {
+  tabs.forEach((t) => {
+    const on = t === tab;
+    t.setAttribute('aria-selected', on);
+    t.tabIndex = on ? 0 : -1;
+    document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+  });
+  const panel = document.getElementById(tab.getAttribute('aria-controls'));
+  panel.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-in'));
+  if (focus) tab.focus();
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => select(t));
+  t.addEventListener('keydown', (e) => {
+    const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (k) { e.preventDefault(); select(tabs[(i + k + tabs.length) % tabs.length], true); }
+    if (e.key === 'Home') { e.preventDefault(); select(tabs[0], true); }
+    if (e.key === 'End') { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!--
+提案 C「學習路徑」｜認證班詳細頁 /training/theta-basic
+概念：頁面以「基礎 DNA → 進階 DNA → 深度信念挖掘班」三站步進圖開場，讓前置與下一步一目了然；課綱沿金色軌道逐站展開。
+動效技術：.reveal 一次性進場、原生 details 展開收合、軌道節點 hover 高亮；無 3D、無粒子。
+已知弱點：(1) 首屏要放步進圖＋適合誰＋報名面板，手機第一屏偏擠，價格可能落在第二屏（靠底部固定列補）；
+(2) 文案集沒有各階的前置條件／一句話介紹，步進圖另兩站只能露出課名，「為什麼要上下一階」的說服力不足。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜認證班詳細頁提案C・學習路徑</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.crumb { padding-top: 20px; font-size: 14px; color: var(--muted-foreground); }
+.crumb a { color: var(--accent-foreground); font-weight: 600; }
+.hero { padding-block: 16px 40px; }
+.hero h1 { margin-top: 12px; }
+.hero .sub { margin-top: 12px; max-width: 640px; color: var(--muted-foreground); }
+
+/* 三站步進圖 */
+.path { margin-top: 28px; display: grid; gap: 0; grid-template-columns: 1fr; position: relative; }
+.stop { position: relative; display: flex; gap: 14px; align-items: center; padding: 10px 0; min-height: 56px; }
+.stop .dot { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 15px; background: var(--popover); border: 2px solid var(--border); color: var(--secondary-foreground); position: relative; z-index: 1; }
+.stop .name { font-family: var(--font-serif); font-weight: 700; color: var(--card-foreground); line-height: 1.35; }
+.stop small { display: block; font-family: var(--font-sans); font-weight: 600; font-size: 14px; color: var(--muted-foreground); }
+a.stop:hover .dot { border-color: var(--ring); }
+.stop.here .dot { background: linear-gradient(135deg, #FCE7A8, #D89A3E); border-color: var(--ring); color: var(--primary-foreground); box-shadow: 0 0 0 6px rgba(240,200,117,.35); }
+.stop.here small { color: var(--accent-foreground); }
+/* 手機：垂直短軌；桌機：水平 */
+.path::before { content: ''; position: absolute; left: 17px; top: 28px; bottom: 28px; width: 2px; background: linear-gradient(var(--gold-c, #D89A3E), var(--border)); }
+@media (min-width: 768px) {
+  .path { grid-template-columns: repeat(3, 1fr); }
+  .path::before { left: 18px; right: calc(33.3% - 18px); top: 28px; bottom: auto; width: auto; height: 2px; background: linear-gradient(90deg, #D89A3E, var(--border)); }
+  .path::after { content: ''; position: absolute; left: 33.3%; right: 18px; top: 28px; height: 2px; background: var(--border); }
+  .stop { padding-right: 16px; }
+}
+
+/* 摘要＋報名面板 */
+.grid2 { display: grid; gap: 24px; margin-top: 28px; }
+@media (min-width: 900px) { .grid2 { grid-template-columns: 1.1fr .9fr; align-items: start; } }
+.for h2 { font-size: 22px; }
+.for p { margin-top: 10px; color: var(--muted-foreground); }
+.tags { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.enrol { border-color: var(--ring); }
+.enrol .price { font-family: var(--font-serif); font-size: 36px; font-weight: 900; color: var(--card-foreground); line-height: 1.2; }
+.enrol .inc { font-size: 14px; color: var(--muted-foreground); margin-top: 4px; }
+.enrol dl { margin: 16px 0 0; display: grid; gap: 4px; font-size: 15px; }
+.enrol dt { font-weight: 700; color: var(--accent-foreground); font-size: 14px; }
+.enrol dd { margin: 0 0 6px; }
+.enrol .btns { margin-top: 16px; display: grid; gap: 10px; }
+.enrol .disclosure { margin-top: 12px; }
+
+/* 金色軌道課綱 */
+.rail { position: relative; margin-top: 28px; padding-left: 0; }
+.rail::before { content: ''; position: absolute; left: 19px; top: 20px; bottom: 20px; width: 2px; background: linear-gradient(#F0C875, #C9862E 50%, #F0DFA0); }
+.mod { position: relative; padding-left: 60px; }
+.mod .n { position: absolute; left: 0; top: 4px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--popover); border: 2px solid var(--gold-b, #E8B15A); color: var(--accent-foreground); z-index: 1; transition: background 250ms, box-shadow 250ms; }
+.mod:has(details[open]) .n, .mod:hover .n { background: linear-gradient(135deg, #FCE7A8, #D89A3E); color: var(--primary-foreground); box-shadow: 0 0 0 5px rgba(240,200,117,.35); }
+.mod summary { font-family: var(--font-serif); font-size: 18px; }
+.mod .disclosure { border-bottom: 0; }
+.rail-end { position: relative; padding-left: 60px; min-height: 44px; display: flex; align-items: center; }
+.rail-end::before { content: ''; position: absolute; left: 13px; top: 50%; width: 14px; height: 14px; margin-top: -7px; border-radius: 50%; background: #D89A3E; box-shadow: 0 0 0 5px rgba(240,200,117,.4); }
+.rail-end a { font-weight: 700; color: var(--accent-foreground); }
+
+.more { max-width: 760px; margin-top: 20px; border-top: 1px solid rgba(240,223,160,.7); }
+.more .disclosure > summary { font-family: var(--font-serif); font-size: 18px; }
+.more ul.bul li { padding: 6px 0 6px 18px; position: relative; }
+.more ul.bul li::before { content: ''; position: absolute; left: 0; top: 17px; width: 6px; height: 6px; border-radius: 50%; background: #D89A3E; }
+.more p + p, .more p + ul, .more ul + p { margin-top: 10px; }
+.more strong { color: var(--card-foreground); }
+.pending { display: inline-block; margin-bottom: 10px; padding: 2px 10px; border-radius: 6px; background: var(--inverse); color: var(--inverse-accent); font-size: 12px; font-weight: 700; }
+.next { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <!-- 第一屏：這是什麼課／適不適合我／多少錢、怎麼報名 -->
+  <section class="hero"><div class="container">
+    <nav class="crumb" aria-label="麵包屑"><a href="/training">認證班</a> › 希塔療癒 基礎 DNA 課程</nav>
+    <h1>希塔療癒 基礎 DNA 課程 <span style="font-size:.6em;white-space:nowrap">(ThetaHealing®)</span></h1>
+    <p class="sub">讓潛意識成為你的貴人，一場從覺察到蛻變的靈魂旅程，帶你重新書寫自己的人生劇本。</p>
+
+    <ol class="path" aria-label="希塔療癒三階學習路徑" style="list-style:none;margin-inline:0;padding:0;margin-top:28px">
+      <li><span class="stop here" aria-current="step"><span class="dot">1</span><span class="name"><small>你在這裡</small>基礎 DNA</span></span></li>
+      <li><a class="stop" href="/training/theta-advanced-dna"><span class="dot">2</span><span class="name"><small>下一步</small>進階 DNA</span></a></li>
+      <li><a class="stop" href="/training/theta-dig-deeper"><span class="dot">3</span><span class="name"><small>再往下</small>深度信念挖掘班</span></a></li>
+    </ol>
+
+    <div class="grid2">
+      <div class="for">
+        <h2>這門課適合誰</h2>
+        <p>如果你也想拿回生命的主導權，歡迎你來到這裡。</p>
+        <div class="tags"><span class="chip">給已在靈性道路上的你</span><span class="chip">占卜師</span><span class="chip">靈氣師</span><span class="chip">塔羅師</span><span class="chip">通靈師</span><span class="chip">催眠師</span></div>
+        <p style="margin-top:14px"><a class="link" href="#practitioner">同業專屬說明 ↓</a></p>
+      </div>
+
+      <aside class="card enrol" aria-label="報名資訊">
+        <div class="price">NT$ 20,000</div>
+        <div class="inc">含原廠教材、官方國際認證證書、中文書、精選乳香精油</div>
+        <dl>
+          <dt>上課形式</dt><dd>實體 (台北松江南京捷運站附近) ＆ 線上 (Zoom) 同步開課</dd>
+          <dt>課程長度</dt><dd>3 天</dd>
+        </dl>
+        <div class="btns">
+          <a class="btn btn-gold" href="https://booking.wenling.tw/activities/basicDNA">前往報名</a>
+          <a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 詢問</a>
+        </div>
+        <details class="disclosure">
+          <summary>課程時間與團報折扣</summary>
+          <div>
+            <p>課程時間： (範例) 2026/7/27（一）~ 7/31（五）10:00-16:00 平日白天班 (含午休) (歡迎 1 人即可私訊約課，需要連續天數至少18小時)</p>
+            <p>兩人同行： 每人折 NT$ 200</p>
+            <p>四人團報： 每人折 NT$ 500</p>
+          </div>
+        </details>
+      </aside>
+    </div>
+  </div></section>
+
+  <!-- 課綱：金色軌道 -->
+  <section class="section" id="syllabus" style="padding-top:24px"><div class="container">
+    <p class="eyebrow">課程大綱</p>
+    <h2 style="margin-top:10px">你將在基礎班學到</h2>
+    <p class="muted" style="margin-top:8px">這 3 天的課程，將為你打下最穩固的潛意識轉化基礎：</p>
+    <ol class="rail reveal" style="list-style:none;padding:0;margin-inline:0">
+      <li class="mod"><span class="n">1</span><details class="disclosure"><summary>希塔波冥想入門</summary><p>學會連結源頭與高我。</p></details></li>
+      <li class="mod"><span class="n">2</span><details class="disclosure"><summary>解讀與掃描</summary><p>感應自己與他人的身心狀態與特質。</p></details></li>
+      <li class="mod"><span class="n">3</span><details class="disclosure"><summary>四個信念層面轉化</summary><p>核心、遺傳、歷史、靈魂層面。</p></details></li>
+      <li class="mod"><span class="n">4</span><details class="disclosure"><summary>信念挖掘技巧</summary><p>精準找出根源，釋放恐懼。</p></details></li>
+      <li class="mod"><span class="n">5</span><details class="disclosure"><summary>顯化練習</summary><p>啟動心想事成的能量流。</p></details></li>
+      <li class="mod"><span class="n">6</span><details class="disclosure"><summary>淨化與保護</summary><p>清理負能量與詛咒、遠離負面干擾。</p></details></li>
+      <li class="mod"><span class="n">7</span><details class="disclosure"><summary>靈界連結</summary><p>連結守護天使與指導靈。</p></details></li>
+      <li class="mod"><span class="n">8</span><details class="disclosure"><summary>靈魂伴侶/貴人</summary><p>召喚與準備迎接對的人。</p></details></li>
+      <li class="mod"><span class="n">9</span><details class="disclosure"><summary>DNA 啟動</summary><p>激活青春與活力，年輕化調整。</p></details></li>
+      <li class="mod"><span class="n">10</span><details class="disclosure"><summary>未來解讀</summary><p>預視潛能與選擇最佳人生路徑。</p></details></li>
+      <li class="rail-end"><a href="/training/theta-advanced-dna">下一站：進階 DNA →</a></li>
+    </ol>
+  </div></section>
+
+  <!-- 其餘內容：預設收起 -->
+  <section class="section" style="padding-top:0"><div class="container">
+    <p class="eyebrow">想多了解一點</p>
+    <div class="more">
+      <details class="disclosure"><summary>報名專屬福利</summary>
+        <div>
+          <p><strong>基礎班專屬好禮</strong></p>
+          <ul class="bul">
+            <li>官方認證： 結業即頒發美國 THInK 官方認證證書。</li>
+            <li>學習延伸： 贈送「主題複習會錄影檔」，強化進階應用。</li>
+            <li>終身福利： 享有終身免費複訓資格。</li>
+            <li>專屬療癒好物： 贈送乳香精油乙瓶，協助冥想與靜心。</li>
+          </ul>
+          <p><strong>進階連報加碼送</strong></p>
+          <ul class="bul">
+            <li>報名三階必修：贈《希塔好好玩》書籍乙本。</li>
+            <li>報名任四門課：贈「靈氣能量香氛」乙瓶 (可客製運勢：愛情 / 財運 / 貴人)。</li>
+            <li>報名任五門課：再贈《豐盛 18 天線上課程》＋《滿願迎貴人祈福儀式》。</li>
+          </ul>
+          <p><strong>報名注意事項與退費規範</strong> 注意！因能量課程一經報名，即享有專屬學員群組相關學習資源。所有課程一經售出，恕不接受退款。 但您可以保留兩年期間參與課程，或選擇更換為等值的療癒服務與產品。</p>
+        </div>
+      </details>
+
+      <details class="disclosure"><summary>為什麼選擇跟 Keila 學？</summary>
+        <ul class="bul">
+          <li>理性 × 感性並重的教學風格 我擁有台大政治系畢業與數位行銷業界 9 年的邏輯底蘊，搭配 14 門以上能量療癒專業。我會以「結構化」的方式帶領你理解信念是如何形成的，同時用「最柔軟的愛」協助你釋放與轉化。</li>
+          <li>安全而溫暖的學習空間 在我的課堂中，沒有對錯、沒有比較。每個人都能被看見、被理解。你可以用自己的速度，溫柔地回到與靈魂最契合的狀態。</li>
+          <li>實際落地的能量應用 希塔不只是高空的理論，而是能落地用在生活中的覺察力。你將學會如何把它應用在：人際關係、事業方向、財富顯化與健康平衡，讓靈性成為你日常最有力量的工具。</li>
+        </ul>
+      </details>
+
+      <details class="disclosure"><summary>什麼是希塔療癒？</summary>
+        <div>
+          <p>希塔療癒（ThetaHealing®）由美國創辦人 Vianna Stibal 所創，是一門結合「冥想、潛意識覺察與能量轉化」的技術。</p>
+          <p>透過導引腦波進入 θ 波狀態（Theta Brainwave），你可以連結到宇宙的創造源頭，以「無條件的愛」快速釋放潛意識中不再需要的信念、恐懼與限制。它不只是靈性修行，更是一門讓理性與感性協調運作的自我覺察方法，一門「科學與靈性完美結合」的深度轉化技術。</p>
+        </div>
+      </details>
+
+      <details class="disclosure" id="practitioner"><summary>給已在靈性道路上的你 (同業專屬)</summary>
+        <div>
+          <p>—— 占卜師、靈氣師、塔羅師、通靈師、催眠師</p>
+          <p>你是否曾經有這樣的經驗：</p>
+          <ul class="bul">
+            <li>解讀得很準確，但卻難以協助個案真正「改變現實」？</li>
+            <li>能量傳送花費大量時間，反而消耗自己的能量？</li>
+            <li>想進階學習，但找不到能與原本系統相容的法門？</li>
+          </ul>
+          <p>希塔療癒可以完美整合你的現有能力！ 它不是要取代你原本的專業，而是讓你進入全新的能量維度，讓你的法門變得更有生命力：</p>
+          <ul class="bul">
+            <li>占卜師 × 希塔： 快速覺察牌面背後的潛意識信念，讀得更準、導得更深，開始能幫客戶「解決問題」。</li>
+            <li>靈氣師 × 希塔： 可在短時間大量傳送能量、設定長效場域，節省時間又維持強度。</li>
+            <li>塔羅 / 水晶 / 能量師 × 希塔： 覺察力與感知力明顯提升，開啟新的直覺管道與創作靈感。</li>
+            <li>催眠師 × 希塔： 進入潛意識層次更快，個案反應更清晰，協助效率大幅提高。</li>
+          </ul>
+          <p>(許多學員在學完後，結合靈氣創造出全新系統、開拓了多元事業道路，甚至開發出屬於自己的品牌課程！)</p>
+        </div>
+      </details>
+
+      <details class="disclosure"><summary>我的故事：從全面崩塌到重生的轉折</summary>
+        <div>
+          <p>2019 年的下半年，是我生命中最黑暗的時刻。 那段時間，所有的挑戰彷彿約好了一起降臨：家庭爭吵分裂、職場背負沉重誤會、外婆突然中風、感情深受創傷，我的身上甚至還背負了百萬的負債。那時的我，幾乎每天醒來都只想問蒼天：「為什麼這些事都發生在我身上？」</p>
+          <p>直到我接觸了「希塔療癒（ThetaHealing®）」，這成為了我生命的終極轉捩點。</p>
+          <p>透過冥想進入 θ（Theta）腦波狀態，我終於鼓起勇氣，看見自己內在深層的限制性信念——原來我一直覺得自己「不值得被愛」、「不值得成功」。當我開始改寫這些信念、釋放恐懼與罪惡感後，不可思議的奇蹟開始一一顯化：</p>
+          <ul class="bul">
+            <li>從百萬負債翻轉為年收百萬： 離開 9 年的工作全職投入療癒，第 3 個月的收入就超越了過去當上班族的時期。</li>
+            <li>遇見契合度 90% 的靈魂伴侶： 上完課的半年內，順利吸引到符合九成條件的理想伴侶。</li>
+            <li>影響力擴展： 受邀至《好女人的情場攻略》、《美麗佳人Podcast》分享故事，並成為暢銷書《七週遇見對的人》改版推薦序作者。</li>
+          </ul>
+          <p>這趟旅程，更開啟了我意想不到的生命禮物。原本自認是「麻瓜」的我，靈通感知力快速被開發；心想事成的速度變快，吸引了無數極棒的合作夥伴；我也不再陷入情緒內耗，而是學會快速覺察並化解生活的不順心。現在的我，每年擁有破百次的個案經驗，已協助無數人重啟人生。</p>
+          <p class="quote">「真正的療癒，不是逃離現實，而是重新看見內在的光。」 希塔療癒帶給我的，是一種能量上真正的「自由」。如果你也想拿回生命的主導權，歡迎你來到這裡。</p>
+        </div>
+      </details>
+
+      <details class="disclosure"><summary>學員真實見證</summary>
+        <div>
+          <span class="pending">待授權</span>
+          <p>這不只是能量課，更是改變現實人生的起點：</p>
+          <ul class="bul">
+            <li>【體態與健康突破】 「透過持續信念挖掘，排除體內負面情緒毒素。沒有特別控制飲食與運動，短短兩個月就瘦了 6 公斤！另外，長期的婦科疾病與近視度數也意外獲得了改善與療癒。」</li>
+            <li>【靈性從業者進階】 「我原本是靈氣師，學完希塔後覺察力整個打開！現在做療癒時更輕鬆、一次能幫更多人，而且課程內容靈感不斷湧現，像是被源頭推著前進。」</li>
+            <li>【溫柔承接的教學】 「文齡是我遇過最能兼具理性分析與溫柔陪伴的老師。她不只是教你方法，更讓你深深感受到被理解與支持。」</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <div class="next">
+      <a class="link" href="/training/theta-advanced-dna">下一階：進階 DNA →</a>
+      <a class="link" href="/training/theta-dig-deeper">深度信念挖掘班 →</a>
+    </div>
+  </div></section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="sticky-cta"><a class="btn btn-gold" href="https://booking.wenling.tw/activities/basicDNA">前往報名</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 詢問</a></div>
+
+<div class="proposal-tag">提案 C・學習路徑</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

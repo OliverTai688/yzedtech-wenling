@@ -1,4 +1,4 @@
-import { Service, ReikiCourse, ThetaTrainingCourse, ServiceCategory, Testimonial, BlogPost, FAQItem, ResourceItem, TeamPartner, NavGroup, NeedEntry, MediaPublication, MediaShow, LegalDocument } from './types';
+import { Service, ReikiCourse, ThetaTrainingCourse, BlogPost, ResourceItem, NavGroup, NeedEntry, MediaPublication, MediaShow, LegalDocument } from './types';
 
 // 站台連結與聯絡資訊（PRD-003 §4.2）。元件一律引用這裡，不要各自寫死網址。
 // 官方 LINE 依 2026-10-04 決策 D4 統一為 lin.ee/N7QHCND；其餘取自文案集 v2
@@ -6,6 +6,12 @@ import { Service, ReikiCourse, ThetaTrainingCourse, ServiceCategory, Testimonial
 export const siteLinks = {
   line: 'https://lin.ee/N7QHCND',
   lineId: '@healer.wenling',
+  // lin.ee/N7QHCND 實際轉址到的帳號 ID（2026-10-05 查證），LINE 帶話連結用這個 ID，
+  // 確保與上面的官方連結是同一個帳號。
+  lineBasicId: '@023uzvav',
+  // 手機上在服務／課程詳細頁點 LINE 時，是否預先帶入該頁名稱（PRD-004 §4.3）。
+  // 尚未在實機驗證；有問題時改成 false 即可全站關閉。
+  linePrefill: true,
   shop: 'https://booking.wenling.tw/',
   // Hero 次 CTA 與各服務頁文案使用的社群短網址（進入密碼 168168）
   community: 'https://reurl.cc/8DDd1M',
@@ -16,195 +22,138 @@ export const siteLinks = {
   instagram: 'https://www.instagram.com/keila.healing1491',
 };
 
-// 全站主導覽（PRD-003 §4.3）。Header 的桌機導覽與手機抽屜共用這份資料；
-// 頁尾的分組不同，另見 footerNavigation。顯示名稱依 PRD-003 §2 命名規則。
-// 「療癒與培訓」的「新手入門」待頁面文案到位後再加入（PLN-004 §2）。
-// 「商城」是外部連結按鈕，由 Header／MobileNav 直接引用 siteLinks.shop。
+// 全站共用的按鈕文字。逐字取自 docs/網站文案集.md（客戶 docx 的轉檔），不自行撰寫：
+// - line：第 697 行「私訊官方 LINE：」；lineShort：第 371 行「一對一私訊諮詢」（空間較小的固定列用）。
+// - needs：第 114 行 Hero 主按鈕，目的地同樣是首頁的需求入口（#personas-section）。
+// - shop：第 49 行「Shop CTA（前往購買）」；shopShort：第 72 行「外部商城連結」。
+// - offeringInfo：第 337 行「（點擊各項目可了解詳細服務說明）」。
+// - enroll：Home Block 4 各課程的 CTA 按鈕（第 194～206 行）。
+export const uiLabels = {
+  line: '私訊官方 LINE',
+  lineShort: '私訊諮詢',
+  needs: '從這裡，開始我的改變',
+  shop: '前往購買',
+  shopShort: '商城',
+  offeringInfo: '了解詳細服務說明',
+  enroll: '報名',
+};
+
+// 全站主導覽。Header 的桌機導覽與手機抽屜共用這份資料。
+// 分組與文字逐字取自文案集「網站下方區塊調整」（第 274～293 行）的三個分組，
+// 與頁尾的 footerNavigation 一致（2026-10-05：原「關於我們／客戶見證／更多」等自訂名稱
+// 不在 docx 內，已改掉；路由不變）。
+// - 「首頁」由 Logo 承擔；「新手入門」「合作夥伴」待頁面文案到位後再加入（PLN-004 §2）。
+// - 聯絡頁的名稱取自第 301 行「官方聯繫與諮詢管道」（docx 沒有「聯絡我們」這個頁名）。
+// - 私訊與商城是外部連結按鈕，由 Header／MobileNav 引用 siteLinks 與 uiLabels。
 export const primaryNavigation: NavGroup[] = [
-  { id: 'home', label: '首頁', href: '/' },
   {
     id: 'about',
-    label: '關於我們',
+    label: '關於豐盛之翼學苑',
     items: [
-      { id: 'about', label: '品牌理念與學苑體系', href: '/about', description: '品牌理念、方法體系與合作夥伴' },
-      { id: 'story', label: '創辦人介紹', href: '/story', description: '創辦人文齡老師的故事與學經歷' },
+      { id: 'about', label: '品牌理念', href: '/about' },
+      { id: 'story', label: '創辦人經歷與故事', href: '/story' },
+      { id: 'contact', label: '官方聯繫與諮詢管道', href: '/contact' },
     ],
   },
   {
     id: 'services',
     label: '療癒與培訓',
     items: [
-      { id: 'services', label: '全部服務', href: '/services', description: '一對一療癒、團體療癒、祈福與工作坊' },
-      { id: 'training', label: '認證班', href: '/training', description: '希塔療癒與靈氣療癒師認證課程' },
+      { id: 'services', label: '服務項目', href: '/services' },
+      { id: 'training', label: '培訓課程', href: '/training' },
     ],
   },
-  { id: 'testimonials', label: '客戶見證', href: '/testimonials' },
-  { id: 'media', label: '媒體專訪', href: '/media' },
-  { id: 'blog', label: '部落格', href: '/blog' },
-  { id: 'resources', label: '免費資源', href: '/resources' },
-  { id: 'contact', label: '聯絡我們', href: '/contact' },
+  {
+    id: 'community',
+    label: '見證與實用內容',
+    items: [
+      { id: 'testimonials', label: '真實見證', href: '/testimonials' },
+      { id: 'blog', label: '好運blog', href: '/blog' },
+      { id: 'resources', label: '免費資源', href: '/resources' },
+      { id: 'media', label: '媒體專訪', href: '/media' },
+    ],
+  },
 ];
 
-// Phase 2（PLN-001 Batch D）：以下 8 項энергy-healing 服務內容全數依
-// docs/網站文案集.md 546-1541 行重新撰寫，取代原本的 6 項 demo 服務。
-// 對應 PRD-001 §5 item 1 的清單：個人療癒／靈性解讀／靈性按摩／人生推進器／
-// 主題工作坊／煙供祈福／豐盛靈氣／五行香水供奉（原 love-reiki 位置）。
+// 8 項能量療癒服務。畫面上的文字一律逐字取自 docs/網站文案集.md（客戶 docx 的轉檔）：
+// - name：各服務段落的標題（第 469、557、639、716、800、845、939、994 行）。
+// - ctaText：Home Block 3 各服務的 CTA 按鈕文字（第 166～187 行）。
+// - 一句話介紹在 serviceBlurbs（Home Block 3）；完整內容在 src/content/offerings.ts。
+// 舊版文案集（v1）的摘要、對象、時長與費用欄位已於 2026-10-05 移除：v2 docx 沒有對應的
+// 單句原文，詳細頁改由下方「方案與費用」等段落（docx 原文）呈現。
+// 主題工作坊的按鈕文案集填的是舊 LINE 網址，連結一律用 siteLinks.line。
 export const services: Service[] = [
   {
     id: 'personal-1on1',
     name: '心靈引渡人｜一對一個人能量療癒',
-    description: '深度潛意識溝通與信念轉化，陪你渡過人生卡關的難關，找回輕盈與平靜。',
-    detailedDescription: '結合希塔療癒（核心技術）、內在小孩與原生家庭療癒、家族與金錢業力清理／前世回溯、情緒釋放與靈氣傳送，透過冥想引導與潛意識溝通，陪你看見冰山底下的核心癥結，將限制性信念轉化為支持你的力量。',
-    targetAudience: '反覆卡關（感情、金錢、家庭、工作）、渴望突破現況、正經歷重大低潮，或想擺脫慣性依存與內在恐懼者',
-    benefits: [
-      '深層信念重塑：移除潛意識裡的負面限制，讓卡住的人生重新流動',
-      '快速突破轉化：精準鬆開核心卡點，當下感受心靈脫胎換骨',
-      '多重技術整合：希塔療癒、內在小孩療癒、業力清理、靈氣傳送',
-      '完整陪伴保證：60/90/120 分鐘三種方案，皆有四步驟療癒流程與事前準備指引'
-    ],
-    duration: '60 / 90 / 120 分鐘（3 種方案可選）',
-    price: '$2,600 起',
-    ctaText: '前往預約一對一療癒',
+    ctaText: '立即預約', // 第 166 行
     ctaLink: 'https://booking.wenling.tw/activities/soul-healing',
     iconName: 'Sparkles',
     category: 'energy-healing',
-    testimonialIds: [] // TODO: 待補專屬見證（`testimonials` 陣列目前查無文案集出處、全站已停用渲染，見 types.ts 註解）
+    testimonialIds: []
   },
   {
     id: 'spiritual-reading',
     name: '靈性解讀與能量療癒',
-    description: '三大主題：人生指南針解讀、靈魂伴侶解讀、4+1 感知中心深度挖掘，在迷惘與抉擇的十字路口重新點亮方向。',
-    detailedDescription: '提供三大專屬主題，依你目前最渴望解決的課題選擇：「人生指南針解讀」（未來迷惘、抉擇卡關）、「靈魂伴侶解讀」（感情卡關、尋找對的人）、「4+1 感知中心深度挖掘」（豐盛卡點、找回天賦與力量）。全程採線上 Zoom 語音通話，並提供 AI 彙整重點筆記。',
-    targetAudience: '面臨重大抉擇、對未來感到迷惘、感情反覆卡關，或想找回天賦與豐盛能量者',
-    benefits: [
-      '人生指南針解讀：解析未來時程、神聖時刻關鍵字與「三選一」發展預視',
-      '靈魂伴侶解讀：解析 4 種靈魂伴侶狀態，精準過濾毒性關係',
-      '4+1 感知中心深度挖掘：掃描五大能量感知系統，拔除豐盛卡點',
-      '文字檔案解讀提供 1 次免費補充發問'
-    ],
-    duration: '20-40 分鐘（人生指南針／靈魂伴侶解讀）；1.5-3 小時（4+1 感知中心）',
-    price: '$600 起',
-    ctaText: '了解 3 大解讀主題',
+    ctaText: '立即預約', // 第 169 行
     ctaLink: 'https://booking.wenling.tw/activities/life-direction',
     iconName: 'Compass',
     category: 'energy-healing',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'spiritual-massage',
     name: '靈性按摩｜全域氣場修護與脈輪清理',
-    description: '標準化 SOP 遠距能量 SPA，14 點脈輪深層清理與補氣，附贈脈輪訊息報告。',
-    detailedDescription: '採用標準化專業 SOP，以溫和而強大的遠距能量調頻，切斷負面能量線、全域理氣修補、14 點脈輪（含前後共 14 點）深層清理與補氣，並建立 3 天氣場保護罩。提供全身心健康、情緒、財務阻礙、愛情阻礙四大清理主題。',
-    targetAudience: '莫名疲累、情緒起伏大、財務或感情反覆受阻，或想定期保養氣場者（建議每 3-6 個月一次）',
-    benefits: [
-      '切斷負面能量線，減少吸收「不屬於你的情緒」',
-      '14 點脈輪深層清理與補氣，全面提升自癒力',
-      '3 天氣場保護罩，自動排斥負能量干擾',
-      '療程完成後 14 個工作天，附贈文齡 Keila 親自解讀之脈輪訊息報告'
-    ],
-    duration: '單次體驗，另有 3 / 6 / 12 次優惠組',
-    price: '$4,580 起',
-    ctaText: '前往預約靈性按摩',
+    ctaText: '立即預約', // 第 172 行
     ctaLink: 'https://booking.wenling.tw/activities/chakra-cleaning',
     iconName: 'Heart',
     category: 'energy-healing',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'group-healing',
     name: '人生推進器｜團體遠距療癒',
-    description: '遠距集體能量調頻，1 回合 11 次傳送，無需在線即可持續提升頻率、突破卡關。',
-    detailedDescription: '運用擴大療癒與金銀紫火焰的高頻祝福能量，協助清理沉積已久的能量阻塞、習慣、壓力與干擾，從根本提升個人能量頻率，吸引順流的人事物與全新契機。屬遠距集體能量調頻方案，適合抽不出大量時間進行一對一對談者；建議連續參加 3 回合以上。',
-    targetAudience: '面臨轉職、求職、考試、簡報、結婚等重要關卡，或長期卡關倦怠、想清理空間與家庭能量者',
-    benefits: [
-      '內在平靜：情緒變穩定，日常焦躁感降低',
-      '外在轉化：吸引貴人與資源、關係和解順暢、轉職求職獲得新契機',
-      '生活重整：動力增加，擺脫不良慣性與癮頭',
-      '零時間負擔：無需在線，療癒師施作完成後於專屬 LINE 群組發布通知'
-    ],
-    duration: '1 回合 11 次遠距傳送（約 1 個月內完成），建議連續 3 回合以上',
-    ctaText: '立即加入梯次',
+    ctaText: '立即加入', // 第 175 行
     ctaLink: 'https://booking.wenling.tw/activities/life-forward',
     iconName: 'Users',
     category: 'energy-healing',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'workshop',
     name: '能量身心靈主題工作坊',
-    description: '零基礎輕鬆入門，觀念解密＋現場體驗＋實作工具帶回家，近期主打「能量風水與幸運數字工作坊」。',
-    detailedDescription: '聚焦單一生命議題（如風水開運、金錢豐盛、真愛吸引、舊愛清理等），透過「觀念解密＋現場體驗＋實作工具帶回家」三合一模式，讓你在幾小時內獲得清晰的突破方向與能量煥新。學院亦不定期舉辦心想事成許願好運、潛意識翻轉與信念重組、財富豐盛吸引力、吸引真愛靈魂伴侶等系列主題工作坊。',
-    targetAudience: '完全不需要任何基礎，第一次接觸身心靈、能量療癒，或對潛意識感到好奇的初訪者',
-    benefits: [
-      '每場約 3-4 小時，含主題講座、現場實作引導、能量冥想與個案現場解盤',
-      '實體場為精緻小班制，限額 10 人；線上採 Zoom 直播同步（限額 290 人），提供錄影回播',
-      '每堂皆提供可直接操作的「生活工具盒」，如幸運數字計算、風水擺設調整、許願清單模板'
-    ],
-    duration: '每場約 3-4 小時',
-    ctaText: '加入 LINE 詢問工作坊場次',
+    ctaText: '加 LINE 報名', // 第 178 行
     ctaLink: siteLinks.line,
     iconName: 'Wind',
     category: 'energy-healing',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'smoke-prayer',
     name: '遠距煙供祈福儀式',
-    description: '藏傳煙供神聖智慧，全程遠距代施作，消業障、補財庫、迎貴人、感情順、健康安。',
-    detailedDescription: '「煙供祈福」源自藏傳密宗施身煙供的神聖智慧，透過高頻燻煙上供諸佛菩薩、下施六道眾生。專人代為撰寫疏文、選用天然高階香材（如降真香、沉香、檀香），依天赦日、財神聖誕、菩薩聖誕等吉日能量主題施作，完成後拍照回傳疏文與香品紀錄供您核對。',
-    targetAudience: '想提升財運業績、常覺諸事不順運勢停滯、想為家人祈求健康平安，或正面臨感情阻礙、爛桃花纏身者',
-    benefits: [
-      '消業障：釋放冤親債主糾纏，遠離小人與低頻干擾',
-      '補財庫：止漏聚財，讓事業上的努力不再白費',
-      '開姻緣／補良緣／旺人緣三大祈願模組可依需求選擇',
-      '預約 3 次以上享 9 折、6 次以上 85 折、12 次以上 8 折優惠'
-    ],
-    duration: '單次施作，另有多次預約優惠',
-    ctaText: '登岸預約煙供祈福',
+    ctaText: '立即預約', // 第 181 行
     ctaLink: 'https://booking.wenling.tw/activities/pray-all',
     iconName: 'Flame',
     category: 'energy-healing',
-    // 注意：`testimonials` 陣列中 test-1（relatedService: '煙供祈福與家庭能量清理'）
-    // 主題上對應本服務，但該陣列全數查無文案集出處、全站已停用渲染（見 types.ts 註解），
-    // 本輪暫不引用，待取得真實個案授權後再評估是否啟用。
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'abundance-reiki',
     name: '豐盛靈氣｜全方位能量調頻與願望顯化',
-    description: '獨家結合 8 大高頻靈氣（含金錢、百花、愛情、人魚靈氣等），每月梯次遠距傳送，全面提升財富、感情與人氣運勢。',
-    detailedDescription: '由 Keila 老師獨家結合金錢靈氣、百花靈氣、愛情靈氣、鬱金香熱情靈氣、人魚靈氣、獨角獸靈氣、彩虹靈氣、煦陽靈氣與臼井靈氣，並輔以希塔療癒技術，透過遠距方式清理脈輪與氣場，撒下對應願望的高頻能量種子（本方案已全面涵蓋愛情靈氣，故不再開設獨立愛情方案）。',
-    targetAudience: '財運不順、感情停滯人緣冷淡、願望難以顯化，或想提升自信與氣場魅力者',
-    benefits: [
-      '10 次方案（1 個月）／30 次方案（3 個月，最穩定的調頻節奏）',
-      '購買 3 個月方案享專屬「每日運勢指引」（節氣、吉時與能量關鍵字）',
-      '可加購願望祝福、空間靈氣祝福、加持型能量調頻、豐盛靈氣香水等服務'
-    ],
-    duration: '每月梯次，10 或 30 次遠距傳送',
-    ctaText: '查看豐盛靈氣梯次方案',
+    ctaText: '立即預約', // 第 184 行
     ctaLink: 'https://booking.wenling.tw/activities/reiki-healing',
     iconName: 'Coins',
     category: 'energy-healing',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'five-elements-perfume',
     name: '五行香水供奉｜佛前加持版',
-    description: '長效植物香氛取代鮮花，7 天 24 小時佛前供奉，依你的八字與願望精準調配五行香氛。',
-    detailedDescription: '以高頻「長效植物香氛」取代傳統鮮花供佛，讓純淨香氣 7 天 24 小時持續在佛前供奉，功德與能量日夜不間斷。下單後 Keila 將親自依你的願望類別與出生八字，為你精準挑選最能補足運勢的五行（木、火、土、金、水）香氛配比。',
-    targetAudience: '感情年年單身或招爛桃花、事業無貴人升遷卡關、財進財出留不住，或心浮氣躁難以專注者',
-    benefits: [
-      '單瓶／雙瓶／四瓶／五瓶方案可選，瓶數越多、能量越強大',
-      '已含擇日、專屬供奉、手寫祈願卡、部分捐款迴向之全套服務',
-      '供奉當日拍攝「專屬祈願卡照片」，透過 LINE 官方帳號回傳見證'
-    ],
-    duration: '7 天 24 小時佛前供奉',
-    price: '$2,500 起',
-    ctaText: '線上填單供奉香水',
+    ctaText: '立即預約', // 第 187 行
     ctaLink: 'https://booking.wenling.tw/activities/energy-filling',
     iconName: 'Flower2',
     category: 'energy-healing',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   }
 ];
 // 《七週遇見對的人》課程與「國際希塔與靈氣雙證照培訓」service 項目
@@ -213,57 +162,48 @@ export const services: Service[] = [
 // 保留在 About／Media／TrustSystem 等處。臼井靈氣技術僅保留於 About
 // 方法體系表格中作為技術介紹。
 
-// Phase 2（PLN-001 Batch E）：內容依 docs/網站文案集.md 1542-1823 行重新確認，
-// 補上真實報名連結（basicDNA / advanced_DNA / digdeeper）與費用/先修資訊。
+// 希塔療癒三門課。畫面上的文字逐字取自 docs/網站文案集.md：
+// - level：Home Block 4 的課程短名（第 193、195、197 行），用在詳細頁的三階路徑。
+// - name：各課程段落的標題。
+// - facts／price：各課程「課程資訊與報名方式」的條列原文（行號見各筆註解），只去掉表情符號。
+// 舊版文案集（v1）的目標、對象、時數、證照與重點欄位已於 2026-10-05 移除。
 export const thetaTrainingCourses: ThetaTrainingCourse[] = [
   {
     id: 'theta-basic',
-    level: '基礎 DNA (Basic DNA)',
+    level: '基礎 DNA 課程',
     name: '希塔療癒 基礎 DNA 課程 (ThetaHealing®)',
-    objective: '學會連結源頭與高我、感應自己與他人的身心狀態，掌握四個信念層面（核心/遺傳/歷史/靈魂）轉化與顯化練習的完整核心步驟。',
-    targetAudience: '初學者、想學會自我潛意識調頻與改寫命運藍圖者',
-    duration: '3 天密集認證（實體台北松江南京站附近／線上 Zoom 同步）',
-    certification: '美國 THInK 官方認證證書',
-    highlights: ['希塔波冥想入門與解讀掃描', '四個信念層面轉化', '顯化練習與淨化保護', '靈界連結與 DNA 啟動'],
+    // 第 1119、1122 行
+    facts: ['上課形式： 實體 (台北松江南京捷運站附近) ＆ 線上 (Zoom) 同步開課'],
+    price: '課程費用： NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）',
     ctaLink: 'https://booking.wenling.tw/activities/basicDNA',
-    // 文案集第 1621-1623 行：「💰 課程費用：NT$ 20,000（含原廠教材、官方國際認證證書、
-    // 中文書、精選乳香精油）／兩人同行每人折 NT$200／四人團報每人折 NT$500」逐字對照。
-    price: 'NT$ 20,000（含原廠教材、官方國際認證證書、中文書、精選乳香精油）；兩人同行每人折 NT$200，四人團報每人折 NT$500',
     category: 'theta-training',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'theta-advanced-dna',
-    level: '進階 DNA (Advanced DNA)',
+    level: '進階 DNA 課程',
     name: '希塔療癒 進階 DNA 課程 (Advanced DNA)',
-    objective: '透過 3R 深度挖掘徹底拔除怨恨、後悔、被拒絕三大深層阻礙，並學習萬物連結、跨維度溝通與生活中的希塔魔法應用。',
-    targetAudience: '已完成基礎 DNA、渴望加速自我轉化與修補心輪者',
-    duration: '18 小時以上（可拆天數，1 人即可私訊約課）',
-    certification: '官方「進階療癒師」國際證照',
-    highlights: ['3R 深度挖掘：怨恨、後悔、被拒絕', '1 秒下載法與七界連結', '淨化水晶／土地／空間', '時間感調整與萬物祝福'],
+    // 第 1169、1172 行
+    facts: ['上課形式： 實體 (台北松江南京捷運站附近) ＆ 線上 (Zoom) 同步開課'],
+    price: '課程費用： 單堂 NT$ 20,000',
     ctaLink: 'https://booking.wenling.tw/activities/advanced_DNA',
-    // 文案集第 1697-1699 行：「💰 課程費用：單堂 NT$ 20,000／2 人同行每人折 NT$200／
-    // 4 人團報每人折 NT$500」逐字對照。
-    price: '單堂 NT$ 20,000；2 人同行每人折 NT$200，4 人團報每人折 NT$500',
     category: 'theta-training',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'theta-dig-deeper',
-    level: '深度探掘 (Dig Deeper)',
+    level: '深度信念挖掘班',
     name: '希塔療癒 深度信念挖掘班 (Digging Deeper)',
-    objective: '掌握 10 大深度信念挖掘技術（基礎架構、恐懼、3R、疾病、遺傳層、歷史層、顯化、自我挖掘、困境與美德、誓言與感覺），精準直達潛意識根源。',
-    targetAudience: '想成為專業執業療癒師、或在信念清理上遇到瓶頸者（需完成基礎班與進階班）',
-    duration: '4-5 日，10:00-16:00（含午休 1 小時）',
-    certification: '官方授權「挖掘療癒師」國際證照',
-    highlights: ['10 大深度信念挖掘技術', '疾病／遺傳層／歷史層挖掘', '誓言挖掘與感覺切入（Keila 獨家補充）', '常態約課制，1 人即可開課'],
+    // 第 1224、1225、1227、1230 行
+    facts: [
+      '先修要求： 需完成「希塔療癒基礎班」與「希塔療癒進階班」',
+      '上課形式： 實體 (台北松江南京捷運站附近) ＆ 線上 (Zoom) 同步開課',
+      '課程時間： 依進度共四到五日，10:00 - 16:00 (含午休 1 小時)',
+    ],
+    price: '課程費用： 單堂 NT$ 20,000 (支持刷卡、分期，輕鬆投資你的大腦與能量！)',
     ctaLink: 'https://booking.wenling.tw/activities/digdeeper',
-    prerequisite: '需完成希塔療癒基礎班與進階班',
-    // 文案集第 1782-1784 行：「💰 課程費用：單堂 NT$ 20,000（支持刷卡、分期）／
-    // 2 人合報/複訓每人另折 NT$200／4 人團報/複訓每人另折 NT$500」逐字對照。
-    price: '單堂 NT$ 20,000（支持刷卡、分期）；2 人合報／複訓每人另折 NT$200，4 人團報／複訓每人另折 NT$500',
     category: 'theta-training',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   }
 ];
 
@@ -275,145 +215,67 @@ export const thetaTrainingCourses: ThetaTrainingCourse[] = [
 // `thetaTrainingCourses` 是同一批希塔課程的兩份資料，已併入後者；舊詳細頁
 // `/training/theta-*-cert` 由 next.config.js 轉址到對應的 `/training/theta-*`。
 
-// Phase 2（PLN-001 Batch F）：ServicesSection「專業證照與直覺力培訓」tab 用的資料，
-// 內容依 docs/網站文案集.md 1824-2196 行（金錢靈氣／愛情靈氣證照／人魚靈氣證照）
-// 及 241-249 行（直覺力培訓 Home CTA，文案集標註「⚠️ 待客戶補充」）撰寫。
-// 對應 PRD-001 §5 item 3：取代原 healer-business 分類。國際授權臼井靈氣大師導師
-// 認證班項目與七週課綱資料已依 PRD-001 決策 #5、#6（2026-08-18 使用者確認）移除。
+// 靈氣認證三門課。name、facts、price 逐字取自 docs/網站文案集.md 各課程段落（行號見各筆註解）；
+// 表格列以「項目　內容」呈現。舊版文案集（v1）的目標、對象、課綱、標籤與退費欄位已於
+// 2026-10-05 移除，完整內容在 src/content/offerings.ts。
 export const certificationCourses: ReikiCourse[] = [
   {
     id: 'money-reiki-cert',
     level: 'beginner',
     type: 'both',
     name: '金錢靈氣療癒師與導師授證課程',
-    objective: '透過定期符號點化與操作，解除深層金錢阻礙與潛意識匱乏信念，自動化清除財務能量業力，打造零透支的穩定現金流。',
-    targetAudience: '占卜師／塔羅師／占星師、深陷金錢困境者、身心靈入門者，或想成為金錢靈氣導師者',
-    curriculum: ['一階：貨幣符號點化、願望清單與豐盛錢母製作', '二＆三階：顯化／淨化／金錢磁鐵符號點化', '火供儀式實作與集體顯化技巧', '導師培訓：點化他人與開課傳授流程'],
-    duration: '場次安排中，1 人即可彈性排課（三階可拆 2-4 次完成）',
-    badge: '三階合報最划算',
+    // 第 1323、1325 行；費用為第 1308 行表格列
+    facts: [
+      '上課地點： 實體 (台北松江南京站工作室) ＋ 線上同步',
+      '場次安排中，歡迎私訊約課！ (1 人即可彈性排課，三階可拆 2-4 次完成)',
+    ],
+    price: '三階合報 (療癒師+大師+宗師)　NT$ 14,899 (一世發久久！) (原價 $18,000 / 完訓可授課)',
     ctaLink: 'https://booking.wenling.tw/activities/money-reikei',
-    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。',
-    // 文案集第 1902-1913 行「💰 課程費用與優惠方案」表格逐字對照：三階合報／一階單報／
-    // 複訓／新生 2 人團報／新生 4 人以上團報。
-    price: '三階合報 NT$14,899（一世發久久！原價 NT$18,000，完訓可授課）；一階單報 NT$6,000（無證書）；複訓（三階）NT$7,500（須出示證書，含所有贈品）；新生 2 人團報 NT$14,299／人；新生 4 人以上團報 NT$13,889／人',
     category: 'healer-certification',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'love-reiki-cert',
     level: 'intermediate',
     type: 'both',
     name: '愛情靈氣證照課程 (鬱金香熱情靈氣導師班)',
-    objective: '獨家整合鬱金香熱情靈氣 × 百花靈氣 × 希塔療癒，療癒愛的創傷、吸引靈魂伴侶，並取得可收費的專業技能，完訓即可接案或開課。',
-    targetAudience: '在人際或愛情關係中常感到受傷缺乏安全感者、想斬斷爛桃花者，或已具備占卜/塔羅背景想補足轉化技能者',
-    curriculum: ['百花靈氣清理與內在小孩療癒', '9 大符號傳承與點化', '伴侶清單撰寫與一對多能量傳送', '愛情靈氣飲品與魔法香氛手作'],
-    duration: '8 小時（實體台北松江南京站工作室＋線上同步開課）',
-    badge: '含官方證書',
+    // 第 1405、1407、1411 行
+    facts: ['上課形式： 實體 (台北松江南京站工作室) ＋ 線上同步開課', '課程時數： 8 小時'],
+    price: '初訓費用：NT$ 12,520 (含官方證書、課本、教材電子檔)',
     ctaLink: 'https://booking.wenling.tw/activities/love-reiki',
-    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。',
-    // 文案集第 2076-2081 行「💎 課程費用與超級贈禮」逐字對照：初訓費用／團報／複訓。
-    price: '初訓費用 NT$12,520（含官方證書、課本、教材電子檔，支援 6-24 期無卡分期）；雙人／四人以上團報另享超值折價優惠；其他老師學員複訓享優惠價（不含證書與課本），Keila 既有愛情靈氣學員免費複訓',
     category: 'healer-certification',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   },
   {
     id: 'mermaid-reiki-cert',
     level: 'intermediate',
     type: 'both',
     name: '人魚靈氣證照課程 (Mermaid Reiki)',
-    objective: '結合「魅力法則」與「豐盛意識」，透過神聖符文點化，提升個人魅力與自尊、釋放情感創傷，並顯化豐盛好運。',
-    targetAudience: '對海洋與人魚傳說有莫名親近感、想找回自尊與魅力、或想成為人魚靈氣療癒師者',
-    curriculum: ['人魚起源與四大人魚族群', '關鍵能量結構修復與臍輪深度療癒', '淨化與平撫之印等三大符文點化', '人魚靈氣寶盒製作實務'],
-    duration: '6-8 小時，可拆兩次（線上同步直播＋實體課）',
-    badge: '完課頒發證書',
+    // 第 1469、1470、1472 行（表格列）
+    facts: ['課程時間　6-8小時，可拆兩次', '授課方式　線上同步直播 ＋ 實體課（同步進行）'],
+    price: '課程費用　NT$ 12,520 (支援刷卡/分期付款)',
     ctaLink: 'https://booking.wenling.tw/activities/mermaid-reiki',
-    refundPolicy: '報名後不提供任何理由退費，但可申請更換梯次，或轉為等值產品/服務/其他課程。',
-    // 文案集第 2176 行「課程費用｜NT$ 12,520（支援刷卡/分期付款）」逐字對照。
-    price: 'NT$ 12,520（支援刷卡／分期付款）',
     category: 'healer-certification',
-    testimonialIds: [] // TODO: 待補專屬見證
+    testimonialIds: []
   }
 ];
 
-// PRD-002 §3.3 v1.1（2026-08-21）：原本獨立的 `intuition-training` 項目
-// （id、卡片、獨立詳細頁）已依客戶決策移除，不再獨立呈現；其內容併入
-// 「療癒師認證」總覽／詳細頁敘述中，作為此分類下的加值模組說明。文字沿用
-// docs/網站文案集.md 241-249 行（Block 5｜Section 3：直覺力培訓 Training CTA）
-// 與原 certificationCourses 項目的既有措辭，僅做「不再獨立成卡片」的結構調整，
-// 不改寫語意。狀態維持 coming-soon（文案集標註「⚠️ 待客戶補充」完整課綱）。
+// 直覺力培訓：Home Block 5（第 208～212 行，文案集標註「⚠️ 待客戶補充」），不獨立成頁
+// （PRD-002 §3.3 v1.1）。標題、內文與按鈕逐字取自第 210～212 行；按鈕連結用 siteLinks.line。
 export const healerCertificationAddOn = {
-  name: '直覺力訓練｜喚醒你與生俱來的靈通天賦',
-  objective: '透過系統化的直覺力訓練，學會清晰接收、辨識並運用自己的靈通感知，讓直覺成為你人生中最可靠的指引。',
-  targetAudience: '曾在某個瞬間準確預感到即將發生的事、想開發與生俱來直覺力者',
-  note: '課程大綱製作中，內容將依官方文案更新',
+  name: '直覺力培訓｜喚醒你與生俱來的靈通天賦',
+  objective: '透過系統化的直覺力訓練，你將學會清晰接收、辨識並運用自己的靈通感知，讓直覺成為你人生中最可靠的指引。',
   status: 'coming-soon' as const,
   ctaLink: siteLinks.line
 };
 
-// PRD-002 §3.4（Batch F，2026-08-21）：首頁與其他站內呼叫點過去都是用
-// `router.push(\`/services?tab=${serviceId}\`)` 這種「傳 id、由 ServicesSection
-// 內部原地展開」的舊機制。/services、/training 拆成兩個獨立總覽頁＋各自詳細頁後，
-// 改用這個 helper 依 Batch D 補上的 `category` 欄位，判斷某個服務/課程 id 該連到
-// `/services/[id]` 還是 `/training/[id]`，取代呼叫點各自寫死 `/services?tab=xxx`。
-// 查無對應 id 時 fallback 回 `/services` 總覽頁，避免產生 404。
-export function resolveOfferingHref(id: string): string {
-  const allOfferings: { id: string; category: ServiceCategory }[] = [
-    ...services,
-    ...thetaTrainingCourses,
-    ...certificationCourses,
-  ];
-  const match = allOfferings.find((item) => item.id === id);
-  if (!match) return '/services';
-  return match.category === 'energy-healing' ? `/services/${id}` : `/training/${id}`;
-}
+// PLN-004 階段 D（2026-10-05）移除：resolveOfferingHref（已無呼叫點）與 4 筆查無出處的
+// 具名見證。見證改用文案集的匿名引言（testimonialQuotes），並以授權開關控制顯示。
 
-// ⚠️ 2026-08-18 本輪瀏覽器視覺 QA 發現：以下 4 筆見證的姓名／居住地／職業／完整前後對照
-// 故事，在 docs/網站文案集.md 裡完全查無出處（文案集第 643～648 行的「個案真實見證」只有
-// 4 句匿名一行見證，無姓名無故事）。依使用者指示，TrustSystem.tsx 與 HomeTestimonialsSection.tsx
-// 已暫時不再 import／渲染這份資料（改顯示「籌備中」提示），這份陣列先保留在檔案裡以免遺失
-// 既有格式，但目前沒有任何元件引用它。待取得真實個案授權後再啟用或整批替換。
-export const testimonials: Testimonial[] = [
-  {
-    id: 'test-1',
-    persona: 'mom',
-    category: '媽媽安心案例',
-    clientName: '林媽媽（台北，家管，育有兩子）',
-    beforeState: '孩子面臨大考時情緒極度敏感、家裡氣氛緊繃。每天嘮叨爭吵，感到心力交瘁、嚴重失眠，家裡像個壓力鍋。',
-    afterState: '透過煙供祈福與客製化家庭能量調整，媽媽學會釋放「掌控焦慮」。奇妙的是，當媽媽頻率放鬆後，大兒子情緒也趨於平穩，能自主安排複習，家庭重回笑聲。',
-    testimonialText: '以前一回到家就很窒息，文齡老師告訴我：媽媽是家裡的風水與定海神針。她幫我們家做的能量清理與遠距祝福，讓我真的感覺到肩膀上的重擔放下了。當我自己睡得好、不再天天盯著孩子罵，孩子反而放鬆發揮出了好成績！真的很感謝文齡老師的溫柔指引。',
-    relatedService: '煙供祈福與家庭能量清理'
-  },
-  {
-    id: 'test-2',
-    persona: 'single',
-    category: '單身愛情轉化案例',
-    clientName: 'Eva（新竹，IC 設計科技業專案經理）',
-    beforeState: '過去五年間反覆遇到「冷暴力、不願承諾、不告而別」的對象。深陷「我是不是不夠好、不配被珍惜」的自我懷疑，對戀愛感到絕望卻又無比渴望。',
-    afterState: '透過靈魂伴侶解讀搭配一對一能量療癒，釋放了童年缺乏父親認同的遺憾。第六個月，在登山社團遇到了體貼、主動、且願意承諾的現任伴侶，目前已穩定交往一年。',
-    testimonialText: '文齡老師的療癒不是那種教你欲擒故縱、撒嬌的戀愛技巧。它是真正的「內在手術」，把我心中那個一直覺得會被丟掉的小女孩抱了回來。當我真正覺得自己「本來就值得被好好對待」時，我的磁場就變了。現任男友對我的珍惜程度，是我以前作夢都不敢想的。個案經驗因人而異，但只要你願意相信，改變真的會發生。',
-    relatedService: '靈性解讀與能量療癒｜靈魂伴侶解讀'
-  },
-  {
-    id: 'test-3',
-    persona: 'business',
-    category: '企業主與業務成長案例',
-    clientName: '陳先生（台中，文創餐飲連鎖品牌創辦人）',
-    beforeState: '品牌面臨融資與拓店決策關口，壓力巨大，情緒易怒，團隊凝聚力下降，常常失眠、靠藥物入睡，決策時充滿得失心的雜音。',
-    afterState: '進行連續 3 個月的金錢靈氣調頻與高階企業主諮詢，釋放了隱形的「破產匱乏焦慮」。心靈平穩後，做出了精準的策略轉型，順利獲得 A 輪投資，業績穩健攀升。',
-    testimonialText: '身為創業者，孤獨感與壓力是常態。文齡老師的專業之處在於她極度有邏輯，完全沒有玄學的故弄玄虛。她從潛意識底層幫我清理了對錢的「不安全感」與「想要控制一切的執念」。當我的能量場變得平穩與大氣，決策就清楚了，團隊和投資人也更能信任我。這幾個月公司順利跨過了兩億的融資目標，這絕對是我最超值的決策支持投資。免責聲明：這不能取代我們的商業努力，但能給予你最強大的心靈護航。',
-    relatedService: '豐盛金錢靈氣與企業主專屬諮詢'
-  },
-  {
-    id: 'test-4',
-    persona: 'mom',
-    category: '媽媽陪伴案例',
-    clientName: '張小姐（高雄，全職媽媽）',
-    beforeState: '產後憂鬱加上婆媳問題，常常無端對丈夫和兩歲的女兒發脾氣，內心充滿了罪惡感，深陷情緒泥淖，感到非常孤立無援。',
-    afterState: '接受 3 次一對一能量療癒，並引導日常自我淨化。學會了「先滋養自己，再照顧家庭」的邊界，情緒風暴退去，找回溫柔力量。',
-    testimonialText: '文齡老師聽我哭了一個小時，她的包容像一個無邊無際的溫暖大海。在療癒過程中，我真的感受到一股溫熱的能量流過我緊繃的胸口。現在我懂得每天留 15 分鐘給自己做靈氣呼吸，家庭關係也前所未有地和諧。',
-    relatedService: '個人一對一能量療癒'
-  }
-];
+// 部落格文章是否顯示。以下 6 篇文章不在客戶的文案集（docx）裡，依「全站文字只能出自 docx」
+// 的規定先不顯示（2026-10-05）。資料保留；客戶提供或確認文章後再改成 true。
+// 注意：pagesContent.blog 的 allLabel／readLabel／closeLabel 也不是 docx 文字，開啟前要一併補上。
+export const SHOW_BLOG_POSTS = false;
 
 export const blogPosts: BlogPost[] = [
   {
@@ -589,98 +451,50 @@ export const blogPosts: BlogPost[] = [
   }
 ];
 
-export const faqs: FAQItem[] = [
-  {
-    id: 'faq-mom-1',
-    persona: 'mom',
-    question: '我的孩子最近面臨升學大考/情緒非常緊繃不穩定，我可以為他做些什麼？',
-    answer: '當孩子情緒緊繃時，媽媽往往比孩子更焦慮。在能量世界中，家庭是一個共享的能量池，而母親通常是家庭的「能量定海神針」。建議媽媽可以先從預約「煙供祈福與家庭能量清理」或「個人一對一能量療癒」開始。當您自己的焦慮與壓力被疏通、內在重回穩定和諧時，孩子自然能感受到這股安全感，情緒也會隨之平穩。我們亦有針對孩子的遠距能量調頻與祝福，以溫和不打擾的方式給予支持。'
-  },
-  {
-    id: 'faq-mom-2',
-    persona: 'mom',
-    question: '家庭健康與平安，可以透過哪些服務來提供穩定的支持？',
-    answer: '我們推薦「定期煙供祈福」與「遠距家庭能量調頻」。煙供是遵循古老傳承、極其溫和而慈悲的能量清理儀式，能有效中和家宅磁場中的雜亂晦澀頻率，為家人祈求平安健康、課業順遂。請注意，能量療癒是優質的心靈保健與能量調頻，絕不能取代正規的醫療、心理諮商與藥物治療。若家人有身體或心理疾病，請務必尋求專業醫師的診斷與協助。'
-  },
-  {
-    id: 'faq-mom-3',
-    persona: 'mom',
-    question: '我從來沒有接觸過能量療癒，會不會很難理解？需要做什麼準備嗎？',
-    answer: '完全不需要任何準備，也不用擔心難以理解。文齡老師擁有多年商務行銷與專案管理背景，最擅長用「溫和、理性、有邏輯」的語言來解構身心靈玄學。在療癒或課程中，您只需要帶著一顆敞開、放鬆的心，像跟朋友喝下午茶一樣即可。老師會用最白話、最溫暖的方式引導您，讓您感到無比安全與放鬆。'
-  },
-  {
-    id: 'faq-single-1',
-    persona: 'single',
-    question: '「靈魂伴侶解讀」是保證能讓我脫單、找到伴侶嗎？',
-    answer: '基於專業倫理與對生命的尊重，我們**絕不做出任何「保證脫單」或「保證吸引到特定對象」的宣稱**。靈魂伴侶解讀的核心，是一套深度的「關係陪伴與內在轉化旅程」。它旨在陪伴您看見並清理過去在關係中反覆卡關、受傷的潛意識信念（如不配得感、遺棄恐懼），並建立健康的自我邊界與高頻自愛狀態。當您的內在頻率回歸圓滿與自信時，自然會提升您在日常中做出合適選擇、吸引健康伴侶的機率。個案的轉化成效因個人投入程度與靈魂藍圖而異。'
-  },
-  {
-    id: 'faq-single-2',
-    persona: 'single',
-    question: '「五行香水供奉」適合什麼狀態的人？遠距真的有效果嗎？',
-    answer: '五行香水供奉極其適合：正經歷分手/失戀創傷、對愛情失去信心、渴望增進個人親和力、或想改善現有伴侶關係者。方案會依您的出生年月日調配專屬桃花與貴人香氛，進行 7 天 24 小時佛前供奉。供奉期間老師會為您撰疏、代為祈願，遠距傳導完全不受空間限制。多數個案在供奉期間或結束後陸續感受到人際與感情氣場的變化，惟成效因人而異，非保證性宣稱。'
-  },
-  {
-    id: 'faq-single-3',
-    persona: 'single',
-    question: '如果我發現自己一直遇到不適合的對象（如渣男/冷暴力），我該怎麼開始調整？',
-    answer: '反覆遇到類似的糟糕對象，是潛意識在向您發出「除錯（Debug）訊號」。這代表您的潛意識底層有一套「我不值得被好好珍惜」的舊程式在運作。建議您可以從「心靈引渡人｜一對一個人能量療癒」開始，由文齡老師帶領您深入探掘這套舊程式的童年或家族根源，看見並將其解除。您也可以搭配「靈性解讀與能量療癒」的靈魂伴侶解讀，進行系統化的能量與觀念重建。'
-  },
-  {
-    id: 'faq-business-1',
-    persona: 'business',
-    question: '「金錢靈氣」是什麼？它能直接增加我的收入或保證業績翻倍嗎？',
-    answer: '金錢靈氣（Money Reiki）是一門專注於「調和個人與金錢能量關係」的系統。我們**絕不承諾任何「保證財富自由、業績翻倍或投資必賺」的財務宣稱**。它的原理是：清理您潛意識中對金錢的「不配得感」、「匱乏恐懼」或「賺錢很辛苦」等限制性信念，拓寬您的豐盛容器。當您消除對於金錢的緊縮恐懼、在財務決策中保持大氣與冷靜時，自然能在商業運作中看清機會、做出更精準的判斷，進而帶來好運與豐盛的循環。'
-  },
-  {
-    id: 'faq-business-2',
-    persona: 'business',
-    question: '「事業與金錢能量調整」對於企業主、業務、投資人有什麼具體幫助？',
-    answer: '身為企業主或投資人，您的決策品質決定了整個團隊與資金的走向。然而，長期的孤獨、業績壓力與市場變動，會讓大腦充滿「得失心雜音」，導致焦慮性決策。能量調整能幫您迅速清理大腦與核心脈輪的壓力殘留，讓您的腦波回歸平穩、清明的狀態，重新喚醒您珍貴的「商業直覺與市場洞察力」。同時，平穩強大的創辦人氣場，也是吸引頂尖人才、優質合作夥伴與大額融資的最佳磁石。'
-  },
-  {
-    id: 'faq-business-3',
-    persona: 'business',
-    question: '這類能量療癒與諮詢服務，可以取代我的商業決策或投資建議嗎？',
-    answer: '**絕對不行。** 我們的所有服務（包括豐盛靈氣、事業能量調整、個人諮詢等）均屬於心靈輔助、自我覺察與日常能量護航，**絕不提供任何具體的商業、法律、稅務、財務或投資建議**。所有商業經營與投資行為均有風險，使用者必須秉持理性，為自己的所有商業決定與財務行為承擔完整責任。'
-  }
-];
+// PLN-004 階段 D（2026-10-05）移除：原 9 題 FAQ 查無文案集出處。首頁用文案集 Block 8
+// 的題目（homeContent.faq），各服務與課程頁用文案集該頁的常見問題。
 
-// 依 docs/網站文案集.md 第 93、117、382-384、1808-1817、1965-1969 行等實際提供之免費資源整理，
-// 不包含任何未經證實存在的音檔／PDF／影片連結
-export const resources: ResourceItem[] = [
-  {
-    id: 'res-1',
-    title: '【每週免費直播】豐盛之翼學苑公益體驗直播',
-    type: 'video',
-    typeName: '免費公益直播',
-    description: '每週一晚間 21:30–22:30，文齡老師於社群內舉辦免費公益體驗直播，帶你實際感受能量練習與希塔療癒的應用，參與還有機會獲得專屬小禮物。',
-    targetAudience: '想先免費體驗能量療癒、還在觀望哪一項服務適合自己者。',
-    ctaText: '查看直播社群資訊',
-    ctaLink: siteLinks.community
-  },
-  {
-    id: 'res-2',
-    title: '【免費社群】加入豐盛之翼學苑',
-    type: 'article',
-    typeName: '療癒支持社群',
-    description: '每天充滿正能量分享的免費社群，帶著願望進來，也帶著好消息出去。進入社群需輸入密碼 168168。',
-    targetAudience: '渴望在身心靈路上有溫暖夥伴陪伴、想獲得第一手活動與直播資訊者。',
-    ctaText: '點我加入免費社群',
-    ctaLink: siteLinks.community
-  },
-  {
-    id: 'res-3',
-    title: '【LINE 官方】加入文齡的療癒日常官方帳號',
-    type: 'article',
-    typeName: '官方預約與諮詢管道',
-    description: '透過官方 LINE 帳號即時發問、預約各項服務，並掌握最新開班與活動情報。',
-    targetAudience: '想直接預約服務、或有課程開班時程疑問者。',
-    ctaText: '點我加入 LINE 官方帳號',
-    ctaLink: siteLinks.line
-  }
-  // PRD-003 §4.7：原第 4 筆「媒體專訪」已移至獨立的 /media 頁，免費資源不再放媒體內容。
-];
+// 免費資源。文案集沒有 Resources 專頁的文案（第 1585 行只有頁名），內容全部取自 docx 其他段落
+// 談免費社群與直播的原文（只去掉表情符號），不自行撰寫：
+// - intro／community／sessions：About「不確定自己需要哪一種？」（第 362～372 行）。
+// - live：希塔療癒免費體驗課程資訊（第 1249 行）；按鈕「點我加入社群」第 1345 行。
+// - community.cta：Hero 次按鈕（第 115 行）；community.note：頁尾（第 306 行）。
+// /resources 與首頁的 ResourcesBand 共用。
+export const resources: {
+  intro: string;
+  steps: ResourceItem[];
+} = {
+  intro: '這裡每天都有滿滿的正能量，歡迎你帶著願望進來，也帶著好消息出去！社群內每週都會舉辦免費的公益直播，參與直播還有機會得到專屬小禮物 。',
+  steps: [
+    {
+      id: 'res-community',
+      title: '加入免費社群【豐盛之翼學苑】',
+      highlight: '加入密碼：168168',
+      description: '輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）',
+      ctaText: '加入免費體驗社群：密碼168168',
+      ctaLink: siteLinks.community,
+    },
+    {
+      id: 'res-live',
+      title: '參加【免費公益體驗直播】',
+      description: '加入我的社群，每週一 21:30-22:30 定期舉辦免費直播，帶你實際了解能量應用！',
+      list: [
+        '能量療癒公益體驗：每週一 21:30',
+        '財富＆身心靈成長書單分享與讀書會：每週二 20:30',
+        '好運體質養成班 熱烈進行中！',
+      ],
+      ctaText: '點我加入社群',
+      ctaLink: siteLinks.community,
+    },
+    {
+      id: 'res-line',
+      title: '一對一私訊諮詢',
+      description: '如果你有特定情況想討論，也可以私訊 LINE 官方帳號 [@healer.wenling]，簡單闡述你目前的狀況，我將為你提供適合的療癒建議。',
+      ctaText: uiLabels.line,
+      ctaLink: siteLinks.line,
+    },
+  ],
+};
 
 // 依文案集「▍ 方法體系：專業療癒與顯化技術總覽 (Methodology)」表格（第 346～367 行）逐項轉錄，
 // 共 14 項技術，每項對應「一句話定義」「能解決什麼問題」「適合什麼樣的人」三欄原文。
@@ -701,32 +515,8 @@ export const methodologySystems = [
   { id: 14, name: '脈輪與氣場能量療癒', definition: '不需觸碰身體，運用生命氣場進行淨化、充能與修護的科學療癒法。', solves: '身體能量淤堵、莫名疲憊沉重、特定脈輪能量失衡。', suitedFor: '需要快速恢復能量、重視氣場清潔與講求實用感受的人。' }
 ];
 
-// PRD-002 §3.5：合作夥伴（療癒師／協作老師）介紹卡片，佔位資料。
-// 客戶素材（真實姓名、照片、專長、簡介）尚未提供，photoUrl 留空由元件顯示
-// 佔位圖；之後只需替換以下內容即可上線，元件不需改動。
-export const teamPartners: TeamPartner[] = [
-  {
-    id: 'partner-placeholder-1',
-    name: '夥伴老師姓名（待補）',
-    title: '職稱／頭銜（待補）',
-    specialty: '專長領域（待補，例如：靈氣二階認證導師）',
-    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
-  },
-  {
-    id: 'partner-placeholder-2',
-    name: '夥伴老師姓名（待補）',
-    title: '職稱／頭銜（待補）',
-    specialty: '專長領域（待補）',
-    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
-  },
-  {
-    id: 'partner-placeholder-3',
-    name: '夥伴老師姓名（待補）',
-    title: '職稱／頭銜（待補）',
-    specialty: '專長領域（待補）',
-    bio: '一句話介紹（待補），簡述這位夥伴的專業背景與協作內容。'
-  }
-];
+// PLN-004 階段 D（2026-10-05）移除：合作夥伴的佔位資料。客戶提供療癒師資料後再建立
+// （RPT-001 G7／T7）。
 
 // ─────────────────────────────────────────────────────────────────────────
 // PRD-003／PLN-004 階段 A（2026-10-04）：以下內容依文案集 v2 轉錄。
@@ -762,6 +552,7 @@ export const needEntriesIntro = {
 export const needEntries: NeedEntry[] = [
   {
     id: 'family',
+    shortLabel: '家庭',
     iconName: 'heart',
     title: '家庭與孩子守護',
     painPoint:
@@ -784,6 +575,7 @@ export const needEntries: NeedEntry[] = [
   },
   {
     id: 'love',
+    shortLabel: '感情',
     iconName: 'sparkles',
     title: '幸福真愛與伴侶',
     painPoint:
@@ -806,6 +598,7 @@ export const needEntries: NeedEntry[] = [
   },
   {
     id: 'business',
+    shortLabel: '事業',
     iconName: 'coins',
     title: '企業求財與事業突破',
     painPoint:
@@ -828,6 +621,7 @@ export const needEntries: NeedEntry[] = [
   },
   {
     id: 'starter',
+    shortLabel: '新手',
     iconName: 'sprout',
     title: '開啟身心靈事業 (新手入門)',
     painPoint:
@@ -855,6 +649,7 @@ export const needEntries: NeedEntry[] = [
 // 連結者照內嵌連結（多為 Wayback 存檔）；原始網址已失效者改用文案集內嵌的替代連結。
 // 同一集在 Block 7 與 Media 頁連結不同時，採 Block 7（較新、非存檔）的連結。
 // featured 為首頁 Block 7 的精選單集。
+// 出版品的 heading 是文案集的整行標題（第 235、238、241 行），不拆成書名與自訂的角色說明。
 export const mediaIntro = {
   label: '媒體專訪與出版紀錄',
   heading: '幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享',
@@ -866,7 +661,7 @@ export const mediaPublications: MediaPublication[] = [
   {
     id: 'pub-seven-weeks',
     title: '七週遇見對的人',
-    role: '暢銷書改版唯一推薦序作者',
+    heading: '暢銷書《七週遇見對的人》改版唯一推薦序作者',
     description:
       '受邀為經典暢銷書撰寫推薦序，幸運教主文齡 Keila帶領本書讀書會超過10年、幫助破百名學員的深厚實務經驗，已成功陪伴無數學員走過低潮，順利脫單、結婚生子，活出自己最美好的樣子。',
     link: { label: '博客來購書連結', href: 'https://www.books.com.tw/products/0010917426' },
@@ -874,7 +669,7 @@ export const mediaPublications: MediaPublication[] = [
   {
     id: 'pub-love365',
     title: '練愛大確幸',
-    role: '個人著作・實作手帳',
+    heading: '個人著作：《練愛大確幸》實作手帳',
     description:
       '將多年協助個案走過失戀與感情卡關的實務心法，淬鍊成這本專屬的幸福手帳。不只分享改變人生的實作方法，更錄製52則療癒音檔，成為你每天都能輕鬆參與的小練習！',
     link: { label: '購買連結', href: 'https://booking.wenling.tw/products/love365' },
@@ -882,7 +677,7 @@ export const mediaPublications: MediaPublication[] = [
   {
     id: 'pub-good-woman',
     title: '好女人的情場攻略',
-    role: '節目合作／內容參與',
+    heading: '《好女人的情場攻略》— 節目合作／內容參與',
     description:
       '多次受邀參與節目錄製，並為同名暢銷書的戀愛專家群，分享感情經營與自我價值提升。用最白話的方式，解開你的愛情盲點。',
     note: '曾創下 2022 年度收聽冠軍、2024 前十名！',
@@ -890,6 +685,8 @@ export const mediaPublications: MediaPublication[] = [
   },
 ];
 
+// 文案集的連結多為網站時光機存檔網址。2026-10-05 逐一檢查：原站仍可連線者改回原始網址（其中 7 個存檔網址已 404），
+// 只有原網域已失效的「談芯時刻」保留存檔版。
 const WAYBACK = 'https://web.archive.org/web/20250518033113/';
 const GOOD_WOMAN_S1 = 'https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/';
 const MARIE_CLAIRE = 'https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/';
@@ -904,8 +701,8 @@ export const mediaShows: MediaShow[] = [
     summary: '多集專訪，分享希塔療癒與失戀急診等主題',
     episodes: [
       { title: 'S2EP29＃情慾瑪麗｜失戀急診:希塔療癒Ft.療癒師文齡 (上)', href: `${MARIE_CLAIRE}65751f59-2024-41a0-b890-335b2f0780d3` },
-      { title: 'S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)', href: `${WAYBACK}${MARIE_CLAIRE}78189391-fc1e-409f-807f-b01ca6cd9f2d` },
-      { title: 'S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)', href: `${WAYBACK}${MARIE_CLAIRE}9a4466ab-0dc5-43b6-accb-d7893cd35906` },
+      { title: 'S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)', href: `${MARIE_CLAIRE}78189391-fc1e-409f-807f-b01ca6cd9f2d` },
+      { title: 'S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)', href: `${MARIE_CLAIRE}9a4466ab-0dc5-43b6-accb-d7893cd35906` },
       { title: 'S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛', href: 'https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw', featured: true },
     ],
   },
@@ -936,7 +733,7 @@ export const mediaShows: MediaShow[] = [
     show: '迷人說 Podcast',
     kind: 'podcast',
     episodes: [
-      { title: '迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯', href: `${WAYBACK}https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1` },
+      { title: '迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯', href: `https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1` },
     ],
   },
   {
@@ -944,11 +741,11 @@ export const mediaShows: MediaShow[] = [
     show: '小紀老師的幸福學 Podcast',
     kind: 'podcast',
     episodes: [
-      { title: 'Ep.161 l 打造幸運體質', href: `${WAYBACK}${HAPPINESS_APPLE}1000591850026` },
-      { title: 'Ep.162 l 如何創造貴人', href: `${WAYBACK}${HAPPINESS_APPLE}1000591959880` },
+      { title: 'Ep.161 l 打造幸運體質', href: `${HAPPINESS_APPLE}1000591850026` },
+      { title: 'Ep.162 l 如何創造貴人', href: `${HAPPINESS_APPLE}1000591959880` },
       { title: 'Ep.163 l 如何成為金錢磁鐵', href: 'https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229', featured: true },
-      { title: 'Ep.164 l 如何吸引好桃花', href: `${WAYBACK}${HAPPINESS_APPLE}1000592527540` },
-      { title: 'Ep.165 l 心想事成許願法', href: `${WAYBACK}${HAPPINESS_APPLE}1000592780746` },
+      { title: 'Ep.164 l 如何吸引好桃花', href: `${HAPPINESS_APPLE}1000592527540` },
+      { title: 'Ep.165 l 心想事成許願法', href: `${HAPPINESS_APPLE}1000592780746` },
     ],
   },
   {
@@ -957,7 +754,7 @@ export const mediaShows: MediaShow[] = [
     kind: 'podcast',
     episodes: [
       { title: 'S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！', href: 'https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d', featured: true },
-      { title: 'S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！', href: `${WAYBACK}https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6` },
+      { title: 'S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！', href: `https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6` },
     ],
   },
   {
@@ -985,8 +782,8 @@ export const mediaShows: MediaShow[] = [
     show: '戀愛潛聊室 YouTube 直播訪談',
     kind: 'youtube',
     episodes: [
-      { title: '《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師', href: `${WAYBACK}https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq` },
-      { title: '分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師', href: `${WAYBACK}https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb` },
+      { title: '《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師', href: `https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq` },
+      { title: '分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師', href: `https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb` },
     ],
   },
   {
@@ -994,7 +791,7 @@ export const mediaShows: MediaShow[] = [
     show: '小島好日 YouTube 直播訪談',
     kind: 'youtube',
     episodes: [
-      { title: '單身的你，如何尋找對的另一半', href: `${WAYBACK}https://www.youtube.com/watch?v=wwv1UPc1EyA` },
+      { title: '單身的你，如何尋找對的另一半', href: `https://www.youtube.com/watch?v=wwv1UPc1EyA` },
     ],
   },
   {
@@ -1023,8 +820,8 @@ export const mediaPartners: string[] = [
   '美國 THINK 官方希塔療癒認證導師',
 ];
 
-// 文案集 v2「網站下方區塊調整」（第 269～308 行）。導覽文字依 PRD-003 §2 命名規則
-// （全部服務／認證班／客戶見證／部落格）。「新手入門」待頁面文案到位後再加入。
+// 文案集 v2「網站下方區塊調整」（第 269～308 行）。導覽文字逐字用 docx 的名稱
+// （服務項目／培訓課程／真實見證／好運blog，第 286～291 行）。「新手入門」待頁面文案到位後再加入。
 export const footerContent = {
   tagline:
     '用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。',
@@ -1047,27 +844,332 @@ export const footerNavigation: NavGroup[] = [
     items: [
       { id: 'about', label: '品牌理念', href: '/about' },
       { id: 'story', label: '創辦人經歷與故事', href: '/story' },
-      { id: 'partners', label: '合作夥伴', href: '/about#partners' },
+      // 「合作夥伴」待客戶提供療癒師資料後再加回（RPT-001 G7／T7）；區塊目前不顯示。
     ],
   },
   {
     id: 'services',
     label: '療癒與培訓',
     items: [
-      { id: 'services', label: '全部服務', href: '/services' },
-      { id: 'training', label: '認證班', href: '/training' },
+      { id: 'services', label: '服務項目', href: '/services' },
+      { id: 'training', label: '培訓課程', href: '/training' },
     ],
   },
   {
     id: 'community',
     label: '見證與實用內容',
     items: [
-      { id: 'testimonials', label: '客戶見證', href: '/testimonials' },
-      { id: 'blog', label: '部落格', href: '/blog' },
+      { id: 'testimonials', label: '真實見證', href: '/testimonials' },
+      { id: 'blog', label: '好運blog', href: '/blog' },
       { id: 'resources', label: '免費資源', href: '/resources' },
       { id: 'media', label: '媒體專訪', href: '/media' },
     ],
   },
+];
+
+// 旅程（PLN-006、pages-v2/BRIEF §5）：每一頁的上一站與下一站，由 JourneyNext 顯示在頁尾行動區塊之前。
+// 這裡只有路由，不含任何文字；連結文字由 JourneyNext 依路由到上面的導覽資料取既有的頁名。
+// 服務與課程的詳細頁各用一個固定的 key。
+export type JourneyKey =
+  | '/about' | '/story' | '/services' | 'service-detail' | '/training' | 'course-detail'
+  | '/testimonials' | '/media' | '/resources' | '/contact' | '/blog' | '/legal';
+
+export const journey: Record<JourneyKey, { prev?: string; next?: string }> = {
+  '/about': { next: '/story' },
+  '/story': { prev: '/about', next: '/testimonials' },
+  '/services': { prev: '/about', next: '/training' },
+  'service-detail': { prev: '/services', next: '/testimonials' },
+  '/training': { prev: '/services', next: '/resources' },
+  'course-detail': { prev: '/training', next: '/resources' },
+  '/testimonials': { prev: '/story', next: '/media' },
+  '/media': { prev: '/testimonials', next: '/services' },
+  '/resources': { prev: '/training', next: '/services' },
+  '/contact': { next: '/resources' },
+  '/blog': { prev: '/media', next: '/resources' },
+  '/legal': {},
+};
+
+// ─────────────────────────────────────────────────────────────────────────
+// PLN-004 階段 D1：首頁（RES-002 §1 定案）。區塊標題、內文與按鈕文字一律逐字取自
+// 文案集 v2（docs/網站文案集.md）；docx 沒有的眉標與說明已於 2026-10-05 移除，不自行撰寫。
+// ─────────────────────────────────────────────────────────────────────────
+export const homeContent = {
+  // 需求入口卡片內的小標：Home Block 2 的【真實改變故事】【專屬起點】（第 126、129 行）。
+  needs: {
+    storiesLabel: '真實改變故事',
+    startLabel: '專屬起點',
+  },
+  // 精選服務：需求入口前三張卡的第一個 CTA 所指的服務（RES-001 §9 決策 4）。
+  // 標題與副標：Home Block 3（第 161、163 行）；各服務的一句話在 serviceBlurbs。
+  // moreLabel：頁尾導覽的「服務項目」（第 286 行）；itemLabel：第 337 行。
+  services: {
+    heading: '能量療癒服務｜為你的身心靈量身訂做的解方',
+    description: '從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。',
+    ids: ['group-healing', 'personal-1on1', 'abundance-reiki'],
+    moreLabel: '服務項目',
+    itemLabel: uiLabels.offeringInfo,
+  },
+  // 精選見證：Home Block 6（第 214～227 行）各類第一則。客戶尚未確認可公開使用
+  // （RPT-001 C1），authorized 為 false 時首頁不顯示這個區塊。
+  testimonials: {
+    authorized: false,
+    eyebrow: '真實見證',
+    heading: '他們，都在這裡找回了人生的主導權',
+    description: '來自不同生命階段、不同課題的真實蛻變故事。',
+    items: [
+      { category: '感情／單身', quote: '調整完伴侶訂單的 3 個月內，我就遇到了新對象！完全突破了以前對另一半的刻板印象！', source: '感情顯化個案' },
+      { category: '家庭／媽媽', quote: '幫家裡祈福後，原本晚上容易哭鬧的孩子終於能安穩入睡，家裡的壓力感整個消失了。', source: '家庭祈福個案' },
+      { category: '事業／企業主', quote: '煙供後老闆不再找麻煩，卡很久的案子順利成交，那週業績直接翻倍！', source: '事業突破個案' },
+    ],
+    moreLabel: '真實見證',
+  },
+  // 創辦人簡介：短簡介（RPT-001 T2）未到，先用 About 的使命宣言原文（第 328～329 行）。
+  // 按鈕文字是頁尾導覽的「創辦人經歷與故事」（第 277 行）。
+  founder: {
+    eyebrow: '創辦人',
+    missionLabel: '我的使命與願景',
+    missionTitle: '在愛與豐盛中綻放靈魂的光芒',
+    mission: '「引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。」',
+    cta: '創辦人經歷與故事',
+  },
+  // 以下兩個按鈕用頁尾導覽的頁名（第 292、293 行）。
+  media: { moreLabel: '媒體專訪' },
+  resources: { eyebrow: '免費資源', moreLabel: '免費資源' },
+  // FAQ 精選：Home Block 8（第 310～323 行）的 Q1、Q2、Q3、Q6（RPT-001 C4 的預設）。
+  faq: {
+    heading: '常見問題',
+    items: [
+      {
+        question: '療癒／課程多久會有效？',
+        answer: '每個人的能量運作節奏不同。有人隔天就能感受到具體轉變，也有人是在數週內逐步改善。身心感受通常顯現較快，之後請留意生活中的細微變化，例如想法變清晰、習慣模式改變，或身邊的人對待你的態度不同了。',
+      },
+      {
+        question: '這是什麼？會不會是降頭或巫術？',
+        answer: '絕對不是降頭或巫術。我們所使用的技術（如希塔療癒、擴大療癒等）皆源自正向、純淨的高頻源頭能量，屬於能量調整與潛意識轉化，非占卜、非通靈，也不涉及任何宗教束縛。',
+      },
+      {
+        question: '我可以幫家人或朋友預約嗎？',
+        answer: '個人一對一療癒需經本人同意並親自參與；團體遠距能量服務（如人生推進器、煙供）則可代為預約，但需先提供對方全名，經確認能量意願無誤後再進行安排。',
+      },
+      {
+        question: '這些服務／課程可以取代醫療或心理治療嗎？',
+        answer: '不行。所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。',
+      },
+    ],
+  },
+  // 最終 CTA：收束標語（RPT-001 T3）未到，先用 Hero 的眉批原文。按鈕文字見 uiLabels。
+  finalCta: {
+    primary: uiLabels.line,
+    secondary: uiLabels.needs,
+    shop: uiLabels.shop,
+  },
+  stickyCta: { primary: uiLabels.needs, line: uiLabels.lineShort },
+  // 首頁五章（PRD-004 §4.1）。畫面上只顯示編號，不新增任何文字；id 是該章第一個區塊的錨點。
+  chapters: {
+    items: [
+      { id: 'hero', number: '01' },
+      { id: 'personas-section', number: '02' },
+      { id: 'home-stages', number: '03' },
+      { id: 'founder', number: '04' },
+      { id: 'free-resources', number: '05' },
+    ],
+  },
+};
+
+// 各服務的一句話介紹：文案集 v2 Home Block 3（第 164～186 行）。首頁精選服務與
+// /services 的卡片共用。
+export const serviceBlurbs: Record<string, string> = {
+  "personal-1on1": "潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。",
+  "spiritual-reading": "人生指南針、靈魂伴侶、4+1 感知中心天賦挖掘，為迷惘與抉擇中的你點亮方向。",
+  "spiritual-massage": "無需接觸的遠距能量 SPA，溫和清理 14 點脈輪氣場，找回身心和諧與流動。",
+  "group-healing": "強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。",
+  "workshop": "3～4 小時輕量體驗，把能量工具帶回日常生活，零基礎即可上手。",
+  "smoke-prayer": "古老的焚香上供下施法門，化解無形障礙，為自己與家人累積福報。",
+  "abundance-reiki": "整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。",
+  "five-elements-perfume": "依你的八字客製五行精油開運配方，精準補足流年運勢缺口。"
+};
+
+// 各課程的一句話介紹：文案集 v2 Home Block 4（第 193～205 行）。/training 的路徑節點使用。
+export const courseBlurbs: Record<string, string> = {
+  "theta-basic": "3 天課程，打下潛意識轉化最穩固的基礎，官方認證。",
+  "theta-advanced-dna": "解鎖深度清理與跨維度溝通，讓顯化速度全面升級。",
+  "theta-dig-deeper": "10 大深度信念挖掘技術，徹底破除「鬼打牆」的人生迴圈。",
+  "money-reiki-cert": "從清理金錢業力到療癒師創業，一階到三階完整培訓。",
+  "love-reiki-cert": "8 小時完整實戰大綱，療癒心輪創傷、吸引正緣。",
+  "mermaid-reiki-cert": "喚醒深海魅力，重塑自愛與豐盛能量的覺醒之旅。"
+};
+
+// 服務類型（/services 的類型切換）。歸類待客戶確認（RPT-001 C5）。
+// 名稱都是文案集用過的詞：一對一（第 41 行）、團體療癒（第 173 行）、祈福（第 179、185 行
+// 「煙供祈福」「香水供祈福」）、工作坊（第 45 行）。
+export const serviceTypes: { id: string; label: string; serviceIds: string[] }[] = [
+  { id: 'one-on-one', label: '一對一', serviceIds: ['personal-1on1', 'spiritual-reading', 'spiritual-massage'] },
+  { id: 'group', label: '團體療癒', serviceIds: ['group-healing', 'abundance-reiki'] },
+  { id: 'blessing', label: '祈福', serviceIds: ['smoke-prayer', 'five-elements-perfume'] },
+  { id: 'workshop', label: '工作坊', serviceIds: ['workshop'] },
+];
+
+// PLN-004 階段 D2～D5：服務／課程的總覽頁與詳細頁（RES-002 §2～§5）。
+// 所有標籤逐字取自文案集；docx 沒有對應用語的標籤（原「這適合我嗎」「流程與報名」
+// 「時長與形式」「你在這裡」等）已於 2026-10-05 移除，不自行撰寫。
+export const offeringsContent = {
+  // 各頁共用的導引按鈕（見 uiLabels）
+  helper: { needs: uiLabels.needs, line: uiLabels.line },
+  detail: {
+    // 分組小標：方案與費用（第 498 行「服務方案與費用資訊」）、常見問題（第 311 行）、
+    // 注意事項（第 547 行）、真實見證（第 290 行）。其餘分組不加小標，直接列出 docx 的段落標題。
+    groups: { plans: '方案與費用', faq: '常見問題', notes: '注意事項', proof: '真實見證' } as Partial<Record<string, string>>,
+    lineLabel: uiLabels.lineShort,
+    // 麵包屑：頁尾導覽的頁名（第 286、287 行）
+    serviceBack: '服務項目',
+    courseBack: '培訓課程',
+    // 課程的主按鈕：Home Block 4 的 CTA（第 194～206 行）
+    courseCta: uiLabels.enroll,
+  },
+  // /services：頁名第 286 行；眉標與說明用 Home Block 3 的標題與副標（homeContent.services）；
+  // 「8 大服務系統」取自副標（第 163 行），當作顯示全部的切換鈕。
+  services: {
+    title: '服務項目',
+    allLabel: '8 大服務系統',
+    itemLabel: uiLabels.offeringInfo,
+  },
+  // /training：頁名第 287 行；標題與說明取自 Home Block 4（第 190～191 行）；系列名稱第 192、200 行；
+  // 直覺力培訓第 208 行、即將推出第 199 行、搶先登記第 212 行；credential 取自 Block 7（第 267 行）。
+  training: {
+    title: '培訓課程',
+    heading: '成為療癒師，也成為自己生命的專家',
+    description: '如果你渴望更深入地認識自己，甚至將能量療癒發展為第二專長，這裡是你的起點。',
+    thetaTrack: '希塔療癒系列（ThetaHealing®）',
+    reikiTrack: '靈氣認證系列',
+    intuitionTrack: '直覺力培訓',
+    comingSoon: '即將推出',
+    enrollLabel: uiLabels.enroll,
+    lineLabel: uiLabels.line,
+    notifyLabel: '搶先登記，開課通知我',
+    credential: '美國 THINK 官方希塔療癒認證導師',
+  },
+};
+
+// PLN-004 階段 D6～D13：其餘內頁（RES-002 §6～§13）。頁名與標籤逐字取自文案集。
+export const pagesContent = {
+  // 頁名：第 274 行。技術清單的兩個小標是方法體系表格的欄名（第 338 行）。
+  about: {
+    title: '關於豐盛之翼學苑',
+    definitionLabel: '一句話定義是什麼？',
+    suitedLabel: '適合什麼樣的人？',
+    // 第 1345 行「點我加入社群」
+    communityCta: '點我加入社群',
+  },
+  // 頁名：第 277 行；章節標題第 375 行；認證標題第 399 行。
+  story: {
+    title: '創辦人經歷與故事',
+    chaptersLabel: '我的故事：從全面崩塌到重生的轉折',
+    credentialsTitle: '學經歷與專業認證',
+    // 人物卡上的資歷重點：逐字取自文案集「學經歷與專業認證」
+    highlights: [
+      '官方認證導師 (基礎/進階/深度挖掘/神與我/顯化與豐盛) — 美國 THInK 總部發證',
+      '台灣大學 政治學系學士畢業',
+      'PMP專案管理師',
+      '好女人的情場攻略 Podcast 2022收聽數冠軍與2024前十名',
+    ],
+  },
+  // 頁名：第 290 行。docx 沒有「見證整理中」的說明文字，未授權時不顯示任何說明。
+  testimonials: {
+    title: '真實見證',
+    servicesLabel: '服務項目',
+  },
+  // 出版品（第 234 行）、Podcast 精選訪談（第 244 行）、Podcast / 訪談（第 83 行）、
+  // 官方授權認證資歷與合作機構（第 264 行）、連結待更新（第 1489 行）。
+  media: {
+    booksLabel: '出版品',
+    featuredLabel: 'Podcast 精選訪談',
+    allShowsLabel: 'Podcast / 訪談',
+    partnersLabel: '官方授權認證資歷與合作機構',
+    pendingLink: '連結待更新',
+  },
+  // 頁名：第 292 行。內容見 resources。
+  resources: {
+    title: '免費資源',
+  },
+  // 頁名與說明用頁尾的「官方聯繫與諮詢管道」（第 301～302 行，footerContent）。
+  // 來意的文字：第 371、302、306 行。
+  contact: {
+    purposes: [
+      { id: 'line', label: '一對一私訊諮詢', channel: 'line' },
+      { id: 'email', label: '企業開運講座、讀書會導讀合作或個人開班詢問', channel: 'email' },
+      { id: 'community', label: '免費體驗能量療癒、參加線上公益讀書會', channel: 'community' },
+    ],
+  },
+  // 頁名：第 291 行。allLabel／readLabel／closeLabel 不是 docx 文字，只在 SHOW_BLOG_POSTS 開啟後才會出現。
+  blog: { title: '好運blog', allLabel: '全部', readLabel: '閱讀全文', closeLabel: '關閉' },
+  // 頁名：第 297 行「免責聲明與條款」。
+  legal: { title: '免責聲明與條款' },
+};
+
+// 各頁的 <title> 與 meta description。title 是 docx 的頁名或標題，加上「｜豐盛之翼學苑」；
+// description 是該頁在 docx 裡的一句原文（行號見各筆）。沒有合適原文的頁面不設 description，
+// 沿用全站預設（home）。服務與課程詳細頁用 serviceBlurbs／courseBlurbs，見 offeringMeta。
+const BRAND = '豐盛之翼學苑';
+const metaTitle = (heading: string) => `${heading}｜${BRAND}`;
+export const pageMeta = {
+  // 第 111、113 行
+  home: {
+    title: metaTitle(heroContent.eyebrow),
+    description: '無論你正期盼感情的順遂、財富的自由，或是生活的全面好運，我們將透過最白話、最落地的靈性工具，陪你解開內在卡點。',
+  },
+  // 第 276、329 行
+  about: {
+    title: metaTitle('品牌理念'),
+    description: '引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。',
+  },
+  // 第 277、395 行
+  story: {
+    title: metaTitle(pagesContent.story.title),
+    description: '真正的療癒，不是逃離現實，而是重新看見內在的光。',
+  },
+  // 第 286、163 行
+  services: { title: metaTitle(offeringsContent.services.title), description: homeContent.services.description },
+  // 第 287、191 行
+  training: { title: metaTitle(offeringsContent.training.title), description: offeringsContent.training.description },
+  // 第 290 行；見證未授權前不放見證的說明句
+  testimonials: {
+    title: metaTitle(pagesContent.testimonials.title),
+    ...(homeContent.testimonials.authorized ? { description: homeContent.testimonials.description } : {}),
+  },
+  // 第 293、233 行
+  media: { title: metaTitle('媒體專訪'), description: mediaIntro.description },
+  // 第 292、365 行
+  resources: {
+    title: metaTitle(pagesContent.resources.title),
+    description: '這裡每天都有滿滿的正能量，歡迎你帶著願望進來，也帶著好消息出去！',
+  },
+  // 第 301、302 行
+  contact: { title: metaTitle(footerContent.contactHeading), description: footerContent.contactIntro },
+  // 第 291 行
+  blog: { title: metaTitle(pagesContent.blog.title) },
+  // 第 297、1686 行
+  legal: {
+    title: metaTitle(pagesContent.legal.title),
+    description: '在您報名課程、預約諮詢或使用本平台任何服務之前，請務必詳細閱讀以下聲明。',
+  },
+};
+
+// 服務／課程詳細頁的 <title> 與 description：名稱加學苑名，說明用 Home Block 3／4 的一句話。
+export function offeringMeta(name: string, blurb?: string) {
+  return { title: metaTitle(name), ...(blurb ? { description: blurb } : {}) };
+}
+
+// 客戶見證：文案集 v2 Home Block 6（第 214～227 行）四類共 8 則。授權確認前不顯示
+// （homeContent.testimonials.authorized；RPT-001 C1）。
+export const testimonialQuotes: { category: string; quote: string; source: string }[] = [
+  { category: '感情／單身', quote: '調整完伴侶訂單的 3 個月內，我就遇到了新對象！完全突破了以前對另一半的刻板印象！', source: '感情顯化個案' },
+  { category: '感情／單身', quote: '原本以為自己很清楚要什麼，做完『伴侶訂單微調』才發現潛意識的限制。清理卡點後，對感情的焦慮感瞬間消失，身邊也開始出現好幾個符合解讀特徵的人！', source: '靈魂伴侶解讀個案' },
+  { category: '家庭／媽媽', quote: '幫家裡祈福後，原本晚上容易哭鬧的孩子終於能安穩入睡，家裡的壓力感整個消失了。', source: '家庭祈福個案' },
+  { category: '家庭／媽媽', quote: '女兒代媽媽預約後，媽媽長期失眠狀況獲得改善，胸口不適感也消失了。', source: '家庭療癒個案' },
+  { category: '事業／企業主', quote: '煙供後老闆不再找麻煩，卡很久的案子順利成交，那週業績直接翻倍！', source: '事業突破個案' },
+  { category: '事業／企業主', quote: '隔天業績提升、三天後獲得升遷通知。', source: '事業突破個案' },
+  { category: '身心蛻變／其他', quote: '透過持續信念挖掘，排除體內負面情緒毒素。沒有特別控制飲食與運動，短短兩個月就瘦了 6 公斤！', source: '希塔療癒學員' },
+  { category: '身心蛻變／其他', quote: 'Keila 老師精準讀到我的優勢是凝聚團隊，也挖出我很深的卡點——『覺得休息就會害到別人』。重新校正後，我不必再把責任全扛在身上，團隊也變得更主動了。', source: '4+1 感知中心個案' },
 ];
 
 // PRD-003 §4.14（PLN-004 Batch A6）：/legal 改用文案集 v2 的《隱私權政策》（第 1589 行起）、

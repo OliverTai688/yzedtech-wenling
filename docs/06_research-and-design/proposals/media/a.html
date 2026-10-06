@@ -1,0 +1,116 @@
+<!--
+提案 A｜精選＋三個分頁
+概念：三本書以橫向卡片置頂（說明收進展開），接一條導向服務的帶狀區，再以 Podcast／直播訪談／合作單位三個分頁分層；每個節目預設收合只顯示名稱與集數，精選單集集中在永遠可見的「精選」區塊。
+動效技術：.reveal 一次性進場、原生 details 展開收合、分頁切換（無 3D、無粒子）。
+已知弱點：(1) 全部 34 集仍須逐節目展開才看得到，找特定單集要多次點擊；(2) 三張書卡橫排在手機需橫向滑動或縱向堆疊，第一屏只露出一本書、「導向服務」的帶狀區在第二屏才出現。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜媒體專訪提案A・精選與分頁</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.intro { padding-block: 40px 24px; } .intro h1 { margin-top: 12px; max-width: 22em; } .intro p { margin-top: 12px; max-width: 40em; }
+.books { display: grid; gap: 16px; }
+@media (min-width: 900px) { .books { grid-template-columns: repeat(3, 1fr); } }
+.book { display: flex; gap: 16px; padding: 16px; align-items: flex-start; }
+@media (min-width: 900px) { .book { flex-direction: column; padding: 20px; } }
+.cover { flex: none; width: 84px; aspect-ratio: 3/4; border: 1.5px dashed var(--ring); border-radius: 8px; background: var(--accent); color: var(--accent-foreground); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px; }
+@media (min-width: 900px) { .cover { width: 100%; aspect-ratio: 3/2; } }
+.meta { min-width: 0; flex: 1; } .meta h3 { margin-top: 8px; font-size: 20px; }
+.meta .disclosure { margin-top: 4px; } .meta .note { margin-top: 8px; font-weight: 700; color: var(--accent-foreground); }
+.strip { margin-block: 8px; padding: 20px 24px; border-radius: 18px; background: var(--inverse); color: var(--inverse-foreground); display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.strip h2 { color: #FFFDF0; font-size: 20px; }
+@media (min-width: 768px) { .strip { flex-direction: row; align-items: center; justify-content: space-between; } }
+.panelwrap { margin-top: 20px; }
+.featured { border: 1px solid var(--ring); border-radius: 18px; background: var(--popover); padding: 18px 20px; margin-bottom: 8px; }
+.featured h3 { font-size: 18px; margin-bottom: 4px; }
+.featured li { padding-block: 8px; border-top: 1px solid rgba(240,223,160,.7); } .featured li:first-of-type { border-top: 0; }
+.from { display: block; font-size: 14px; color: var(--muted-foreground); }
+.eps li { padding-block: 8px; border-top: 1px solid rgba(240,223,160,.5); } .eps a { color: var(--accent-foreground); text-decoration: underline; text-underline-offset: 3px; }
+.eps li a, .featured li a { display: inline-block; min-height: 24px; }
+.show > summary span:first-child { font-family: var(--font-serif); font-size: 18px; }
+.count { margin-left: auto; margin-right: 8px; font-size: 14px; color: var(--muted-foreground); font-weight: 600; white-space: nowrap; }
+.sum { font-size: 14px; padding-bottom: 8px; } .grp { font-size: 14px; color: var(--accent-foreground); letter-spacing: .08em; margin: 8px 0 0; font-family: var(--font-sans); }
+.partners li { padding: 16px 0; border-bottom: 1px solid rgba(240,223,160,.7); font-family: var(--font-serif); font-size: 18px; color: var(--card-foreground); }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+<section class="container intro">
+  <span class="eyebrow">媒體專訪與出版紀錄</span>
+  <h1>幸運教主文齡 Keila的蛻變故事，多次受邀於全台知名 Podcast 節目與暢銷書中分享</h1>
+  <p class="muted">以下為幸運教主文齡 Keila公開可查證的出版與媒體受訪紀錄，用最落地的經驗，陪你走過感情與人生的每個卡關。</p>
+</section>
+
+<section class="container" aria-label="出版">
+  <div class="books">
+  <article class="card book reveal"><div class="cover" role="img" aria-label="七週遇見對的人書封（待提供）">書封（待提供）</div><div class="meta"><span class="chip">暢銷書改版唯一推薦序作者</span><h3>七週遇見對的人</h3><details class="disclosure"><summary>書籍說明</summary><p>受邀為經典暢銷書撰寫推薦序，幸運教主文齡 Keila帶領本書讀書會超過10年、幫助破百名學員的深厚實務經驗，已成功陪伴無數學員走過低潮，順利脫單、結婚生子，活出自己最美好的樣子。</p></details><a class="link" href="https://www.books.com.tw/products/0010917426" target="_blank" rel="noopener">博客來購書連結 →</a></div></article>
+  <article class="card book reveal"><div class="cover" role="img" aria-label="練愛大確幸書封（待提供）">書封（待提供）</div><div class="meta"><span class="chip">個人著作・實作手帳</span><h3>練愛大確幸</h3><details class="disclosure"><summary>書籍說明</summary><p>將多年協助個案走過失戀與感情卡關的實務心法，淬鍊成這本專屬的幸福手帳。不只分享改變人生的實作方法，更錄製52則療癒音檔，成為你每天都能輕鬆參與的小練習！</p></details><a class="link" href="https://booking.wenling.tw/products/love365" target="_blank" rel="noopener">購買連結 →</a></div></article>
+  <article class="card book reveal"><div class="cover" role="img" aria-label="好女人的情場攻略書封（待提供）">書封（待提供）</div><div class="meta"><span class="chip">節目合作／內容參與</span><h3>好女人的情場攻略</h3><details class="disclosure"><summary>書籍說明</summary><p>多次受邀參與節目錄製，並為同名暢銷書的戀愛專家群，分享感情經營與自我價值提升。用最白話的方式，解開你的愛情盲點。</p><p class="note">曾創下 2022 年度收聽冠軍、2024 前十名！</p></details><a class="link" href="#media-podcasts">下方收聽 Podcast 精選單集 →</a></div></article>
+  </div>
+</section>
+
+<section class="container" style="margin-top:24px">
+  <div class="strip reveal">
+    <h2>了解適合我的服務</h2>
+    <a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a>
+  </div>
+</section>
+
+<section class="container section" id="media-podcasts" style="padding-top:32px">
+  <div class="tabs" role="tablist" aria-label="媒體類型">
+    <button class="tab" role="tab" id="t-pod" aria-controls="p-pod" aria-selected="true">Podcast</button>
+    <button class="tab" role="tab" id="t-live" aria-controls="p-live" aria-selected="false">直播訪談</button>
+    <button class="tab" role="tab" id="t-par" aria-controls="p-par" aria-selected="false">合作單位</button>
+  </div>
+  <div class="panelwrap">
+    <div role="tabpanel" id="p-pod" aria-labelledby="t-pod">
+      <div class="featured"><h3>精選</h3><ul><li><span class="from">美麗佳人 Podcast</span><a href="https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw" target="_blank" rel="noopener">S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛</a> <span class="chip">精選</span></li><li><span class="from">好女人的情場攻略 Podcast</span><a href="https://open.firstory.me/story/cl4vg6oez001d01t99rpi2bwd" target="_blank" rel="noopener">Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！</a> <span class="chip">精選</span> <span class="muted">（2022年收聽冠軍單集）</span></li><li><span class="from">小紀老師的幸福學 Podcast</span><a href="https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229" target="_blank" rel="noopener">Ep.163 l 如何成為金錢磁鐵</a> <span class="chip">精選</span></li><li><span class="from">粉紅地獄辛辣麵 Podcast</span><a href="https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d" target="_blank" rel="noopener">S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！</a> <span class="chip">精選</span></li><li><span class="from">談芯時刻</span><a href="https://youtu.be/gyfw264Gxwo?si=N3lgDii1Bs2nLpy5" target="_blank" rel="noopener">Ep.282【談芯時刻】生活卡關了嗎？一起來做個脈輪健檢吧！ _feat.幸運療癒師 文齡 Keila</a> <span class="chip">精選</span></li></ul></div>
+      <details class="disclosure show"><summary><span>美麗佳人 Podcast</span><span class="count">4 集</span></summary><p class="muted sum">多集專訪，分享希塔療癒與失戀急診等主題</p><ul class="eps"><li><a href="https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/65751f59-2024-41a0-b890-335b2f0780d3" target="_blank" rel="noopener">S2EP29＃情慾瑪麗｜失戀急診:希塔療癒Ft.療癒師文齡 (上)</a></li><li><a href="https://web.archive.org/web/20250518033113/https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/78189391-fc1e-409f-807f-b01ca6cd9f2d" target="_blank" rel="noopener">S2EP35＃情慾瑪麗｜怦然心動的人生整理魔法:希塔療癒 Ft.療癒師文齡(中)</a></li><li><a href="https://web.archive.org/web/20250518033113/https://player.soundon.fm/p/10d7b46c-1a7b-4979-8421-6e3039e8c9c5/episodes/9a4466ab-0dc5-43b6-accb-d7893cd35906" target="_blank" rel="noopener">S2EP41＃情慾瑪麗｜就是那個光?!希塔療癒免費體驗來了! Ft.幸運療癒師文齡(下)</a></li><li><a href="https://open.spotify.com/episode/0qA1IYCIPNWwo6ZGUh2bAa?si=sbFnXu3wSAmH1QFEPlafEw" target="_blank" rel="noopener">S9EP7#情慾瑪麗|練愛大確幸-療癒師手把手帶你成為最好的自己並找到真愛</a> <span class="chip">精選</span></li></ul></details><details class="disclosure show"><summary><span>好女人的情場攻略 Podcast</span><span class="count">14 集</span></summary><p class="muted sum">長期合作來賓，2022 年收聽數冠軍、2024 年前十名</p><h4 class="grp">2020 S1</h4><ul class="eps"><li><a href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/c0f3494c-b283-4c9a-b44e-14955deb0a6f" target="_blank" rel="noopener">ep95設好日期脫單術</a></li><li><a href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/408ef22a-dce0-43ce-8fec-4077be82d06c" target="_blank" rel="noopener">ep96清理過去，迎接美好愛情</a></li><li><a href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/f385a9c6-d6ee-4d3a-ba31-b14e956c753f" target="_blank" rel="noopener">ep97愛情也需要設定目標</a></li><li><a href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/cc451cc7-020e-42f2-ace0-e116233315d6" target="_blank" rel="noopener">ep98開啟百人約會計劃</a></li><li><a href="https://player.soundon.fm/p/6362197d-09d1-4b49-82cd-07100717bd33/episodes/f7a796df-c7b0-4505-b23a-246af8aa28ad" target="_blank" rel="noopener">ep99七週遇見對的人讀書會</a></li></ul><h4 class="grp">2022 S3</h4><ul class="eps"><li><a href="https://open.firstory.me/story/cl4l13gnv017h01ygfl3r13t9" target="_blank" rel="noopener">Ep.099｜失戀急救箱：加速放下前任的五個療癒方法！</a></li><li><a href="https://open.firstory.me/story/cl4nviaac007d01zteuj47jnl" target="_blank" rel="noopener">Ep.100｜醒醒吧！你總是在愛情裡鬼打牆？這集請務必服用！</a></li><li><a href="https://open.firstory.me/story/cl4pg3yez001001wa9q14ezlp" target="_blank" rel="noopener">Ep.101｜你知道嗎？有形無形的「約定」正阻礙你遇到理想型？</a></li><li><a href="https://open.firstory.me/story/cl4qqoi9800ni01zy6o8lhtc7" target="_blank" rel="noopener">Ep.102｜你的擇偶條件是什麼? 你是嚮往愛情，還是愛上對方?</a></li><li><a href="https://open.firstory.me/story/cl4vg6oez001d01t99rpi2bwd" target="_blank" rel="noopener">Ep.103｜情侶相處溝通的10個超棒秘訣，不藏私一次全告訴你！</a> <span class="chip">精選</span> <span class="muted">（2022年收聽冠軍單集）</span></li></ul><h4 class="grp">2024 S5</h4><ul class="eps"><li><a href="https://open.firstory.me/story/clr4bn1gi030i01tzcvvsboco" target="_blank" rel="noopener">Ep.005｜【鏡子練習】用肯定句創造理想人生</a></li><li><a href="https://open.firstory.me/story/clr4bnw3103kw01wv9xdkcala" target="_blank" rel="noopener">Ep.006｜七週遇見對的人 【理想伴侶訂單】秘技來了</a></li><li><a href="https://open.firstory.me/story/clr759oav00x301w1dlypg1w1" target="_blank" rel="noopener">Ep.007｜【靈魂伴侶】真的存在嗎？什麼是【雙生火焰】?</a></li><li><a href="https://open.firstory.me/story/clr75al6200zp01x3evigd7h9" target="_blank" rel="noopener">Ep.008｜【分手失戀】挽回感情的復合攻略是?</a></li></ul></details><details class="disclosure show"><summary><span>迷人說 Podcast</span><span class="count">1 集</span></summary><ul class="eps"><li><a href="https://web.archive.org/web/20250518033113/https://podcasters.spotify.com/pod/show/stellasu/episodes/20-Wenling-e12eoh1" target="_blank" rel="noopener">迷人說#20《如何創造魅力氣場，找尋適合你的真愛》幸運療癒師 Wenling 訪談特輯</a></li></ul></details><details class="disclosure show"><summary><span>小紀老師的幸福學 Podcast</span><span class="count">5 集</span></summary><ul class="eps"><li><a href="https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000591850026" target="_blank" rel="noopener">Ep.161 l 打造幸運體質</a></li><li><a href="https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000591959880" target="_blank" rel="noopener">Ep.162 l 如何創造貴人</a></li><li><a href="https://podcasts.apple.com/tw/podcast/ep-163-l-%E5%A6%82%E4%BD%95%E6%88%90%E7%82%BA%E9%87%91%E9%8C%A2%E7%A3%81%E9%90%B5/id1524242943?i=1000592233229" target="_blank" rel="noopener">Ep.163 l 如何成為金錢磁鐵</a> <span class="chip">精選</span></li><li><a href="https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000592527540" target="_blank" rel="noopener">Ep.164 l 如何吸引好桃花</a></li><li><a href="https://web.archive.org/web/20250518033113/https://podcasts.apple.com/tw/podcast/%E5%B0%8F%E7%B4%80%E8%80%81%E5%B8%AB%E7%9A%84%E5%B9%B8%E7%A6%8F%E5%AD%B8/id1524242943?i=1000592780746" target="_blank" rel="noopener">Ep.165 l 心想事成許願法</a></li></ul></details><details class="disclosure show"><summary><span>粉紅地獄辛辣麵 Podcast</span><span class="count">2 集</span></summary><ul class="eps"><li><a href="https://solink.soundon.fm/episode/be34a98f-4cba-4d3d-829b-3b7f0fb3ac8d" target="_blank" rel="noopener">S3EP73. 幸運療癒師｜梁文齡：每日三佈施，幸運發光一輩子！</a> <span class="chip">精選</span></li><li><a href="https://web.archive.org/web/20250518033113/https://solink.soundon.fm/episode/14ab7045-e4dd-4cf3-aeca-916cb6214aa6" target="_blank" rel="noopener">S3EP74. 幸運療癒師｜梁文齡：透過靈氣療癒，點亮心中的一盞燈！</a></li></ul></details><details class="disclosure show"><summary><span>談芯時刻</span><span class="count">2 集</span></summary><ul class="eps"><li><a href="https://web.archive.org/web/20250518033113/https://chuchu.firstory.io/episodes/clyimzld608pu01zsar0sedw3" target="_blank" rel="noopener">Ep.246 Stop！停止被潛意識綁架，希塔療癒破除你的限制信念_feat.幸運療癒師文齡 Keila</a></li><li><a href="https://youtu.be/gyfw264Gxwo?si=N3lgDii1Bs2nLpy5" target="_blank" rel="noopener">Ep.282【談芯時刻】生活卡關了嗎？一起來做個脈輪健檢吧！ _feat.幸運療癒師 文齡 Keila</a> <span class="chip">精選</span></li></ul></details>
+    </div>
+    <div role="tabpanel" id="p-live" aria-labelledby="t-live" hidden>
+      <div class="featured"><h3>精選</h3><ul><li><span class="from">希塔好好玩 YouTube 直播訪談</span><a href="https://www.youtube.com/watch?v=XIbfVMbPqLA" target="_blank" rel="noopener">如何顯化靈魂伴侶及成為專職療癒師💕</a> <span class="chip">精選</span></li></ul></div>
+      <details class="disclosure show"><summary><span>希塔好好玩 YouTube 直播訪談</span><span class="count">1 集</span></summary><ul class="eps"><li><a href="https://www.youtube.com/watch?v=XIbfVMbPqLA" target="_blank" rel="noopener">如何顯化靈魂伴侶及成為專職療癒師💕</a> <span class="chip">精選</span></li></ul></details><details class="disclosure show"><summary><span>戀愛潛聊室 YouTube 直播訪談</span><span class="count">2 集</span></summary><ul class="eps"><li><a href="https://web.archive.org/web/20250518033113/https://youtu.be/Gmathj77aDo?si=O7Wy17xH8DJcPDAq" target="_blank" rel="noopener">《七週遇見對的人》發現真愛吸引力 召換幸福 Ft. 文齡老師</a></li><li><a href="https://web.archive.org/web/20250518033113/https://youtu.be/YK_zbXTr1sk?si=zE3eQs9JKqhOmRgb" target="_blank" rel="noopener">分手失戀如何走出來 實測有效的方法 讓你重新出發 Ft.文齡老師</a></li></ul></details><details class="disclosure show"><summary><span>小島好日 YouTube 直播訪談</span><span class="count">1 集</span></summary><ul class="eps"><li><a href="https://web.archive.org/web/20250518033113/https://www.youtube.com/watch?v=wwv1UPc1EyA" target="_blank" rel="noopener">單身的你，如何尋找對的另一半</a></li></ul></details><details class="disclosure show"><summary><span>共煮生活實驗室 YouTube 直播訪談</span><span class="count">1 集</span></summary><ul class="eps"><li><span>如何成功招桃花</span> <span class="muted">（連結待確認）</span></li></ul></details><details class="disclosure show"><summary><span>禪生活的108問 Facebook 直播</span><span class="count">1 集</span></summary><ul class="eps"><li><a href="https://www.facebook.com/ZenLifeWithYou/videos/797426094675119" target="_blank" rel="noopener">教你如何變幸運</a></li></ul></details>
+    </div>
+    <div role="tabpanel" id="p-par" aria-labelledby="t-par" hidden>
+      <ul class="partners"><li>暢銷著作合作《七週遇見對的人》《好女人的情場攻略》</li><li>愛山林集團、One&amp;Co商務中心、大誠保險經紀人特邀講師</li><li>美國 THINK 官方希塔療癒認證導師</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・精選＋三個分頁</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+const tabs = [...document.querySelectorAll('[role=tab]')];
+function select(t) {
+  tabs.forEach((x) => { const on = x === t; x.setAttribute('aria-selected', on); document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => select(t));
+  t.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; n.focus(); select(n); }
+  });
+});
+// 書卡「下方收聽」連結：確保停在 Podcast 分頁
+document.querySelectorAll('a[href="#media-podcasts"]').forEach((a) => a.addEventListener('click', () => select(tabs[0])));
+</script>
+</body>
+</html>

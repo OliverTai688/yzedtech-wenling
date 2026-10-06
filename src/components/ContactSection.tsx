@@ -1,94 +1,75 @@
-import { MessageCircle, Mail, MessageSquare, Users, AtSign, ArrowUpRight } from 'lucide-react';
-import { footerContent, siteLinks } from '../data';
+import { ArrowUpRight, AtSign, Mail, MessageSquare, Users, type LucideIcon } from 'lucide-react';
+import PageHero from './page/PageHero';
+import PageSection from './page/PageSection';
+import { footerContent, pagesContent, siteLinks, uiLabels } from '../data';
 
-// PRD-003 §4.12（2026-10-04）：原聯絡表單送出後只是前端模擬成功訊息、不會寄出任何
-// 資料（ACC-001 §6 已列為未完成），本輪改為導流卡片：官方 LINE 第一順位，其次
-// Email、Facebook、LINE 社群與 Instagram。聯絡管道取自文案集 v2「網站下方區塊調整」
-// （第 302～308 行）；Instagram 為既有管道，依 PRD-003 §7 第 9 項預設保留。
-const channels = [
-  {
-    id: 'line',
-    icon: MessageCircle,
-    title: '官方 LINE',
-    detail: siteLinks.lineId,
-    href: siteLinks.line,
-    primary: true,
-  },
-  {
-    id: 'email',
-    icon: Mail,
-    title: 'Email',
-    detail: siteLinks.email,
-    href: `mailto:${siteLinks.email}`,
-  },
-  {
-    id: 'facebook',
-    icon: MessageSquare,
-    title: 'Facebook',
-    detail: 'm.me/keila.healing',
-    href: siteLinks.facebook,
-  },
-  {
-    id: 'community',
-    icon: Users,
-    title: 'LINE 社群',
-    detail: footerContent.communityNote,
-    href: siteLinks.lineCommunity,
-  },
-  {
-    id: 'instagram',
-    icon: AtSign,
-    title: 'Instagram',
-    detail: '@keila.healing1491',
-    href: siteLinks.instagram,
-  },
+// 聯絡頁（PLN-006 P5；提案見 proposals/pages-v2/contact）：依來意分流，但只留一顆按鈕。
+// - 第一個畫面：來意「一對一私訊諮詢」當眉批、頁名與說明句（文案集頁尾的「官方聯繫與諮詢管道」）、
+//   唯一的金色按鈕「私訊官方 LINE」。
+// - 其餘管道是一份清單，每列一個文字連結：加粗的名稱加上一般字重的帳號或說明。
+//   三種來意都在原文本來的位置（眉批、說明句、社群那一句的括號），不再另外重複一次。
+// - 社群那一列用頁尾的原句（footerContent.communityNote），不拆開，只把括號前的部分加粗；目的地不變。
+// - 沒有表單，也不承諾回覆時間（PRD-003 §4.12）。
+interface Channel {
+  id: string;
+  icon: LucideIcon;
+  title: string;
+  detail: string;
+  href: string;
+  /** 名稱與說明之間是否空一格（社群那一句是連續的原文，不空格） */
+  joined?: boolean;
+}
+
+// 把「…（…）」拆成括號前與括號起的兩段，只為了字重不同；兩段相接仍是原句
+const noteCut = footerContent.communityNote.indexOf('（');
+const noteHead = noteCut > 0 ? footerContent.communityNote.slice(0, noteCut) : footerContent.communityNote;
+const noteTail = noteCut > 0 ? footerContent.communityNote.slice(noteCut) : '';
+
+const channels: Channel[] = [
+  { id: 'email', icon: Mail, title: 'Email', detail: siteLinks.email, href: `mailto:${siteLinks.email}` },
+  { id: 'community', icon: Users, title: noteHead, detail: noteTail, href: siteLinks.lineCommunity, joined: true },
+  { id: 'facebook', icon: MessageSquare, title: 'Facebook', detail: 'm.me/keila.healing', href: siteLinks.facebook },
+  { id: 'instagram', icon: AtSign, title: 'Instagram', detail: '@keila.healing1491', href: siteLinks.instagram },
 ];
 
 export default function ContactSection() {
+  // 對應官方 LINE 的那一個來意
+  const linePurpose = pagesContent.contact.purposes.find((purpose) => purpose.channel === 'line');
+
   return (
-    <section id="contact-section" className="py-20 bg-[#FBF1DD]">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+    <>
+      <PageHero
+        eyebrow={linePurpose?.label}
+        title={footerContent.contactHeading}
+        lead={footerContent.contactIntro}
+        action={{ label: uiLabels.line, href: siteLinks.line, external: true }}
+      />
 
-        <div className="text-center mb-10 space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#3A2A18] font-serif">聯絡我們</h1>
-          <p className="text-base text-[#6A5642] leading-relaxed">{footerContent.contactIntro}</p>
-        </div>
-
-        <ul className="space-y-4">
-          {channels.map((channel) => {
-            const Icon = channel.icon;
-            const external = channel.href.startsWith('http');
+      <PageSection id="contact-channels" width="narrow">
+        <ul className="divide-y divide-border/70 border-y border-border/70">
+          {channels.map(({ id, icon: Icon, title, detail, href, joined }) => {
+            const external = href.startsWith('http');
             return (
-              <li key={channel.id}>
+              <li key={id}>
                 <a
-                  href={channel.href}
+                  id={`contact-${id}`}
+                  href={href}
                   {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  id={`contact-${channel.id}`}
-                  className={`flex items-center gap-4 p-5 rounded-2xl border transition-shadow hover:shadow-md ${
-                    channel.primary
-                      ? 'bg-[#06C755]/10 border-[#06C755]/40'
-                      : 'bg-[#FFFDF0] border-[#F0DFA0]'
-                  }`}
+                  className="btn-text min-h-14! w-full justify-start! gap-3! py-3! text-left text-base leading-relaxed"
                 >
-                  <div
-                    className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center ${
-                      channel.primary ? 'bg-[#06C755] text-white' : 'bg-[#FDF6E6] border border-[#F0DFA0] text-[#B5762A]'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h2 className="font-bold text-base text-[#3A2A18]">{channel.title}</h2>
-                    <p className="text-base text-[#6A5642] mt-0.5 break-words">{channel.detail}</p>
-                  </div>
-                  <ArrowUpRight className="w-4 h-4 shrink-0 text-[#9A8060]" />
+                  <Icon className="size-[18px] shrink-0 text-ring" aria-hidden="true" />
+                  <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+                    <span>{title}</span>
+                    {joined ? null : ' '}
+                    <span className="font-normal text-muted-foreground">{detail}</span>
+                  </span>
+                  {external && <ArrowUpRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
                 </a>
               </li>
             );
           })}
         </ul>
-
-      </div>
-    </section>
+      </PageSection>
+    </>
   );
 }

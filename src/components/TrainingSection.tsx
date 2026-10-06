@@ -1,208 +1,84 @@
-import Link from 'next/link';
-import { ArrowRight, ShieldCheck, MessageCircle } from 'lucide-react';
-import { thetaTrainingCourses, certificationCourses, healerCertificationAddOn, siteLinks } from '../data';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ArrowUpRight, MessageCircle, ShieldCheck } from 'lucide-react';
+import { certificationCourses, healerCertificationAddOn, offeringsContent, thetaTrainingCourses } from '../data';
+import ChipTabs from './page/ChipTabs';
+import PageHero from './page/PageHero';
+import PageSection from './page/PageSection';
+import CourseCard from './training/CourseCard';
 
-// PRD-002 §3.3 v1.1（2026-08-21，Batch E）：`/training` 培訓總覽頁，收錄
-// `thetaTrainingCourses`＋`certificationCourses`（希塔培訓／
-// 希塔認證班／療癒師認證，含併入的直覺力培訓加值模組說明），版面比照
-// `/services` 總覽頁（大標題、分類說明、卡片清單），不再依賴 `activeTab`
-// 切換。卡片點擊導向各自的詳細頁 `/training/[id]`
-// （TrainingDetailClientPage.tsx），圖片一律用品牌漸層背景＋文字呈現，
-// 不使用照片。
-//
-// 2026-08-22（客戶回報重疊 bug＋設計系統要求）：原本用 `absolute top-4
-// right-4` 疊放分類徽章在標題右上角，標題較長／換行時會被徽章蓋住。改用
-// shadcn/ui 的 Card／CardHeader／CardTitle／CardContent／CardFooter＋Badge
-// 重寫，徽章移到 CardHeader 內、標題正上方，兩者都在正常文件流中各自佔一行，
-// 不論文字多長都不會互相覆蓋。Card／Badge 的 className 皆有覆寫品牌配色
-// （見 ServicesSection.tsx 同樣的說明：專案 shadcn 色彩 tokens 尚未在
-// app/globals.css 定義，沿用預設 variant 會呈現無色）。
-
-interface TrainingCardData {
-  id: string;
-  badgeText: string;
-  title: string;
-  objective: string;
-  duration: string;
-  tags: string[];
-  ctaLink?: string;
-  comingSoon?: boolean;
-}
-
-function TrainingCourseCard({ course }: { course: TrainingCardData }) {
-  return (
-    <Link href={`/training/${course.id}`} className="group block h-full">
-      <div
-        className={`flex h-full flex-col overflow-hidden rounded-2xl border shadow-xs transition-all duration-300 ${
-          course.comingSoon
-            ? 'bg-brand-stone-50/60 border-dashed border-stone-200'
-            : 'bg-white border-stone-100 group-hover:shadow-md group-hover:border-brand-gold-200'
-        }`}
-      >
-        <Card className="flex flex-1 flex-col rounded-none border-0 bg-transparent p-0 shadow-none ring-0">
-          <CardHeader className="gap-2 px-5 pt-5 sm:px-6">
-            {/* 分類／徽章文字：獨立一行，正常文件流，不會蓋到下方標題 */}
-            <Badge
-              variant="outline"
-              className={`h-auto w-fit whitespace-normal break-words rounded-full px-2.5 py-1 text-sm font-bold ${
-                course.comingSoon
-                  ? 'border-stone-200 bg-stone-100 text-stone-500'
-                  : 'border-brand-gold-200 bg-brand-gold-100 text-brand-gold-600'
-              }`}
-            >
-              {course.badgeText}
-            </Badge>
-            <CardTitle className="text-base sm:text-lg font-bold font-serif leading-relaxed text-brand-stone-900">
-              {course.title}
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="flex-1 space-y-6 px-5 sm:px-6">
-            <div className="rounded-xl border border-brand-gold-150 bg-brand-gold-50/50 p-4 text-base leading-relaxed font-medium text-stone-700">
-              <span className="font-bold text-brand-stone-900">培訓目標：</span>{course.objective}
-            </div>
-
-            {course.tags.length > 0 && (
-              <ul className="space-y-1.5">
-                {course.tags.slice(0, 3).map((tag, tIdx) => (
-                  <li key={tIdx} className="text-base text-stone-600 leading-relaxed">・{tag}</li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-
-          <CardFooter className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-stone-50 bg-transparent px-5 py-4 sm:px-6">
-            <span className="text-sm text-stone-500">{course.duration}</span>
-            <span className="inline-flex items-center gap-1 text-base font-semibold text-brand-pink-600 group-hover:text-brand-pink-700">
-              <span>查看完整介紹</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </span>
-          </CardFooter>
-        </Card>
-      </div>
-    </Link>
-  );
-}
-
+// 培訓課程（PLN-006 P2；提案見 docs/06_research-and-design/proposals/pages-v2/training/）。
+// - 第一個畫面：眉批（Home Block 4 的標題）、H1、一句導言。清單頁沒有金色按鈕，緊接著是分頁列。
+// - 分頁（ChipTabs）一次只看一組：希塔療癒三門是有先後順序的路徑（1→2→3，金色路徑線相連）；
+//   靈氣認證三門是並列的一組。沒有 JavaScript 時兩組依序列出。
+// - 直覺力培訓還沒開課：獨立的一段、虛線框、既有的「即將推出」，不放進分頁，任何時候都看得到。
+// - 所有文字逐字取自文案集（src/data.ts）。課程資訊與費用在各課的詳細頁。
 export default function TrainingSection() {
-  const thetaCards: TrainingCardData[] = thetaTrainingCourses.map((c) => ({
-    id: c.id,
-    badgeText: c.level,
-    title: c.name,
-    objective: c.objective,
-    duration: c.duration,
-    tags: c.highlights,
-    ctaLink: c.ctaLink,
-  }));
+  const t = offeringsContent.training;
 
-  const healerCertCards: TrainingCardData[] = certificationCourses.map((c) => ({
-    id: c.id,
-    badgeText: c.badge,
-    title: c.name,
-    objective: c.objective,
-    duration: c.duration,
-    tags: c.curriculum,
-    ctaLink: c.ctaLink,
-    comingSoon: c.status === 'coming-soon',
-  }));
+  const thetaPath = (
+    <>
+      <ol className="grid gap-4">
+        {thetaTrainingCourses.map((course, index) => (
+          <li key={course.id} className="relative pl-11">
+            {/* 路徑線：從這一站的圓點接到下一站的圓點，最後一站之後沒有線 */}
+            {index < thetaTrainingCourses.length - 1 && (
+              <span aria-hidden="true" className="absolute -bottom-[52px] left-[15px] top-9 w-0.5 bg-gradient-to-b from-gold-from to-gold-to" />
+            )}
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-5 z-[1] flex size-8 items-center justify-center rounded-full border-2 border-gold-to bg-popover text-sm font-bold text-accent-foreground"
+            >
+              {index + 1}
+            </span>
+            <CourseCard id={course.id} name={course.name} ctaLink={course.ctaLink} />
+          </li>
+        ))}
+      </ol>
+      <p className="mt-5 flex items-center gap-2.5 text-base text-muted-foreground">
+        <ShieldCheck className="size-5 shrink-0 text-ring" aria-hidden="true" />
+        <span>{t.credential}</span>
+      </p>
+    </>
+  );
+
+  const reikiGroup = (
+    <ul className="grid gap-4">
+      {certificationCourses.map((course) => (
+        <li key={course.id}>
+          <CourseCard id={course.id} name={course.name} ctaLink={course.ctaLink} />
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
-    <section id="training-section" className="py-20 bg-linear-to-b from-brand-stone-50 via-brand-pink-50/10 to-brand-stone-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <PageHero eyebrow={t.heading} title={t.title} lead={t.description} />
 
-        {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="text-sm uppercase tracking-widest text-brand-pink-600 font-bold">Training</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-brand-stone-900 font-serif">
-            國際希塔療癒認證培訓與專業證照課程
-          </h2>
-          <div className="w-12 h-1 bg-linear-to-r from-brand-pink-300 to-brand-gold-300 mx-auto rounded-full"></div>
-          <p className="text-base text-stone-600">
-            從國際希塔療癒證照培訓，到金錢／愛情／人魚靈氣療癒師暨導師認證課程。若想了解一對一能量療癒與工作坊等服務，請前往
-            {' '}
-            <Link href="/services" className="text-brand-pink-600 font-semibold hover:text-brand-pink-700 underline underline-offset-2">
-              服務總覽頁
-            </Link>
-            。
-          </p>
-        </div>
+      <PageSection id="training-section" width="narrow" className="pb-10 pt-8 lg:pb-14 lg:pt-12">
+        <ChipTabs
+          idPrefix="track"
+          ariaLabel={t.title}
+          items={[
+            // 分頁名稱取系列名稱全形括號之前的部分（「希塔療癒系列」），手機一列才放得下兩個
+            { id: 'theta', label: t.thetaTrack.split('（')[0], content: thetaPath },
+            { id: 'reiki', label: t.reikiTrack, content: reikiGroup },
+          ]}
+        />
+      </PageSection>
 
-        {/* Category 1: 希塔療癒認證培訓（thetaTrainingCourses；PRD-003 §4.5 已併入原 reikiCourses） */}
-        <div className="mb-16">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <h3 className="text-xl font-bold font-serif text-brand-stone-900">希塔療癒認證培訓</h3>
-            <span className="text-sm text-stone-500">美國 ThetaHealing® 官方國際認證</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {thetaCards.map((course) => (
-              <TrainingCourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        </div>
-
-        {/* Category 3: 專業證照與直覺力培訓（certificationCourses，含併入的直覺力培訓說明） */}
-        <div className="mb-10">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <h3 className="text-xl font-bold font-serif text-brand-stone-900">專業證照與直覺力培訓</h3>
-            <span className="text-sm text-stone-500">療癒師暨導師認證</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
-            {healerCertCards.map((course) => (
-              <TrainingCourseCard key={course.id} course={course} />
-            ))}
-          </div>
-
-          {/* 直覺力培訓加值模組說明 — PRD-002 §3.3 v1.1：原獨立卡片/詳細頁已移除，
-              併入療癒師認證分類敘述，不再獨立呈現，文字沿用原始措辭。 */}
-          <div className="bg-white rounded-2xl border border-dashed border-stone-200 p-6 sm:p-8 max-w-4xl mx-auto">
-            <span className="text-sm font-bold text-brand-gold-600 uppercase tracking-wider block mb-2">療癒師認證加值模組・即將推出</span>
-            <h4 className="text-lg font-bold font-serif text-brand-stone-900 mb-2">{healerCertificationAddOn.name}</h4>
-            <p className="text-base text-stone-600 leading-relaxed mb-2">
-              <span className="font-bold text-brand-stone-900">培訓目標：</span>{healerCertificationAddOn.objective}
-            </p>
-            <p className="text-base text-stone-500 leading-relaxed mb-4">
-              <span className="font-bold text-brand-stone-900">適合對象：</span>{healerCertificationAddOn.targetAudience}
-            </p>
-            <p className="text-sm text-stone-400 mb-4">{healerCertificationAddOn.note}</p>
-            <a
-              href={healerCertificationAddOn.ctaLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-base font-semibold text-brand-pink-600 hover:text-brand-pink-700"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>搶先登記，開課通知我</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Certification footer banner */}
-        <div className="bg-white rounded-2xl border border-stone-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto shadow-xs">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-brand-gold-100 text-brand-gold-600 rounded-full shrink-0">
-              <ShieldCheck className="w-7 h-7" />
-            </div>
-            <div>
-              <h4 className="text-base font-bold text-brand-stone-900">美國 ThetaHealing® 希塔療癒官方國際認證</h4>
-              {/* copy-qa-reviewer 覆核（2026-08-21）：原「登錄為合格執業療癒師」查無文案集出處，
-                  已改為文案集第 447-448 行「官方認證療癒師／官方認證導師…美國 THInK 總部發證」
-                  的措辭，僅保留有出處的部分。 */}
-              <p className="text-base text-stone-500 mt-1 leading-relaxed">文齡老師為官方認可之國際導師，學員修畢課程並通過評核，即可獲頒美國 THInK 總部發證之官方結業證照。</p>
-            </div>
-          </div>
-          <a
-            href={siteLinks.line}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2.5 rounded-full border border-brand-pink-200 text-brand-pink-600 font-semibold text-base hover:bg-brand-pink-50 transition-colors shrink-0"
-          >
-            加 LINE 洽詢開班日程 ➔
+      {/* 直覺力培訓：課程資訊待補（RPT-001 T5） */}
+      <PageSection tone="tint" width="narrow" className="pb-10 pt-8 lg:pb-14 lg:pt-12">
+        <div className="rounded-[18px] border border-dashed border-ring/50 bg-popover px-6 pb-4 pt-6">
+          <p className="inline-flex rounded-full bg-accent px-3 py-0.5 text-sm font-bold text-accent-foreground">{t.comingSoon}</p>
+          <h2 className="mt-3 font-serif text-xl font-bold leading-snug text-card-foreground md:text-2xl">{healerCertificationAddOn.name}</h2>
+          <p className="mt-2 text-base leading-relaxed text-muted-foreground">{healerCertificationAddOn.objective}</p>
+          <a href={healerCertificationAddOn.ctaLink} target="_blank" rel="noopener noreferrer" className="btn-text mt-1 text-base">
+            <MessageCircle className="size-4" aria-hidden="true" />
+            {t.notifyLabel}
+            <ArrowUpRight className="size-4" aria-hidden="true" />
           </a>
         </div>
-
-      </div>
-    </section>
+      </PageSection>
+    </>
   );
 }

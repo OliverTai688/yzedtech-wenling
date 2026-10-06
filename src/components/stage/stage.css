@@ -1,0 +1,101 @@
+/* 首頁舞台（RES-005）。類別一律以 st- 開頭；顏色只用 app/globals.css 的 token 與舞台白。
+   預設樣式是一般的直向頁面；html.js、沒有 st-off（見 stageGuard.ts）且沒有開啟「減少動態效果」時才套用舞台版面。 */
+.st-root, .st-sheet {
+  --st-white: #fffefa;
+  --st-ink: var(--color-card-foreground);
+  --st-soft: var(--color-muted-foreground);
+  --st-gold: var(--color-primary);
+  --st-gold-deep: var(--color-ring);
+  --st-gold-edge: var(--color-secondary-foreground);
+  --st-gold-hi: var(--color-accent);
+  --st-hdr: 69px;
+  --st-bar: 0px;
+  --st-h: calc(100lvh - var(--st-hdr));
+  --st-sh: calc(100svh - var(--st-hdr));
+  /* 地平線：下方留給字幕（編號、兩行標題、一列按鈕）的高度是固定的，其餘都給主角 */
+  --st-floor: calc(var(--st-sh) - 190px);
+}
+.st-root {
+  position: relative;
+  background: var(--st-white);
+  color: var(--st-ink);
+}
+@media (max-width: 1023.98px) {
+  .st-root, .st-sheet {
+    --st-bar: calc(69px + env(safe-area-inset-bottom, 0px));
+    --st-floor: calc(var(--st-sh) - var(--st-bar) - 178px);
+  }
+}
+
+/* ── 一般頁面模式 ── */
+.st-slide { padding: 48px 0; scroll-margin-top: var(--st-hdr); }
+.st-in { position: relative; max-width: 760px; margin-inline: auto; padding-inline: 24px; }
+.st-theatre, .st-fly, .st-dustlayer, .st-num, .st-disc.st-plus, .st-floormark, .st-fan, .st-book__art { display: none; }
+.st-subject { display: grid; place-items: center; }
+.st-capzone, .st-caps { display: grid; gap: 14px; }
+.st-cap { margin: 0; font: 700 24px/1.45 var(--font-serif); color: var(--st-ink); }
+h1.st-cap { font-size: clamp(26px, 7vw, 38px); }
+.st-cap--line { font-size: 18px; color: var(--st-gold-edge); }
+.st-act { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.st-more { display: grid; gap: 12px; }
+.st-more__soft { color: var(--st-soft); }
+.st-more__badges { display: grid; gap: 6px; font-size: 14px; color: var(--st-soft); }
+.st-more__badges li { display: flex; gap: 6px; align-items: flex-start; }
+.st-more__badges svg { flex: none; width: 16px; height: 16px; margin-top: 4px; color: var(--st-gold-deep); }
+.st-more__row { display: flex; flex-wrap: wrap; gap: 8px; }
+/* 安靜的文字連結：一個畫面只有一顆按鈕樣式的行動，第二個行動用它（文字＋箭頭，沒有底色與外框） */
+.st-lk { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; font-weight: 700; color: var(--st-gold-edge); }
+.st-hero__em { width: min(100%, 420px); margin: 0 auto 28px; }
+.st-hero__em .emblem { width: 100%; }
+.st-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
+.st-tab {
+  min-height: 44px; border-radius: 999px; border: 1px solid var(--color-silver-edge); cursor: pointer;
+  background: linear-gradient(135deg, var(--color-silver-light) 0%, var(--color-silver) 45%, var(--color-silver-deep) 100%);
+  font: 700 14px/1 var(--font-sans); color: var(--color-silver-foreground);
+}
+.st-tab[aria-selected='true'] {
+  border-color: var(--st-gold-deep); color: var(--color-primary-foreground);
+  background: linear-gradient(180deg, var(--color-popover) 0%, var(--st-gold-hi) 42%, var(--st-gold) 130%);
+}
+.st-panel { display: grid; gap: 18px; margin-top: 28px; }
+/* 不用 hidden 屬性：Tailwind 的基礎樣式會以 !important 隱藏它，沒有 JavaScript 時就攤不開了 */
+.st-panel[data-off] { display: none; visibility: hidden; }
+.st-nodes { display: grid; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
+.st-node { display: flex; min-height: 48px; align-items: center; gap: 12px; text-align: left; font-weight: 700; cursor: pointer; }
+.st-node__dot {
+  flex: none; width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--st-gold-hi), var(--st-gold) 55%, var(--st-gold-deep));
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--st-gold-hi) 55%, transparent);
+}
+.st-node__in { display: flex; align-items: center; gap: 12px; }
+.st-nodes .st-more { padding: 0 0 12px 24px; color: var(--st-soft); }
+/* 一般頁面模式的順序：標題一 → 三階段 → 標題二 → 三項服務 */
+.st-routes .st-in { display: grid; }
+.st-routes .st-capzone, .st-routes .st-caps { display: contents; }
+.st-routes [data-cap='a'] { order: 1; }
+.st-routes [data-set='stages'] { order: 2; }
+.st-routes [data-cap='b'] { order: 3; margin-top: 36px; }
+.st-routes [data-set='services'] { order: 4; }
+.st-routes .st-act { order: 5; margin-top: 12px; }
+/* 沒有 JavaScript，或程式遲遲沒有接上舞台（html.st-off，見 stageGuard.ts）：四個對象全部攤開；金翼完全展開 */
+html:is(:not(.js), .st-off) .st-tabs { display: none; }
+html:is(:not(.js), .st-off) .st-panel[data-off] { display: grid; visibility: visible; }
+html:is(:not(.js), .st-off) .st-hero__em .emblem { --open: 1 !important; }
+@media (prefers-reduced-motion: reduce) {
+  .st-hero__em .emblem { --open: 1 !important; }
+}
+
+/* 圓形的「＋」與關閉鈕（銀） */
+.st-disc {
+  display: inline-flex; width: 44px; height: 44px; flex: none; align-items: center; justify-content: center;
+  border-radius: 50%; border: 1px solid var(--color-silver-edge); cursor: pointer; color: var(--st-gold-edge);
+  background: radial-gradient(circle at 34% 28%, var(--color-white) 0, var(--color-silver-light) 30%, var(--color-silver) 62%, var(--color-silver-deep) 100%);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--color-silver-foreground) 22%, transparent), inset 0 1px 0 var(--color-white);
+}
+.st-disc svg { width: 18px; height: 18px; }
+.st-root :focus-visible, .st-sheet :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 3px; }
+
+/* 桌機：舞台釘住的期間（<body data-st-pinned>，由 timelines/rest.ts 切換），頁首的主導覽與私訊按鈕調淡，
+   讓畫面只剩主角；Logo 與商城按鈕不變。滑鼠移到頁首或鍵盤聚焦時恢復，功能不受影響。 */
+#desktop-nav, #header-line-btn { transition: opacity 0.45s ease; }
+body[data-st-pinned] #site-header:not(:hover, :focus-within) :is(#desktop-nav, #header-line-btn) { opacity: 0.16; }

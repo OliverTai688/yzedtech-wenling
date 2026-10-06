@@ -1,0 +1,307 @@
+<!--
+提案 A「五章時間軸」（/story）
+概念：故事是沿著金色軸線的五章垂直時間軸，每章只露標題與第一句，其餘點開才展開（一次一章，第一章預設開啟）；軸線隨捲動填滿；學經歷放在故事之後，四類各自收起，長表格在自己的展開區內。
+動效技術：原生 details name 互斥手風琴（_kit.css .disclosure）、捲動驅動的軸線 scaleY（只動 transform）、.reveal 一次性進場。無 3D、無粒子。
+已知弱點：1) 故事被切成五段，要讀完得點開五次，敘事連貫度下降；2) 證照約 30 列表格在手機只能橫向捲動表格容器，且分類收起後訪客不易感知資歷的「量」。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜創辦人介紹提案A・五章時間軸</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 40px 24px; }
+.hero-grid { display: grid; gap: 28px; align-items: center; }
+@media (min-width: 768px) { .hero-grid { grid-template-columns: 1.3fr 1fr; gap: 56px; } .hero { padding-block: 72px 40px; } }
+.hero .sub { margin-top: 12px; font-size: 18px; color: var(--muted-foreground); }
+.hero .row { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+.photo { aspect-ratio: 4/5; max-height: 360px; width: 100%; border: 2px dashed var(--ring); border-radius: 18px; background: repeating-linear-gradient(135deg, var(--card), var(--card) 14px, var(--accent) 14px, var(--accent) 15px); display: grid; place-items: center; text-align: center; padding: 16px; color: var(--accent-foreground); font-weight: 700; }
+.photo small { display: block; font-weight: 500; color: var(--muted-foreground); }
+
+/* 時間軸 */
+.timeline { position: relative; padding-left: 44px; max-width: 760px; }
+.rail, .rail-fill { position: absolute; left: 13px; top: 8px; bottom: 8px; width: 2px; border-radius: 2px; }
+.rail { background: var(--border); }
+.rail-fill { background: linear-gradient(#F0C875, #C9862E); transform-origin: top; transform: scaleY(0); }
+.chapter { position: relative; padding-bottom: 20px; }
+.chapter:last-child { padding-bottom: 0; }
+.node { position: absolute; left: -41px; top: 12px; width: 22px; height: 22px; border-radius: 50%; background: var(--background); border: 2px solid var(--border); display: grid; place-items: center; font-size: 11px; font-weight: 700; color: var(--accent-foreground); transition: background 250ms, border-color 250ms; }
+.chapter.is-lit .node { background: var(--accent); border-color: var(--ring); }
+.chapter details { background: var(--card); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 4px 20px rgba(58,42,24,.05); padding: 4px 20px; }
+.chapter summary { list-style: none; cursor: pointer; display: block; padding-block: 14px; position: relative; padding-right: 36px; min-height: 48px; }
+.chapter summary::-webkit-details-marker { display: none; }
+.chapter summary::after { content: '+'; position: absolute; right: 0; top: 12px; font-size: 24px; color: var(--ring); transition: transform 250ms; }
+.chapter details[open] summary::after { transform: rotate(45deg); }
+.chapter summary h3 { font-size: 20px; }
+.chapter summary .first { display: block; margin-top: 6px; color: var(--foreground); }
+.chapter summary .more { display: block; margin-top: 8px; font-size: 14px; font-weight: 700; color: var(--accent-foreground); }
+.chapter details[open] summary .more { display: none; }
+.chapter details::details-content { block-size: 0; opacity: 0; overflow: hidden; transition: block-size 250ms ease, opacity 250ms ease, content-visibility 250ms allow-discrete; }
+.chapter details[open]::details-content { block-size: auto; opacity: 1; }
+.chapter details { interpolate-size: allow-keywords; }
+.body { padding-bottom: 18px; display: grid; gap: 12px; color: var(--card-foreground); }
+.body ul { display: grid; gap: 12px; }
+.body li { padding-left: 14px; border-left: 2px solid var(--border); }
+.body .quote { font-family: var(--font-serif); color: var(--accent-foreground); font-size: 18px; }
+
+/* 證照 */
+.creds { max-width: 860px; margin-top: 24px; display: grid; gap: 12px; }
+.creds > details, .cred-group { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 4px 20px; }
+.cred-group > summary { font-family: var(--font-serif); font-size: 18px; }
+.cred-group ul { display: grid; gap: 8px; padding-bottom: 8px; }
+.cred-group li { padding-left: 14px; border-left: 2px solid var(--border); color: var(--card-foreground); font-size: 15px; }
+.cred-group .sub-list { margin-top: 4px; font-size: 14px; color: var(--muted-foreground); }
+.table-wrap { overflow-x: auto; margin-top: 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--popover); }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--card-foreground); }
+th { background: var(--accent); color: var(--accent-foreground); position: sticky; top: 0; }
+.note { font-size: 14px; color: var(--muted-foreground); margin-bottom: 8px; }
+.proof { margin-top: 20px; font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .rail-fill { transition: none; } }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <!-- 第一屏：H1、副標、佔位照、主 CTA -->
+  <section class="hero"><div class="container hero-grid">
+    <div>
+      <span class="eyebrow">創辦人</span>
+      <h1 style="margin-top:12px">創辦人介紹</h1>
+      <p class="sub">豐盛之翼學苑創辦人 幸運教主文齡 Keila</p>
+      <div class="row">
+        <a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a>
+        <a class="btn btn-outline" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a>
+      </div>
+      <p class="muted" style="margin-top:20px;font-size:14px">我的故事：從全面崩塌到重生的轉折，共五章，往下閱讀。</p>
+    </div>
+    <div class="photo" role="img" aria-label="創辦人形象照（待提供）"><span>創辦人形象照（待提供）<small>佔位框，非正式照片</small></span></div>
+  </div></section>
+
+  <!-- 五章時間軸 -->
+  <section class="section" style="padding-top:24px" aria-labelledby="story-h">
+    <div class="container">
+      <h2 id="story-h" style="margin-bottom:28px">我的故事：從全面崩塌到重生的轉折</h2>
+      <div class="timeline" id="timeline">
+        <div class="rail" aria-hidden="true"></div><div class="rail-fill" id="fill" aria-hidden="true"></div>
+
+        <article class="chapter reveal is-lit">
+          <span class="node" aria-hidden="true">1</span>
+          <details name="story" open>
+            <summary><h3>跌入谷底：當人生的一切同時崩塌</h3><span class="first">2019 年的下半年，是我生命中最黑暗、也最無助的時刻。</span><span class="more">繼續閱讀</span></summary>
+            <div class="body">
+              <p>那段時間，所有的挑戰彷彿約好了一起降臨：家庭爆發爭吵與分裂、職場上背負沉重的誤會、外婆突然中風、感情深受創傷，我的身上甚至還背負了百萬的負債。</p>
+              <p>那時的我，幾乎每天醒來都只想問蒼天：「為什麼這些事都發生在我身上？」深陷在受害者情緒與無力感中的我，覺得人生已經全面崩塌，找不到任何出路。</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="chapter reveal">
+          <span class="node" aria-hidden="true">2</span>
+          <details name="story">
+            <summary><h3>轉折的契機：看見潛意識，找回內在的光</h3><span class="first">直到我接觸了「希塔療癒（ThetaHealing®）」，這成為了我生命的終極救贖與轉捩點。</span><span class="more">繼續閱讀</span></summary>
+            <div class="body">
+              <p>透過冥想進入 θ（Theta）腦波狀態，我終於鼓起勇氣，往自己的內心深處看去。我驚訝地發現，原來這一切外在的崩潰與停滯，都源自於我內在深層的限制性信念——在潛意識裡，我一直覺得自己「不值得被愛」、「不值得成功」。</p>
+              <p>當我開始運用希塔療癒改寫這些信念，並徹底釋放積壓已久的恐懼與罪惡感後，不可思議的奇蹟開始在我的生命中一一顯化，人生迎來了全面的翻轉！</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="chapter reveal">
+          <span class="node" aria-hidden="true">3</span>
+          <details name="story">
+            <summary><h3>蛻變與顯化：拿回生命主導權的奇蹟</h3><span class="first">清理了能量場的淤堵後，我的人生在極短的時間內發生了具體且震撼的改變：</span><span class="more">繼續閱讀</span></summary>
+            <div class="body"><ul>
+              <li><strong>財富的絕對大翻轉</strong> 我離開了長達 9 年的工作，全職投入療癒領域，僅僅第三個月的收入，就超過了過去當上班族的時期！ 我從背負百萬負債，成功翻轉為年收百萬。希塔療癒讓我重新相信，我絕對值得擁有豐盛。</li>
+              <li><strong>遇見 90% 契合的靈魂伴侶</strong> 「上完希塔療癒後，我不再害怕看自己，學會面對潛意識。」因為這份勇敢，我在半年內就遇見了符合我九成條件的靈魂伴侶。</li>
+              <li><strong>影響力的擴展與肯定</strong> 我受邀至知名節目《好女人的情場攻略》、《美麗佳人Podcast》分享我的蛻變故事，更榮幸成為暢銷書《七週遇見對的人》改版推薦序的唯一作者。</li>
+            </ul></div>
+          </details>
+        </article>
+
+        <article class="chapter reveal">
+          <span class="node" aria-hidden="true">4</span>
+          <details name="story">
+            <summary><h3>意想不到的禮物：能量與靈性的全面躍升</h3><span class="first">這趟旅程帶給我的，遠不止於物質與感情的豐盛，還有許多無價的生命禮物：</span><span class="more">繼續閱讀</span></summary>
+            <div class="body"><ul>
+              <li><strong>靈通感知力的快速開發：</strong>原本自認是「麻瓜」的我，開始能清晰地看到畫面、感知能量、讀取訊息。我甚至能協助個案清除外靈附身的狀況，並能輕鬆同理、讀懂伴侶與他人的真實想法。</li>
+              <li><strong>生活除錯能力：</strong>面對偶爾不順心的事，我不再陷入情緒內耗，而是能迅速覺察背後的根本原因，並快速化解。</li>
+              <li><strong>心想事成的加速器：</strong>顯化速度大幅提升，我吸引了許多極度契合的合作夥伴、客戶與學生來到生命中，並擁有源源不絕的靈感去發揮創意，實踐自己的熱忱。</li>
+              <li><strong>修復與支持身邊的人：</strong>我大幅增加了與原本疏離的家人間的溫暖互動；更幫助了身邊原本就帶有靈通體質的好友，讓他們學會接納自己的特質，將希塔療癒落實於生活中，不再受限於外界的奇異眼光。</li>
+            </ul></div>
+          </details>
+        </article>
+
+        <article class="chapter reveal">
+          <span class="node" aria-hidden="true">5</span>
+          <details name="story">
+            <summary><h3>我的使命：陪你重啟人生，走向真正的自由</h3><span class="first quote" style="border:0;padding:0;font-style:normal">「真正的療癒，不是逃離現實，而是重新看見內在的光。」</span><span class="more">繼續閱讀</span></summary>
+            <div class="body">
+              <p>希塔療癒帶給我的，不只是生活條件的轉化，而是一種能量上真正的「自由」。它讓我從迷惘中找到人生的方向與答案，清楚知道自己到底要什麼。</p>
+              <p>現在，我每年累積破百次的個案療癒經驗，影響了至少30人踏上學習希塔療癒的道路，並協助無數人重啟人生。如果你也正經歷我曾經走過的黑夜，請相信：你本就具備翻轉生命的力量，而我，會在這裡陪你一起把它找回來。</p>
+              <p>因為親自走過這段跌跌撞撞的泥濘路，所以我比誰都明白那種「想改變卻無能為力」的痛。 這也是我學習並推廣這些療癒體系的初衷。現在的我，將這份歷練化為專業，使命是成為你生命蛻變過程中的引路人。 我不只要陪你療癒過去的傷，更要賦予你力量，讓你知道：你絕對有資格、也有能力，去實踐一個充滿愛、自由與豐盛的閃耀人生。</p>
+              <p><a class="link" href="/#personas-section">了解適合我的服務 →</a></p>
+            </div>
+          </details>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 學經歷與專業認證 -->
+  <section class="section" style="padding-top:0" aria-labelledby="cred-h">
+    <div class="container">
+      <span class="eyebrow">Professional Credentials</span>
+      <h2 id="cred-h" style="margin-top:12px">學經歷與專業認證</h2>
+      <p class="muted" style="margin-top:12px;max-width:760px">為了給予每一位個案最安全、完整且有系統的協助，我不斷在專業領域深造。以下為我所受過的專業訓練與認證：</p>
+
+      <div class="creds">
+        <details class="cred-group disclosure" name="cred">
+          <summary>核心專業認證：希塔療癒 (ThetaHealing)</summary>
+          <div>
+            <ul>
+              <li>官方認證療癒師 (基礎/進階/深度挖掘/) — 美國 THInK 總部發證</li>
+              <li>官方認證導師 (基礎/進階/深度挖掘/神與我/顯化與豐盛) — 美國 THInK 總部發證</li>
+            </ul>
+            <details class="disclosure" style="margin-top:8px">
+              <summary>研習課程總列表（持續進修並更新認證）</summary>
+              <div>
+                <p class="note">持續進修並更新認證。表格可左右捲動。</p>
+                <div class="table-wrap" tabindex="0" role="region" aria-label="希塔療癒研習課程表">
+                <table>
+                  <thead><tr><th>課程</th><th>授課者</th><th>日期</th></tr></thead>
+                  <tbody>
+                    <tr><td>基礎DNA</td><td>King Chung</td><td>十月/27, 2019</td></tr>
+                    <tr><td>進階DNA</td><td>King Chung</td><td>十一月/03, 2019</td></tr>
+                    <tr><td>深度挖掘</td><td>King Chung</td><td>十一月/17, 2019</td></tr>
+                    <tr><td>Growing Your Relationships 2: You and God（複訓）</td><td>Ann Young</td><td>二月/17, 2023</td></tr>
+                    <tr><td>Growing Your Relationships 2: You and God</td><td>King Chung</td><td>四月/08, 2020</td></tr>
+                    <tr><td>顯化與豐盛</td><td>King Chung</td><td>十一月/24, 2019</td></tr>
+                    <tr><td>Growing Your Relationships I: You and Your Significant Other</td><td>King Chung</td><td>五月/07, 2020</td></tr>
+                    <tr><td>You and Your Inner Circle</td><td>Joy Jia-Jen Chan</td><td>十二月/30, 2021</td></tr>
+                    <tr><td>You and the Earth</td><td>Joanne Chang</td><td>四月/23, 2020</td></tr>
+                    <tr><td>靈魂伴侶</td><td>Ann Young</td><td>七月/11, 2020</td></tr>
+                    <tr><td>植物研討會</td><td>Marianne Karsh</td><td>三月/17, 2020</td></tr>
+                    <tr><td>完美體重的節奏</td><td>HUA XUAN NAOMI LEE</td><td>三月/05, 2021</td></tr>
+                    <tr><td>基礎DNA導師</td><td>Joshua Stibal</td><td>八月/08, 2021</td></tr>
+                    <tr><td>進階DNA導師</td><td>Joshua Stibal</td><td>八月/12, 2021</td></tr>
+                    <tr><td>深度挖掘導師</td><td>Joshua Stibal</td><td>八月/15, 2021</td></tr>
+                    <tr><td>Growing Your Relationships 2 Instructors</td><td>Joshua Stibal</td><td>八月/17, 2021</td></tr>
+                    <tr><td>顯化與豐盛導師</td><td>Joshua Stibal</td><td>八月/22, 2021</td></tr>
+                    <tr><td>生活贏家</td><td>JULIA YIHSIEN HO</td><td>十一月/07, 2025</td></tr>
+                    <tr><td>家族紐帶研討會</td><td>Marianne Karsh</td><td>三月/15, 2020</td></tr>
+                    <tr><td>A ThetaHealers Kit to Success</td><td>ELIAS KANAKRI</td><td>十月/26, 2023</td></tr>
+                    <tr><td>ThetaHealing Intro - Create Your Own Reality Instructors</td><td>THInK Instructors Team with Vianna Stibal, Founder of ThetaHealing®</td><td>七月/08, 2024</td></tr>
+                    <tr><td>Basic DNA Enhancement Part 2: Readings, Healings, and the Cool Stuff</td><td>THInK Instructors Team with Vianna Stibal, Founder of ThetaHealing®</td><td>四月/07, 2024</td></tr>
+                    <tr><td>Basic DNA Enhancement Part 1: The Planes of Existence</td><td>THInK Instructors Team with Vianna Stibal, Founder of ThetaHealing®</td><td>三月/08, 2024</td></tr>
+                    <tr><td>世界關係</td><td>Ann Young</td><td>九月/10, 2026</td></tr>
+                  </tbody>
+                </table>
+                </div>
+              </div>
+            </details>
+          </div>
+        </details>
+
+        <details class="cred-group disclosure" name="cred">
+          <summary>靈氣與能量體系 (Reiki &amp; Energy Healing)</summary>
+          <ul>
+            <li>金錢靈氣 (Money Reiki) 三階與導師認證 — [Pei Yun Wu]，2022年</li>
+            <li>鬱金香熱情靈氣 (Tulip Passion Reiki) 療癒師與導師認證 — [Aine Li]，2023年</li>
+            <li>百花靈氣（Flowers Reiki）三階療癒師認證 — [Viola Heish]，2024年</li>
+            <li>獨角獸靈氣（Unicorn Reiki）二階療癒師 — [Viola Heish]，2024年</li>
+            <li>人魚靈氣 (Mermaid Reiki) 、美人魚轉化靈氣療癒師與導師認證 — [Ting Wu]，2025年</li>
+            <li>彩虹靈氣（Rainbow Reiki）一階療癒師 — [Wish Heish]，2025年</li>
+            <li>煦陽靈氣（Solar Reiki） — [Wish Heish]，2025年</li>
+            <li>臼井靈氣（Usui Reiki)三階療癒師 — [Natty Lin]，2025年</li>
+          </ul>
+        </details>
+
+        <details class="cred-group disclosure" name="cred">
+          <summary>高階能量與氣場修護</summary>
+          <ul>
+            <li>擴大療癒法 (Magnified Healing) 一階/二階與導師認證 — [Even Chen]，2019年</li>
+            <li>般尼克療癒 (Pranic Healing) 基礎/心理/高級/能量風水/水晶療癒師—Institute For Inner Studies, Inc. 美國總部發證 總列表如下，持續進修並更新認證
+              <ul class="sub-list">
+                <li>Pranic Healing Course— [Allen Chen]，2019年</li>
+                <li>Pranic Psychotherapy Course— [Kei Okubo]，2019年</li>
+                <li>Advanced Pranic Healing Course— [Allen Chen]，2022年</li>
+                <li>Pranic Crystal Healing Course— [Kei Okubo]，2023年</li>
+                <li>Pranic Feng Shui Course— [Master Stephen Co]，2024年</li>
+              </ul>
+            </li>
+          </ul>
+        </details>
+
+        <details class="cred-group disclosure" name="cred">
+          <summary>占卜分析類</summary>
+          <ul>
+            <li>靈擺冥想 (pendulum) — [Yvette Lin]，2018年</li>
+            <li>生命靈數 (Numerology) — [Yvette Lin]，2018年</li>
+            <li>直覺力導師認證 — [Angie Abt]，2026年</li>
+          </ul>
+        </details>
+
+        <details class="cred-group disclosure" name="cred">
+          <summary>學經歷與進修紀錄</summary>
+          <ul>
+            <li>台灣大學 政治學系學士畢業</li>
+            <li>外商數位行銷資歷9年 田中系統顧問股份有限公司/美商艾比傑媒體行銷/法商陽獅媒體集團</li>
+            <li>健行科技大學 特聘講師</li>
+            <li>臺北科技大學 特聘講師</li>
+            <li>多益黃金證書</li>
+            <li>PMP專案管理師</li>
+            <li>子宮療護師</li>
+            <li>美胸按摩師</li>
+            <li>好女人的情場攻略 Podcast 2022收聽數冠軍與2024前十名</li>
+            <li>東震堂主</li>
+            <li>大誠保險經紀人 特邀講師</li>
+            <li>愛山林集團 特邀講師</li>
+            <li>One&amp;Co商務中心 特邀講師</li>
+            <li>共煮廚房 特邀講師</li>
+            <li>小島好日 特邀講師</li>
+            <li>BNI長冠軍分會 副主席/教育協調員/導師協調員/活動協調員/成長協調員/導師/執事/接待組員/長期綠燈會員</li>
+            <li>已註冊商標 Keila</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・五章時間軸</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+// 軸線隨捲動填滿：只動 transform；節點跟著亮起
+const tl = document.getElementById('timeline'), fill = document.getElementById('fill');
+const chapters = [...tl.querySelectorAll('.chapter')];
+let ticking = false;
+function update() {
+  ticking = false;
+  const r = tl.getBoundingClientRect(), vh = window.innerHeight, mark = vh * 0.6;
+  const p = Math.min(1, Math.max(0, (mark - r.top) / r.height));
+  fill.style.transform = 'scaleY(' + p + ')';
+  chapters.forEach((c) => c.classList.toggle('is-lit', c.getBoundingClientRect().top < mark));
+}
+function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+addEventListener('scroll', req, { passive: true }); addEventListener('resize', req);
+tl.addEventListener('toggle', req, true);
+update();
+</script>
+</body>
+</html>

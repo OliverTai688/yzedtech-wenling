@@ -86,6 +86,11 @@ check "無舊官方 LINE 連結（lin.ee/yo6a6FW）" \
   "yo6a6FW" \
   src app
 
+# 9. 粉色與舊色票殘留（PRD-003 §4.15：全站不用粉色；色彩一律用語意 token）
+check "無粉色／舊品牌色票 class（brand-pink／brand-stone／brand-gold）" \
+  "brand-(pink|stone|gold)-[0-9]+" \
+  src app components
+
 echo
 if [ "$FAIL" -eq 0 ]; then
   echo "🎉 全部規則通過。記得這只是第二層（自動化防呆），仍需完成第 4.1 節內容溯源比對與第 4.5 節獨立覆核。"

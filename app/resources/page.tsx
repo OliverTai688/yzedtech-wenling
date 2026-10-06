@@ -1,14 +1,21 @@
 import ResourcesSection from '../../src/components/ResourcesSection';
+import JourneyNext from '../../src/components/page/JourneyNext';
+import CtaBand from '../../src/components/CtaBand';
+import StickyCtaBar from '../../src/components/StickyCtaBar';
+import { heroContent, pageMeta, uiLabels } from '../../src/data';
 
-export const metadata = {
-  title: '免費資源｜豐盛之翼學苑・公益直播與免費社群',
-  description: '加入文齡老師的免費公益體驗直播與豐盛之翼學苑社群，或透過官方 LINE 帳號預約諮詢，陪伴您踏出自我照顧的第一步。',
-};
+// <title> 與 description 是文案集原文，集中在 src/data.ts 的 pageMeta。
+export const metadata = pageMeta.resources;
 
-export default function ResourcesPage() {
+export default function Page() {
+  const { label, href } = heroContent.secondaryCta;
   return (
-    <div className="animate-fadeIn">
+    <>
       <ResourcesSection />
-    </div>
+      <JourneyNext route="/resources" />
+      <CtaBand />
+      {/* 手機底部固定列：這一頁唯一的行動（加入免費社群），捲過第一個畫面後出現 */}
+      <StickyCtaBar primary={{ label, href, external: true }} lineLabel={uiLabels.lineShort} />
+    </>
   );
 }

@@ -1,0 +1,984 @@
+<!doctype html>
+<!--
+  白金舞台版（slide 01–03，供與 index.html 並排比較）。依 BRIEF.md 與 2026-10-06 的「白金舞台」方向。
+  舞台：暖白的地面、主角身後的光暈、一條地平線與地面反光、前景幾顆失焦的金塵。換場用金光掃過，不用暗場。
+  文字只當字幕：舞台上同一時間最多一行；其餘內容收在底部抽屜（一個圖示就能打開），或一般頁面模式。
+  做法與 index.html 相同：每張 slide 是 CSS sticky 舞台＋自己的 ScrollTrigger；金翼是固定圖層；原生捲動。
+  退路：沒有 JavaScript、GSAP 沒載到、減少動態效果、或手機可視高度不到 620px 時，是一般的直向頁面。
+-->
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>豐盛之翼學苑</title>
+<script>
+  window.__hsShort = function () { return window.innerWidth < 1024 && window.innerHeight < 620; };
+  (function (r) { r.classList.add('js'); if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && !window.__hsShort()) r.classList.add('motion', 'stage-on'); })(document.documentElement);
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap">
+<style>
+:root {
+  --stage: #FFFEFA; --cream: #FBF1DD; --ink: #3A2A18; --ink-soft: #7A6650;
+  --gold-hi: #FFF4CC; --gold: #E9BC5E; --gold-mid: #D89A3E; --gold-deep: #B5762A; --gold-edge: #8A5415;
+  --silver-light: #FAFAF8; --silver: #E3E1DC; --silver-deep: #C4C1BA; --silver-edge: #A9A59D; --silver-foreground: #3A2A18;
+  --inverse: #20140A; --inverse-accent: #F0C875;
+  --font-serif: "Noto Serif TC", "Songti TC", serif; --font-sans: "Noto Sans TC", "PingFang TC", sans-serif;
+  --hdr: 64px; --bar: 0px; --tw-w: 1000px; --floor: 66vh; --lift: 10vh; --capgap: 26px;
+}
+@supports (height: 1svh) { :root { --floor: 66svh; --lift: 10svh; } }
+@media (max-width: 1023.98px) {
+  :root { --bar: calc(68px + env(safe-area-inset-bottom, 0px)); --tw-w: 560px; --floor: 62vh; --lift: 4vh; --capgap: 62px; }
+  @supports (height: 1svh) { :root { --floor: 62svh; --lift: 4svh; } }
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; background: var(--stage); }
+body { margin: 0; color: var(--ink); font-family: var(--font-sans); font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+@supports (overflow: clip) { body { overflow-x: clip; } }
+h1, h2, h3 { font-family: var(--font-serif); color: var(--ink); margin: 0; line-height: 1.4; font-weight: 700; }
+p { margin: 0; } a { color: inherit; text-decoration: none; } ul, ol { margin: 0; padding: 0; list-style: none; }
+svg { display: block; } button { font: inherit; color: inherit; }
+summary { list-style: none; cursor: pointer; } summary::-webkit-details-marker { display: none; }
+.ico { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+:focus-visible { outline: 2px solid var(--gold-deep); outline-offset: 3px; border-radius: 8px; }
+
+/* 兩種金屬：金（主要行動）與銀（次要行動與小反光） */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 20px; border-radius: 999px; font: 700 16px/1.3 var(--font-sans); cursor: pointer; border: 1px solid transparent; text-align: center; }
+.btn-gold { background: linear-gradient(180deg, #FFF1BF 0%, #F3CE78 42%, #D89A3E 100%); color: #3A2409; border-color: var(--gold-deep); box-shadow: 0 4px 14px rgba(201,134,46,.35), inset 0 1px 0 rgba(255,255,255,.55); }
+.btn-line, .btn-silver { background: linear-gradient(135deg, var(--silver-light) 0%, var(--silver) 45%, var(--silver-deep) 100%); color: var(--silver-foreground); border: 1px solid var(--silver-edge); box-shadow: 0 3px 10px rgba(110,106,98,.22), inset 0 1px 0 rgba(255,255,255,.9); }
+.btn-inverse { border-color: rgba(240,200,117,.6); color: var(--inverse-accent); background: transparent; font-weight: 600; }
+.btn-sm { font-size: 14px; padding-inline: 14px; }
+.disc { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; padding: 0; cursor: pointer; background: radial-gradient(circle at 34% 28%, #FFFFFF 0, var(--silver-light) 30%, var(--silver) 62%, var(--silver-deep) 100%); border: 1px solid var(--silver-edge); box-shadow: 0 3px 10px rgba(110,106,98,.25), inset 0 1px 0 rgba(255,255,255,.95); color: var(--gold-edge); }
+.lk { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; color: var(--gold-edge); }
+.lbl { font-size: 14px; font-weight: 700; letter-spacing: .1em; color: var(--gold-edge); }
+
+/* 頁首：舞台釘住時只留標誌與商城 */
+.site-header { position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--hdr); background: rgba(255,254,250,.94); border-bottom: 1px solid rgba(201,134,46,.22); transition: background-color .3s ease, border-color .3s ease; }
+.stage-on .site-header { background: transparent; border-color: transparent; }
+.site-header .bar { max-width: 1180px; height: 100%; margin-inline: auto; padding-inline: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font: 700 18px/1 var(--font-serif); letter-spacing: .06em; color: var(--ink); }
+.brand svg { width: 40px; height: 24px; }
+.nav { display: none; gap: 4px; } .nav details { position: relative; }
+.nav summary { display: flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px; font-size: 14px; font-weight: 500; color: #5A4A38; border-radius: 999px; }
+.nav summary .ico { width: 14px; height: 14px; }
+.nav ul, .mnav__panel { position: absolute; background: #FFFFFF; border: 1px solid rgba(201,134,46,.25); box-shadow: 0 12px 30px rgba(58,42,24,.12); }
+.nav ul { top: 100%; left: 0; min-width: 200px; padding: 8px; border-radius: 14px; }
+.nav li a, .mnav__panel a { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; }
+.nav li a:hover, .mnav__panel a:hover { background: #FFF6DC; }
+.site-header .actions { display: flex; gap: 8px; align-items: center; }
+.site-header .only-desktop { display: none; }
+.mnav > summary { display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--silver-edge); background: var(--silver-light); color: var(--gold-edge); }
+.mnav__panel { top: var(--hdr); left: 0; right: 0; padding: 12px 16px 16px; border-width: 0 0 1px; max-height: calc(100vh - var(--hdr)); overflow-y: auto; }
+.mnav__panel p { margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--gold-edge); letter-spacing: .08em; }
+.stage-on .nav, .stage-on .mnav, .stage-on .site-header .only-desktop { visibility: hidden; }
+@media (min-width: 1024px) { .site-header .bar { padding-inline: 40px; } .nav { display: flex; } .site-header .only-desktop { display: inline-flex; } .mnav { display: none; } }
+
+/* 手機底部固定列：金色主按鈕＋銀色私訊諮詢 */
+.sticky-cta { position: fixed; inset: auto 0 0 0; z-index: 40; display: flex; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(255,254,250,.95); border-top: 1px solid rgba(201,134,46,.22); }
+.sticky-cta .btn { min-width: 0; } .sticky-cta .btn-gold { flex: 1; padding-inline: 10px; font-size: 15px; white-space: nowrap; }
+.sticky-cta .btn-line { flex: none; padding-inline: 14px; font-size: 15px; }
+@media (min-width: 1024px) { .sticky-cta { display: none; } }
+
+/* 金翼羅盤（2026-10-06 重繪；部件：左翼、右翼、三層羽毛、羅盤）。收攏＝每根羽毛繞肩點轉 --fold × (1 − --open) */
+.emblem { position: relative; width: min(100%, 460px); aspect-ratio: 474 / 249; }
+.em { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.f { transform-box: view-box; transform-origin: 199.92px 161px; transform: rotate(calc(var(--fold) * (1 - var(--open, 1)))); }
+.em-gapx { transform: translateX(calc((1 - var(--gap, 1)) * 37.08px)); }
+.tier-1 { opacity: var(--l1, 1); } .tier-2 { opacity: var(--l2, 1); } .tier-3 { opacity: var(--l3, 1); }
+.em-needle { transform-box: view-box; transform-origin: 237px 161px; transform: rotate(calc(var(--needle, 0) * 1deg)); }
+.booted .emblem--live .em-wings { visibility: hidden; }
+
+/* 固定的舞台布景（在所有內容後面）與前景金塵（在內容前面） */
+.theatre, .tw-layer, .dust-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; display: none; }
+.motion .theatre, .motion .tw-layer, .motion .dust-layer { display: block; }
+.theatre { z-index: -1; --halo-y: calc((var(--floor) + var(--lift) + var(--hdr) + 12px) / 2); }
+.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.halo, .flare { position: absolute; left: 50%; top: var(--halo-y); width: 150vmin; height: 150vmin; margin: -75vmin 0 0 -75vmin; }
+.halo__in { width: 100%; height: 100%; animation: breathe 9s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.05); } }
+.rays { position: absolute; inset: 6%; border-radius: 50%; background: repeating-conic-gradient(from -4deg, rgba(201,134,46,0) 0 8deg, rgba(201,134,46,.13) 8deg 9.2deg, rgba(201,134,46,0) 9.2deg 15deg); -webkit-mask-image: radial-gradient(closest-side, transparent 30%, #000 50%, transparent 100%); mask-image: radial-gradient(closest-side, transparent 30%, #000 50%, transparent 100%); animation: spin 160s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.flare { opacity: 0; width: 170vmax; height: 170vmax; margin: -85vmax 0 0 -85vmax; }
+.floor { position: absolute; left: 0; right: 0; top: var(--floor); height: 46vh; }
+.floor svg { width: 100%; height: 100%; }
+.tw-shadow { position: absolute; left: 0; top: calc(var(--floor) + var(--lift) * .4); width: 320px; height: 34px; margin: -17px 0 0 -160px; border-radius: 50%; background: radial-gradient(closest-side, rgba(138,84,21,.26), rgba(138,84,21,.1) 55%, transparent); opacity: 0; will-change: transform, opacity; }
+.tw-layer { z-index: 1; visibility: hidden; } .booted .tw-layer { visibility: visible; }
+.tw { position: absolute; left: 0; top: 0; width: var(--tw-w); aspect-ratio: 474 / 249; margin: calc(var(--tw-w) * -.3397) 0 0 calc(var(--tw-w) / -2); transform-origin: 50% 64.66%; will-change: transform; --open: 1; --gap: 1; --glow: 1; --l1: 1; --l2: 1; --l3: 1; --dim: 1; }
+.tw__float { position: absolute; inset: 0; opacity: var(--dim); animation: tw-bob 5.5s ease-in-out infinite; }
+@keyframes tw-bob { 50% { transform: translateY(-1.8%); } }
+.tw__glow { position: absolute; inset: -22% -4% -30%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.95) 0, rgba(255,244,204,.75) 36%, rgba(240,200,117,.28) 62%, rgba(240,200,117,0) 100%); opacity: var(--glow); }
+.tw__core { position: absolute; left: 46.5%; top: 58%; width: 7%; aspect-ratio: 1; opacity: calc(1 - var(--gap)); transform: scale(calc(1.25 - var(--gap) * .6)); }
+.dust-layer { z-index: 3; transition: opacity .3s ease; } .sheet-open .dust-layer, .motion:not(.stage-on) .dust-layer { opacity: 0 !important; }
+.dw { position: absolute; will-change: transform; opacity: .5; } .dust { width: 100%; height: 100%; animation: drift 19s ease-in-out infinite alternate; }
+.dw:nth-child(2n) .dust { animation-duration: 26s; animation-direction: alternate-reverse; }
+@keyframes drift { from { transform: translate3d(-14px, 10px, 0) scale(.96); } to { transform: translate3d(16px, -18px, 0) scale(1.05); } }
+.sweep { position: absolute; top: -20%; left: 0; width: 70vw; height: 140%; background: linear-gradient(100deg, rgba(255,255,255,0) 0, rgba(255,255,255,.96) 42%, rgba(255,240,196,.75) 58%, rgba(255,255,255,0) 100%); opacity: 0; transform: translateX(-130%) skewX(-12deg); will-change: transform, opacity; }
+.dock { position: absolute; display: block; aspect-ratio: 474 / 249; pointer-events: none; visibility: hidden; }
+
+/* ───── 一般頁面模式（沒有 .motion） ───── */
+main { padding-top: var(--hdr); }
+.slide { padding: 48px 0; }
+.stage__in, .wrap { max-width: 760px; margin-inline: auto; padding-inline: 24px; position: relative; }
+.subject, .book-tabs, .fan, .act, .more > summary, .sheet__close, .sheet__grip, .floor-mark, .s3-compass { display: none; }
+.capzone, .s3-caps { display: grid; gap: 14px; }
+.cap { font: 700 24px/1.45 var(--font-serif); color: var(--ink); }
+.hero h1.cap { font-size: clamp(26px, 7vw, 38px); }
+.cap--line { font-size: 18px; color: var(--gold-edge); }
+.sheet { display: grid; gap: 12px; }
+.sheet .pain { font: 600 17px/1.75 var(--font-serif); }
+.sheet .desc { color: var(--ink-soft); }
+.badges { display: grid; gap: 6px; font-size: 14px; color: var(--ink-soft); }
+.badges li { display: flex; gap: 6px; align-items: flex-start; } .badges .ico { width: 16px; height: 16px; margin-top: 4px; color: var(--gold-deep); }
+.story { border-bottom: 1px solid rgba(201,134,46,.3); }
+.story > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; font-weight: 700; }
+.story > p { padding-bottom: 12px; color: var(--ink-soft); }
+.plus { position: relative; flex: none; width: 22px; height: 22px; border: 1.5px solid var(--gold-deep); border-radius: 50%; transition: transform .25s ease; }
+.plus::before, .plus::after { content: ''; position: absolute; left: 50%; top: 50%; width: 10px; height: 1.5px; margin: -.75px 0 0 -5px; background: var(--gold-deep); } .plus::after { transform: rotate(90deg); }
+details[open] > summary .plus { transform: rotate(45deg); }
+.cta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc a { display: flex; align-items: center; gap: 10px; min-height: 48px; font: 700 17px/1.4 var(--font-serif); }
+.toc .ico { color: var(--gold-deep); }
+.panel { margin-top: 28px; display: grid; gap: 12px; }
+.nodes { display: grid; gap: 4px; margin-top: 8px; }
+.node { display: flex; align-items: center; gap: 12px; min-height: 48px; font-weight: 700; }
+.node__dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFE9A8, var(--gold-mid) 55%, var(--gold-deep)); box-shadow: 0 0 0 6px rgba(240,200,117,.3); }
+.nodes .sheet { padding: 0 0 12px 24px; color: var(--ink-soft); }
+.node__in { display: flex; align-items: center; gap: 12px; }
+/* 一般頁面模式：標題一 → 三階段 → 標題二 → 三項服務（視覺順序；清單各自以 aria-labelledby 對應標題） */
+.fan-slide .stage__in { display: grid; } .s3-caps, .s3-caps .caps { display: contents; }
+#stages-h { order: 1; } .nodes[data-set="stages"] { order: 2; } #featured-services { order: 3; margin-top: 36px; } .nodes[data-set="services"] { order: 4; }
+.num { display: none; }
+
+/* 收束與頁尾 */
+.cta-band { text-align: center; padding: 72px 24px 64px; }
+.cta-band__in { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.cta-band .emblem { width: min(78vw, 360px); } .cta-band .emblem .dock { inset: 0; }
+.cta-band h2 { font-size: 26px; }
+.cta-band .row { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; }
+.inverse { background: var(--inverse); color: #F5E4C8; }
+.site-footer { padding: 40px 24px calc(40px + var(--bar)); color: #C7AE8A; }
+.site-footer .wrap { z-index: 2; max-width: 1180px; display: grid; gap: 28px; padding-inline: 0; }
+.site-footer h3 { font: 700 14px/1.4 var(--font-sans); letter-spacing: .08em; color: var(--inverse-accent); margin-bottom: 6px; }
+.site-footer a { display: flex; align-items: center; gap: 8px; min-height: 40px; } .site-footer a:hover { color: #FFFDF0; }
+.f-brand { display: inline-flex; align-items: center; gap: 8px; font: 700 18px/1 var(--font-serif); color: #FFFDF0; } .f-brand svg { width: 40px; height: 24px; }
+.f-status { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--inverse-accent); } .f-status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--silver); }
+.f-nav { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.f-disc { padding: 18px 20px; border-radius: 16px; background: #170E07; color: #B49A76; } .f-disc strong { display: block; color: var(--inverse-accent); margin-bottom: 4px; }
+.f-end { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; font-size: 14px; color: #8A7458; }
+@media (min-width: 1024px) {
+  .cta-band h2 { font-size: 32px; } .cta-band .row { flex-direction: row; justify-content: center; max-width: none; }
+  .site-footer .wrap { grid-template-columns: 3fr 5fr 4fr; gap: 40px; padding-inline: 16px; } .f-nav { grid-template-columns: repeat(3, 1fr); } .f-wide { grid-column: 1 / -1; }
+}
+@media (max-width: 1023.98px) { .act .btn-gold { display: none !important; } }
+
+/* ═════ 以下只在 .motion（白金舞台）生效 ═════ */
+.motion main { padding-top: 0; }
+.motion .slide { padding: 0; height: calc(100vh * (1 + var(--pin))); height: calc(100lvh * (1 + var(--pin))); }
+.motion .hero { --pin: 1; } .motion .book-slide { --pin: 1.5; } .motion .fan-slide { --pin: 1.5; }
+.motion .stage { position: sticky; top: 0; z-index: 2; height: 100vh; height: 100lvh; overflow: hidden; overflow: clip; }
+.motion .stage__in { height: 100vh; height: 100svh; max-width: none; padding: 0; }
+.motion .subject { display: grid; place-items: center; position: absolute; left: 0; right: 0; top: calc(var(--hdr) + 12px); height: calc(var(--floor) + var(--lift) - var(--hdr) - 12px); }
+.motion .floor-mark { display: block; position: absolute; left: 50%; top: calc(var(--floor) + var(--lift) * .4); width: min(70vw, 620px); height: 40px; margin: -20px 0 0 calc(min(70vw, 620px) / -2); border-radius: 50%; background: radial-gradient(closest-side, rgba(138,84,21,.2), rgba(138,84,21,.07) 55%, transparent); }
+.motion .capzone { display: grid; justify-items: center; gap: 8px; position: absolute; left: 24px; right: 24px; top: calc(var(--floor) + var(--lift) + var(--capgap)); text-align: center; }
+.motion .num { display: inline-flex; align-items: center; gap: 12px; font: 600 13px/1 var(--font-serif); letter-spacing: .3em; color: var(--gold-deep); height: 16px; }
+.motion .num::before, .motion .num::after { content: ''; width: 34px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-deep)); } .motion .num::after { transform: scaleX(-1); }
+.motion .caps { display: grid; justify-items: center; align-items: start; width: 100%; min-height: 2.9em; font-size: 21px; }
+.motion .caps > * { grid-area: 1 / 1; }
+.motion .cap, .motion .hero h1.cap { font: 700 21px/1.45 var(--font-serif); letter-spacing: .05em; color: var(--ink); margin: 0; }
+.motion .cap--later { opacity: 0; }
+.motion .act { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.motion .more > summary { display: inline-flex; }
+.motion .panel { margin: 0; display: block; }
+/* 底部抽屜：收合時不在畫面上；打開時在頁首與底部固定列之間 */
+.motion .sheet { position: fixed; z-index: 30; left: 0; right: 0; bottom: var(--bar); max-height: calc(100svh - var(--hdr) - var(--bar) - 28px); overflow-y: auto; margin: 0; padding: 30px 24px 28px; text-align: left; background: linear-gradient(180deg, #FFFFFF, #FCFAF4); border-radius: 26px 26px 0 0; box-shadow: 0 -1px 0 rgba(201,134,46,.35), 0 -22px 60px rgba(138,84,21,.2); }
+.motion .panel > .sheet { visibility: hidden; transform: translateY(104%); transition: transform .38s cubic-bezier(.22,1,.36,1), visibility 0s linear .38s; }
+.motion .panel > .sheet.is-open { visibility: visible; transform: none; transition: transform .38s cubic-bezier(.22,1,.36,1), visibility 0s; }
+.motion details[open] > .sheet { animation: sheet-in .38s cubic-bezier(.22,1,.36,1); }
+.motion:not(.booted) .sheet, .motion details:not([open]) > .sheet { visibility: hidden; }
+@keyframes sheet-in { from { transform: translateY(104%); } }
+.motion .sheet { font: 400 16px/1.7 var(--font-sans); letter-spacing: 0; color: var(--ink); }
+.motion .sheet__grip { display: block; position: absolute; left: 50%; top: 10px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: linear-gradient(180deg, var(--silver), var(--silver-deep)); }
+.motion .sheet__close { display: inline-flex; position: absolute; right: 12px; top: 12px; }
+.motion .sheet > :nth-child(3) { padding-right: 44px; }
+.motion .nodes .sheet { padding: 30px 24px 28px; color: var(--ink); }
+
+/* 書（純圖形；文字在字幕與抽屜裡） */
+.motion .book-wrap { position: relative; align-self: end; width: calc(var(--pw) * 2); height: var(--ph); cursor: pointer; }
+.motion .book-inner { position: absolute; inset: 0; }
+.motion .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.motion .cover { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 4px 14px 14px 4px; background: linear-gradient(135deg, #FFFFFF 0%, #FCF9F0 46%, #F0EADB 100%); box-shadow: inset 0 0 0 1px rgba(181,118,42,.55), inset 10px 0 14px -8px rgba(110,106,98,.4), 0 26px 50px rgba(138,84,21,.22); }
+.motion .cover::before { content: ''; position: absolute; inset: 14px 14px 14px 22px; border-radius: 2px 8px 8px 2px; border: 2px solid transparent; background: linear-gradient(135deg, #F6D88F, #B5762A 45%, #F3CE78 60%, #8A5415) border-box; -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0); }
+.motion .cover::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; border-radius: 4px 0 0 4px; background: linear-gradient(90deg, var(--silver-deep), var(--silver-light) 45%, var(--silver) 70%, var(--silver-edge)); }
+.motion .cover svg { width: 42%; filter: drop-shadow(0 8px 14px rgba(138,84,21,.3)); }
+.motion .pg { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(90deg, #EDE7DA 0, #FBF9F3 5%, #FFFFFF 18%, #FDFBF6 100%); border-radius: 3px 12px 12px 3px; box-shadow: inset 0 0 0 1px rgba(196,193,186,.6); }
+.motion .face--back .pg { background: linear-gradient(270deg, #EDE7DA 0, #FBF9F3 5%, #FFFFFF 18%, #FDFBF6 100%); border-radius: 12px 3px 3px 12px; }
+.motion .pg__ico { width: 46%; max-width: 190px; }
+.motion .pg__n { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font: 600 12px/1 var(--font-serif); letter-spacing: .2em; color: var(--silver-edge); }
+.motion .pg__plus { position: absolute; right: 14px; bottom: 14px; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 34% 28%, #FFFFFF 0, var(--silver-light) 30%, var(--silver) 62%, var(--silver-deep) 100%); box-shadow: 0 2px 6px rgba(110,106,98,.3), inset 0 0 0 1px var(--silver-edge); }
+.motion .pg__plus::before, .motion .pg__plus::after { content: ''; position: absolute; left: 50%; top: 50%; width: 12px; height: 1.5px; margin: -.75px 0 0 -6px; background: var(--gold-edge); } .motion .pg__plus::after { transform: rotate(90deg); }
+.motion .pg__mark { width: 52%; opacity: .5; }
+.motion .board { position: absolute; background: linear-gradient(135deg, #F3CE78, #B5762A 50%, #E9BC5E 62%, #8A5415); }
+.motion .book-tabs { display: flex; position: absolute; z-index: 3; }
+.motion .tab { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; font: 700 14px/1 var(--font-sans); color: var(--silver-foreground); background: linear-gradient(135deg, var(--silver-light) 0%, var(--silver) 45%, var(--silver-deep) 100%); border: 1px solid var(--silver-edge); box-shadow: inset 0 1px 0 rgba(255,255,255,.9); cursor: pointer; }
+.motion .tab[aria-selected="true"] { background: linear-gradient(180deg, #FFF1BF 0%, #F3CE78 42%, #D89A3E 100%); border-color: var(--gold-deep); color: #3A2409; box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 3px 10px rgba(201,134,46,.3); }
+
+/* 03 扇形圖 */
+.motion .fan { display: block; position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
+.motion .fan path, .motion .fan line { fill: none; stroke: var(--gold-deep); stroke-width: 1.2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.motion .fan .ray { opacity: 0; }
+.motion .fan .arc--ghost { stroke: rgba(181,118,42,.28); }
+.motion .s3-caps { position: absolute; left: 24px; right: 24px; top: calc(var(--hdr) + 14px); display: grid; justify-items: center; gap: 8px; margin: 0; text-align: center; }
+.motion .fan-slide .stage__in { display: block; } .motion .s3-caps .caps { display: grid; min-height: 0; } .motion #featured-services { margin-top: 0; }
+.motion .s3-compass { display: block; position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.motion .s3-compass .emblem { position: absolute; width: var(--fan-w, 400px); left: calc(var(--fan-w, 400px) / -2); top: calc(var(--fan-w, 400px) * -.3397); }
+.motion .s3-compass .dock { inset: 0; }
+.motion .nodes { display: block; margin: 0; }
+.motion .node { position: absolute; left: 0; top: 0; display: inline-flex; gap: 2px; min-height: 44px; min-width: 44px; font: 700 14px/1.45 var(--font-sans); color: var(--ink); visibility: hidden; opacity: 0; }
+.motion .node__in { display: inline-flex; gap: inherit; align-items: inherit; flex-direction: inherit; }
+.motion .node__dot { width: 44px; height: 44px; background: none; box-shadow: none; display: grid; place-items: center; }
+.motion .node__dot::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFE9A8, var(--gold-mid) 55%, var(--gold-deep)); box-shadow: 0 0 0 6px rgba(240,200,117,.32), 0 0 14px 6px rgba(255,244,204,.9); }
+.motion .node__t { display: block; width: max-content; max-width: var(--lw, 164px); text-wrap: balance; text-shadow: 0 0 3px #FFFEFA, 0 0 6px #FFFEFA, 0 0 10px #FFFEFA, 0 0 14px #FFFEFA; }
+.motion .node--al { flex-direction: column-reverse; align-items: flex-start; transform: translate(-22px, calc(-100% + 22px)); text-align: left; } .motion .node--al .node__t { padding-left: 10px; }
+.motion .node--ar { flex-direction: column-reverse; align-items: flex-end; transform: translate(calc(-100% + 22px), calc(-100% + 22px)); text-align: right; } .motion .node--ar .node__t { padding-right: 10px; }
+.motion .node--ac { flex-direction: column-reverse; align-items: center; transform: translate(-50%, calc(-100% + 22px)); text-align: center; }
+.motion .node--bl { flex-direction: column; align-items: flex-start; transform: translate(-22px, -22px); text-align: left; } .motion .node--bl .node__t { padding-left: 10px; }
+.motion .node--br { flex-direction: column; align-items: flex-end; transform: translate(calc(-100% + 22px), -22px); text-align: right; } .motion .node--br .node__t { padding-right: 10px; }
+.motion .node--lift .node__t { padding-bottom: 18px; }
+.motion .node--l { flex-direction: row-reverse; align-items: center; transform: translate(calc(-100% + 22px), -50%); text-align: right; }
+.motion .node--r { flex-direction: row; align-items: center; transform: translate(-22px, -50%); text-align: left; }
+
+@media (min-width: 1024px) {
+  .motion .caps { font-size: 32px; } .motion .cap, .motion .hero h1.cap { font-size: 32px; letter-spacing: .06em; } .motion .caps { min-height: 1.5em; }
+  .motion .cap br { display: none; }
+  .motion .capzone { grid-template-columns: auto auto; justify-content: center; column-gap: 12px; } .motion .capzone > .num, .motion .capzone > .caps { grid-column: 1 / -1; }
+  .motion .capzone > .act { justify-self: end; } .motion .capzone > .act + .more { justify-self: start; } .motion .book-slide .capzone > .more { grid-column: 1 / -1; }
+  .motion .sheet { left: auto; right: 24px; bottom: 24px; width: 420px; max-height: calc(100svh - var(--hdr) - 48px); border-radius: 26px; box-shadow: 0 0 0 1px rgba(201,134,46,.3), 0 24px 70px rgba(138,84,21,.22); }
+  .motion .panel > .sheet { transform: translateX(110%); } @keyframes sheet-in { from { transform: translateX(110%); } }
+  .motion .hero__emb { width: min(900px, 72vw, calc((var(--floor) + var(--lift) - var(--hdr) - 12px) * 1.8)); }
+  .motion .book-slide { --ph: calc(var(--floor) + var(--lift) - var(--hdr) - 74px); --pw: min(calc(var(--ph) * .72), calc((100vw - 260px) / 2), 380px); }
+  .motion .book-wrap .dock[data-dock="book-closed"] { left: calc(50% - var(--pw) * 1.15); width: calc(var(--pw) * 2.3); top: calc(var(--ph) * .5 - var(--pw) * .781); }
+  .motion .book-wrap .dock[data-dock="book-open"] { left: calc(50% - var(--pw) * .45); width: calc(var(--pw) * .9); top: calc(var(--pw) * -.286); }
+  .motion .face--back .pg__plus { display: none; }
+  .motion .book-shift { position: absolute; inset: 0; transform: translateX(calc(var(--pw) / -2)); }
+  .motion .book-scene { position: absolute; inset: 0; perspective: 2200px; }
+  .motion .book-inner { transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
+  .motion .board { left: 50%; top: 0; width: 50%; height: 100%; border-radius: 4px 14px 14px 4px; transform: translateZ(-16px); box-shadow: 0 30px 60px rgba(138,84,21,.22); }
+  .motion .leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; transform-origin: 0 50%; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
+  .motion .leaf__in { position: absolute; inset: 0; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transform: translateZ(calc(var(--i) * -2px)); }
+  .motion .face--back { transform: rotateY(180deg); }
+  .motion .leaf + .leaf .face { inset: 5px 5px 5px 0; }
+  .motion .face--inside { padding: 5px 0 5px 5px; background: linear-gradient(135deg, #F3CE78, #B5762A 50%, #E9BC5E 62%, #8A5415); border-radius: 14px 4px 4px 14px; } .motion .face--inside .pg { position: relative; height: 100%; }
+  .motion .book-tabs { left: calc(50% + var(--pw) - 4px); top: calc(var(--hdr) + 74px + var(--ph) * .08); flex-direction: column; gap: 8px; }
+  .motion .tab { width: 72px; height: 54px; padding-left: 6px; border-radius: 0 12px 12px 0; border-left: 0; }
+  .motion .node { font-size: 16px; }
+}
+@media (max-width: 1023.98px) {
+  .motion .hero { --pin: .8; } .motion .book-slide { --pin: 1.2; } .motion .fan-slide { --pin: 1.2; }
+  .motion .hero__emb { width: 122vw; margin-inline: -11vw; }
+  .motion .more > summary { position: absolute; left: 50%; top: calc(var(--capgap) * -1 + 6px); margin-left: -22px; }
+  .motion .book-slide { --ph: calc(var(--floor) + var(--lift) - var(--hdr) - 62px); --pw: min(calc(100vw - 48px), calc(var(--ph) * .76)); }
+  .motion .book-wrap { width: var(--pw); }
+  .motion .book-wrap .dock[data-dock="book-closed"] { left: calc(50% - var(--pw) * .72); width: calc(var(--pw) * 1.44); top: calc(var(--ph) * .5 - var(--pw) * .489); }
+  .motion .book-wrap .dock[data-dock="book-open"] { left: calc(50% - var(--pw) * .39); width: calc(var(--pw) * .78); top: calc(var(--pw) * -.245); }
+  .motion .book-shift, .motion .book-scene { position: absolute; inset: 0; }
+  .motion .board { inset: -4px -4px -4px 0; border-radius: 4px 16px 16px 4px; box-shadow: 0 18px 40px rgba(138,84,21,.2); transform: scale(.86); }
+  .motion .cover { transform: scale(.86); }
+  .motion .leaf { position: absolute; inset: 0; z-index: calc(10 - var(--i)); }
+  .motion .leaf__in { position: absolute; inset: 0; perspective: 1400px; }
+  .motion .face { transform-origin: 0 50%; } .motion .face--front { z-index: 2; } .motion .face--back { z-index: 1; }
+  .motion .face--right { display: none; }
+  .motion .leaf + .leaf, .motion .face--inside { opacity: 0; }
+  .motion .book-tabs { left: 50%; top: calc(var(--floor) + var(--lift) + 6px); width: 312px; margin-left: -156px; gap: 6px; }
+  .motion .tab { flex: 1; border-radius: 0 0 12px 12px; border-top: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="em-gold-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9862E"/><stop offset="1" stop-color="#B5762A"/></linearGradient><linearGradient id="em-gold-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2A84E"/><stop offset="1" stop-color="#D89A3E"/></linearGradient><linearGradient id="em-gold-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBE9B0"/><stop offset="1" stop-color="#F5D98A"/></linearGradient><linearGradient id="em-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2A84E"/><stop offset="1" stop-color="#B5762A"/></linearGradient><linearGradient id="em-silver" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FAFAF8"/><stop offset="1" stop-color="#C4C1BA"/></linearGradient><linearGradient id="em-dial" x1="0" y1="0" x2="1.618033988749895" y2="1.618033988749895"><stop offset="0" stop-color="#FFFDF0"/><stop offset="1" stop-color="#FBE9B0"/></linearGradient>
+    <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3CE78"/><stop offset=".45" stop-color="#B5762A"/><stop offset=".6" stop-color="#E9BC5E"/><stop offset="1" stop-color="#8A5415"/></linearGradient>
+    <radialGradient id="g-ground" cx=".5" cy=".42" r=".75"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#FFFEFA"/><stop offset=".78" stop-color="#FDF8EC"/><stop offset="1" stop-color="#FBF1DD"/></radialGradient>
+    <radialGradient id="g-halo"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".28" stop-color="#FFFFFF" stop-opacity=".95"/><stop offset=".5" stop-color="#FFF1C4" stop-opacity=".7"/><stop offset=".72" stop-color="#F6D88F" stop-opacity=".22"/><stop offset="1" stop-color="#F6D88F" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-flare"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".4" stop-color="#FFFFFF"/><stop offset=".62" stop-color="#FFF4CC" stop-opacity=".9"/><stop offset=".82" stop-color="#F3CE78" stop-opacity=".35"/><stop offset="1" stop-color="#F3CE78" stop-opacity="0"/></radialGradient>
+    <linearGradient id="g-floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0DBA6" stop-opacity=".5"/><stop offset=".12" stop-color="#F6E8C4" stop-opacity=".32"/><stop offset=".6" stop-color="#FBF1DD" stop-opacity=".12"/><stop offset="1" stop-color="#FBF1DD" stop-opacity="0"/></linearGradient>
+    <linearGradient id="g-horizon" x1="0" x2="1"><stop offset="0" stop-color="#B5762A" stop-opacity="0"/><stop offset=".5" stop-color="#B5762A" stop-opacity=".5"/><stop offset="1" stop-color="#B5762A" stop-opacity="0"/></linearGradient>
+    <radialGradient id="g-glint"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#FFF4CC" stop-opacity=".6"/><stop offset="1" stop-color="#FFF4CC" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-dust-gold"><stop offset="0" stop-color="#FFF4CC" stop-opacity=".95"/><stop offset=".45" stop-color="#F3CE78" stop-opacity=".5"/><stop offset=".8" stop-color="#E9BC5E" stop-opacity=".16"/><stop offset="1" stop-color="#E9BC5E" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-dust-silver"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/><stop offset=".5" stop-color="#E3E1DC" stop-opacity=".5"/><stop offset=".82" stop-color="#C4C1BA" stop-opacity=".14"/><stop offset="1" stop-color="#C4C1BA" stop-opacity="0"/></radialGradient>
+    <g id="em-compass" class="em-compass" stroke="#8A5415" stroke-width=".9" stroke-linejoin="round" stroke-linecap="round"><circle id="em-dial" cx="237" cy="161" r="54.59" fill="url(#em-dial)"/><path id="em-compass-ring" d="M177 161a60 60 0 1 0 120 0a60 60 0 1 0 -120 0ZM182.41 161a54.59 54.59 0 1 0 109.18 0a54.59 54.59 0 1 0 -109.18 0Z" fill="url(#em-ring)" fill-rule="evenodd"/><g id="em-compass-marks"><g class="mark" data-dir="n"><circle cx="237" cy="110.12" r="2.07" fill="url(#em-gold-2)"/></g><g class="mark" data-dir="e"><circle cx="287.88" cy="161" r="2.07" fill="url(#em-gold-2)"/></g><g class="mark" data-dir="s"><circle cx="237" cy="211.88" r="2.07" fill="url(#em-gold-2)"/></g><g class="mark" data-dir="w"><circle cx="186.12" cy="161" r="2.07" fill="url(#em-gold-2)"/></g><path class="tick" d="M271.8 126.2L274.16 123.84" fill="none"/><path class="tick" d="M271.8 195.8L274.16 198.16" fill="none"/><path class="tick" d="M202.2 195.8L199.84 198.16" fill="none"/><path class="tick" d="M202.2 126.2L199.84 123.84" fill="none"/></g><path id="em-compass-inner" d="M189.83 161a47.17 47.17 0 1 0 94.34 0a47.17 47.17 0 1 0 -94.34 0ZM191.9 161a45.1 45.1 0 1 0 90.21 0a45.1 45.1 0 1 0 -90.21 0Z" fill="url(#em-silver)" fill-rule="evenodd"/><path id="em-rose" d="M237 128.12L244.87 153.13L259.92 161L244.87 168.87L237 193.88L229.13 168.87L214.08 161L229.13 153.13Z" fill="url(#em-gold-3)"/><g id="em-needle" class="em-needle"><path d="M237 119.24L232.75 161L237 202.76Z" fill="#C9862E"/><path d="M237 119.24L241.25 161L237 202.76Z" fill="url(#em-silver)"/></g><g id="em-pin"><circle cx="237" cy="161" r="4.8" fill="url(#em-gold-2)"/><circle cx="237" cy="161" r="1.28" fill="#3A2A18" stroke="none"/></g></g>
+    <symbol id="wm" viewBox="0 0 72 44" fill="none"><g stroke="#8A5415" stroke-width="1.1" stroke-linejoin="round"><defs><linearGradient id="emk-gold-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9862E"/><stop offset="1" stop-color="#B5762A"/></linearGradient><linearGradient id="emk-gold-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2A84E"/><stop offset="1" stop-color="#D89A3E"/></linearGradient><linearGradient id="emk-gold-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBE9B0"/><stop offset="1" stop-color="#F5D98A"/></linearGradient><linearGradient id="emk-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2A84E"/><stop offset="1" stop-color="#B5762A"/></linearGradient></defs><g id="emk-wing-l"><path fill="url(#emk-gold-1)" d="M27.41 28.35C27.4 21.11 24.41 13.23 17.39 7.29 9.46 .6 4.24 .69 2.83 3.77 1.42 6.85 4.59 9.23 11.11 14.73 16.89 19.61 21.93 23.61 27.41 28.35Z"/><path fill="url(#emk-gold-2)" d="M27.41 28.35C25.18 23.11 20.6 18.33 13.69 16.19 5.9 13.78 2.15 15.44 2.07 18.11 2 20.78 5.02 21.52 11.43 23.5 17.11 25.26 21.99 26.6 27.41 28.35Z"/><path fill="url(#emk-gold-3)" d="M27.41 28.35C24.19 25.24 19.4 23.19 13.74 23.76 7.37 24.41 5.16 26.77 5.93 28.72 6.7 30.67 9.11 30.28 14.35 29.75 19 29.27 22.95 28.75 27.41 28.35Z"/></g><g id="emk-wing-r" transform="translate(72 0) scale(-1 1)"><path fill="url(#emk-gold-1)" d="M27.41 28.35C27.4 21.11 24.41 13.23 17.39 7.29 9.46 .6 4.24 .69 2.83 3.77 1.42 6.85 4.59 9.23 11.11 14.73 16.89 19.61 21.93 23.61 27.41 28.35Z"/><path fill="url(#emk-gold-2)" d="M27.41 28.35C25.18 23.11 20.6 18.33 13.69 16.19 5.9 13.78 2.15 15.44 2.07 18.11 2 20.78 5.02 21.52 11.43 23.5 17.11 25.26 21.99 26.6 27.41 28.35Z"/><path fill="url(#emk-gold-3)" d="M27.41 28.35C24.19 25.24 19.4 23.19 13.74 23.76 7.37 24.41 5.16 26.77 5.93 28.72 6.7 30.67 9.11 30.28 14.35 29.75 19 29.27 22.95 28.75 27.41 28.35Z"/></g><g id="emk-compass"><circle cx="36" cy="28.35" r="12.37" fill="#FFFDF0" stroke="url(#emk-ring)" stroke-width="3.06"/><g fill="none"><circle cx="36" cy="28.35" r="13.35"/><circle cx="36" cy="28.35" r="10.84"/></g><path fill="url(#emk-gold-1)" d="M36 18.06L38.04 26.31L42.36 28.35L38.04 30.38L36 38.64L33.96 30.38L29.64 28.35L33.96 26.31Z"/><circle cx="36" cy="28.35" r="1.67" fill="#FFFDF0" stroke="none"/></g></g></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.500a8.500 8.500 0 0 1-12.600 7.400L3 20l1.200-4.900A8.500 8.500 0 1 1 21 11.500Z"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8ZM9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.400-7-10a4 4 0 0 1 7-2.600A4 4 0 0 1 19 10c0 5.600-7 10-7 10Z"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800L12 3ZM19 16l.7 2.300L22 19l-2.300.7L19 22l-.7-2.300L16 19l2.300-.7L19 16Z"/></symbol>
+    <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="9" cy="9" r="6"/><path d="M15.500 9.500a6 6 0 1 1-6 9"/><path d="M9 6.500v5M7 9h4"/></symbol>
+    <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-9M12 12c0-4-3-6-7-6 0 4 3 6 7 6ZM12 14c0-3 2.500-5 7-5 0 3.500-2.500 5-7 5Z"/></symbol>
+    <!-- 書頁上的圖徽：金箔線條圖示，外面一圈細金環 -->
+    <symbol id="pg-heart" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="#FFFFFF" stroke="url(#foil)" stroke-width="1.6"/><circle cx="60" cy="60" r="49" fill="none" stroke="url(#foil)" stroke-width=".7" stroke-dasharray="1 5"/><g transform="translate(30 30) scale(2.500)" fill="none" stroke="url(#foil)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><use href="#i-heart" width="24" height="24"/></g></symbol>
+    <symbol id="pg-sparkles" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="#FFFFFF" stroke="url(#foil)" stroke-width="1.6"/><circle cx="60" cy="60" r="49" fill="none" stroke="url(#foil)" stroke-width=".7" stroke-dasharray="1 5"/><g transform="translate(30 30) scale(2.500)" fill="none" stroke="url(#foil)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sparkles" width="24" height="24"/></g></symbol>
+    <symbol id="pg-coins" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="#FFFFFF" stroke="url(#foil)" stroke-width="1.6"/><circle cx="60" cy="60" r="49" fill="none" stroke="url(#foil)" stroke-width=".7" stroke-dasharray="1 5"/><g transform="translate(30 30) scale(2.500)" fill="none" stroke="url(#foil)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><use href="#i-coins" width="24" height="24"/></g></symbol>
+    <symbol id="pg-sprout" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="#FFFFFF" stroke="url(#foil)" stroke-width="1.6"/><circle cx="60" cy="60" r="49" fill="none" stroke="url(#foil)" stroke-width=".7" stroke-dasharray="1 5"/><g transform="translate(30 30) scale(2.500)" fill="none" stroke="url(#foil)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sprout" width="24" height="24"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- 舞台布景：暖白地面、光暈、地平線與地面反光（固定在所有內容後面） -->
+<div class="theatre" aria-hidden="true">
+  <svg class="scene" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><rect width="100" height="100" fill="url(#g-ground)"/></svg>
+  <div class="halo"><div class="halo__in"><div class="rays"></div><svg viewBox="0 0 100 100" width="100%" height="100%" focusable="false" style="position:absolute;inset:0"><circle cx="50" cy="50" r="50" fill="url(#g-halo)"/></svg></div></div>
+  <div class="floor"><svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><rect width="100" height="100" fill="url(#g-floor)"/><rect width="100" height=".5" fill="url(#g-horizon)"/><ellipse cx="50" cy="13" rx="34" ry="9" fill="url(#g-glint)" opacity=".85"/></svg></div>
+  <div class="tw-shadow"></div>
+  <svg class="flare" viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="50" fill="url(#g-flare)"/></svg>
+</div>
+
+<header class="site-header">
+  <div class="bar">
+    <span class="brand"><svg aria-hidden="true" focusable="false"><use href="#wm"/></svg>豐盛之翼學苑</span>
+    <nav class="nav">
+      <details name="nav"><summary>關於豐盛之翼學苑<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><ul><li><a href="/about">品牌理念</a></li><li><a href="/story">創辦人經歷與故事</a></li><li><a href="/contact">官方聯繫與諮詢管道</a></li></ul></details>
+      <details name="nav"><summary>療癒與培訓<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><ul><li><a href="/services">服務項目</a></li><li><a href="/training">培訓課程</a></li></ul></details>
+      <details name="nav"><summary>見證與實用內容<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></summary><ul><li><a href="/testimonials">真實見證</a></li><li><a href="/blog">好運blog</a></li><li><a href="/resources">免費資源</a></li><li><a href="/media">媒體專訪</a></li></ul></details>
+    </nav>
+    <div class="actions">
+      <a class="btn btn-line btn-sm only-desktop" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>私訊諮詢</a>
+      <a class="btn btn-gold btn-sm" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">商城<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+      <details class="mnav">
+        <summary aria-label="開啟選單"><svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg></summary>
+        <div class="mnav__panel">
+          <p>關於豐盛之翼學苑</p><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a><a href="/contact">官方聯繫與諮詢管道</a>
+          <p>療癒與培訓</p><a href="/services">服務項目</a><a href="/training">培訓課程</a>
+          <p>見證與實用內容</p><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<!-- 飛行的金翼 -->
+<div class="tw-layer" aria-hidden="true"><div class="tw" id="tw"><div class="tw__float">
+  <div class="tw__glow"></div>
+  <svg class="em" viewBox="0 0 474 249" focusable="false"><g id="emt-wing-l" class="em-wing" stroke="#8A5415" stroke-width=".9" stroke-linejoin="round" stroke-linecap="round"><g class="em-gapx"><g class="tier tier-1" fill="url(#em-gold-1)"><g class="f" style="--fold:-62deg"><path d="M199.92 161C177.34 164.77 154.01 172.57 129.43 187.84C101.7 205.08 92.53 216.54 95.99 221C99.46 225.46 111.26 218.21 137.98 201.6C161.67 186.88 181.11 174.05 199.92 161Z"/><path d="M199.92 161Q152.08 180.46 110.07 210.5" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-69deg"><path d="M199.92 161C174.38 161.22 147.33 165.73 117.58 178.27C84.04 192.42 71.93 203.45 74.97 208.96C78.01 214.48 92.27 208.55 124.6 194.92C153.27 182.84 176.92 172.09 199.92 161Z"/><path d="M199.92 161Q143.83 174.1 92.31 199.85" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-76deg"><path d="M199.92 161C172.08 156.83 141.85 157.08 107.31 165.61C68.35 175.22 53.27 185.14 55.63 191.67C57.99 198.2 74.53 194.2 112.08 184.94C145.37 176.73 172.97 169.11 199.92 161Z"/><path d="M199.92 161Q136.6 165.59 76.07 184.74" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-83deg"><path d="M199.92 161C170.74 151.79 138.23 146.92 99.69 150.2C56.22 153.89 38.34 161.98 39.76 169.39C41.19 176.8 59.63 175.33 101.52 171.77C138.67 168.61 169.6 165.13 199.92 161Z"/><path d="M199.92 161Q131.15 155.15 62.89 165.43" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-90deg"><path d="M199.92 161C170.59 146.37 137.01 135.76 95.68 132.77C49.07 129.4 28.79 134.96 29.06 143.04C29.32 151.12 49.09 152.65 94.01 155.9C133.83 158.79 167.15 160.28 199.92 161Z"/><path d="M199.92 161Q128.13 143.29 54.2 142.72" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-97deg"><path d="M199.92 161C171.77 140.91 138.53 124.32 95.96 114.38C47.94 103.17 25.89 105.62 24.83 114.09C23.78 122.55 44.12 127.41 90.39 138.21C131.42 147.79 165.89 154.85 199.92 161Z"/><path d="M199.92 161Q128.04 130.7 51.09 117.9" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-104deg"><path d="M199.92 161C174.3 135.81 142.88 113.38 100.81 96.26C53.36 76.96 30.33 75.89 27.87 84.4C25.41 92.91 45.5 101.21 91.23 119.81C131.77 136.31 166 149.15 199.92 161Z"/><path d="M199.92 161Q131.08 118.22 54.19 92.58" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-111deg"><path d="M199.92 161C178.06 131.44 149.9 103.75 110.12 79.72C65.26 52.61 42.16 47.85 38.32 56.05C34.47 64.26 53.44 75.86 96.67 101.98C135.01 125.14 167.53 143.6 199.92 161Z"/><path d="M199.92 161Q137.2 106.75 63.6 68.53" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-118deg"><path d="M199.92 161C182.82 128.14 159.17 96.14 123.36 65.95C82.98 31.9 60.75 23.52 55.63 31.08C50.5 38.64 67.55 53.17 106.47 85.99C140.97 115.08 170.43 138.58 199.92 161Z"/><path d="M199.92 161Q146.05 97.12 78.83 47.49" fill="none" stroke="#E3E1DC"/></g></g><g class="tier tier-2" fill="url(#em-gold-2)"><g class="f" style="--fold:-65.5deg"><path d="M199.92 161C182.57 159.78 163.95 161.4 143.08 168.33C119.54 176.14 110.73 182.99 112.5 186.89C114.27 190.8 124.28 187.54 146.96 180.01C167.07 173.34 183.71 167.3 199.92 161Z"/><path d="M199.92 161Q161.13 166.9 124.76 181.63" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-71.5deg"><path d="M199.92 161C181.49 156.74 161.23 155.31 137.64 159.2C111.04 163.59 100.41 169.44 101.65 173.94C102.88 178.43 114.18 176.63 139.82 172.41C162.55 168.66 181.44 165.01 199.92 161Z"/><path d="M199.92 161Q157.26 160.73 115.71 170.37" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-77.5deg"><path d="M199.92 161C181.14 153.41 159.94 148.5 134.33 148.66C105.44 148.84 93.22 153.26 93.77 158.22C94.33 163.19 106.58 163.17 134.42 163C159.09 162.84 179.69 162.15 199.92 161Z"/><path d="M199.92 161Q154.83 153.57 109.25 156.8" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-83.5deg"><path d="M199.92 161C181.6 149.99 160.32 141.38 133.6 137.32C103.47 132.74 90.01 135.32 89.77 140.59C89.53 145.85 102.3 147.86 131.33 152.27C157.07 156.18 178.65 158.86 199.92 161Z"/><path d="M199.92 161Q154.16 145.82 106.13 141.66" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-89.5deg"><path d="M199.92 161C182.91 146.72 162.47 134.43 135.72 125.92C105.54 116.32 91.31 116.78 90.2 122.15C89.1 127.51 101.88 131.65 130.95 140.89C156.74 149.09 178.44 155.35 199.92 161Z"/><path d="M199.92 161Q155.43 137.98 106.82 125.91" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-95.5deg"><path d="M199.92 161C185.02 143.85 166.33 128.15 140.65 115.27C111.69 100.75 97.23 98.93 95.26 104.18C93.29 109.42 105.54 115.65 133.44 129.64C158.18 142.05 179.12 151.85 199.92 161Z"/><path d="M199.92 161Q158.64 130.62 111.45 110.64" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-101.5deg"><path d="M199.92 161C187.79 141.58 171.66 123.01 148.14 106.15C121.61 87.13 107.51 83.04 104.72 87.95C101.93 92.86 113.14 100.98 138.7 119.31C161.37 135.56 180.66 148.61 199.92 161Z"/><path d="M199.92 161Q163.63 124.26 119.81 96.93" fill="none" stroke="#E3E1DC"/></g></g><g class="tier tier-3" fill="url(#em-gold-3)"><g class="f" style="--fold:-69deg"><path d="M199.92 161C187.98 157.23 174.68 155.24 158.91 156.58C141.12 158.09 133.8 161.4 134.39 164.43C134.97 167.47 142.52 166.86 159.66 165.41C174.85 164.11 187.51 162.69 199.92 161Z"/><path d="M199.92 161Q171.78 158.61 143.85 162.81" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-72deg"><path d="M199.92 161C188.1 155.1 174.57 150.83 157.91 149.62C139.13 148.26 130.96 150.51 131.06 153.76C131.17 157.02 139.13 157.64 157.24 158.95C173.29 160.11 186.71 160.71 199.92 161Z"/><path d="M199.92 161Q170.99 153.86 141.19 153.63" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-75deg"><path d="M199.92 161C188.75 153.03 175.56 146.44 158.66 142.5C139.6 138.05 130.85 139.02 130.44 142.38C130.02 145.74 138.09 147.67 156.45 151.96C172.73 155.76 186.41 158.56 199.92 161Z"/><path d="M199.92 161Q171.39 148.97 140.85 143.9" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-78deg"><path d="M199.92 161C189.9 151.16 177.63 142.39 161.19 135.7C142.64 128.15 133.64 127.74 132.68 131.06C131.72 134.39 139.57 137.63 157.44 144.9C173.29 151.35 186.66 156.37 199.92 161Z"/><path d="M199.92 161Q173.01 144.28 142.97 134.26" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-81deg"><path d="M199.92 161C191.5 149.62 180.67 138.96 165.36 129.71C148.09 119.28 139.2 117.45 137.72 120.61C136.24 123.77 143.54 128.23 160.18 138.28C174.93 147.2 187.45 154.3 199.92 161Z"/><path d="M199.92 161Q175.78 140.12 147.45 125.41" fill="none" stroke="#C4C1BA"/></g></g></g></g><g id="emt-wing-r" class="em-wing" transform="translate(474 0) scale(-1 1)" stroke="#8A5415" stroke-width=".9" stroke-linejoin="round" stroke-linecap="round"><g class="em-gapx"><g class="tier tier-1" fill="url(#em-gold-1)"><g class="f" style="--fold:-62deg"><path d="M199.92 161C177.34 164.77 154.01 172.57 129.43 187.84C101.7 205.08 92.53 216.54 95.99 221C99.46 225.46 111.26 218.21 137.98 201.6C161.67 186.88 181.11 174.05 199.92 161Z"/><path d="M199.92 161Q152.08 180.46 110.07 210.5" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-69deg"><path d="M199.92 161C174.38 161.22 147.33 165.73 117.58 178.27C84.04 192.42 71.93 203.45 74.97 208.96C78.01 214.48 92.27 208.55 124.6 194.92C153.27 182.84 176.92 172.09 199.92 161Z"/><path d="M199.92 161Q143.83 174.1 92.31 199.85" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-76deg"><path d="M199.92 161C172.08 156.83 141.85 157.08 107.31 165.61C68.35 175.22 53.27 185.14 55.63 191.67C57.99 198.2 74.53 194.2 112.08 184.94C145.37 176.73 172.97 169.11 199.92 161Z"/><path d="M199.92 161Q136.6 165.59 76.07 184.74" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-83deg"><path d="M199.92 161C170.74 151.79 138.23 146.92 99.69 150.2C56.22 153.89 38.34 161.98 39.76 169.39C41.19 176.8 59.63 175.33 101.52 171.77C138.67 168.61 169.6 165.13 199.92 161Z"/><path d="M199.92 161Q131.15 155.15 62.89 165.43" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-90deg"><path d="M199.92 161C170.59 146.37 137.01 135.76 95.68 132.77C49.07 129.4 28.79 134.96 29.06 143.04C29.32 151.12 49.09 152.65 94.01 155.9C133.83 158.79 167.15 160.28 199.92 161Z"/><path d="M199.92 161Q128.13 143.29 54.2 142.72" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-97deg"><path d="M199.92 161C171.77 140.91 138.53 124.32 95.96 114.38C47.94 103.17 25.89 105.62 24.83 114.09C23.78 122.55 44.12 127.41 90.39 138.21C131.42 147.79 165.89 154.85 199.92 161Z"/><path d="M199.92 161Q128.04 130.7 51.09 117.9" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-104deg"><path d="M199.92 161C174.3 135.81 142.88 113.38 100.81 96.26C53.36 76.96 30.33 75.89 27.87 84.4C25.41 92.91 45.5 101.21 91.23 119.81C131.77 136.31 166 149.15 199.92 161Z"/><path d="M199.92 161Q131.08 118.22 54.19 92.58" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-111deg"><path d="M199.92 161C178.06 131.44 149.9 103.75 110.12 79.72C65.26 52.61 42.16 47.85 38.32 56.05C34.47 64.26 53.44 75.86 96.67 101.98C135.01 125.14 167.53 143.6 199.92 161Z"/><path d="M199.92 161Q137.2 106.75 63.6 68.53" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-118deg"><path d="M199.92 161C182.82 128.14 159.17 96.14 123.36 65.95C82.98 31.9 60.75 23.52 55.63 31.08C50.5 38.64 67.55 53.17 106.47 85.99C140.97 115.08 170.43 138.58 199.92 161Z"/><path d="M199.92 161Q146.05 97.12 78.83 47.49" fill="none" stroke="#E3E1DC"/></g></g><g class="tier tier-2" fill="url(#em-gold-2)"><g class="f" style="--fold:-65.5deg"><path d="M199.92 161C182.57 159.78 163.95 161.4 143.08 168.33C119.54 176.14 110.73 182.99 112.5 186.89C114.27 190.8 124.28 187.54 146.96 180.01C167.07 173.34 183.71 167.3 199.92 161Z"/><path d="M199.92 161Q161.13 166.9 124.76 181.63" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-71.5deg"><path d="M199.92 161C181.49 156.74 161.23 155.31 137.64 159.2C111.04 163.59 100.41 169.44 101.65 173.94C102.88 178.43 114.18 176.63 139.82 172.41C162.55 168.66 181.44 165.01 199.92 161Z"/><path d="M199.92 161Q157.26 160.73 115.71 170.37" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-77.5deg"><path d="M199.92 161C181.14 153.41 159.94 148.5 134.33 148.66C105.44 148.84 93.22 153.26 93.77 158.22C94.33 163.19 106.58 163.17 134.42 163C159.09 162.84 179.69 162.15 199.92 161Z"/><path d="M199.92 161Q154.83 153.57 109.25 156.8" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-83.5deg"><path d="M199.92 161C181.6 149.99 160.32 141.38 133.6 137.32C103.47 132.74 90.01 135.32 89.77 140.59C89.53 145.85 102.3 147.86 131.33 152.27C157.07 156.18 178.65 158.86 199.92 161Z"/><path d="M199.92 161Q154.16 145.82 106.13 141.66" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-89.5deg"><path d="M199.92 161C182.91 146.72 162.47 134.43 135.72 125.92C105.54 116.32 91.31 116.78 90.2 122.15C89.1 127.51 101.88 131.65 130.95 140.89C156.74 149.09 178.44 155.35 199.92 161Z"/><path d="M199.92 161Q155.43 137.98 106.82 125.91" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-95.5deg"><path d="M199.92 161C185.02 143.85 166.33 128.15 140.65 115.27C111.69 100.75 97.23 98.93 95.26 104.18C93.29 109.42 105.54 115.65 133.44 129.64C158.18 142.05 179.12 151.85 199.92 161Z"/><path d="M199.92 161Q158.64 130.62 111.45 110.64" fill="none" stroke="#E3E1DC"/></g><g class="f" style="--fold:-101.5deg"><path d="M199.92 161C187.79 141.58 171.66 123.01 148.14 106.15C121.61 87.13 107.51 83.04 104.72 87.95C101.93 92.86 113.14 100.98 138.7 119.31C161.37 135.56 180.66 148.61 199.92 161Z"/><path d="M199.92 161Q163.63 124.26 119.81 96.93" fill="none" stroke="#E3E1DC"/></g></g><g class="tier tier-3" fill="url(#em-gold-3)"><g class="f" style="--fold:-69deg"><path d="M199.92 161C187.98 157.23 174.68 155.24 158.91 156.58C141.12 158.09 133.8 161.4 134.39 164.43C134.97 167.47 142.52 166.86 159.66 165.41C174.85 164.11 187.51 162.69 199.92 161Z"/><path d="M199.92 161Q171.78 158.61 143.85 162.81" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-72deg"><path d="M199.92 161C188.1 155.1 174.57 150.83 157.91 149.62C139.13 148.26 130.96 150.51 131.06 153.76C131.17 157.02 139.13 157.64 157.24 158.95C173.29 160.11 186.71 160.71 199.92 161Z"/><path d="M199.92 161Q170.99 153.86 141.19 153.63" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-75deg"><path d="M199.92 161C188.75 153.03 175.56 146.44 158.66 142.5C139.6 138.05 130.85 139.02 130.44 142.38C130.02 145.74 138.09 147.67 156.45 151.96C172.73 155.76 186.41 158.56 199.92 161Z"/><path d="M199.92 161Q171.39 148.97 140.85 143.9" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-78deg"><path d="M199.92 161C189.9 151.16 177.63 142.39 161.19 135.7C142.64 128.15 133.64 127.74 132.68 131.06C131.72 134.39 139.57 137.63 157.44 144.9C173.29 151.35 186.66 156.37 199.92 161Z"/><path d="M199.92 161Q173.01 144.28 142.97 134.26" fill="none" stroke="#C4C1BA"/></g><g class="f" style="--fold:-81deg"><path d="M199.92 161C191.5 149.62 180.67 138.96 165.36 129.71C148.09 119.28 139.2 117.45 137.72 120.61C136.24 123.77 143.54 128.23 160.18 138.28C174.93 147.2 187.45 154.3 199.92 161Z"/><path d="M199.92 161Q175.78 140.12 147.45 125.41" fill="none" stroke="#C4C1BA"/></g></g></g></g></svg>
+  <svg class="tw__core" viewBox="0 0 40 40" focusable="false"><circle cx="20" cy="20" r="17" fill="#FFFFFF" opacity=".7"/><path d="M20 2l5 13 13 5-13 5-5 13-5-13-13-5 13-5Z" fill="url(#em-ring)" stroke="#FFFFFF" stroke-width="1.2"/></svg>
+</div></div></div>
+
+<main id="main">
+
+<!-- ═════ 01 Hero ═════ -->
+<section id="hero" class="slide hero">
+  <div class="stage"><div class="stage__in">
+    <div class="subject">
+      <div class="hero__emb" style="position:relative">
+        <div class="emblem emblem--live emblem--hero" style="width:100%" aria-hidden="true">
+          <svg class="em" viewBox="0 0 474 249" focusable="false"><g class="em-wings"><use href="#emt-wing-l"/><use href="#emt-wing-r"/></g><g id="emh-compass" class="em-compass" stroke="#8A5415" stroke-width=".9" stroke-linejoin="round" stroke-linecap="round"><circle id="emh-dial" cx="237" cy="161" r="54.59" fill="url(#em-dial)"/><path id="emh-compass-ring" d="M177 161a60 60 0 1 0 120 0a60 60 0 1 0 -120 0ZM182.41 161a54.59 54.59 0 1 0 109.18 0a54.59 54.59 0 1 0 -109.18 0Z" fill="url(#em-ring)" fill-rule="evenodd"/><g id="emh-compass-marks"><g class="mark" data-dir="n"><circle cx="237" cy="110.12" r="2.07" fill="url(#em-gold-2)"/></g><g class="mark" data-dir="e"><circle cx="287.88" cy="161" r="2.07" fill="url(#em-gold-2)"/></g><g class="mark" data-dir="s"><circle cx="237" cy="211.88" r="2.07" fill="url(#em-gold-2)"/></g><g class="mark" data-dir="w"><circle cx="186.12" cy="161" r="2.07" fill="url(#em-gold-2)"/></g><path class="tick" d="M271.8 126.2L274.16 123.84" fill="none"/><path class="tick" d="M271.8 195.8L274.16 198.16" fill="none"/><path class="tick" d="M202.2 195.8L199.84 198.16" fill="none"/><path class="tick" d="M202.2 126.2L199.84 123.84" fill="none"/></g><path id="emh-compass-inner" d="M189.83 161a47.17 47.17 0 1 0 94.34 0a47.17 47.17 0 1 0 -94.34 0ZM191.9 161a45.1 45.1 0 1 0 90.21 0a45.1 45.1 0 1 0 -90.21 0Z" fill="url(#em-silver)" fill-rule="evenodd"/><path id="emh-rose" d="M237 128.12L244.87 153.13L259.92 161L244.87 168.87L237 193.88L229.13 168.87L214.08 161L229.13 153.13Z" fill="url(#em-gold-3)"/><g id="emh-needle" class="em-needle"><path d="M237 119.24L232.75 161L237 202.76Z" fill="#C9862E"/><path d="M237 119.24L241.25 161L237 202.76Z" fill="url(#em-silver)"/></g><g id="emh-pin"><circle cx="237" cy="161" r="4.8" fill="url(#em-gold-2)"/><circle cx="237" cy="161" r="1.28" fill="#3A2A18" stroke="none"/></g></g></svg>
+        </div>
+        <span class="dock" data-dock="hero" style="inset:0"></span>
+      </div>
+    </div>
+    <span class="floor-mark" aria-hidden="true"></span>
+    <div class="capzone">
+      <span class="num" aria-hidden="true">01</span>
+      <div class="caps">
+        <h1 class="cap">為你的人生開外掛！<br>許願成真，就是這麼幸福。</h1>
+        <p class="cap cap--line cap--later" data-cap="eyebrow">成為你豐盛之路上的翅膀</p>
+      </div>
+      <div class="act"><a class="btn btn-gold" href="#personas-section">從這裡，開始我的改變<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+      <details class="more" open>
+        <summary class="disc" aria-label="成為你豐盛之路上的翅膀"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+        <div class="sheet" id="sheet-hero">
+          <span class="sheet__grip" aria-hidden="true"></span>
+          <button class="sheet__close disc" type="button" aria-label="成為你豐盛之路上的翅膀"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p class="desc">豐盛之翼學苑旨在成為大家豐盛之路上的翅膀。無論你正期盼感情的順遂、財富的自由，或是生活的全面好運，我們將透過最白話、最落地的靈性工具，陪你解開內在卡點。讓你從此不再迷惘，活出充滿熱情與使命的幸運人生！</p>
+          <div class="cta-row"><a class="btn btn-silver btn-sm" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">加入免費體驗社群：密碼168168<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a></div>
+          <ul class="badges">
+            <li><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>《七週遇見對的人》暢銷書推薦序作者</li>
+            <li><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>500+個案經驗</li>
+            <li><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>整合14種以上顯化技術，助你掌握受用一輩子的工具</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div></div>
+</section>
+
+<!-- ═════ 02 需求入口：一本白金的書 ═════ -->
+<section id="personas-section" class="slide book-slide">
+  <div class="stage"><div class="stage__in">
+    <div class="subject">
+      <div class="book-wrap" aria-hidden="true">
+        <span class="dock" data-dock="book-closed"></span><span class="dock" data-dock="book-open"></span>
+        <div class="book-shift"><div class="book-scene"><div class="book-inner">
+          <div class="board"></div>
+          <div class="leaf" style="--i:0"><div class="leaf__in">
+            <div class="face face--front face--cover"><div class="cover"><svg viewBox="174 98 126 126" focusable="false"><use href="#em-compass"/></svg></div></div>
+            <div class="face face--back face--inside"><div class="pg"><svg class="pg__ico" viewBox="0 0 120 120" focusable="false"><use href="#pg-heart"/></svg><span class="pg__n">1</span><i class="pg__plus"></i></div></div>
+          </div></div>
+          <div class="leaf" style="--i:1"><div class="leaf__in">
+            <div class="face face--front face--right"><div class="pg"><svg class="pg__mark" viewBox="0 0 72 44" focusable="false"><use href="#wm"/></svg><i class="pg__plus"></i></div></div>
+            <div class="face face--back"><div class="pg"><svg class="pg__ico" viewBox="0 0 120 120" focusable="false"><use href="#pg-sparkles"/></svg><span class="pg__n">2</span><i class="pg__plus"></i></div></div>
+          </div></div>
+          <div class="leaf" style="--i:2"><div class="leaf__in">
+            <div class="face face--front face--right"><div class="pg"><svg class="pg__mark" viewBox="0 0 72 44" focusable="false"><use href="#wm"/></svg><i class="pg__plus"></i></div></div>
+            <div class="face face--back"><div class="pg"><svg class="pg__ico" viewBox="0 0 120 120" focusable="false"><use href="#pg-coins"/></svg><span class="pg__n">3</span><i class="pg__plus"></i></div></div>
+          </div></div>
+          <div class="leaf" style="--i:3"><div class="leaf__in">
+            <div class="face face--front face--right"><div class="pg"><svg class="pg__mark" viewBox="0 0 72 44" focusable="false"><use href="#wm"/></svg><i class="pg__plus"></i></div></div>
+            <div class="face face--back"><div class="pg"><svg class="pg__ico" viewBox="0 0 120 120" focusable="false"><use href="#pg-sprout"/></svg><span class="pg__n">4</span><i class="pg__plus"></i></div></div>
+          </div></div>
+          <div class="leaf" style="--i:4"><div class="leaf__in">
+            <div class="face face--front face--right"><div class="pg"><svg class="pg__mark" viewBox="0 0 72 44" focusable="false"><use href="#wm"/></svg><i class="pg__plus"></i></div></div>
+          </div></div>
+        </div></div></div>
+      </div>
+    </div>
+    <div class="book-tabs">
+      <a class="tab" id="tab-family" href="#need-family" data-need="0">家庭</a>
+      <a class="tab" id="tab-love" href="#need-love" data-need="1">感情</a>
+      <a class="tab" id="tab-business" href="#need-business" data-need="2">事業</a>
+      <a class="tab" id="tab-starter" href="#need-starter" data-need="3">新手</a>
+    </div>
+    <span class="floor-mark" aria-hidden="true"></span>
+    <div class="capzone">
+      <span class="num" aria-hidden="true">02</span>
+      <div class="caps">
+        <h2 class="cap cap--later" id="needs-h">為不同階段的你，<br>量身規劃專屬的改變起點</h2>
+        <div class="panel" id="need-family" data-need="0">
+          <h3 class="cap cap--later" id="cap-family">家庭與孩子守護</h3>
+          <div class="sheet" id="sheet-family" aria-labelledby="cap-family">
+            <span class="sheet__grip" aria-hidden="true"></span>
+            <button class="sheet__close disc" type="button" aria-label="家庭與孩子守護"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+            <p class="pain">「每天為孩子的課業、情緒操碎了心，還要面對另一半或長輩的壓力。多渴望家裡和睦順利，孩子自動自發，自己也能好好睡個好覺。」</p>
+            <p class="lbl">真實改變故事</p>
+            <details class="story" name="st-family"><summary>媽媽的定心丸<i class="plus" aria-hidden="true"></i></summary><p>孩子原本對讀書沒動力、人際卡關，媽媽幫他遠距預約「人生推進器」祝福後，孩子明顯變得積極，不僅主動分享心事，還說出未來想出國唸書的目標！</p></details>
+            <details class="story" name="st-family"><summary>婆媳與夫妻和解<i class="plus" aria-hidden="true"></i></summary><p>面臨極大婆媳壓力的媳婦，為婆婆預約「靈性按摩」清理身心壓力後，婆婆不再把情緒發洩在她身上；也有先生幫容易爆炸的太太預約，兩人終於能心平氣和地好好說話。</p></details>
+            <p class="lbl">專屬起點</p>
+            <p>為辛勞的你提供最深度的安定感。當媽媽的心安定了，整個家就會迎來最溫柔的和諧。</p>
+            <div class="cta-row"><a class="btn btn-gold btn-sm" href="/services/group-healing">了解人生推進器</a><a class="btn btn-silver btn-sm" href="/services/spiritual-massage">看靈性按摩介紹</a></div>
+          </div>
+        </div>
+        <div class="panel" id="need-love" data-need="1">
+          <h3 class="cap cap--later" id="cap-love">幸福真愛與伴侶</h3>
+          <div class="sheet" id="sheet-love" aria-labelledby="cap-love">
+            <span class="sheet__grip" aria-hidden="true"></span>
+            <button class="sheet__close disc" type="button" aria-label="幸福真愛與伴侶"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+            <p class="pain">「母胎單身、總是遇不到對的人，或是一再陷入『不斷付出卻受傷』的感情舊模式？到底哪裡出了錯，我也想被好好疼愛啊！」</p>
+            <p class="lbl">真實改變故事</p>
+            <details class="story" name="st-love"><summary>母胎單身逆襲<i class="plus" aria-hidden="true"></i></summary><p>透過心靈引渡人一對一對談，精準找出內心深處「害怕受傷」的愛情盲點。母胎單身的女孩成功告白，現在已經順利結婚生子！</p></details>
+            <details class="story" name="st-love"><summary>打破爛桃花循環<i class="plus" aria-hidden="true"></i></summary><p>透過練愛大確幸專屬課程陪跑，清空過去的感情包袱。不再委曲求全，活出自信閃耀的自己，順利吸引到真正懂你、疼你的另一半。</p></details>
+            <p class="lbl">專屬起點</p>
+            <p>幫助你重新愛上自己，拔除感情裡的「有毒習慣」。這是一段溫暖陪伴的旅程，幫你打開心房，遇見真正適合你的人。</p>
+            <div class="cta-row"><a class="btn btn-gold btn-sm" href="/services/personal-1on1">了解心靈引渡人</a><a class="btn btn-silver btn-sm" href="https://booking.wenling.tw/products/love365" target="_blank" rel="noopener noreferrer">看練愛大確幸介紹<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a></div>
+          </div>
+        </div>
+        <div class="panel" id="need-business" data-need="2">
+          <h3 class="cap cap--later" id="cap-business">企業求財與事業突破</h3>
+          <div class="sheet" id="sheet-business" aria-labelledby="cap-business">
+            <span class="sheet__grip" aria-hidden="true"></span>
+            <button class="sheet__close disc" type="button" aria-label="企業求財與事業突破"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+            <p class="pain">「身處商場高壓，每天焦慮到不行。面臨業績停滯、找不到神隊友員工，或是投資決策卡關，多渴望能有一股推力，讓財富與事業全面大爆發！」</p>
+            <p class="lbl">真實改變故事</p>
+            <details class="story" name="st-business"><summary>投資人與老闆的神助攻<i class="plus" aria-hidden="true"></i></summary><p>透過豐盛靈氣清理掉「金錢阻礙」後，退休媽媽的股票從虧損 50 萬逆轉正，有操盤手突破個人最高獲利兩千萬！企業主也順利招募到心目中的神隊友員工。</p></details>
+            <details class="story" name="st-business"><summary>業績翻倍超順利<i class="plus" aria-hidden="true"></i></summary><p>珠寶店使用煙供祈福，順利打破長期的業績停滯期，創造每月穩定達到200萬元以上的業績。</p></details>
+            <p class="lbl">專屬起點</p>
+            <p>為老闆、創業家、業務員與投資者提供專屬的開運助攻，讓好運與業績自動找上門！</p>
+            <div class="cta-row"><a class="btn btn-gold btn-sm" href="/services/abundance-reiki">了解豐盛靈氣</a><a class="btn btn-silver btn-sm" href="/services/smoke-prayer">看煙供祈福介紹</a></div>
+          </div>
+        </div>
+        <div class="panel" id="need-starter" data-need="3">
+          <h3 class="cap cap--later" id="cap-starter">開啟身心靈事業 (新手入門)</h3>
+          <div class="sheet" id="sheet-starter" aria-labelledby="cap-starter">
+            <span class="sheet__grip" aria-hidden="true"></span>
+            <button class="sheet__close disc" type="button" aria-label="開啟身心靈事業 (新手入門)"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+            <p class="pain">「對身心靈充滿好奇，想找個簡單實用的方法解決自己的煩惱；或是想多一份副業收入，卻不知道從哪裡開始最快賺到錢？」</p>
+            <p class="lbl">真實改變故事</p>
+            <details class="story" name="st-starter"><summary>占卜師專業大升級<i class="plus" aria-hidden="true"></i></summary><p>塔羅牌占卜師學習希塔療癒後，從「只能給建議」變成「能實際幫客戶解決困擾」，收費價值大幅提升，開拓出全新的賺錢方向。</p></details>
+            <details class="story" name="st-starter"><summary>零基礎小白無痛增加收入<i class="plus" aria-hidden="true"></i></summary><p>完全沒有身心靈背景的上班族，學完簡單易懂的金錢靈氣後，開始穩定接案增加收入，甚至能自己開課賺錢，打造完美副業！</p></details>
+            <p class="lbl">專屬起點</p>
+            <p>不論是想療癒自己，還是想發展高收入的第二專長，這裡有最簡單、零門檻的教學，帶你把所學變成實際的收入。</p>
+            <div class="cta-row"><a class="btn btn-gold btn-sm" href="/training/theta-basic">了解希塔療癒</a><a class="btn btn-silver btn-sm" href="/training/money-reiki-cert">看金錢靈氣課介紹</a></div>
+          </div>
+        </div>
+      </div>
+      <details class="more" id="more-intro" open>
+        <summary class="disc" aria-label="為不同階段的你，量身規劃專屬的改變起點"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+        <div class="sheet" id="sheet-intro">
+          <span class="sheet__grip" aria-hidden="true"></span>
+          <button class="sheet__close disc" type="button" aria-label="為不同階段的你，量身規劃專屬的改變起點"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p class="desc">身心靈療癒不是迷信，而是幫你的大腦「重新開機、清除雜訊」。不論你處在哪個人生階段，幸運教主文齡 Keila 都為你準備了最理性、安心且溫和的改變地圖。</p>
+          <nav class="toc" aria-labelledby="needs-h"><ol>
+            <li><a href="#need-family" data-need="0"><svg class="ico" aria-hidden="true"><use href="#i-heart"/></svg>家庭與孩子守護</a></li>
+            <li><a href="#need-love" data-need="1"><svg class="ico" aria-hidden="true"><use href="#i-sparkles"/></svg>幸福真愛與伴侶</a></li>
+            <li><a href="#need-business" data-need="2"><svg class="ico" aria-hidden="true"><use href="#i-coins"/></svg>企業求財與事業突破</a></li>
+            <li><a href="#need-starter" data-need="3"><svg class="ico" aria-hidden="true"><use href="#i-sprout"/></svg>開啟身心靈事業 (新手入門)</a></li>
+          </ol></nav>
+        </div>
+      </details>
+    </div>
+  </div></div>
+</section>
+
+<!-- ═════ 03 三階段：從金翼展開的扇形圖，結尾換成三項服務 ═════ -->
+<section id="home-stages" class="slide fan-slide">
+  <div class="stage"><div class="stage__in">
+    <svg class="fan" aria-hidden="true" focusable="false">
+      <defs><clipPath id="fan-clip"><rect/></clipPath></defs>
+      <g clip-path="url(#fan-clip)"><path class="arc arc--1"/><path class="arc arc--2"/></g>
+      <line class="ray" data-ray="0"/><line class="ray" data-ray="1"/><line class="ray" data-ray="2"/>
+    </svg>
+    <div class="s3-compass" aria-hidden="true"><div class="emblem emblem--live"><svg class="em" viewBox="0 0 474 249" focusable="false"><use href="#em-compass"/></svg><span class="dock" data-dock="fan"></span></div></div>
+    <div class="s3-caps">
+      <span class="num" aria-hidden="true">03</span>
+      <div class="caps">
+        <h2 class="cap cap--later" id="stages-h">這些技術之間的關係是什麼？<br>可以搭配使用嗎？</h2>
+        <h2 class="cap cap--later" id="featured-services">能量療癒服務｜<br>為你的身心靈量身訂做的解方</h2>
+      </div>
+    </div>
+    <ol class="nodes" data-set="stages" aria-labelledby="stages-h">
+      <li><details name="s3"><summary class="node" data-node="0"><span class="node__in"><span class="node__dot" aria-hidden="true"></span><span class="node__t">第一階段：淨化與釋放 (Cleansing &amp; Releasing)</span></span></summary>
+        <div class="sheet"><span class="sheet__grip" aria-hidden="true"></span><button class="sheet__close disc" type="button" aria-label="第一階段：淨化與釋放 (Cleansing &amp; Releasing)"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p>當你感到極度疲憊或卡關時，我們會先運用 煦陽靈氣 疏通身體經絡與卡卡的感受，並以 獨角獸靈氣 帶來深度的能量淨化；接著透過 希塔療癒 深入潛意識，拔除造成痛苦的根源信念。若有外在阻礙，則會搭配 脈輪與氣場能量療癒 或是 煙供 進行全面掃除。</p>
+          <a class="lk" href="/services/smoke-prayer">遠距煙供祈福儀式<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+      <li><details name="s3"><summary class="node" data-node="1"><span class="node__in"><span class="node__dot" aria-hidden="true"></span><span class="node__t">第二階段：滋養與修復 (Nourishing &amp; Healing)</span></span></summary>
+        <div class="sheet"><span class="sheet__grip" aria-hidden="true"></span><button class="sheet__close disc" type="button" aria-label="第二階段：滋養與修復 (Nourishing &amp; Healing)"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p>釋放舊有模式後，身心靈極度需要被溫柔地接住。這時我們可以透過 彩虹靈氣 修補靈魂能量，運用 百花靈氣 與 臼井靈氣 帶來如花朵般的撫慰與深層放鬆。同時搭配客製化的 香水供 調整五行頻率，給予你最完整的能量滋養。</p>
+          <a class="lk" href="/services/five-elements-perfume">五行香水供奉｜佛前加持版<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+      <li><details name="s3"><summary class="node" data-node="2"><span class="node__in"><span class="node__dot" aria-hidden="true"></span><span class="node__t">第三階段：顯化與推進 (Manifesting &amp; Accelerating)</span></span></summary>
+        <div class="sheet"><span class="sheet__grip" aria-hidden="true"></span><button class="sheet__close disc" type="button" aria-label="第三階段：顯化與推進 (Manifesting &amp; Accelerating)"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p>當身心恢復純淨與力量，就是迎來奇蹟的時候了。為了加速顯化，我們會疊加 金錢靈氣、鬱金香熱情靈氣 或是提升魅力的 人魚靈氣；並啟動 人生推進器 勇敢斷捨離，最後再透過 獨角獸靈氣 大幅提升顯化速度，讓你順利承接宇宙源源不絕的好運！</p>
+          <a class="lk" href="/services/group-healing">人生推進器｜團體遠距療癒<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+    </ol>
+    <ul class="nodes" data-set="services" aria-labelledby="featured-services">
+      <li><details name="s3"><summary class="node" data-node="3"><span class="node__in"><span class="node__dot" aria-hidden="true"></span><span class="node__t">人生推進器｜團體遠距療癒</span></span></summary>
+        <div class="sheet"><span class="sheet__grip" aria-hidden="true"></span><button class="sheet__close disc" type="button" aria-label="人生推進器｜團體遠距療癒"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p>強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。</p><a class="lk" href="/services/group-healing">了解詳細服務說明<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+      <li><details name="s3"><summary class="node" data-node="4"><span class="node__in"><span class="node__dot" aria-hidden="true"></span><span class="node__t">心靈引渡人｜一對一個人能量療癒</span></span></summary>
+        <div class="sheet"><span class="sheet__grip" aria-hidden="true"></span><button class="sheet__close disc" type="button" aria-label="心靈引渡人｜一對一個人能量療癒"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p>潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。</p><a class="lk" href="/services/personal-1on1">了解詳細服務說明<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+      <li><details name="s3"><summary class="node" data-node="5"><span class="node__in"><span class="node__dot" aria-hidden="true"></span><span class="node__t">豐盛靈氣｜全方位能量調頻與願望顯化</span></span></summary>
+        <div class="sheet"><span class="sheet__grip" aria-hidden="true"></span><button class="sheet__close disc" type="button" aria-label="豐盛靈氣｜全方位能量調頻與願望顯化"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+          <p>整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。</p><a class="lk" href="/services/abundance-reiki">了解詳細服務說明<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></details></li>
+    </ul>
+  </div></div>
+</section>
+
+</main>
+
+<!-- ═════ 收束：金翼回到羅盤（舞台延續到這裡） ═════ -->
+<section id="final-cta" class="cta-band">
+  <div class="cta-band__in">
+    <div class="emblem emblem--live" aria-hidden="true">
+      <svg class="em" viewBox="0 0 474 249" focusable="false"><g class="em-wings"><use href="#emt-wing-l"/><use href="#emt-wing-r"/></g><use href="#em-compass"/></svg>
+      <span class="dock" data-dock="footer"></span>
+    </div>
+    <h2>成為你豐盛之路上的翅膀</h2>
+    <div class="row">
+      <a class="btn btn-line" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>私訊官方 LINE</a>
+      <a class="btn btn-gold" href="#personas-section">從這裡，開始我的改變<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+    <a class="lk" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-bag"/></svg>前往購買<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+  </div>
+</section>
+
+<footer class="site-footer inverse">
+  <div class="wrap">
+    <div>
+      <a class="f-brand" href="/"><svg aria-hidden="true" focusable="false"><use href="#wm"/></svg>豐盛之翼學苑</a>
+      <p style="margin-top:10px;color:#B49A76">用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。</p>
+      <p class="f-status" style="margin-top:12px">全球線上遠距服務</p>
+    </div>
+    <div class="f-nav">
+      <div><h3>關於豐盛之翼學苑</h3><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a></div>
+      <div><h3>療癒與培訓</h3><a href="/services">服務項目</a><a href="/training">培訓課程</a></div>
+      <div><h3>見證與實用內容</h3><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a></div>
+    </div>
+    <div>
+      <h3>官方聯繫與諮詢管道</h3>
+      <p style="color:#B49A76">企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+      <a href="mailto:lavie@wenling.tw">lavie@wenling.tw</a>
+      <a href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer">@healer.wenling</a>
+      <a href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA" target="_blank" rel="noopener noreferrer">輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</a>
+      <a class="btn btn-inverse btn-sm" style="display:inline-flex;margin-top:8px" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">訂購商品、服務或課程<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a>
+    </div>
+    <div class="f-disc f-wide"><strong>免責聲明</strong>所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</div>
+    <div class="f-end f-wide"><span>© 2026 豐盛之翼學苑</span><a href="/legal">免責聲明與條款</a></div>
+  </div>
+</footer>
+
+<!-- 前景：幾顆失焦的金塵與換場的金光 -->
+<div class="dust-layer" aria-hidden="true">
+  <div class="dw" style="left:calc(-9% - 40px);top:4%;width:46vmin;height:46vmin"><svg class="dust" viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="50" fill="url(#g-dust-gold)"/></svg></div>
+  <div class="dw" style="right:calc(-12% - 60px);top:34%;width:54vmin;height:54vmin"><svg class="dust" viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="50" fill="url(#g-dust-silver)"/></svg></div>
+  <div class="dw" style="left:calc(6% - 64px);top:76%;width:30vmin;height:30vmin"><svg class="dust" viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="50" fill="url(#g-dust-gold)" opacity=".8"/></svg></div>
+  <div class="dw" style="right:calc(8% - 50px);top:86%;width:24vmin;height:24vmin"><svg class="dust" viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="50" fill="url(#g-dust-gold)" opacity=".7"/></svg></div>
+  <div class="dw" style="left:62%;top:-4%;width:22vmin;height:22vmin"><svg class="dust" viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="50" fill="url(#g-dust-silver)" opacity=".8"/></svg></div>
+  <div class="sweep"></div>
+</div>
+
+<div class="sticky-cta">
+  <a class="btn btn-gold" id="bar-primary" href="#personas-section">從這裡，開始我的改變</a>
+  <a class="btn btn-line" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>私訊諮詢</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/MotionPathPlugin.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+
+  /* ── 不論有沒有動畫都啟用 ── */
+  // 同一組 <details name> 一次只開一個（舊瀏覽器的後備）
+  document.addEventListener('toggle', function (e) {
+    var d = e.target; if (!d || d.tagName !== 'DETAILS' || !d.open) return;
+    var name = d.getAttribute('name');
+    if (name) $$('details[name="' + name + '"]').forEach(function (o) { if (o !== d) o.open = false; });
+  }, true);
+  // 點選單以外的地方就收起頁首選單
+  document.addEventListener('click', function (e) {
+    $$('.site-header details[open]').forEach(function (d) { if (!d.contains(e.target)) d.open = false; });
+  });
+
+  var gsap = window.gsap, ST = window.ScrollTrigger;
+  function plain() { root.classList.remove('motion', 'stage-on', 'booted', 'sheet-open'); }
+  if (!gsap || !ST) { plain(); return; } // GSAP 沒載到：一般頁面
+  gsap.registerPlugin(ST);
+  if (window.MotionPathPlugin) gsap.registerPlugin(window.MotionPathPlugin);
+  ST.config({ ignoreMobileResize: true });
+
+  var tw = $('#tw'), mm = null, rebuilding = false;
+
+  function setup(D) {
+    var undo = [], slides = {}, SCRUB = D ? 0.5 : true;
+    function on(el, type, fn, opt) { el.addEventListener(type, fn, opt); undo.push(function () { el.removeEventListener(type, fn, opt); }); }
+    function rel(el, anc) { var x = 0, y = 0, n = el; while (n && n !== anc) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; } return { x: x, y: y }; }
+    function mkTL(id, opts) {
+      var sec = document.getElementById(id), stage = $('.stage', sec);
+      var tl = gsap.timeline({
+        defaults: { ease: 'none', lazy: false },
+        scrollTrigger: Object.assign({ trigger: sec, start: 'top top', end: function () { return '+=' + Math.max(1, sec.offsetHeight - stage.offsetHeight); }, scrub: SCRUB, invalidateOnRefresh: true }, opts || {})
+      });
+      slides[id] = tl.scrollTrigger;
+      return tl;
+    }
+    // 字幕：進場（由下浮上）、停留、退場（往上淡出）。同一個元素第二次以後的補間不搶先渲染。
+    function capIn(tl, el, at, first, d) { tl.fromTo(el, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: d || .06, ease: 'power2.out', immediateRender: !!first }, at); }
+    function capOut(tl, el, at, first, d) { tl.fromTo(el, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -14, duration: d || .05, ease: 'power1.in', immediateRender: !!first }, at); }
+    function fade(tl, el, a, b, at, first, d) { tl.fromTo(el, { autoAlpha: a }, { autoAlpha: b, duration: d || .05, immediateRender: !!first }, at); }
+
+    /* ── 抽屜（手機由下滑出、桌機在右側）：一次只開一個；Esc、關閉鈕、點旁邊或捲走都會收起 ── */
+    var cur = null;
+    function shut(back) {
+      if (!cur) return; var c = cur; cur = null;
+      if (c.d) c.d.open = false; else c.s.classList.remove('is-open');
+      root.classList.remove('sheet-open');
+      if (back && c.o) c.o.focus({ preventScroll: true });
+    }
+    function show(s, o, d) {
+      if (cur && cur.s === s) return;
+      shut(false);
+      cur = { s: s, o: o, d: d, y: window.pageYOffset };
+      if (d) d.open = true; else s.classList.add('is-open');
+      root.classList.add('sheet-open');
+      var x = $('.sheet__close', s); if (x) x.focus({ preventScroll: true });
+    }
+    var mores = $$('main details.more');
+    mores.forEach(function (d) { d.open = false; });
+    undo.push(function () { shut(false); mores.forEach(function (d) { d.open = true; }); $$('main .nodes details').forEach(function (d) { d.open = false; }); });
+    on(document, 'toggle', function (e) {
+      var d = e.target; if (!d || d.tagName !== 'DETAILS' || !d.matches('main .more, main .nodes details')) return;
+      if (d.open) show($('.sheet', d), $('summary', d), d); else if (cur && cur.d === d) shut(false);
+    }, true);
+    on(document, 'keydown', function (e) { if (e.key === 'Escape' && cur) { e.preventDefault(); shut(true); } });
+    on(document, 'click', function (e) {
+      if (!cur) return; var t = e.target;
+      if (t.closest('.sheet__close')) { shut(true); return; }
+      if (!cur.s.contains(t) && !t.closest('summary, .tab, .book-wrap')) shut(false);
+    });
+    on(window, 'scroll', function () { if (cur && Math.abs(window.pageYOffset - cur.y) > 140) shut(false); }, { passive: true });
+
+    /* ── 手機底部固定列的主按鈕：預設 → 書裡翻到的對象 ── */
+    var bar = $('#bar-primary');
+    var barDefault = { label: bar.textContent, href: bar.getAttribute('href'), ext: false }, barNeed = -1;
+    var needCta = $$('.book-slide .panel').map(function (p) { var a = $('.cta-row .btn-gold', p); return { label: a.textContent.trim(), href: a.getAttribute('href'), ext: a.target === '_blank' }; });
+    function updateBar() {
+      var o = barNeed >= 0 ? needCta[barNeed] : barDefault;
+      if (bar.textContent === o.label) return;
+      bar.textContent = o.label; bar.setAttribute('href', o.href);
+      if (o.ext) { bar.target = '_blank'; bar.rel = 'noopener noreferrer'; } else { bar.removeAttribute('target'); bar.removeAttribute('rel'); }
+    }
+    undo.push(function () { barNeed = -1; updateBar(); });
+
+    /* ── 01 Hero：標題停留 → 換成一句話 → 清場（之後的飛行沒有字） ── */
+    (function () {
+      var sec = $('#hero'), tl = mkTL('hero');
+      var h1 = $('h1.cap', sec), line = $('.cap--line', sec), rest = [$('.num', sec), $('.act', sec), $('.more > summary', sec)];
+      tl.fromTo('#emh-needle', { '--needle': -24 }, { '--needle': 336, duration: 1, ease: 'sine.inOut' }, 0);
+      capOut(tl, h1, .4, true); capIn(tl, line, .46, true); capOut(tl, line, .84);
+      fade(tl, rest, 1, 0, .86, true, .06);
+      tl.set({}, {}, 1);
+    })();
+
+    /* ── 02 書：打開、依序翻過四個對象；書籤可點、可用鍵盤，跳到任一對象 ── */
+    var bookT = { open: [.14, .28] };
+    (function () {
+      var sec = $('#personas-section'), leaves = $$('.leaf', sec), shift = $('.book-shift', sec), wrap = $('.book-wrap', sec);
+      var tabs = $$('.tab', sec), tablist = $('.book-tabs', sec), panels = $$('.panel', sec), caps = panels.map(function (p) { return $('.cap', p); });
+      var introCap = $('#needs-h'), introMore = $('#more-intro > summary'), num = $('.num', sec);
+      var F = [bookT.open, [.42, .52], [.6, .7], [.78, .88]];           // 四次翻頁
+      var marks = F.map(function (f) { return (f[0] + f[1]) / 2; }), T = [.36, .57, .75, .94]; // 狀態分界、各對象的停留點
+      var state = -9;
+      var tl = mkTL('personas-section', {
+        onUpdate: function (self) { setState(stateAt(self.progress)); },
+        onToggle: function (self) { barNeed = self.isActive ? state - 1 : -1; updateBar(); }
+      });
+      function stateAt(p) { var s = 0; marks.forEach(function (m) { if (p >= m) s++; }); return s; }
+      function setState(s) {
+        if (s === state) return; state = s; var need = s - 1;
+        tabs.forEach(function (t, i) { var sel = i === need; t.setAttribute('aria-selected', String(sel)); t.tabIndex = (sel || (need < 0 && i === 0)) ? 0 : -1; });
+        panels.forEach(function (p, i) { var hid = i !== need; p.inert = hid; if (hid) p.setAttribute('aria-hidden', 'true'); else p.removeAttribute('aria-hidden'); });
+        if (cur && cur.s.closest('.book-slide')) shut(false);
+        if (tl.scrollTrigger && tl.scrollTrigger.isActive) { barNeed = need; updateBar(); }
+      }
+      function goNeed(k) { var st = tl.scrollTrigger; window.scrollTo({ top: Math.round(st.start + T[k] * (st.end - st.start)), behavior: 'smooth' }); }
+      function openNeed(k) { show($('.sheet', panels[k]), tabs[k], null); }
+      slides.goNeed = goNeed;
+
+      // 分頁語意只在舞台模式加上（一般頁面模式是四段內容與錨點）
+      tablist.setAttribute('role', 'tablist'); tablist.setAttribute('aria-labelledby', 'needs-h'); if (D) tablist.setAttribute('aria-orientation', 'vertical');
+      tabs.forEach(function (t, i) { t.setAttribute('role', 'tab'); t.setAttribute('aria-controls', panels[i].id); });
+      panels.forEach(function (p, i) { p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', tabs[i].id); });
+      undo.push(function () {
+        ['role', 'aria-labelledby', 'aria-orientation'].forEach(function (a) { tablist.removeAttribute(a); });
+        tabs.forEach(function (t) { ['role', 'aria-controls', 'aria-selected', 'tabindex'].forEach(function (a) { t.removeAttribute(a); }); });
+        panels.forEach(function (p) { p.inert = false; ['role', 'aria-labelledby', 'aria-hidden'].forEach(function (a) { p.removeAttribute(a); }); });
+      });
+
+      on(sec, 'click', function (e) {
+        var t = e.target.closest('.tab, .toc a'), need = state - 1;
+        if (t) { e.preventDefault(); var k = +t.dataset.need; if (t.matches('.tab') && k === need) { if (cur && cur.s === $('.sheet', panels[k])) shut(true); else openNeed(k); } else { shut(false); goNeed(k); } return; }
+        if (e.target.closest('.book-wrap')) { if (need >= 0) openNeed(need); else goNeed(0); }
+      });
+      on(sec, 'keydown', function (e) {
+        var t = e.target.closest('.tab'); if (!t) return;
+        var i = tabs.indexOf(t), n = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); t.click(); return; }
+        if (n === undefined) return;
+        e.preventDefault(); n = (n + tabs.length) % tabs.length; tabs[n].focus({ preventScroll: true }); goNeed(n);
+      });
+
+      // 時間軸
+      fade(tl, num, 0, 1, 0, true, .04); capIn(tl, introCap, .01, true); fade(tl, introMore, 0, 1, .04, true, .04);
+      capOut(tl, introCap, F[0][0] - .02); fade(tl, introMore, 1, 0, F[0][0] - .02, false, .03);
+      tl.fromTo(tablist, D ? { autoAlpha: 0, x: -14 } : { autoAlpha: 0, y: -12 }, { autoAlpha: 1, x: 0, y: 0, duration: .06, ease: 'power2.out' }, F[0][1] - .06);
+      caps.forEach(function (c, i) { capIn(tl, c, F[i][1] - .03, true); if (F[i + 1]) capOut(tl, c, F[i + 1][0] - .01); });
+      if (D) {
+        tl.fromTo(shift, { x: function () { return -leaves[0].offsetWidth / 2; } }, { x: 0, duration: F[0][1] - F[0][0], ease: 'power2.inOut' }, F[0][0]);
+        F.forEach(function (f, i) { tl.fromTo(leaves[i], { rotationY: 0 }, { rotationY: -180, duration: f[1] - f[0], ease: 'power1.inOut' }, f[0]); });
+      } else {
+        var pages = [$('.face--cover', sec)].concat(leaves.slice(0, 3).map(function (l) { return $('.face--back', l); }));
+        tl.fromTo([$('.cover', sec), $('.board', sec)], { scale: .86 }, { scale: 1, duration: .08, ease: 'power2.out' }, F[0][0] - .04);
+        tl.fromTo([$('.face--inside', sec)].concat(leaves.slice(1)), { opacity: 0 }, { opacity: 1, duration: .02 }, F[0][0]);
+        F.forEach(function (f, i) {
+          var d = f[1] - f[0], pg = pages[i];
+          tl.fromTo(pg, { rotationY: 0 }, { rotationY: -100, duration: d, ease: 'power1.in' }, f[0])
+            .fromTo(pg, { autoAlpha: 1 }, { autoAlpha: 0, duration: d * .35, immediateRender: false }, f[0] + d * .65);
+        });
+      }
+      tl.set({}, {}, 1);
+      setState(0);
+    })();
+
+    /* ── 03 三階段：羅盤在底部當原點；內圈弧 → 三條線各自長到圓點並帶出階段名 → 停頓 → 外圈弧與三項服務 ── */
+    var RT = [.26, .36, .46], fan = {};
+    (function () {
+      var sec = $('#home-stages'), stg = $('.stage__in', sec), svg = $('.fan', sec), caps = $('.s3-caps', sec), num = $('.num', sec);
+      var arcs = $$('.arc', svg), rays = $$('.ray', svg), clip = $('#fan-clip rect'), comp = $('.s3-compass', sec);
+      var A = $$('[data-set="stages"] .node', sec), B = $$('[data-set="services"] .node', sec), capA = $('#stages-h'), capB = $('#featured-services');
+      var AL = D ? ['node--l', 'node--ac', 'node--r'] : ['node--al', 'node--ac', 'node--ar'];
+      function layout() {
+        var W = stg.offsetWidth, H = stg.offsetHeight, bar = D ? 0 : $('.sticky-cta').offsetHeight;
+        var fw = D ? Math.min(820, W * .62) : W * 1.4, r = fw * 60 / 474;
+        var ox = W / 2, oy = D ? H - Math.min(40, r * .4) : H - bar - r - 10;
+        var capBottom = caps.offsetTop + caps.offsetHeight;
+        var R1 = D ? Math.min(H * .5, W * .32) : Math.min(W * .85, oy - capBottom - 96), R2 = D ? R1 + Math.min(130, H * .16) : R1 + 80;
+        var th = (D ? 45 : 30) * Math.PI / 180, ang = [-th, 0, th];
+        var pt = function (R, a) { return { x: ox + R * Math.sin(a), y: oy - R * Math.cos(a) }; };
+        stg.style.setProperty('--fan-w', fw + 'px'); stg.style.setProperty('--lw', (D ? 250 : 150) + 'px');
+        comp.style.left = ox + 'px'; comp.style.top = oy + 'px';
+        [R1, R2].forEach(function (R, i) { arcs[i].setAttribute('d', 'M' + (ox - R) + ' ' + oy + 'A' + R + ' ' + R + ' 0 0 1 ' + (ox + R) + ' ' + oy); });
+        clip.setAttribute('x', ox - R2 - 4); clip.setAttribute('y', oy - R2 - 4); clip.setAttribute('width', 2 * R2 + 8); clip.setAttribute('height', R2 + 4);
+        ang.forEach(function (a, i) {
+          var p = pt(R1, a), q = D ? pt(R2, a) : p, e = pt(R1 - 9, a);
+          rays[i].setAttribute('x1', ox); rays[i].setAttribute('y1', oy); rays[i].setAttribute('x2', e.x); rays[i].setAttribute('y2', e.y);
+          [[A[i], p], [B[i], q]].forEach(function (n) { n[0].style.left = n[1].x + 'px'; n[0].style.top = n[1].y + 'px'; n[0].classList.add(AL[i]); n[0].classList.toggle('node--lift', !D && i === 1); });
+        });
+        fan = { x: ox, y: oy, w: fw, o: ox + ' ' + oy };
+      }
+      layout();
+      if (!D) arcs[1].classList.add('arc--ghost');
+      undo.push(function () { A.concat(B).forEach(function (n) { n.style.left = n.style.top = ''; AL.concat('node--lift').forEach(function (c) { n.classList.remove(c); }); }); arcs[1].classList.remove('arc--ghost'); gsap.set(arcs.concat(rays), { clearProps: 'all' }); });
+
+      var scene = -1;
+      var tl = mkTL('home-stages', { onUpdate: function (self) { var s = self.progress < .62 ? 0 : 1; if (s !== scene) { scene = s; if (cur && cur.s.closest('.fan-slide')) shut(false); } } });
+      gsap.set(arcs, { visibility: 'visible' });
+      fade(tl, num, 0, 1, .02, true, .04); capIn(tl, capA, .03, true);
+      tl.fromTo(arcs[0], { rotation: -180, svgOrigin: fan.o }, { rotation: 0, duration: .09, ease: 'power1.inOut' }, .11);
+      A.forEach(function (n, i) {
+        tl.fromTo(rays[i], { scale: 0, opacity: 1, svgOrigin: fan.o }, { scale: 1, opacity: 1, duration: .07, ease: 'power1.out' }, RT[i] - .07);
+        tl.fromTo(n, { autoAlpha: 0 }, { autoAlpha: 1, duration: .04 }, RT[i] - .015);
+        tl.fromTo($('.node__in', n), { y: 10 }, { y: 0, duration: .05, ease: 'power2.out' }, RT[i] - .015);
+      });
+      capOut(tl, capA, RT[2] - .05); fade(tl, num, 1, 0, RT[2] - .05, false, .04);   // 之後是一段沒有字幕的停頓
+      tl.fromTo(arcs[1], { rotation: -180, svgOrigin: fan.o }, { rotation: 0, duration: .1, ease: 'power1.inOut' }, .62);
+      if (!D) A.forEach(function (n) { tl.fromTo(n, { autoAlpha: 1 }, { autoAlpha: 0, duration: .04, immediateRender: false }, .64); });
+      B.forEach(function (n, i) {
+        tl.fromTo(n, { autoAlpha: 0 }, { autoAlpha: 1, duration: .04 }, .71 + i * .045);
+        tl.fromTo($('.node__in', n), { y: 10 }, { y: 0, duration: .05, ease: 'power2.out' }, .71 + i * .045);
+      });
+      capIn(tl, capB, .76, true); fade(tl, num, 0, 1, .76, false, .04);
+      tl.set({}, {}, 1);
+    })();
+
+    /* ── 金翼的整段飛行、換場的金光、布景：以捲動位置（px）為時間的一條時間軸，版面有變就重算 ── */
+    var docks = {}; $$('.dock').forEach(function (d) { docks[d.dataset.dock] = d; });
+    var sw = $('.sweep'), flare = $('.flare'), halo = $('.halo'), floor = $('.floor'), scenery = [sw, flare, halo, floor];
+    var master = null, maxScroll = 1, proxy = { t: 0 }, stageEnd = 1e9, AY = .6466; // AY：羅盤中心在金翼方框裡的高度比例
+    function render() { if (master) master.time(proxy.t * maxScroll); }
+    function header() { root.classList.toggle('stage-on', window.pageYOffset < stageEnd); }
+    gsap.to(proxy, { t: 1, ease: 'none', onUpdate: render, scrollTrigger: { start: 0, end: 'max', scrub: SCRUB, onUpdate: header } });
+    $$('.dw').forEach(function (d, i) { gsap.to(d, { y: -(110 + i * 60), ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: true } }); });
+    function build() {
+      if (master) master.kill(); master = null;
+      var TW = tw.offsetWidth, vh = window.innerHeight;
+      maxScroll = Math.max(1, ST.maxScroll(window));
+      var S = {}, ready = true;
+      ['hero', 'personas-section', 'home-stages'].forEach(function (id) { var st = slides[id]; S[id] = { s: st.start, e: st.end, L: st.end - st.start }; if (!(S[id].L > 0)) ready = false; });
+      if (!ready) return; // 有 ScrollTrigger 還沒量好，等下一次 refresh
+      var tl = gsap.timeline({ paused: true, defaults: { ease: 'none', lazy: false, overwrite: false } });
+      function P(name) { var d = docks[name], p = rel(d, d.closest('.stage')); return { x: p.x + d.offsetWidth / 2, y: p.y + d.offsetHeight * AY, scale: d.offsetWidth / TW }; }
+      function PG(name) { var r = docks[name].getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + window.pageYOffset + r.height * AY, scale: r.width / TW }; }
+      function fly(t0, t1, a, b, o) {
+        o = o || {}; var d = Math.max(1, t1 - t0), mid = { x: (a.x + b.x) / 2 + (o.bx || 0), y: (a.y + b.y) / 2 + (o.by || 0) };
+        if (window.MotionPathPlugin) tl.to(tw, { duration: d, ease: 'sine.inOut', motionPath: { path: [mid, { x: b.x, y: b.y }], curviness: 1.3 } }, t0);
+        else tl.to(tw, { duration: d, x: b.x, y: b.y, ease: 'sine.inOut' }, t0);
+        tl.to(tw, { duration: d, scale: b.scale, ease: 'sine.inOut' }, t0);
+        if (o.rot) tl.to(tw, { rotation: o.rot, duration: d * .45, ease: 'sine.out' }, t0).to(tw, { rotation: 0, duration: d * .45, ease: 'sine.inOut' }, t0 + d * .55);
+        [.5, 1, .56, 1].forEach(function (v, i) { tl.to(tw, { '--open': v, duration: d / 4, ease: 'sine.inOut' }, t0 + i * d / 4); });
+        tl.to(tw, { '--gap': 0, duration: d * .28, ease: 'sine.inOut' }, t0).to(tw, { '--gap': 1, duration: d * .28, ease: 'sine.inOut' }, t0 + d * .72);
+      }
+      // 換場：一道金光由左掃到右，布景同時泛白
+      function sweep(a, b) {
+        var d = b - a, nr = { immediateRender: false };
+        tl.fromTo(sw, { xPercent: -130 }, Object.assign({ xPercent: 230, duration: d * .8, ease: 'sine.inOut' }, nr), a + d * .1)
+          .fromTo(sw, { opacity: 0 }, Object.assign({ opacity: 1, duration: d * .25 }, nr), a + d * .1)
+          .fromTo(sw, { opacity: 1 }, Object.assign({ opacity: 0, duration: d * .3 }, nr), a + d * .6)
+          .fromTo(flare, { opacity: 0 }, Object.assign({ opacity: .9, duration: d * .4 }, nr), a + d * .1)
+          .fromTo(flare, { opacity: .9 }, Object.assign({ opacity: 0, duration: d * .4 }, nr), a + d * .5);
+      }
+      var H = S.hero, B = S['personas-section'], F = S['home-stages'], DIM = .26;
+      var hero = P('hero'), bc = P('book-closed'), bo = P('book-open'), fn = { x: fan.x, y: fan.y, scale: fan.w / TW };
+      var haloY = halo.offsetTop + halo.offsetHeight / 2;
+      stageEnd = F.e + vh * .35;
+      gsap.set(tw, { x: hero.x, y: hero.y, scale: hero.scale, rotation: 0, '--open': 1, '--gap': 1, '--glow': 1, '--l1': 1, '--l2': 1, '--l3': 1, '--dim': 1 });
+      gsap.set(sw, { x: 0, xPercent: -130, skewX: -12, opacity: 0 }); gsap.set(flare, { opacity: 0 }); gsap.set(halo, { y: 0, scale: 1, opacity: 1 }); gsap.set(floor, { opacity: 1 });
+
+      // 01：停在羅盤上，緩緩呼吸
+      tl.to(tw, { '--open': .88, duration: H.L * .3, ease: 'sine.inOut' }, H.s + H.L * .15).to(tw, { '--open': 1, duration: H.L * .3, ease: 'sine.inOut' }, H.s + H.L * .45);
+      // 01 → 02：沒有字的飛行，落在書的背後
+      fly(H.e, B.s, hero, bc, { bx: D ? -180 : 56, by: D ? 110 : 70, rot: D ? -8 : 7 });
+      sweep(H.e, B.s);
+      // 02：書打開，金翼退到書頂；每翻一頁拍一下
+      var o0 = B.s + B.L * bookT.open[0], o1 = B.s + B.L * bookT.open[1];
+      tl.to(tw, { x: bo.x, y: bo.y, scale: bo.scale, '--open': .92, '--glow': .6, duration: o1 - o0, ease: 'power2.inOut' }, o0);
+      [.47, .65, .83].forEach(function (m) { tl.to(tw, { '--open': .72, duration: B.L * .04, ease: 'sine.inOut' }, B.s + B.L * (m - .04)).to(tw, { '--open': .92, duration: B.L * .05, ease: 'sine.inOut' }, B.s + B.L * m); });
+      // 02 → 03：收攏、淡出，移到畫面底部
+      var d1 = F.s - B.e, rise = F.s - d1 * .08;
+      tl.to(tw, { y: bo.y - d1 * .45, scale: bo.scale * .8, '--open': .15, '--gap': 0, '--glow': 0, '--dim': 0, duration: d1 * .45, ease: 'sine.in' }, B.e);
+      tl.set(tw, { x: fn.x, y: fn.y + fan.w * .2, scale: fn.scale * .8, '--open': 0, '--l1': DIM, '--l2': DIM, '--l3': DIM }, B.e + d1 * .6);
+      sweep(B.e, F.s);
+      tl.to(floor, { opacity: 0, duration: d1 * .6 }, B.e).to(halo, { y: fn.y - fan.w * .1 - haloY, scale: 1.15, duration: d1, ease: 'sine.inOut' }, B.e);
+      // 03：由下方升起、張開；三條線到達時各點亮一層羽毛
+      tl.to(tw, { '--dim': 1, duration: d1 * .08 }, rise)
+        .to(tw, { y: fn.y, scale: fn.scale, '--open': 1, '--gap': 1, duration: d1 * .08 + F.L * .13, ease: 'sine.out' }, rise);
+      RT.forEach(function (t, i) { var v = { duration: F.L * .06, ease: 'sine.out' }; v['--l' + (i + 1)] = 1; tl.to(tw, v, F.s + F.L * (t - .02)); });
+      tl.to(tw, { '--glow': 1, duration: F.L * .1, ease: 'sine.inOut' }, F.s + F.L * .5);
+      // 03 → 收束：飛回頁尾前的羅盤
+      var ft = PG('footer'), t2 = Math.min(maxScroll, Math.max(F.e + 10, ft.y - vh * .5)), a2 = { x: ft.x, y: ft.y - t2, scale: ft.scale };
+      fly(F.e, t2, fn, a2, { bx: D ? 160 : -50, by: 0, rot: D ? 6 : -6 });
+      tl.to(halo, { y: vh * .5 - haloY, scale: .8, duration: t2 - F.e, ease: 'sine.inOut' }, F.e);
+      if (maxScroll > t2 + 1) tl.to([tw, halo], { y: '-=' + (maxScroll - t2), duration: maxScroll - t2 }, t2);
+      tl.set({}, {}, maxScroll);
+      master = tl; render(); header();
+    }
+    ST.addEventListener('refresh', build);
+    undo.push(function () { ST.removeEventListener('refresh', build); if (master) master.kill(); master = null; gsap.set([tw].concat(scenery, $$('.dw')), { clearProps: 'all' }); });
+    ST.refresh();
+    gsap.delayedCall(.2, function () { if (!master) ST.refresh(); });
+
+    /* ── 頁內錨點：捲到該 slide 裡對應的那一拍 ── */
+    function target(hash) {
+      var el = hash.length > 1 && document.getElementById(hash.slice(1)); if (!el) return null;
+      var at = { 'hero': ['hero', 0], 'personas-section': ['personas-section', .06], 'home-stages': ['home-stages', .52], 'featured-services': ['home-stages', .92] }[el.id];
+      if (at) { var st = slides[at[0]]; return st.start + (st.end - st.start) * at[1]; }
+      return el.getBoundingClientRect().top + window.pageYOffset - 64;
+    }
+    on(document, 'click', function (e) {
+      var a = e.target.closest('a[href^="#"]'); if (!a || e.defaultPrevented) return;
+      var y = target(a.getAttribute('href')); if (y === null) return;
+      e.preventDefault(); shut(false); window.scrollTo({ top: Math.round(y), behavior: 'smooth' });
+      if (history.replaceState) history.replaceState(null, '', a.getAttribute('href'));
+    });
+    function onHash() {
+      var el = location.hash.length > 1 && document.getElementById(location.hash.slice(1));
+      if (el && el.matches('.panel')) { slides.goNeed(+el.dataset.need); return; }
+      var y = target(location.hash); if (y !== null) window.scrollTo(0, Math.round(y));
+    }
+    on(window, 'hashchange', onHash);
+    if (location.hash) setTimeout(onHash, 60);
+
+    return function () { undo.reverse().forEach(function (f) { f(); }); };
+  }
+
+  var short = window.__hsShort();
+  function boot() {
+    mm = gsap.matchMedia();
+    if (short) { plain(); return; }
+    mm.add({ desktop: '(min-width: 1024px) and (prefers-reduced-motion: no-preference)', mobile: '(max-width: 1023.98px) and (prefers-reduced-motion: no-preference)' }, function (ctx) {
+      root.classList.add('motion', 'stage-on', 'booted');
+      var cleanup = setup(!!ctx.conditions.desktop);
+      return function () { cleanup(); if (!rebuilding) plain(); };
+    });
+    if (!root.classList.contains('booted')) plain(); // 減少動態效果：一般頁面
+  }
+  function rebuild() {
+    if (!mm) return;
+    var y = window.pageYOffset; short = window.__hsShort(); rebuilding = true; mm.revert(); boot(); rebuilding = false;
+    if (!short) window.scrollTo(0, y);
+    ST.refresh();
+  }
+  // 等字型到位再開始（字幕與停靠點都依實際排版計算）；最多等 1.2 秒
+  var started = false;
+  function start() { if (started) return; started = true; boot(); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { if (started) rebuild(); else start(); }); setTimeout(start, 1200); } else start();
+  var lastW = window.innerWidth, lastH = window.innerHeight, rt;
+  window.addEventListener('resize', function () {
+    var w = window.innerWidth, h = window.innerHeight;
+    if (w === lastW && (w < 1024 || h === lastH)) return; // 手機網址列伸縮不重建
+    lastW = w; lastH = h; clearTimeout(rt); rt = setTimeout(rebuild, 250);
+  });
+})();
+</script>
+</body>
+</html>

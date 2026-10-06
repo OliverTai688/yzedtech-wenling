@@ -1,0 +1,136 @@
+<!--
+提案 B「一篇主打＋清單」
+概念：雜誌版面，最新一篇放大並顯示完整摘要與「閱讀全文」，其餘五篇縮成只有分類、標題、日期的清單；分類晶片同時篩選主打與清單。
+動效技術：.reveal 一次性進場、晶片切換時 opacity 交叉淡入（只動 transform／opacity）。無 3D、無粒子。
+已知弱點：(1) 主打文章永遠是「最新」，若最新篇不是最能轉化的主題，其餘五篇曝光偏低；(2) 清單不含摘要，訪客需點進去才知內容，SEO 摘要僅留在主打篇。
+搜尋框僅為位置示意（本提案不實作搜尋）。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜部落格提案B・一篇主打＋清單</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.blog-head { padding-top: 40px; }
+.blog-tools { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+.search { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 4px 16px; border: 1px solid var(--border); border-radius: 999px; background: var(--popover); color: var(--muted-foreground); font-size: 14px; }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; color: var(--foreground); outline: none; min-height: 36px; }
+.search:focus-within { border-color: var(--ring); }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chips .tab { flex: none; }
+
+.layout { display: grid; gap: 32px; margin-top: 28px; }
+@media (min-width: 900px) { .layout { grid-template-columns: 1.35fr 1fr; gap: 48px; align-items: start; } }
+#stage { transition: opacity 150ms ease; }
+#stage.swap { opacity: 0; }
+
+.feature { position: relative; overflow: hidden; padding: 0; }
+.feature .cover { aspect-ratio: 16 / 9; display: grid; place-items: center; text-align: center; padding: 16px; font-size: 14px; color: var(--accent-foreground); background: radial-gradient(closest-side, rgba(240,200,117,.55), rgba(252,231,168,.35) 70%, var(--accent)); border-bottom: 1px solid var(--border); }
+.feature .body { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+@media (min-width: 640px) { .feature .body { padding: 32px; } }
+.feature .meta, .item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; color: var(--muted-foreground); }
+.feature h2 { font-size: 22px; line-height: 1.45; }
+@media (min-width: 768px) { .feature h2 { font-size: 26px; } }
+.feature .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 4px; }
+.badge-new { font-size: 14px; font-weight: 700; color: var(--accent-foreground); letter-spacing: .08em; }
+
+.list-title { font-size: 14px; font-weight: 700; letter-spacing: .12em; color: var(--accent-foreground); padding-bottom: 8px; border-bottom: 1px solid var(--ring); }
+.item a { display: block; padding: 16px 0; min-height: 44px; border-bottom: 1px solid rgba(240,223,160,.9); }
+.item a:hover h3 { color: var(--accent-foreground); }
+.item h3 { font-size: 16px; line-height: 1.55; margin: 6px 0 0; font-weight: 700; }
+.item .chip { min-height: 24px; padding: 0 10px; font-size: 14px; }
+.empty { padding: 32px 0; color: var(--muted-foreground); }
+.next-note { margin-top: 24px; padding: 18px 20px; border: 1px dashed var(--border); border-radius: 14px; font-size: 14px; color: var(--muted-foreground); }
+.pt-end { padding-bottom: 48px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="container blog-head pt-end">
+    <span class="eyebrow">JOURNAL</span>
+    <h1 style="margin-top:10px">部落格</h1>
+
+    <div class="blog-tools">
+      <label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="搜尋文章（位置示意）" aria-label="搜尋文章"></label>
+      <div class="chips tabs" role="tablist" aria-label="文章分類" id="chips"></div>
+    </div>
+
+    <div class="layout">
+      <div id="stage" aria-live="polite">
+        <article class="card feature" id="feature"></article>
+      </div>
+      <aside aria-label="其他文章">
+        <div class="list-title">更多文章</div>
+        <ul id="list"></ul>
+        <p class="empty" id="empty" hidden>這個分類目前只有主打這一篇。</p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 B・一篇主打＋清單</div>
+<script>
+// 資料逐字取自 src/data.ts 的 blogPosts（已依日期新到舊）
+const posts = [
+  { id: 'post-1', title: '從《七週遇見對的人》談起：愛情不是苦苦等待，而是自我價值的同頻對齊', date: '2026-06-20', category: '愛情', readTime: '5 分鐘', summary: '許多人在感情裡反覆受傷，以為自己不夠好，或者運氣差。事實上，你的伴侶往往是你潛意識信念的精準投影。本文從暢銷書《七週遇見對的人》的核心概念出發，剖析如何透過自我價值對齊，重新啟動幸福磁場。' },
+  { id: 'post-2', title: '金錢能量的流動：如何清理內在匱乏感，走向物質與心靈的雙重豐盛', date: '2026-06-12', category: '財運', readTime: '6 分鐘', summary: '你對金錢的態度，決定了金錢是否願意留在你身邊。如果你一花錢就感到心痛、賺了錢卻無比焦慮，那你可能正處於「金錢匱乏能量」中。本文教你 3 個立刻能做的豐盛調頻練習。' },
+  { id: 'post-3', title: '日常能量護航：用豐盛靈氣為自己創造一個「幸運體質」磁場', date: '2026-05-28', category: '豐盛靈氣', readTime: '4 分鐘', summary: '為什麼有的人總是能在關鍵時刻遇到貴人、避開麻煩，彷彿被好運眷顧？這不是天生偏心，而是他們懂得如何維持自己的高頻能量場。本文分享日常三步驟，教你打造防護罩與幸運體質。' },
+  { id: 'post-4', title: '給企業主與高階主管：如何在高壓决策與市場變動中，保持大腦能量的平穩？', date: '2026-05-15', category: '事業', readTime: '5 分鐘', summary: '身為決策者，你的一個念頭，決定了團隊的方向與數百萬甚至數億業績的走向。當你處於焦慮、得失心極重的能量狀態時，直覺會被雜音覆蓋。本文探討如何為創業者提供穩定的心靈護航。' },
+  { id: 'post-5', title: '從全面崩塌到重生：我如何在人生最黑暗的一年，遇見希塔療癒與自己', date: '2026-04-30', category: '心路歷程', readTime: '7 分鐘', summary: '文齡老師親自撰寫的靈魂自白。分享 2019 年那段家庭、健康、感情與財務同時崩塌的黑暗歲月，如何在接觸希塔療癒後，看見潛意識裡的限制性信念，並在短短數月內迎來翻轉。' },
+  { id: 'post-6', title: '個案陪伴故事：從冰凍三尺的家庭關係，看見潛意識和解的奇蹟起點', date: '2026-04-12', category: '個案成長', readTime: '6 分鐘', summary: '一則關於母女心結的深度陪伴紀實。一對互不說話、一見面就冷嘲熱諷的母女，如何透過潛意識信念的看見，解開糾葛二十年的情感鎖鏈，重回彼此接納與擁抱的溫情。' }
+];
+const cats = ['全部', '愛情', '財運', '豐盛靈氣', '事業', '心路歷程', '個案成長'];
+const $ = (id) => document.getElementById(id);
+const fmt = (d) => d.replaceAll('-', '.');
+let current = '全部';
+
+function renderChips() {
+  $('chips').innerHTML = cats.map((c) => `<button class="tab" role="tab" aria-selected="${c === current}" data-c="${c}">${c}</button>`).join('');
+}
+function renderContent() {
+  const rows = current === '全部' ? posts : posts.filter((p) => p.category === current);
+  const [f, ...rest] = rows;
+  $('feature').innerHTML = `
+    <div class="cover" role="img" aria-label="文章封面（待提供）">文章封面圖（待提供）</div>
+    <div class="body">
+      <div class="meta"><span class="chip">${f.category}</span><span>${fmt(f.date)}</span><span>・${f.readTime}</span>${current === '全部' ? '<span class="badge-new">最新</span>' : ''}</div>
+      <h2>${f.title}</h2>
+      <p class="muted">${f.summary}</p>
+      <div class="actions"><a class="btn btn-gold" href="/blog?post=${f.id}">閱讀全文</a></div>
+    </div>`;
+  $('list').innerHTML = rest.map((p) => `
+    <li class="item"><a href="/blog?post=${p.id}">
+      <div class="meta"><span class="chip">${p.category}</span><span>${fmt(p.date)}</span></div>
+      <h3>${p.title}</h3>
+    </a></li>`).join('');
+  $('empty').hidden = rest.length > 0;
+}
+function setCategory(c) {
+  if (c === current) return;
+  current = c;
+  renderChips();
+  const stage = $('stage');
+  stage.classList.add('swap');
+  setTimeout(() => { renderContent(); stage.classList.remove('swap'); }, 150);
+}
+$('chips').addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) setCategory(b.dataset.c); });
+renderChips();
+renderContent();
+</script>
+</body>
+</html>

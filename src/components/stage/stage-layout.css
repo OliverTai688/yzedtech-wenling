@@ -1,0 +1,115 @@
+/* 舞台版面：只在 html.js 且沒有開啟「減少動態效果」時生效（條件與 emblemGeo.ts 的 STAGE_MQ 相同）。
+   每張 slide 的高度是 (1 + --pin) 個舞台高；.st-stage 以 CSS sticky 釘在頁首下方。 */
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) {
+  html.js:not(.st-off) .st-root {
+    /* 讓固定的布景與飛行的金翼只在舞台範圍內看得到 */
+    clip-path: inset(0);
+    background: none;
+    --hero-cap: min(900px, 72vw);
+
+    & .st-slide { position: relative; z-index: 2; padding: 0; height: calc(var(--st-h) * (1 + var(--pin))); }
+    & .st-hero { --pin: 1; }
+    & .st-bookslide, & .st-routes { --pin: 1.5; }
+    & .st-stage { position: sticky; top: var(--st-hdr); height: var(--st-h); overflow: clip; }
+    & .st-in { height: var(--st-sh); max-width: none; padding: 0; }
+
+    /* 布景：暖白地面、主角身後的光、地平線 */
+    & .st-theatre, & .st-fly, & .st-dustlayer {
+      display: block; position: fixed; top: var(--st-hdr); left: 0; right: 0; height: var(--st-h);
+      overflow: hidden; pointer-events: none;
+    }
+    & .st-theatre {
+      z-index: 0;
+      background: radial-gradient(120% 95% at 50% 38%, var(--color-white) 0, var(--st-white) 45%, color-mix(in srgb, var(--color-background) 55%, var(--st-white)) 80%, var(--color-background) 100%);
+    }
+    & .st-halo {
+      position: absolute; left: 50%; top: calc(var(--st-floor) * 0.55); width: 150vmin; aspect-ratio: 1; margin: -75vmin 0 0 -75vmin; border-radius: 50%;
+      background: radial-gradient(closest-side, var(--color-white) 0, var(--color-white) 26%, color-mix(in srgb, var(--st-gold-hi) 62%, transparent) 50%, color-mix(in srgb, var(--st-gold-hi) 18%, transparent) 72%, transparent 100%);
+    }
+    & .st-floor {
+      position: absolute; left: 0; right: 0; top: var(--st-floor); bottom: 0;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--color-border) 55%, transparent) 0, color-mix(in srgb, var(--color-background) 40%, transparent) 14%, transparent 70%);
+    }
+    & .st-floor::before {
+      content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--st-gold-deep) 55%, transparent) 50%, transparent);
+    }
+    & .st-floor::after {
+      content: ''; position: absolute; left: 16%; right: 16%; top: 0; height: 22%; border-radius: 50%; translate: 0 -30%;
+      background: radial-gradient(closest-side, var(--color-white), color-mix(in srgb, var(--st-gold-hi) 45%, transparent) 55%, transparent);
+    }
+    & .st-flare {
+      position: absolute; left: 50%; top: 50%; width: 170vmax; aspect-ratio: 1; margin: -85vmax 0 0 -85vmax; border-radius: 50%; opacity: 0;
+      background: radial-gradient(closest-side, var(--color-white) 0, var(--color-white) 40%, color-mix(in srgb, var(--st-gold-hi) 80%, transparent) 62%, transparent 100%);
+    }
+    & .st-sweep {
+      position: absolute; top: -20%; left: 0; width: 70vw; height: 140%; opacity: 0; transform: translateX(-130%) skewX(-12deg); will-change: transform, opacity;
+      background: linear-gradient(100deg, transparent 0, var(--color-white) 42%, color-mix(in srgb, var(--st-gold-hi) 80%, transparent) 58%, transparent 100%);
+    }
+
+    /* 飛行的金翼：以羅盤中心為原點，GSAP 只改 x／y／scale 與自訂屬性 */
+    & .st-fly { z-index: 1; visibility: hidden; }
+    &[data-live] .st-fly { visibility: visible; }
+    &[data-live] .st-hero__em { visibility: hidden; }
+    & .st-fly__em {
+      --w: min(1000px, 78vw); --o1: 1; --o2: 1; --o3: 1; --l1: 1; --l2: 1; --l3: 1;
+      position: absolute; left: 0; top: 0; width: var(--w);
+      margin: calc(var(--w) / var(--em-ar) * var(--em-cy) * -1) 0 0 calc(var(--w) * var(--em-cx) * -1);
+      transform-origin: calc(var(--em-cx) * 100%) calc(var(--em-cy) * 100%); will-change: transform;
+    }
+    & .st-fly__em .emblem { width: 100%; margin: 0; }
+    /* 三層羽毛各自的展開程度（由內而外依序到位）與亮度 */
+    & .st-fly__em .tier-1 { --open: var(--o1); opacity: var(--l1); }
+    & .st-fly__em .tier-2 { --open: var(--o2); opacity: var(--l2); }
+    & .st-fly__em .tier-3 { --open: var(--o3); opacity: var(--l3); }
+    & .st-fly__em #needle { transition: none; }
+
+    /* 前景金粉：最多六顆、很慢、很淡 */
+    & .st-dustlayer { z-index: 3; }
+    & .st-dust {
+      position: absolute; border-radius: 50%; opacity: 0.4; animation: st-drift 19s ease-in-out infinite alternate;
+      background: radial-gradient(closest-side, var(--color-popover), color-mix(in srgb, var(--st-gold-hi) 55%, transparent) 45%, transparent);
+    }
+    & .st-dust:nth-child(2n) {
+      animation-duration: 26s; animation-direction: alternate-reverse;
+      background: radial-gradient(closest-side, var(--color-white), color-mix(in srgb, var(--color-silver) 50%, transparent) 50%, transparent);
+    }
+
+    /* 主角與字幕 */
+    & .st-subject { position: absolute; left: 0; right: 0; top: 0; height: var(--st-floor); grid-template-columns: minmax(0, 1fr); }
+    & .st-hero__em { width: min(var(--hero-cap), calc((var(--st-floor) - 28px) * var(--em-ar))); margin: 0; }
+    & .st-floormark {
+      display: block; position: absolute; left: 50%; top: var(--st-floor); width: min(70vw, 620px); height: 40px; margin: -20px 0 0 calc(min(70vw, 620px) / -2); border-radius: 50%;
+      background: radial-gradient(closest-side, color-mix(in srgb, var(--st-gold-edge) 20%, transparent), color-mix(in srgb, var(--st-gold-edge) 7%, transparent) 55%, transparent);
+    }
+    & .st-capzone { position: absolute; left: 24px; right: 24px; top: calc(var(--st-floor) + 18px); justify-items: center; gap: 8px; text-align: center; }
+    & .st-num { display: inline-flex; height: 16px; align-items: center; gap: 12px; font: 600 13px/1 var(--font-serif); letter-spacing: 0.3em; color: var(--st-gold-deep); }
+    & .st-num::before, & .st-num::after { content: ''; width: 34px; height: 1px; background: linear-gradient(90deg, transparent, var(--st-gold-deep)); }
+    & .st-num::after { transform: scaleX(-1); }
+    & .st-caps { width: 100%; justify-items: center; align-items: start; gap: 0; }
+    & .st-caps > * { grid-area: 1 / 1; }
+    & .st-cap, & h1.st-cap { font: 700 32px/1.45 var(--font-serif); letter-spacing: 0.06em; color: var(--st-ink); text-wrap: balance; }
+    & .st-cap br { display: none; }
+    & .st-later { opacity: 0; visibility: hidden; }
+    & .st-act { justify-content: center; }
+    & .st-disc.st-plus { display: inline-flex; }
+    & .st-more { display: none; }
+    & .st-block { display: grid; justify-items: center; gap: 10px; margin: 0; }
+    & .st-block[data-off] { display: none; }
+  }
+  @media (max-width: 1023.98px) {
+    html.js:not(.st-off) .st-root {
+      --hero-cap: 124vw;
+      & .st-hero { --pin: 0.8; }
+      & .st-bookslide, & .st-routes { --pin: 1.2; }
+      & .st-fly__em { --w: 150vw; }
+      & .st-cap, & h1.st-cap { font-size: 22px; letter-spacing: 0.04em; }
+      & .st-cap br { display: inline; }
+      & .st-caps { min-height: 2.9em; font-size: 22px; }
+    }
+  }
+}
+@keyframes st-drift {
+  from { transform: translate3d(-14px, 10px, 0) scale(0.96); }
+  to { transform: translate3d(16px, -18px, 0) scale(1.05); }
+}

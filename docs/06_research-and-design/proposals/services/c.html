@@ -1,0 +1,142 @@
+<!--
+提案 C「比較清單」
+概念：服務是整齊的列而不是卡片，依四種類型分組，姓名／適合對象／形式時長／價格並排，一眼比較；說明用展開收合。
+動效技術：.reveal 一次性進場、原生 details 展開、側邊 LINE 小幫手 sticky（純 CSS）。無 3D、無粒子。
+已知弱點：1) 欄位全為原文，適合對象文字偏長，8 列同屏時密度仍高；2) 4 項尚無價格，以「待補」佔位，比較價值打折。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜全部服務 提案C・比較清單</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.page-head{padding-block:40px 8px} .page-head p{margin-top:12px;max-width:640px}
+.layout{display:grid;gap:24px;align-items:start}
+@media(min-width:1024px){.layout{grid-template-columns:1fr 260px;gap:40px}}
+.grp{margin-top:32px} .grp h2{font-size:22px;padding-bottom:8px;border-bottom:2px solid var(--gold-600,#B5762A)}
+.svcs{display:flex;flex-direction:column}
+.svc{display:grid;gap:8px 20px;padding:20px 0;border-bottom:1px solid var(--border);grid-template-columns:1fr;position:relative}
+.svc h3{font-size:18px}
+.k{display:block;font-size:14px;color:var(--muted-foreground)}
+.v{display:block;font-size:15px;line-height:1.55} .todo{color:var(--muted-foreground);font-style:italic}
+.c-go{display:flex} .c-more{border-bottom:0}
+.blurb{color:var(--card-foreground);font-weight:500;margin-bottom:6px}
+@media(max-width:1023px){
+ .svc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-top:12px;box-shadow:0 4px 20px rgba(58,42,24,.05)}
+ .c-dur,.c-price{display:inline-block}
+}
+@media(min-width:1024px){
+ .svc{grid-template-columns:2.2fr 2.6fr 2fr 1.1fr auto;align-items:start;padding:18px 0}
+ .c-more{grid-column:1/-1} .k{display:none}
+ .cols{display:grid;grid-template-columns:2.2fr 2.6fr 2fr 1.1fr auto;gap:20px;font-size:14px;color:var(--muted-foreground);padding:8px 0;border-bottom:1px solid var(--border);margin-top:24px}
+ .cols span:last-child{width:96px}
+}
+@media(max-width:1023px){.cols{display:none}}
+.helper{position:sticky;top:88px;display:none}
+@media(min-width:1024px){.helper{display:block;margin-top:32px}}
+.helper h2{font-size:18px} .helper p{margin:8px 0 16px;font-size:15px} .helper .btn{width:100%}
+.m-help{margin-top:32px;text-align:center} @media(min-width:1024px){.m-help{display:none}}
+.hide-mobile{}
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+<div class="container">
+  <div class="page-head">
+    <span class="eyebrow">能量療癒服務</span>
+    <h1 style="margin-top:12px">全部服務</h1>
+    <p class="muted">從一對一深度療癒到遠距能量調頻，8 大服務系統，陪你在對的時間，做對的清理與修復。</p>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="cols" aria-hidden="true"><span>服務</span><span>適合</span><span>形式／時長</span><span>價格</span><span></span></div>
+<section class="grp" aria-labelledby="g-一對一"><h2 id="g-一對一">一對一</h2><ul class="svcs">
+<li class="svc reveal"><div class="c-name"><h3>心靈引渡人｜一對一個人能量療癒</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">反覆卡關（感情、金錢、家庭、工作）、渴望突破現況、正經歷重大低潮，或想擺脫慣性依存與內在恐懼者</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">60 / 90 / 120 分鐘（3 種方案可選）</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v">$2,600 起</span></div>
+<div class="c-go"><a class="link" href="/services/personal-1on1" aria-label="了解詳情：心靈引渡人｜一對一個人能量療癒">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">潛入內心深處找出卡點根源，透過希塔療癒與潛意識溝通，直擊核心的深度轉化。</p><p>深度潛意識溝通與信念轉化，陪你渡過人生卡關的難關，找回輕盈與平靜。</p></details></li>
+<li class="svc reveal"><div class="c-name"><h3>靈性解讀與能量療癒</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">面臨重大抉擇、對未來感到迷惘、感情反覆卡關，或想找回天賦與豐盛能量者</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">20-40 分鐘（人生指南針／靈魂伴侶解讀）；1.5-3 小時（4+1 感知中心）</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v">$600 起</span></div>
+<div class="c-go"><a class="link" href="/services/spiritual-reading" aria-label="了解詳情：靈性解讀與能量療癒">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">人生指南針、靈魂伴侶、4+1 感知中心天賦挖掘，為迷惘與抉擇中的你點亮方向。</p><p>三大主題：人生指南針解讀、靈魂伴侶解讀、4+1 感知中心深度挖掘，在迷惘與抉擇的十字路口重新點亮方向。</p></details></li>
+<li class="svc reveal"><div class="c-name"><h3>靈性按摩｜全域氣場修護與脈輪清理</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">莫名疲累、情緒起伏大、財務或感情反覆受阻，或想定期保養氣場者（建議每 3-6 個月一次）</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">單次體驗，另有 3 / 6 / 12 次優惠組</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v">$4,580 起</span></div>
+<div class="c-go"><a class="link" href="/services/spiritual-massage" aria-label="了解詳情：靈性按摩｜全域氣場修護與脈輪清理">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">無需接觸的遠距能量 SPA，溫和清理 14 點脈輪氣場，找回身心和諧與流動。</p><p>標準化 SOP 遠距能量 SPA，14 點脈輪深層清理與補氣，附贈脈輪訊息報告。</p></details></li>
+</ul></section>
+<section class="grp" aria-labelledby="g-團體療癒"><h2 id="g-團體療癒">團體療癒</h2><ul class="svcs">
+<li class="svc reveal"><div class="c-name"><h3>人生推進器｜團體遠距療癒</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">面臨轉職、求職、考試、簡報、結婚等重要關卡，或長期卡關倦怠、想清理空間與家庭能量者</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">1 回合 11 次遠距傳送（約 1 個月內完成），建議連續 3 回合以上</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v todo">價格（待補）</span></div>
+<div class="c-go"><a class="link" href="/services/group-healing" aria-label="了解詳情：人生推進器｜團體遠距療癒">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">強效清理舊業力、斷捨離舊有模式，為生命騰出空間迎接新契機。</p><p>遠距集體能量調頻，1 回合 11 次傳送，無需在線即可持續提升頻率、突破卡關。</p></details></li>
+<li class="svc reveal"><div class="c-name"><h3>豐盛靈氣｜全方位能量調頻與願望顯化</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">財運不順、感情停滯人緣冷淡、願望難以顯化，或想提升自信與氣場魅力者</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">每月梯次，10 或 30 次遠距傳送</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v todo">價格（待補）</span></div>
+<div class="c-go"><a class="link" href="/services/abundance-reiki" aria-label="了解詳情：豐盛靈氣｜全方位能量調頻與願望顯化">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">整合 8 種以上靈氣能量，全方位提升事業、財富與好運的顯化速度。</p><p>獨家結合 8 大高頻靈氣（含金錢、百花、愛情、人魚靈氣等），每月梯次遠距傳送，全面提升財富、感情與人氣運勢。</p></details></li>
+</ul></section>
+<section class="grp" aria-labelledby="g-祈福服務"><h2 id="g-祈福服務">祈福服務</h2><ul class="svcs">
+<li class="svc reveal"><div class="c-name"><h3>遠距煙供祈福儀式</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">想提升財運業績、常覺諸事不順運勢停滯、想為家人祈求健康平安，或正面臨感情阻礙、爛桃花纏身者</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">單次施作，另有多次預約優惠</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v todo">價格（待補）</span></div>
+<div class="c-go"><a class="link" href="/services/smoke-prayer" aria-label="了解詳情：遠距煙供祈福儀式">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">古老的焚香上供下施法門，化解無形障礙，為自己與家人累積福報。</p><p>藏傳煙供神聖智慧，全程遠距代施作，消業障、補財庫、迎貴人、感情順、健康安。</p></details></li>
+<li class="svc reveal"><div class="c-name"><h3>五行香水供奉｜佛前加持版</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">感情年年單身或招爛桃花、事業無貴人升遷卡關、財進財出留不住，或心浮氣躁難以專注者</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">7 天 24 小時佛前供奉</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v">$2,500 起</span></div>
+<div class="c-go"><a class="link" href="/services/five-elements-perfume" aria-label="了解詳情：五行香水供奉｜佛前加持版">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">依你的八字客製五行精油開運配方，精準補足流年運勢缺口。</p><p>長效植物香氛取代鮮花，7 天 24 小時佛前供奉，依你的八字與願望精準調配五行香氛。</p></details></li>
+</ul></section>
+<section class="grp" aria-labelledby="g-工作坊"><h2 id="g-工作坊">工作坊</h2><ul class="svcs">
+<li class="svc reveal"><div class="c-name"><h3>能量身心靈主題工作坊</h3></div>
+<div class="c-who"><span class="k">適合</span><span class="v">完全不需要任何基礎，第一次接觸身心靈、能量療癒，或對潛意識感到好奇的初訪者</span></div>
+<div class="c-dur"><span class="k">形式／時長</span><span class="v">每場約 3-4 小時</span></div>
+<div class="c-price"><span class="k">價格</span><span class="v todo">價格（待補）</span></div>
+<div class="c-go"><a class="link" href="/services/workshop" aria-label="了解詳情：能量身心靈主題工作坊">了解詳情 →</a></div>
+<details class="disclosure c-more"><summary>展開說明</summary><p class="blurb">3～4 小時輕量體驗，把能量工具帶回日常生活，零基礎即可上手。</p><p>零基礎輕鬆入門，觀念解密＋現場體驗＋實作工具帶回家，近期主打「能量風水與幸運數字工作坊」。</p></details></li>
+</ul></section>
+      <div class="m-help card"><h2 style="font-size:18px">不確定選哪個？</h2><p class="muted" style="margin:8px 0 16px">LINE 諮詢，由專人協助你。</p><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a></div>
+    </div>
+    <aside class="helper card" aria-label="選擇協助">
+      <h2>不確定選哪個？</h2>
+      <p class="muted">LINE 諮詢，由專人協助你。</p>
+      <a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a>
+    </aside>
+  </div>
+</div>
+<div style="height:48px"></div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="sticky-cta"><a class="btn btn-line" style="flex:1" href="https://lin.ee/N7QHCND">不確定選哪個？LINE 諮詢</a></div>
+<div class="proposal-tag">提案C・比較清單</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

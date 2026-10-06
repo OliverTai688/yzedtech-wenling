@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>免費資源｜豐盛之翼學苑</title>
+<!-- 提案用的頁面外殼（pages-v2）。複製這個檔案，把內容放進 <main>；樣式只用 _kit.css 的 class 與 token。
+     所有文字逐字取自 src/data.ts（文案集原文），不新增任何字。 -->
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../_kit.css">
+<style>
+/* 這一頁專用的版面（只用 token，不寫色碼） */
+.ticket { display: grid; grid-template-columns: 1fr 1fr; max-width: 30rem; margin-inline: auto; overflow: hidden; border: 1px solid var(--color-border); border-radius: 18px; background: var(--color-popover); text-align: center; }
+.ticket > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 4px; padding: 16px 12px; }
+.ticket__pass { grid-column: 1 / -1; border-bottom: 1px solid var(--color-border); }
+.ticket__time + .ticket__time { border-left: 1px solid var(--color-border); }
+.ticket dt { font-size: 14px; line-height: 1.5; color: var(--color-muted-foreground); }
+.ticket dd { font: 700 28px/1.2 var(--font-serif); color: var(--color-secondary-foreground); font-variant-numeric: tabular-nums; }
+.ticket__pass dd { font-size: 40px; letter-spacing: 0.08em; }
+.ticket dd span { display: block; margin-bottom: 2px; font: 600 14px/1.5 var(--font-sans); letter-spacing: 0.12em; color: var(--color-accent-foreground); }
+.steps summary { justify-content: flex-start; }
+.steps summary h2 { flex: 1; font-size: 18px; line-height: 1.5; }
+.steps summary > svg { margin-left: auto; }
+.steps__n { display: inline-flex; flex: none; width: 28px; height: 28px; align-items: center; justify-content: center; border: 1px solid var(--color-ring); border-radius: 999px; background: var(--color-popover); font: 700 14px/1 var(--font-serif); color: var(--color-accent-foreground); }
+.steps .disclosure__body { padding-left: 44px; }
+.steps .btn-text { justify-content: flex-start; }
+.dots li { display: flex; gap: 10px; color: var(--color-foreground); }
+.dots li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 0.7em; border-radius: 50%; background: var(--color-ring); }
+@media (min-width: 768px) { .steps summary h2 { font-size: 20px; } .ticket { grid-template-columns: 1.2fr 1fr 1fr; max-width: none; } .ticket__pass { grid-column: auto; border-bottom: 0; border-right: 1px solid var(--color-border); } .ticket > div { padding: 20px 16px; } }
+</style>
+</head>
+<body>
+
+<!-- 圖形庫：金翼小標誌（public/brand/emblem-mark.svg）與圖示。用 <svg><use href="#…"/></svg> 取用。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wings-mark" viewBox="0 0 64 46" fill="none"><g stroke="#8A5415" stroke-width=".8" stroke-linejoin="round"><defs><linearGradient id="emk-gold-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EDBB55"/><stop offset="1" stop-color="#B5762A"/></linearGradient><linearGradient id="emk-gold-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3CB6C"/><stop offset="1" stop-color="#D89A3E"/></linearGradient><linearGradient id="emk-gold-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF0BD"/><stop offset="1" stop-color="#F0C96E"/></linearGradient></defs><g id="emk-wing-l"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-wing-r" transform="translate(64 0) scale(-1 1)"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-compass"><circle cx="32" cy="34.54" r="6.16" fill="#FFFDF0"/><circle cx="32" cy="34.54" r="5.14" stroke="url(#emk-gold-2)" stroke-width="1.23"/><path fill="url(#emk-gold-1)" stroke-width=".48" d="M32 29.73L32.87 33.66L35.45 34.54L32.87 35.41L32 39.34L31.13 35.41L28.55 34.54L31.13 33.66Z"/><circle cx="32" cy="34.54" r=".68" fill="#FFFDF0" stroke="none"/></g></g></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-message-square" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+</svg>
+
+<header class="site-header">
+  <div class="site-header__in">
+    <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+    <div class="site-header__side">
+      <ul class="site-nav">
+        <li>
+          <button type="button" class="site-nav__group">關於豐盛之翼學苑<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a><a href="/contact">官方聯繫與諮詢管道</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">療癒與培訓<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/services">服務項目</a><a href="/training">培訓課程</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">見證與實用內容<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a></div>
+        </li>
+      </ul>
+      <a class="btn-quiet" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊諮詢</a>
+      <a class="gold-btn" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>商城</a>
+      <button type="button" class="menu-btn" aria-label="開啟選單"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 1. 第一個畫面：頁名、一句導言、唯一的按鈕；下方是這一頁的視覺焦點：加入密碼與每週時段（都是既有的數字） -->
+  <section class="page-hero">
+    <div class="page-halo" aria-hidden="true"></div>
+    <div class="wrap--narrow page-hero__in">
+      <div class="page-hero__visual" aria-hidden="true"><svg viewBox="0 0 64 46"><use href="#wings-mark"/></svg></div>
+      <h1>免費資源</h1>
+      <p class="page-hero__lead">這裡每天都有滿滿的正能量，歡迎你帶著願望進來，也帶著好消息出去！</p>
+      <div class="page-hero__actions">
+        <a class="gold-btn" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">加入免費體驗社群：密碼168168<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+      </div>
+      <div class="page-hero__slot">
+        <!-- 「加入密碼：168168」與兩個時段各拆成標籤與數字，字都是原文 -->
+        <dl class="ticket">
+          <div class="ticket__pass"><dt>加入密碼</dt><dd>168168</dd></div>
+          <div class="ticket__time"><dt>能量療癒公益體驗</dt><dd><span>每週一</span>21:30</dd></div>
+          <div class="ticket__time"><dt>財富＆身心靈成長書單分享與讀書會</dt><dd><span>每週二</span>20:30</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 三個步驟：一次開一個（原生 details，同一個 name），第一步預設展開。每一步自己的行動是文字連結 -->
+  <section class="page-section" id="steps">
+    <div class="wrap--narrow">
+      <div class="disclosure-group steps">
+        <details class="disclosure" name="res-steps" open>
+          <summary><span class="steps__n" aria-hidden="true">1</span><h2>加入免費社群【豐盛之翼學苑】</h2><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body stack">
+            <p>輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</p>
+            <a class="btn-text" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">加入免費體驗社群：密碼168168<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+          </div>
+        </details>
+        <details class="disclosure" name="res-steps">
+          <summary><span class="steps__n" aria-hidden="true">2</span><h2>參加【免費公益體驗直播】</h2><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body stack">
+            <p>加入我的社群，每週一 21:30-22:30 定期舉辦免費直播，帶你實際了解能量應用！</p>
+            <p>社群內每週都會舉辦免費的公益直播，參與直播還有機會得到專屬小禮物 。</p>
+            <ul class="dots"><li>好運體質養成班 熱烈進行中！</li></ul>
+            <a class="btn-text" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">點我加入社群<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+          </div>
+        </details>
+        <details class="disclosure" name="res-steps">
+          <summary><span class="steps__n" aria-hidden="true">3</span><h2>一對一私訊諮詢</h2><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body stack">
+            <p>如果你有特定情況想討論，也可以私訊 LINE 官方帳號 [@healer.wenling]，簡單闡述你目前的狀況，我將為你提供適合的療癒建議。</p>
+            <a class="btn-text" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊官方 LINE<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 下一站：上一站 培訓課程、下一站 服務項目 -->
+  <nav class="journey-next">
+    <div class="wrap">
+      <a class="btn-text" href="/training" rel="prev"><svg class="i" aria-hidden="true"><use href="#i-arrow-left"/></svg>培訓課程</a>
+      <a class="btn-text" href="/services" rel="next">服務項目<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+  </nav>
+</main>
+
+<!-- 結尾的行動區塊（CtaBand）：每一頁共用，放在「下一站」之後。不要改動。 -->
+<section class="cta-band dark" id="final-cta">
+  <div class="cta-band__in">
+    <svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg>
+    <h2>成為你豐盛之路上的翅膀</h2>
+    <div class="cta-band__actions">
+      <a class="gold-btn" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊官方 LINE</a>
+      <a class="btn-text" href="/#personas-section">從這裡，開始我的改變<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+    <a class="btn-text" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>前往購買<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+  </div>
+</section>
+
+<!-- 頁尾（Footer，淺色）。不要改動。 -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__cols">
+      <div>
+        <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+        <p class="site-footer__tagline">用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。</p>
+        <p class="site-footer__status">全球線上遠距服務</p>
+      </div>
+      <nav class="site-footer__nav">
+        <div><h3>關於豐盛之翼學苑</h3><ul><li><a href="/about">品牌理念</a></li><li><a href="/story">創辦人經歷與故事</a></li></ul></div>
+        <div><h3>療癒與培訓</h3><ul><li><a href="/services">服務項目</a></li><li><a href="/training">培訓課程</a></li></ul></div>
+        <div><h3>見證與實用內容</h3><ul><li><a href="/testimonials">真實見證</a></li><li><a href="/blog">好運blog</a></li><li><a href="/resources">免費資源</a></li><li><a href="/media">媒體專訪</a></li></ul></div>
+      </nav>
+      <div>
+        <h3>官方聯繫與諮詢管道</h3>
+        <p class="site-footer__intro">企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+        <ul>
+          <li><a href="mailto:lavie@wenling.tw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>lavie@wenling.tw</a></li>
+          <li><a href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>LINE @healer.wenling</a></li>
+          <li><a href="https://m.me/keila.healing" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message-square"/></svg>Facebook m.me/keila.healing</a></li>
+          <li><a href="https://www.instagram.com/keila.healing1491" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-at"/></svg>IG keila.healing1491</a></li>
+          <li><a href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</a></li>
+        </ul>
+        <a class="site-footer__shop" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">訂購商品、服務或課程<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+      </div>
+    </div>
+    <p class="site-footer__disclaimer"><b>免責聲明</b>所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p>
+    <div class="site-footer__legal">
+      <p>© 2026 豐盛之翼學苑</p>
+      <ul><li><a href="/legal#disclaimer">免責聲明與條款</a></li><li><a href="/legal#privacy">隱私權保護政策</a></li><li><a href="/legal#terms">服務條款</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<!-- 手機底部固定列（StickyCtaBar）：捲過 520px 後出現。金色那顆換成這一頁唯一的行動；銀色圓鈕固定是私訊。 -->
+<div class="sticky-bar">
+  <div class="sticky-bar__in">
+    <a class="gold-btn gold-btn--long" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">加入免費體驗社群：密碼168168</a>
+    <a class="btn-silver btn-silver--round" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer" aria-label="私訊諮詢"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg></a>
+  </div>
+</div>
+
+<!-- 提案用的互動（對應 ChipTabs、Pager、PageSheet、StickyCtaBar）。沒有這段指令時內容仍然全部讀得到。 -->
+<script>
+(() => {
+  // 分頁：[data-tabs] 內的 role="tab" 與 role="tabpanel"（aria-controls 對應面板的 id）
+  document.querySelectorAll('[data-tabs]').forEach((root) => {
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    const select = (tab, focus) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on);
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).dataset.state = on ? 'active' : 'inactive';
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        select(tabs[(i + step + tabs.length) % tabs.length], true);
+      });
+    });
+    select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
+  });
+
+  // 一次一則：[data-pager]；每一則的 data-label 是它的標題，用作箭頭的 aria-label
+  document.querySelectorAll('[data-pager]').forEach((root) => {
+    const slides = [...root.querySelectorAll('.pager__slide')];
+    const prev = root.querySelector('[data-prev]');
+    const next = root.querySelector('[data-next]');
+    const dots = root.querySelector('.pager__dots');
+    slides.forEach(() => dots.insertAdjacentHTML('beforeend', '<span class="pager__dot"></span>'));
+    let index = 0;
+    const go = (to) => {
+      index = Math.min(slides.length - 1, Math.max(0, to));
+      slides.forEach((s, i) => s.toggleAttribute('data-off', i !== index));
+      [...dots.children].forEach((d, i) => d.toggleAttribute('data-on', i === index));
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+      prev.setAttribute('aria-label', slides[Math.max(0, index - 1)].dataset.label);
+      next.setAttribute('aria-label', slides[Math.min(slides.length - 1, index + 1)].dataset.label);
+    };
+    prev.addEventListener('click', () => go(index - 1));
+    next.addEventListener('click', () => go(index + 1));
+    root.addEventListener('keydown', (e) => {
+      if (e.target.closest('[role="tab"]')) return;
+      if (e.key === 'ArrowLeft') go(index - 1);
+      else if (e.key === 'ArrowRight') go(index + 1);
+    });
+    go(0);
+  });
+
+  // 面板：<button data-sheet="id"> 開啟 <dialog class="page-sheet" id="id">；關閉鈕 [data-close]、Esc、點面板以外
+  document.querySelectorAll('[data-sheet]').forEach((trigger) => {
+    const sheet = document.getElementById(trigger.dataset.sheet);
+    trigger.addEventListener('click', () => sheet.showModal());
+    sheet.addEventListener('click', (e) => {
+      const r = sheet.getBoundingClientRect();
+      const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      if (outside || e.target.closest('[data-close]')) sheet.close();
+    });
+  });
+
+  // 手機底部固定列：捲過 520px 後出現
+  const bar = document.querySelector('.sticky-bar');
+  if (bar) {
+    const sync = () => bar.toggleAttribute('data-on', scrollY > 520);
+    addEventListener('scroll', sync, { passive: true });
+    sync();
+  }
+})();
+</script>
+</body>
+</html>

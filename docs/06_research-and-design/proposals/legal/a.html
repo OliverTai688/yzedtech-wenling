@@ -1,0 +1,201 @@
+<!--
+提案 A「三份文件、逐節收合」
+概念：一頁三份文件，頂端錨點列直達；每份文件的每一節預設只露標題，逐節展開，並提供每份文件的全部展開／全部收合。
+動效技術：原生 details 展開收合（_kit.css .disclosure）、錨點捲動、進場 .reveal；無 3D、無粒子。
+已知弱點：(1) 全文收合後，用瀏覽器搜尋（Ctrl+F）找不到未展開的內文（部分瀏覽器會自動展開，非全部）；(2) 沒有站內關鍵字搜尋，想找「退款」之類的字仍需逐節點開。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜免責聲明、隱私權政策與服務條款 提案A・三份文件逐節收合</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.legal-top { padding-block: 40px 8px; }
+.legal-top h1 { margin-top: 12px; }
+.legal-top p.lead { margin-top: 12px; max-width: 640px; color: var(--muted-foreground); }
+.anchor-row { position: sticky; top: 64px; z-index: 30; background: rgba(251,241,221,.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(240,223,160,.7); }
+.anchor-row .container { display: flex; gap: 8px; overflow-x: auto; padding-block: 8px; }
+.anchor-row a { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 6px 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--popover); color: var(--secondary-foreground); font-weight: 700; font-size: 14px; white-space: nowrap; }
+.anchor-row a:hover, .anchor-row a:focus-visible { border-color: var(--ring); background: var(--accent); }
+.doc { scroll-margin-top: 140px; }
+.doc-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.doc-head .count { font-size: 14px; color: var(--muted-foreground); }
+.doc .intro { margin-top: 16px; color: var(--card-foreground); max-width: 760px; }
+.doc-tools { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-tools .btn { min-height: 44px; font-size: 14px; padding-inline: 18px; }
+.doc-body { margin-top: 12px; border-top: 1px solid rgba(240,223,160,.7); max-width: 820px; }
+.doc-body .disclosure { scroll-margin-top: 140px; }
+.doc-body .disclosure > summary { font-family: var(--font-serif); font-size: 17px; }
+.doc-body .disclosure .sec { display: grid; gap: 12px; color: var(--foreground); font-size: 16px; }
+.doc-body .disclosure ul.sec-list { display: grid; gap: 8px; padding-left: 0; }
+.doc-body .disclosure ul.sec-list li { position: relative; padding-left: 20px; }
+.doc-body .disclosure ul.sec-list li::before { content: ''; position: absolute; left: 4px; top: .8em; width: 6px; height: 6px; border-radius: 50%; background: var(--ring); }
+.pending { padding: 12px 16px; border: 1px dashed var(--border); border-radius: 12px; font-size: 14px; color: var(--muted-foreground); background: var(--popover); }
+.doc + .doc { border-top: 1px solid var(--border); }
+.hint { font-size: 14px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="legal-top">
+    <div class="container">
+      <span class="eyebrow">法律文件</span>
+      <h1>免責聲明、隱私權政策與服務條款</h1>
+      <p class="lead">三份文件各自獨立，點選下方標籤直達；每一節預設只顯示標題，點開即可閱讀全文。</p>
+    </div>
+  </section>
+
+  <nav class="anchor-row" aria-label="文件快速跳轉">
+    <div class="container">
+      <a href="#disclaimer">免責聲明（5 條）</a>
+      <a href="#privacy">隱私權政策（7 節）</a>
+      <a href="#terms">服務條款（11 節）</a>
+    </div>
+  </nav>
+
+  <!-- ========== 免責聲明 ========== -->
+  <section class="section doc" id="disclaimer" data-doc>
+    <div class="container">
+      <div class="doc-head"><h2>網站服務與課程免責聲明</h2><span class="count">共 5 條</span></div>
+      <p class="intro">歡迎您使用本網站/平台之服務。在您報名課程、預約諮詢或使用本平台任何服務之前，請務必詳細閱讀以下聲明。當您使用本平台服務，即表示您已充分理解並同意以下條款：</p>
+      <div class="doc-tools">
+        <button class="btn btn-outline" type="button" data-expand>全部展開</button>
+        <button class="btn btn-outline" type="button" data-collapse>全部收合</button>
+      </div>
+      <div class="doc-body">
+        <details class="disclosure" id="disclaimer-1"><summary>1. 服務目的與範圍</summary>
+          <div class="sec"><p>本平台提供之課程、示範掃描解讀、一對一諮詢、練習會、講座及相關能量療癒服務與商品，其主要目的為激勵並協助學員探索、學習與擴展健康的情緒與靈性知識，進而為自己、家人或顧客提供促進身心平衡的選擇參考。</p></div>
+        </details>
+        <details class="disclosure" id="disclaimer-2"><summary>2. 非醫療與專業意見替代聲明</summary>
+          <div class="sec"><p>本平台所提供之所有課程、療癒與相關服務內容，均不構成醫療、心理治療、法律、財務或其他專業意見，亦不得取代專業合格醫師之診斷、建議或治療。若您有任何身體、心理或其他醫學上被視為需進行醫療照護之情形，請務必尋求專業合格的醫師、醫療人員或心理諮商師之協助。請勿因本平台之部分資訊或課程內容而延誤就醫、停止治療、忽略專業醫療建議，或中斷必要的醫療措施。</p></div>
+        </details>
+        <details class="disclosure" id="disclaimer-3"><summary>3. 產品與療效聲明免責</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+        <details class="disclosure" id="disclaimer-4"><summary>4. 學習成效與結果不保證</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+        <details class="disclosure" id="disclaimer-5"><summary>5. 個人風險承擔與特殊身心狀況聲明</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 隱私權政策 ========== -->
+  <section class="section doc" id="privacy" data-doc>
+    <div class="container">
+      <div class="doc-head"><h2>隱私權政策</h2><span class="count">共 7 節</span></div>
+      <p class="intro">歡迎您光臨豐盛之翼學苑（以下簡稱本網站），為了讓您能夠安心的使用本網站的各項服務與資訊，特此向您說明本網站的隱私權政策，以保障您的權益，請您詳閱下列內容：</p>
+      <div class="doc-tools">
+        <button class="btn btn-outline" type="button" data-expand>全部展開</button>
+        <button class="btn btn-outline" type="button" data-collapse>全部收合</button>
+      </div>
+      <div class="doc-body">
+        <details class="disclosure" id="privacy-1"><summary>一、隱私權政策的適用範圍</summary>
+          <div class="sec"><p>隱私權政策內容，包括本網站如何處理在您使用網站服務時收集到的個人識別資料。隱私權政策不適用於本網站以外的相關連結網站，也不適用於非本網站所委託或參與管理的人員。</p></div>
+        </details>
+        <details class="disclosure" id="privacy-2"><summary>二、個人資料的蒐集、處理及利用方式</summary>
+          <div class="sec"><ul class="sec-list">
+            <li>當您造訪本網站或使用本網站所提供之功能服務時，我們將視該服務功能性質，請您提供必要的個人資料，並在該特定目的範圍內處理及利用您的個人資料；非經您書面同意，本網站不會將個人資料用於其他用途。</li>
+            <li>本網站在您使用服務信箱、問卷調查等互動性功能時，會保留您所提供的姓名、電子郵件地址、聯絡方式及使用時間等。</li>
+            <li>於一般瀏覽時，伺服器會自行記錄相關行徑，包括您使用連線設備的IP位址、使用時間、使用的瀏覽器、瀏覽及點選資料記錄等，做為我們增進網站服務的參考依據，此記錄為內部應用，決不對外公佈。</li>
+            <li>為提供精確的服務，我們會將收集的問卷調查內容進行統計與分析，分析結果之統計數據或說明文字呈現，除供內部研究外，我們會視需要公佈統計數據及說明文字，但不涉及特定個人之資料。</li>
+          </ul></div>
+        </details>
+        <details class="disclosure" id="privacy-3"><summary>三、資料之保護</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+        <details class="disclosure" id="privacy-4"><summary>四、網網站對外的相關連結</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+        <details class="disclosure" id="privacy-5"><summary>五、與第三人共用個人資料之政策</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+        <details class="disclosure" id="privacy-6"><summary>六、Cookie 之使用</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+        <details class="disclosure" id="privacy-7"><summary>七、隱私權政策之修正</summary>
+          <div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 服務條款 ========== -->
+  <section class="section doc" id="terms" data-doc>
+    <div class="container">
+      <div class="doc-head"><h2>服務條款</h2><span class="count">共 11 節</span></div>
+      <p class="intro">當您開始使用豐盛之翼學苑（以下簡稱本網站），即表示您已閱讀、瞭解並同意接受本服務條款。如果您不同意接受本服務條款，即無法使用豐盛之翼學苑提供的服務。</p>
+      <div class="doc-tools">
+        <button class="btn btn-outline" type="button" data-expand>全部展開</button>
+        <button class="btn btn-outline" type="button" data-collapse>全部收合</button>
+      </div>
+      <div class="doc-body">
+        <details class="disclosure" id="terms-1"><summary>一、會員服務條款</summary>
+          <div class="sec"><ul class="sec-list">
+            <li>本會員服務條款所稱之「會員」，為依照本網站所定之加入會員程序加入完成並通過認證者。</li>
+            <li>當您使用本網站服務時，即表示您同意及遵守本服務條款的規定事項及相關法律之規定。</li>
+            <li>本網站保留有審核加入會員資格之權利，另外已加入會員者，本網站亦保留有解除其會員資格之權利。</li>
+            <li>本會員服務條款之修訂，適用於所有會員，當本網站修訂本服務條款時，將於本網站上公告。</li>
+          </ul></div>
+        </details>
+        <details class="disclosure" id="terms-2"><summary>二、會員</summary>
+          <div class="sec"><ul class="sec-list">
+            <li>使用本網站所提供之會員服務時，於加入會員時所登錄之帳號及密碼使用之。</li>
+            <li>會員須善盡帳號及密碼的使用與管理之責任。對於使用該會員之帳號及密碼（無關於會員本身或其他人）利用本網站服務所造成或衍生之所有行為及結果，會員須自行負擔全部責任。</li>
+            <li>會員之帳號及密碼遺失，或發現無故遭第三者盜用時，應立即通知本網站連絡掛失，因未即時通知，導致本網站無法有效防止及修改時，所造成的所有損失，會員應自負全責。</li>
+            <li>每次結束使用本服務，執行會員之登出並關閉視窗，以確保您的會員權益。</li>
+            <li>盜用第三者會員之帳號及密碼，導致第三者或本公司遭其他第三人或行政機關之調查或追訴時，第三者會員或本公司有權向您請求損害賠償，包括但不限於訴訟費用、律師費及商譽損失等。</li>
+          </ul></div>
+        </details>
+        <details class="disclosure" id="terms-3"><summary>三、會員登錄資料</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-4"><summary>四、使用行為</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-5"><summary>五、本公司專有權利</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-6"><summary>六、終止授權</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-7"><summary>七、免責事項</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-8"><summary>八、修改權</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-9"><summary>九、智慧財產權的保護</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-10"><summary>十、其他規定</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+        <details class="disclosure" id="terms-11"><summary>十一、會員身份終止與本公司通知之義務</summary><div class="sec"><p class="pending">（條文全文，實作時由資料帶入）</p></div></details>
+      </div>
+      <p class="hint muted" style="margin-top:24px">對條款內容有疑問，歡迎透過官方 LINE 詢問。</p>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・三份文件逐節收合</div>
+<script>
+// 全部展開／全部收合（每份文件各自一組）
+document.querySelectorAll('[data-doc]').forEach((doc) => {
+  const all = () => doc.querySelectorAll('details.disclosure');
+  doc.querySelector('[data-expand]').addEventListener('click', () => all().forEach((d) => (d.open = true)));
+  doc.querySelector('[data-collapse]').addEventListener('click', () => all().forEach((d) => (d.open = false)));
+});
+// 錨點：連到某份文件時捲動到位；連到某一節（#privacy-2）時自動展開該節
+function openFromHash() {
+  const el = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  if (el && el.matches('details')) { el.open = true; el.scrollIntoView(); }
+}
+addEventListener('hashchange', openFromHash);
+openFromHash();
+// 進場：.reveal 進入視窗時加上 .is-in（只播一次）
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

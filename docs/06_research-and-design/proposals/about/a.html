@@ -1,0 +1,233 @@
+<!--
+提案 A「編輯式長文＋技術小卡」
+概念：像雜誌長文，一屏一個想法；14 項技術收成緊湊小卡，點開才看「能解決什麼／適合誰」。
+動效：.reveal 一次性進場、小卡原地展開（grid-template-rows 轉場，一次只開一張）、頁內錨點捲動。無 3D／粒子。
+已知弱點：1) 14 張小卡仍需逐張點開，比較不同技術得反覆點；2) 長文式敘事把 CTA 推到頁尾，主 CTA 只在首屏與「不確定」區塊出現兩次，中段沒有。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜關於我們提案A・編輯式長文＋技術小卡</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.narrow { max-width: 720px; margin-inline: auto; }
+.lede { padding-block: 56px 40px; }
+@media (min-width: 768px) { .lede { padding-block: 96px 64px; } }
+.lede h1 { margin-block: 14px 24px; }
+.mission-title { font-size: 28px; line-height: 1.35; }
+@media (min-width: 768px) { .mission-title { font-size: 44px; } }
+.mission-label { font-size: 14px; font-weight: 600; letter-spacing: .12em; color: var(--accent-foreground); }
+.mission-quote { margin-top: 20px; font-family: var(--font-serif); font-size: 18px; color: var(--muted-foreground); }
+.lede .row { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin-top: 28px; }
+.idea { padding-block: 56px; border-top: 1px solid var(--border); }
+@media (min-width: 768px) { .idea { padding-block: 96px; } }
+.idea h2 { margin-block: 14px 20px; }
+.idea p { font-size: 17px; }
+@media (min-width: 768px) { .idea p { font-size: 19px; line-height: 1.9; } }
+.idea-grid { display: grid; gap: 8px 48px; }
+@media (min-width: 900px) { .idea-grid { grid-template-columns: 260px 1fr; } }
+.method-head { padding-block: 56px 20px; }
+.method-head p { margin-top: 12px; }
+.tiles { display: grid; gap: 10px; grid-template-columns: 1fr; align-items: start; padding-bottom: 32px; }
+@media (min-width: 640px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
+.tile { background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transition: border-color 250ms, box-shadow 250ms; }
+.tile.is-open { border-color: var(--ring); box-shadow: 0 6px 22px rgba(201,134,46,.18); }
+.tile-btn { all: unset; box-sizing: border-box; display: grid; grid-template-columns: auto 1fr auto; gap: 2px 12px; width: 100%; min-height: 44px; padding: 16px 18px; cursor: pointer; align-items: start; }
+.tile-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; border-radius: 18px; }
+.num { grid-row: 1; font-family: var(--font-serif); font-weight: 700; color: var(--gold-600, #B5762A); font-size: 18px; }
+.tn { grid-column: 2; font-family: var(--font-serif); font-weight: 700; font-size: 17px; line-height: 1.4; color: var(--card-foreground); }
+.td { grid-column: 2 / 4; font-size: 14px; line-height: 1.6; color: var(--muted-foreground); margin-top: 4px; }
+.plus { grid-column: 3; grid-row: 1; color: var(--ring); font-size: 22px; line-height: 1; transition: transform 250ms; }
+.tile.is-open .plus { transform: rotate(45deg); }
+.tile-panel { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 250ms ease, opacity 250ms ease; }
+.tile.is-open .tile-panel { grid-template-rows: 1fr; opacity: 1; }
+.tile-panel > div { overflow: hidden; padding-inline: 18px; }
+.tile.is-open .tile-panel > div { padding-bottom: 12px; }
+.tile-panel dt { font-size: 14px; font-weight: 700; color: var(--accent-foreground); margin-top: 8px; }
+.tile-panel dd { margin: 2px 0 0; font-size: 14px; line-height: 1.7; }
+.stages { margin-top: 24px; }
+.stages .disclosure > summary { font-family: var(--font-serif); font-size: 18px; }
+.unsure { padding-block: 56px; }
+.unsure .card { text-align: center; }
+.unsure h2 { margin-block: 12px 16px; }
+.unsure .row { display: flex; flex-direction: column; gap: 12px; align-items: stretch; margin-top: 24px; }
+@media (min-width: 640px) { .unsure .row { flex-direction: row; justify-content: center; align-items: center; } }
+.community { margin-top: 20px; text-align: left; font-size: 15px; }
+.community li { margin-top: 4px; }
+.founder { padding-block: 56px; border-top: 1px solid var(--border); }
+.founder .photo { aspect-ratio: 1; max-width: 200px; border: 2px dashed var(--border); border-radius: 18px; display: grid; place-items: center; text-align: center; padding: 12px; color: var(--muted-foreground); font-size: 14px; background: var(--card); }
+.founder-grid { display: grid; gap: 24px; align-items: center; }
+@media (min-width: 768px) { .founder-grid { grid-template-columns: 200px 1fr; gap: 40px; } }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <!-- 第 1 屏：使命宣言 -->
+  <section class="lede container">
+    <div class="narrow">
+      <span class="eyebrow">關於我們</span>
+      <h1>關於我們：找回你本具的豐盛與力量</h1>
+      <div class="mission-label">我的使命與願景</div>
+      <p class="mission-title" style="font-family:var(--font-serif);font-weight:700;margin-top:8px">在愛與豐盛中綻放靈魂的光芒</p>
+      <p class="mission-quote">「引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。」</p>
+      <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="link" href="#unsure">不確定自己需要哪一種？</a></div>
+    </div>
+  </section>
+
+  <!-- 第 2 屏：核心信念 -->
+  <section class="idea container reveal">
+    <div class="narrow">
+      <span class="eyebrow">品牌理念</span>
+      <h2>我的核心信念</h2>
+      <p>我相信，每個人本身就具備自我療癒與創造奇蹟的力量。療癒，從來不是向外索求救贖，而是一場「向內找回力量」的旅程。當我們清理了能量場上的淤堵與限制性信念，宇宙的豐盛與愛，自然會順流來到你的生命中。</p>
+    </div>
+  </section>
+
+  <!-- 第 3 屏：與其他療癒師的不同 -->
+  <section class="idea container reveal">
+    <div class="narrow">
+      <span class="eyebrow">與眾不同</span>
+      <h2>為什麼是我？我與其他療癒師的不同</h2>
+      <p>我不僅僅提供單一的能量舒緩，而是整合了 多元專業技術體系，針對你的「身體、情緒、心智、靈魂與物質層面」提供全方位的客製化解方。比起短暫的平靜，我更重視陪伴你找到問題的「根源」，並透過系統化的工具，賦予你自我蛻變的能力。在這裡，我們不僅療癒過去，更要創造未來。</p>
+    </div>
+  </section>
+
+  <!-- 方法體系：14 張小卡 -->
+  <section class="container" id="methodology">
+    <div class="method-head reveal">
+      <span class="eyebrow">方法體系</span>
+      <h2>專業療癒與顯化技術總覽</h2>
+      <p class="muted">為了提供最精準的協助，我提供多元的療癒系統。以下為核心技術的快速導覽（點擊各項目可了解詳細服務說明）：</p>
+    </div>
+    <div class="tiles reveal">
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t1"><span class="num">01</span><span class="tn">希塔療癒 (ThetaHealing)</span><span class="td">透過宇宙源頭神聖創造能量，快速轉換潛意識信念的強大工具。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t1" role="region"><div><dl><dt>能解決什麼問題</dt><dd>深層恐懼、原生家庭創傷、限制性信念、不斷重複的負面迴圈。</dd><dt>適合什麼樣的人</dt><dd>想從根源改變人生模式、渴望身心靈獲得突破性成長的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t2"><span class="num">02</span><span class="tn">臼井靈氣 (Usui Reiki)</span><span class="td">歷史悠久且應用廣泛的宇宙生命能量療法，帶來全方位的深層放鬆與身心平衡。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t2" role="region"><div><dl><dt>能解決什麼問題</dt><dd>身體緊繃疲憊、睡眠品質不佳、情緒焦躁不安、脈輪能量失衡。</dd><dt>適合什麼樣的人</dt><dd>尋求深層放鬆與釋放壓力、想建立穩健身心基礎、需要日常能量保養的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t3"><span class="num">03</span><span class="tn">百花靈氣 (Flowers Reiki)</span><span class="td">連結大自然百花的高速頻精華，深層修復氣場與情緒，並有效提升人氣與溝通力的能量法門。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t3" role="region"><div><dl><dt>能解決什麼問題</dt><dd>氣場受損破洞、情緒焦躁緊繃、家庭關係不睦、人際與身體能量淤堵。</dd><dt>適合什麼樣的人</dt><dd>需要溫和修復身心情緒、渴望增進家庭和諧、想全面提升個人魅力與溝通順暢度的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t4"><span class="num">04</span><span class="tn">獨角獸靈氣 (Unicorn Reiki)</span><span class="td">連結純淨的高頻獨角獸能量，深度淨化身心並協助願望加速實現的法門。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t4" role="region"><div><dl><dt>能解決什麼問題</dt><dd>能量混濁沉重、直覺力下降、願望遲遲無法顯化、缺乏靈性指引。</dd><dt>適合什麼樣的人</dt><dd>渴望提高自我覺察力、需要徹底淨化能量、期盼願望順利實現的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t5"><span class="num">05</span><span class="tn">彩虹靈氣 (Rainbow Reiki)</span><span class="td">運用七彩光譜修補靈魂能量，幫助你敞開接收好運並大幅提升顯化速度的靈氣。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t5" role="region"><div><dl><dt>能解決什麼問題</dt><dd>靈魂深層耗損、好運總是擦身而過、顯化過程受阻或極度緩慢。</dd><dt>適合什麼樣的人</dt><dd>覺得運氣卡關、想要順利承接宇宙好運、渴望加速顯化目標與豐盛的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t6"><span class="num">06</span><span class="tn">煦陽靈氣 (Solar Reiki)</span><span class="td">引入溫暖強大的光輝能量，專注於疏通身體經絡與能量阻塞的修復法。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t6" role="region"><div><dl><dt>能解決什麼問題</dt><dd>身體莫名僵硬卡卡、經絡能量不通、體質虛寒或缺乏活力。</dd><dt>適合什麼樣的人</dt><dd>身體總覺得卡卡不順、需要疏通體內淤堵能量、渴望找回溫暖活力的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t7"><span class="num">07</span><span class="tn">金錢靈氣 (Money Reiki)</span><span class="td">專注於淨化金錢業力、提升金錢能量頻率的專屬靈氣。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t7" role="region"><div><dl><dt>能解決什麼問題</dt><dd>金錢焦慮、莫名破財、財務卡關、對金錢有罪惡感。</dd><dt>適合什麼樣的人</dt><dd>想改善財務狀況、清理金錢阻礙、吸引財富順流的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t8"><span class="num">08</span><span class="tn">豐盛靈氣 (Abundance Reiki)</span><span class="td">整合至少 8 種靈氣，全方位提升生命中「豐盛」頻率與好運的能量技術。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t8" role="region"><div><dl><dt>能解決什麼問題</dt><dd>內在匱乏感、事業停滯、總覺得自己「不配得」。</dd><dt>適合什麼樣的人</dt><dd>渴望在事業、人際、生活中迎來全面豐盛與好運的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t9"><span class="num">09</span><span class="tn">鬱金香熱情靈氣 (Tulip Passion Reiki)</span><span class="td">療癒心輪創傷、提升自身愛的高頻能量，吸引正緣。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t9" role="region"><div><dl><dt>能解決什麼問題</dt><dd>感情受挫、缺乏自信、遇人不淑（爛桃花）、關係緊繃。</dd><dt>適合什麼樣的人</dt><dd>尋求靈魂伴侶、想修復現有關係、或單純想好好愛自己的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t10"><span class="num">10</span><span class="tn">人生推進器 (Life Accelerator)</span><span class="td">結合「擴大療癒」與「金銀紫火焰」，強效清理舊業力與斷捨離，為生命騰出空間迎接新契機的神聖能量。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t10" role="region"><div><dl><dt>能解決什麼問題</dt><dd>覺得人生卡關、重複相同情緒與痛點、對過去無法釋懷、面臨關係或工作的抉擇期。</dd><dt>適合什麼樣的人</dt><dd>渴望勇敢斷捨離舊模式、突破現狀活出熱情、準備好讓生命大步前進的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t11"><span class="num">11</span><span class="tn">煙供 (Smoke Offering)</span><span class="td">透過焚香上供下施，轉化無明業力與累積福報的古老法門。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t11" role="region"><div><dl><dt>能解決什麼問題</dt><dd>運勢低迷、無形靈界干擾、莫名障礙與不順遂。</dd><dt>適合什麼樣的人</dt><dd>覺得近期運勢卡關、希望祈福除障、為自己與家人累積福報的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t12"><span class="num">12</span><span class="tn">香水供 (Perfume Offering)</span><span class="td">依據個人八字與願望，以五行精油擴香供養，精準補運的開運法門。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t12" role="region"><div><dl><dt>能解決什麼問題</dt><dd>流年運勢不足、五行能量失衡、特定願望（如桃花/事業）缺乏推動力。</dd><dt>適合什麼樣的人</dt><dd>想針對自身八字量身打造開運配方、提升特定願望實現率的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t13"><span class="num">13</span><span class="tn">人魚靈氣 (Mermaid Reiki)</span><span class="td">源自天狼星系統，喚醒深海魅力、重塑自愛與豐盛能量的覺醒之旅。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t13" role="region"><div><dl><dt>能解決什麼問題</dt><dd>自信低落缺乏吸引力、情緒壓抑創傷、生殖系統機能需要溫和療癒。</dd><dt>適合什麼樣的人</dt><dd>想大幅提升個人魅力與費洛蒙、吸引理想伴侶、釋放受害者心態的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    <div class="tile" data-tile>
+      <button class="tile-btn" type="button" aria-expanded="false" aria-controls="t14"><span class="num">14</span><span class="tn">脈輪與氣場能量療癒</span><span class="td">不需觸碰身體，運用生命氣場進行淨化、充能與修護的科學療癒法。</span><span class="plus" aria-hidden="true">+</span></button>
+      <div class="tile-panel" id="t14" role="region"><div><dl><dt>能解決什麼問題</dt><dd>身體能量淤堵、莫名疲憊沉重、特定脈輪能量失衡。</dd><dt>適合什麼樣的人</dt><dd>需要快速恢復能量、重視氣場清潔與講求實用感受的人。</dd></dl><a class="link" href="/services">了解相關服務 →</a></div></div>
+    </div>
+    </div>
+
+    <div class="narrow stages reveal" style="margin-inline:0;max-width:none">
+      <h3 style="margin-bottom:8px">這些技術之間的關係是什麼？可以搭配使用嗎？</h3>
+      <p class="muted" style="margin-bottom:12px">這 14 項技術就像是一個「完整的個人蛻變工具箱」，它們之間不僅不衝突，還能產生極其強大的加乘效果（Synergy）。針對你當下的不同狀態，這套系統能提供最精準的三階段支援：</p>
+      <details class="disclosure"><summary>第一階段：淨化與釋放 (Cleansing &amp; Releasing)</summary>
+        <p>當你感到極度疲憊或卡關時，我們會先運用 煦陽靈氣 疏通身體經絡與卡卡的感受，並以 獨角獸靈氣 帶來深度的能量淨化；接著透過 希塔療癒 深入潛意識，拔除造成痛苦的根源信念。若有外在阻礙，則會搭配 脈輪與氣場能量療癒 或是 煙供 進行全面掃除。</p></details>
+      <details class="disclosure"><summary>第二階段：滋養與修復 (Nourishing &amp; Healing)</summary>
+        <p>釋放舊有模式後，身心靈極度需要被溫柔地接住。這時我們可以透過 彩虹靈氣 修補靈魂能量，運用 百花靈氣 與 臼井靈氣 帶來如花朵般的撫慰與深層放鬆。同時搭配客製化的 香水供 調整五行頻率，給予你最完整的能量滋養。</p></details>
+      <details class="disclosure"><summary>第三階段：顯化與推進 (Manifesting &amp; Accelerating)</summary>
+        <p>當身心恢復純淨與力量，就是迎來奇蹟的時候了。為了加速顯化，我們會疊加 金錢靈氣、鬱金香熱情靈氣 或是提升魅力的 人魚靈氣；並啟動 人生推進器 勇敢斷捨離，最後再透過 獨角獸靈氣 大幅提升顯化速度，讓你順利承接宇宙源源不絕的好運！</p></details>
+    </div>
+  </section>
+
+  <!-- 創辦人導流 -->
+  <section class="founder container reveal">
+    <div class="founder-grid">
+      <div class="photo">創辦人形象照（待提供）</div>
+      <div>
+        <span class="eyebrow">創辦人</span>
+        <h2 style="margin-block:12px">在愛與豐盛中綻放靈魂的光芒</h2>
+        <p class="muted">「引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。」</p>
+        <a class="link" href="/story">認識創辦人 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 不確定自己需要哪一種：主 CTA -->
+  <section class="unsure container reveal" id="unsure">
+    <div class="card narrow">
+      <span class="eyebrow">給還在猶豫的你</span>
+      <h2>不確定自己需要哪一種？歡迎來這裡找我！</h2>
+      <p class="muted">如果你還在猶豫，不知道哪一項服務最適合目前的自己，歡迎來免費社群體驗這裡的溫暖能量，或透過官方帳號與我聊聊：</p>
+      <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">一對一私訊諮詢（LINE @healer.wenling）</a><a class="btn btn-outline" href="/#personas-section">了解適合我的服務</a></div>
+      <details class="disclosure community">
+        <summary>加入免費社群【豐盛之翼學苑】</summary>
+        <div>
+          <p>這裡每天都有滿滿的正能量，歡迎你帶著願望進來，也帶著好消息出去🌟！社群內每週都會舉辦免費的公益直播，參與直播還有機會得到專屬小禮物 🎁。</p>
+          <ul><li>🧧 能量療癒公益體驗：每週一 21:30</li><li>📖 財富＆身心靈成長書單分享與讀書會：每週二 20:30</li><li>💬 好運體質養成班 熱烈進行中！</li></ul>
+          <p style="margin-top:8px">📍 社群連結：<a class="link" href="https://reurl.cc/8DDd1M">https://reurl.cc/8DDd1M</a>　📝 加入密碼：168168</p>
+        </div>
+      </details>
+    </div>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 A・編輯式長文＋技術小卡</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+// 小卡：一次只開一張
+const tiles = [...document.querySelectorAll('[data-tile]')];
+tiles.forEach((t) => t.querySelector('.tile-btn').addEventListener('click', () => {
+  const open = !t.classList.contains('is-open');
+  tiles.forEach((o) => { o.classList.remove('is-open'); o.querySelector('.tile-btn').setAttribute('aria-expanded', 'false'); });
+  if (open) { t.classList.add('is-open'); t.querySelector('.tile-btn').setAttribute('aria-expanded', 'true'); }
+}));
+</script>
+</body>
+</html>

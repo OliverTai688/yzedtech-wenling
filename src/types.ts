@@ -5,15 +5,11 @@ export type ServiceCategory =
   | 'theta-training' // /training：希塔療癒認證課程（thetaTrainingCourses）
   | 'healer-certification'; // /training：療癒師認證（certificationCourses，含併入的直覺力培訓說明）
 
+// 畫面上的文字欄位（name、ctaText）逐字取自 docs/網站文案集.md。舊版文案集的摘要、對象、
+// 時長、費用欄位已於 2026-10-05 移除；一句話介紹在 serviceBlurbs，完整內容在 src/content/offerings.ts。
 export interface Service {
   id: string;
   name: string;
-  description: string;
-  detailedDescription: string;
-  targetAudience: string;
-  benefits: string[];
-  duration: string;
-  price?: string;
   ctaText: string;
   ctaLink: string;
   iconName: string;
@@ -31,19 +27,9 @@ export interface ReikiCourse {
   level: 'beginner' | 'intermediate' | 'advanced';
   type: 'online' | 'physical' | 'both';
   name: string;
-  objective: string;
-  targetAudience: string;
-  curriculum: string[];
-  duration: string;
-  badge: string;
-  // Optional fields per PRD-001 §4.2 — additive, populated when 文案集 provides
-  // matching 「報名注意事項與退費規範」「進階連報加碼送」 content (Phase 2+).
-  certificationIncludes?: string[];
-  refundPolicy?: string;
-  prerequisite?: string;
-  repeatPrice?: string;
-  // PRD-002 §3.3 v1.1（copy-qa-reviewer 覆核，2026-08-21）— 比照 `Service.price`
-  // 命名風格，補上課程費用欄位，逐字對照 docs/網站文案集.md 對應行號填入。
+  /** 課程資訊的條列原文（docs/網站文案集.md 逐字，例如上課形式、課程時數） */
+  facts: string[];
+  /** 費用的原文（docs/網站文案集.md 逐字，自帶「課程費用」等字樣） */
   price?: string;
   // Phase 2 additions: per-course CTA link (取代寫死在元件內的共用連結) and
   // coming-soon 狀態（例如「直覺力訓練」，文案集標註「⚠️ 待客戶補充」）。
@@ -60,17 +46,12 @@ export interface ReikiCourse {
 // 本次補上明確 interface 以便加上 category／testimonialIds 兩個新欄位。
 export interface ThetaTrainingCourse {
   id: string;
-  level: string; // 例如「基礎 DNA (Basic DNA)」，非 ReikiCourse 的 union level
+  level: string; // 文案集 Home Block 4 的課程短名，例如「基礎 DNA 課程」
   name: string;
-  objective: string;
-  targetAudience: string;
-  duration: string;
-  certification: string;
-  highlights: string[];
+  /** 課程資訊的條列原文（docs/網站文案集.md 逐字，例如先修要求、上課形式） */
+  facts: string[];
   ctaLink?: string;
-  prerequisite?: string;
-  // PRD-002 §3.3 v1.1（copy-qa-reviewer 覆核，2026-08-21）— 比照 `Service.price`
-  // 命名風格，補上課程費用欄位，逐字對照 docs/網站文案集.md 對應行號填入。
+  /** 費用的原文（docs/網站文案集.md 逐字，自帶「課程費用」等字樣） */
   price?: string;
   // PRD-002 §3.3／§3.4（Batch D）— additive。
   category: ServiceCategory;
@@ -146,13 +127,15 @@ export interface FAQItem {
   answer: string;
 }
 
+// 免費資源的一個步驟。所有文字逐字取自 docs/網站文案集.md。
 export interface ResourceItem {
   id: string;
   title: string;
-  type: 'pdf' | 'audio' | 'video' | 'article';
-  typeName: string;
+  /** 要用大字顯示的一行（例如加入密碼） */
+  highlight?: string;
   description: string;
-  targetAudience: string;
+  /** 條列（例如每週的固定時段） */
+  list?: string[];
   ctaText: string;
   ctaLink: string;
 }
@@ -175,7 +158,6 @@ export interface NavItem {
   id: string;
   label: string;
   href: string;
-  description?: string;
 }
 
 export interface NavGroup {
@@ -191,6 +173,8 @@ export interface NavGroup {
 // 首頁需求入口卡片（文案集 v2 Home Block 2）。
 export interface NeedEntry {
   id: string;
+  /** 分頁按鈕上的短名稱 */
+  shortLabel: string;
   iconName: 'heart' | 'sparkles' | 'coins' | 'sprout';
   title: string;
   painPoint: string;
@@ -203,7 +187,8 @@ export interface NeedEntry {
 export interface MediaPublication {
   id: string;
   title: string;
-  role: string;
+  /** 文案集的整行標題（含書名與角色），例如「暢銷書《七週遇見對的人》改版唯一推薦序作者」 */
+  heading: string;
   description: string;
   note?: string;
   link?: { label: string; href: string };
@@ -235,4 +220,27 @@ export interface LegalDocument {
   title: string;
   intro: string;
   sections: { heading: string; blocks: (string | string[])[] }[];
+}
+
+// 服務／課程詳細頁的完整文案（src/content/offerings.ts，由 scripts/build-offering-content.py 產生）。
+export type ContentBlock =
+  | { type: 'p'; text: string }
+  | { type: 'h'; text: string }
+  | { type: 'list'; items: string[] }
+  | { type: 'table'; header: string[]; rows: string[][] }
+  | { type: 'qa'; items: { q: string; a: string[] }[] };
+
+export type ContentGroup = 'intro' | 'plans' | 'process' | 'proof' | 'faq' | 'notes';
+
+export interface ContentSection {
+  id: string;
+  group: ContentGroup;
+  title: string;
+  blocks: ContentBlock[];
+}
+
+export interface OfferingContent {
+  title: string;
+  lead: ContentBlock[];
+  sections: ContentSection[];
 }

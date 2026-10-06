@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>關於豐盛之翼學苑</title>
+<!-- 提案用的頁面外殼（pages-v2）。複製這個檔案，把內容放進 <main>；樣式只用 _kit.css 的 class 與 token。
+     所有文字逐字取自 src/data.ts（文案集原文），不新增任何字。 -->
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../_kit.css">
+</head>
+<body>
+
+<!-- 圖形庫：金翼小標誌（public/brand/emblem-mark.svg）與圖示。用 <svg><use href="#…"/></svg> 取用。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wings-mark" viewBox="0 0 64 46" fill="none"><g stroke="#8A5415" stroke-width=".8" stroke-linejoin="round"><defs><linearGradient id="emk-gold-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EDBB55"/><stop offset="1" stop-color="#B5762A"/></linearGradient><linearGradient id="emk-gold-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3CB6C"/><stop offset="1" stop-color="#D89A3E"/></linearGradient><linearGradient id="emk-gold-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF0BD"/><stop offset="1" stop-color="#F0C96E"/></linearGradient></defs><g id="emk-wing-l"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-wing-r" transform="translate(64 0) scale(-1 1)"><path fill="url(#emk-gold-2)" d="M25.8 36.7C23.9 36.4 22.8 36.6 21.9 38.4 20.6 40.8 22.7 42.9 23.5 44.3 23.4 42.7 25.7 42.7 26.2 41.3 26.8 40 26.5 39 25.8 36.7Z"/><path fill="url(#emk-gold-2)" d="M25.1 33.4C23 32.6 21.7 32.4 19.5 34 16.7 36.2 16.8 39 15.9 41.3 17.6 39.5 19.9 40.9 22 39.2 24 37.5 24.6 36.1 25.1 33.4Z"/><path fill="url(#emk-gold-2)" d="M24 30.2C21.5 28.9 20.1 28.5 16.9 29.5 12.6 30.7 11 33.3 8.1 34.8 11.4 34.6 13.2 36.8 17.1 35.6 20.7 34.4 22.4 33 24 30.2Z"/><path fill="url(#emk-gold-1)" d="M22.3 27.2C19.8 25.5 18.5 24.7 14.6 24.5 9.5 24.2 6.6 25.7 2.7 25 6 27.2 7 29.9 12.2 30.3 17.1 30.6 19.7 29.6 22.3 27.2Z"/><path fill="url(#emk-gold-1)" d="M20.4 24.4C18 22 16.9 21 13 19.1 7.9 16.8 4.3 16.4 1.4 13.1 2.7 17.3 2.9 20.3 8.4 23.2 13.5 25.8 16.9 25.8 20.4 24.4Z"/><path fill="url(#emk-gold-1)" d="M18.4 21.8C16.5 18.8 15.6 17.4 12.5 13.8 8.4 9.2 5.3 6.6 4.9 1.7 3.2 6.3 2.5 9.5 6.8 15.2 10.7 20.4 14.5 21.9 18.4 21.8Z"/><path fill="url(#emk-gold-3)" d="M25 32.9C24.2 31.3 23.1 31.9 21.9 32.5 20.3 33.4 20.2 35.1 19.3 36.1 20.5 35.5 21.8 36.9 23.1 36.2 24.4 35.5 25.7 35.2 25 32.9Z"/><path fill="url(#emk-gold-3)" d="M21.6 26.2C21.3 24.1 19.7 24.2 17.7 24.1 15 23.8 13.4 24.8 11.5 24.3 13.1 25.6 13.4 28.2 16.2 28.4 18.8 28.7 21.2 29 21.6 26.2Z"/></g><g id="emk-compass"><circle cx="32" cy="34.54" r="6.16" fill="#FFFDF0"/><circle cx="32" cy="34.54" r="5.14" stroke="url(#emk-gold-2)" stroke-width="1.23"/><path fill="url(#emk-gold-1)" stroke-width=".48" d="M32 29.73L32.87 33.66L35.45 34.54L32.87 35.41L32 39.34L31.13 35.41L28.55 34.54L31.13 33.66Z"/><circle cx="32" cy="34.54" r=".68" fill="#FFFDF0" stroke="none"/></g></g></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-message-square" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+</svg>
+
+<header class="site-header">
+  <div class="site-header__in">
+    <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+    <div class="site-header__side">
+      <ul class="site-nav">
+        <li>
+          <button type="button" class="site-nav__group">關於豐盛之翼學苑<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/about">品牌理念</a><a href="/story">創辦人經歷與故事</a><a href="/contact">官方聯繫與諮詢管道</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">療癒與培訓<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/services">服務項目</a><a href="/training">培訓課程</a></div>
+        </li>
+        <li>
+          <button type="button" class="site-nav__group">見證與實用內容<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+          <div class="site-nav__menu"><a href="/testimonials">真實見證</a><a href="/blog">好運blog</a><a href="/resources">免費資源</a><a href="/media">媒體專訪</a></div>
+        </li>
+      </ul>
+      <a class="btn-quiet" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊諮詢</a>
+      <a class="gold-btn" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>商城</a>
+      <button type="button" class="menu-btn" aria-label="開啟選單"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+<style>
+  /* 這一頁才有的排版，只用 token */
+  .toc { display: grid; }
+  @media (min-width: 768px) { .toc { grid-template-columns: 1fr 1fr; column-gap: 32px; border: 0; } .toc > li { border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent) !important; } }
+  .quote { padding-left: 16px; border-left: 3px solid var(--color-ring); font: 600 18px/1.8 var(--font-serif); color: var(--color-card-foreground); }
+  .row__main { display: grid; gap: 4px; }
+  .row__sub { font-size: 14px; font-weight: 600; color: var(--color-accent-foreground); }
+  .tech summary { min-height: 64px; }
+  .sheet-dl dt { font-size: 14px; font-weight: 700; color: var(--color-accent-foreground); }
+  .sheet-dl dd { margin: 2px 0 12px; color: var(--color-muted-foreground); }
+  .sheet-dl dd:last-child { margin-bottom: 0; }
+  .bullets { display: grid; gap: 8px; padding: 0; list-style: none; }
+  .bullets li { display: flex; gap: 10px; }
+  .bullets li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 0.7em; border-radius: 999px; background: var(--color-ring); }
+  h3.stage { font: 700 20px/1.5 var(--font-serif); }
+</style>
+<div id="about-section">
+  <section class="page-hero">
+    <div class="page-halo" aria-hidden="true"></div>
+    <div class="wrap--narrow page-hero__in">
+      <div class="page-hero__visual" aria-hidden="true"><svg viewBox="0 0 64 46"><use href="#wings-mark"/></svg></div>
+      <p class="eyebrow eyebrow--center">我的使命與願景</p>
+      <h1>關於豐盛之翼學苑</h1>
+      <p class="page-hero__lead">在愛與豐盛中綻放靈魂的光芒</p>
+      <div class="page-hero__actions">
+        <a class="gold-btn" href="/#personas-section">從這裡，開始我的改變<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+      </div>
+      <nav class="page-hero__slot" aria-label="關於豐盛之翼學苑">
+        <ul class="rows toc">
+          <li><a class="row" href="#philosophy"><span>品牌理念 (Brand Philosophy)</span><svg class="i" aria-hidden="true"><use href="#i-arrow-down"/></svg></a></li>
+          <li><a class="row" href="#techniques"><span>方法體系：專業療癒與顯化技術總覽 (Methodology)</span><svg class="i" aria-hidden="true"><use href="#i-arrow-down"/></svg></a></li>
+          <li><a class="row" href="#stages"><span>這些技術之間的關係是什麼？可以搭配使用嗎？</span><svg class="i" aria-hidden="true"><use href="#i-arrow-down"/></svg></a></li>
+          <li><a class="row" href="#unsure"><span>不確定自己需要哪一種？歡迎來這裡找我！</span><svg class="i" aria-hidden="true"><use href="#i-arrow-down"/></svg></a></li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+  <section class="page-section" id="philosophy" aria-labelledby="philosophy-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="philosophy-title">品牌理念 (Brand Philosophy)</h2></header>
+      <p class="quote">「引導每一位來到這裡的靈魂家人，褪去潛意識的限制與傷痛，喚醒內在的豐盛與平靜，活出最真實、閃耀且充滿力量的人生。」</p>
+      <div class="disclosure-group" style="margin-top:24px">
+        <details class="disclosure" name="about-belief">
+          <summary><span>我的核心信念</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body"><p>我相信，每個人本身就具備自我療癒與創造奇蹟的力量。療癒，從來不是向外索求救贖，而是一場「向內找回力量」的旅程。當我們清理了能量場上的淤堵與限制性信念，宇宙的豐盛與愛，自然會順流來到你的生命中。</p></div>
+        </details>
+        <details class="disclosure" name="about-belief">
+          <summary><span>為什麼是我？我與其他療癒師的不同</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body"><p>我不僅僅提供單一的能量舒緩，而是整合了 多元專業技術體系，針對你的「身體、情緒、心智、靈魂與物質層面」提供全方位的客製化解方。比起短暫的平靜，我更重視陪伴你找到問題的「根源」，並透過系統化的工具，賦予你自我蛻變的能力。在這裡，我們不僅療癒過去，更要創造未來。</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+  <section class="page-section page-section--tint" id="techniques" aria-labelledby="techniques-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="techniques-title">方法體系：專業療癒與顯化技術總覽 (Methodology)</h2><p class="page-section__lead">為了提供最精準的協助，我提供多元的療癒系統。以下為核心技術的快速導覽</p></header>
+      <div class="pager tech" data-pager role="group" aria-label="方法體系：專業療癒與顯化技術總覽 (Methodology)">
+        <div class="pager__track" aria-live="polite">
+          <div class="pager__slide" data-label="希塔療癒 (ThetaHealing)"><div class="disclosure-group">
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>深層恐懼、原生家庭創傷、限制性信念、不斷重複的負面迴圈。</span><span class="row__sub">希塔療癒 (ThetaHealing)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>透過宇宙源頭神聖創造能量，快速轉換潛意識信念的強大工具。</dd><dt>適合什麼樣的人？</dt><dd>想從根源改變人生模式、渴望身心靈獲得突破性成長的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>身體緊繃疲憊、睡眠品質不佳、情緒焦躁不安、脈輪能量失衡。</span><span class="row__sub">臼井靈氣 (Usui Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>歷史悠久且應用廣泛的宇宙生命能量療法，帶來全方位的深層放鬆與身心平衡。</dd><dt>適合什麼樣的人？</dt><dd>尋求深層放鬆與釋放壓力、想建立穩健身心基礎、需要日常能量保養的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>氣場受損破洞、情緒焦躁緊繃、家庭關係不睦、人際與身體能量淤堵。</span><span class="row__sub">百花靈氣 (Flowers Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>連結大自然百花的高速頻精華，深層修復氣場與情緒，並有效提升人氣與溝通力的能量法門。</dd><dt>適合什麼樣的人？</dt><dd>需要溫和修復身心情緒、渴望增進家庭和諧、想全面提升個人魅力與溝通順暢度的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>能量混濁沉重、直覺力下降、願望遲遲無法顯化、缺乏靈性指引。</span><span class="row__sub">獨角獸靈氣 (Unicorn Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>連結純淨的高頻獨角獸能量，深度淨化身心並協助願望加速實現的法門。</dd><dt>適合什麼樣的人？</dt><dd>渴望提高自我覺察力、需要徹底淨化能量、期盼願望順利實現的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>靈魂深層耗損、好運總是擦身而過、顯化過程受阻或極度緩慢。</span><span class="row__sub">彩虹靈氣 (Rainbow Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>運用七彩光譜修補靈魂能量，幫助你敞開接收好運並大幅提升顯化速度的靈氣。</dd><dt>適合什麼樣的人？</dt><dd>覺得運氣卡關、想要順利承接宇宙好運、渴望加速顯化目標與豐盛的人。</dd></dl>
+            </details>
+          </div></div>
+          <div class="pager__slide" data-label="煦陽靈氣 (Solar Reiki)" data-off><div class="disclosure-group">
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>身體莫名僵硬卡卡、經絡能量不通、體質虛寒或缺乏活力。</span><span class="row__sub">煦陽靈氣 (Solar Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>引入溫暖強大的光輝能量，專注於疏通身體經絡與能量阻塞的修復法。</dd><dt>適合什麼樣的人？</dt><dd>身體總覺得卡卡不順、需要疏通體內淤堵能量、渴望找回溫暖活力的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>金錢焦慮、莫名破財、財務卡關、對金錢有罪惡感。</span><span class="row__sub">金錢靈氣 (Money Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>專注於淨化金錢業力、提升金錢能量頻率的專屬靈氣。</dd><dt>適合什麼樣的人？</dt><dd>想改善財務狀況、清理金錢阻礙、吸引財富順流的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>內在匱乏感、事業停滯、總覺得自己「不配得」。</span><span class="row__sub">豐盛靈氣 (Abundance Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>整合至少 8 種靈氣，全方位提升生命中「豐盛」頻率與好運的能量技術。</dd><dt>適合什麼樣的人？</dt><dd>渴望在事業、人際、生活中迎來全面豐盛與好運的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>感情受挫、缺乏自信、遇人不淑（爛桃花）、關係緊繃。</span><span class="row__sub">鬱金香熱情靈氣 (Tulip Passion Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>療癒心輪創傷、提升自身愛的高頻能量，吸引正緣。</dd><dt>適合什麼樣的人？</dt><dd>尋求靈魂伴侶、想修復現有關係、或單純想好好愛自己的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>覺得人生卡關、重複相同情緒與痛點、對過去無法釋懷、面臨關係或工作的抉擇期。</span><span class="row__sub">人生推進器 (Life Accelerator)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>結合「擴大療癒」與「金銀紫火焰」，強效清理舊業力與斷捨離，為生命騰出空間迎接新契機的神聖能量。</dd><dt>適合什麼樣的人？</dt><dd>渴望勇敢斷捨離舊模式、突破現狀活出熱情、準備好讓生命大步前進的人。</dd></dl>
+            </details>
+          </div></div>
+          <div class="pager__slide" data-label="煙供 (Smoke Offering)" data-off><div class="disclosure-group">
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>運勢低迷、無形靈界干擾、莫名障礙與不順遂。</span><span class="row__sub">煙供 (Smoke Offering)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>透過焚香上供下施，轉化無明業力與累積福報的古老法門。</dd><dt>適合什麼樣的人？</dt><dd>覺得近期運勢卡關、希望祈福除障、為自己與家人累積福報的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>流年運勢不足、五行能量失衡、特定願望（如桃花/事業）缺乏推動力。</span><span class="row__sub">香水供 (Perfume Offering)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>依據個人八字與願望，以五行精油擴香供養，精準補運的開運法門。</dd><dt>適合什麼樣的人？</dt><dd>想針對自身八字量身打造開運配方、提升特定願望實現率的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>自信低落缺乏吸引力、情緒壓抑創傷、生殖系統機能需要溫和療癒。</span><span class="row__sub">人魚靈氣 (Mermaid Reiki)</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>源自天狼星系統，喚醒深海魅力、重塑自愛與豐盛能量的覺醒之旅。</dd><dt>適合什麼樣的人？</dt><dd>想大幅提升個人魅力與費洛蒙、吸引理想伴侶、釋放受害者心態的人。</dd></dl>
+            </details>
+            <details class="disclosure" name="technique">
+              <summary><span class="row__main"><span>身體能量淤堵、莫名疲憊沉重、特定脈輪能量失衡。</span><span class="row__sub">脈輪與氣場能量療癒</span></span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+              <dl class="disclosure__body sheet-dl"><dt>一句話定義是什麼？</dt><dd>不需觸碰身體，運用生命氣場進行淨化、充能與修護的科學療癒法。</dd><dt>適合什麼樣的人？</dt><dd>需要快速恢復能量、重視氣場清潔與講求實用感受的人。</dd></dl>
+            </details>
+          </div></div>
+        </div>
+        <div class="pager__nav">
+          <button type="button" class="icon-btn" data-prev><svg class="i" aria-hidden="true"><use href="#i-chevron-left"/></svg></button>
+          <div class="pager__dots" aria-hidden="true"></div>
+          <button type="button" class="icon-btn" data-next><svg class="i" aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="page-section" id="stages" aria-labelledby="stages-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="stages-title">這些技術之間的關係是什麼？可以搭配使用嗎？</h2><p class="page-section__lead">這 14 項技術就像是一個「完整的個人蛻變工具箱」，它們之間不僅不衝突，還能產生極其強大的加乘效果（Synergy）。針對你當下的不同狀態，這套系統能提供最精準的三階段支援：</p></header>
+      <div class="disclosure-group">
+        <details class="disclosure" name="about-stage">
+          <summary><span>第一階段：淨化與釋放 (Cleansing &amp; Releasing)</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body"><p>當你感到極度疲憊或卡關時，我們會先運用 煦陽靈氣 疏通身體經絡與卡卡的感受，並以 獨角獸靈氣 帶來深度的能量淨化；接著透過 希塔療癒 深入潛意識，拔除造成痛苦的根源信念。若有外在阻礙，則會搭配 脈輪與氣場能量療癒 或是 煙供 進行全面掃除。</p><a class="btn-text" href="/services/smoke-prayer">遠距煙供祈福儀式<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+        </details>
+        <details class="disclosure" name="about-stage">
+          <summary><span>第二階段：滋養與修復 (Nourishing &amp; Healing)</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body"><p>釋放舊有模式後，身心靈極度需要被溫柔地接住。這時我們可以透過 彩虹靈氣 修補靈魂能量，運用 百花靈氣 與 臼井靈氣 帶來如花朵般的撫慰與深層放鬆。同時搭配客製化的 香水供 調整五行頻率，給予你最完整的能量滋養。</p><a class="btn-text" href="/services/five-elements-perfume">五行香水供奉｜佛前加持版<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+        </details>
+        <details class="disclosure" name="about-stage">
+          <summary><span>第三階段：顯化與推進 (Manifesting &amp; Accelerating)</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body"><p>當身心恢復純淨與力量，就是迎來奇蹟的時候了。為了加速顯化，我們會疊加 金錢靈氣、鬱金香熱情靈氣 或是提升魅力的 人魚靈氣；並啟動 人生推進器 勇敢斷捨離，最後再透過 獨角獸靈氣 大幅提升顯化速度，讓你順利承接宇宙源源不絕的好運！</p><a class="btn-text" href="/services/group-healing">人生推進器｜團體遠距療癒<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+        </details>
+      </div>
+    </div>
+  </section>
+  <section class="page-section page-section--tint" id="unsure" aria-labelledby="unsure-title">
+    <div class="wrap--narrow">
+      <header class="page-section__head"><h2 id="unsure-title">不確定自己需要哪一種？歡迎來這裡找我！</h2><p class="page-section__lead">如果你還在猶豫，不知道哪一項服務最適合目前的自己，歡迎來免費社群體驗這裡的溫暖能量，或透過官方帳號與我聊聊：</p></header>
+      <div class="disclosure-group">
+        <details class="disclosure" name="about-unsure">
+          <summary><span>加入免費社群【豐盛之翼學苑】</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body stack"><p>這裡每天都有滿滿的正能量，歡迎你帶著願望進來，也帶著好消息出去！社群內每週都會舉辦免費的公益直播，參與直播還有機會得到專屬小禮物 。</p><ul class="bullets"><li><span>能量療癒公益體驗：每週一 21:30</span></li><li><span>財富＆身心靈成長書單分享與讀書會：每週二 20:30</span></li><li><span>好運體質養成班 熱烈進行中！</span></li></ul><p style="font-weight:700;color:var(--color-card-foreground)">加入密碼：168168</p><a class="btn-text" href="https://reurl.cc/8DDd1M" target="_blank" rel="noopener noreferrer">點我加入社群<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></div>
+        </details>
+        <details class="disclosure" name="about-unsure">
+          <summary><span>一對一私訊諮詢</span><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary>
+          <div class="disclosure__body stack"><p>如果你有特定情況想討論，也可以私訊 LINE 官方帳號 [@healer.wenling]，簡單闡述你目前的狀況，我將為你提供適合的療癒建議。</p><a class="btn-text" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊官方 LINE<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></div>
+        </details>
+      </div>
+    </div>
+  </section>
+  <nav class="journey-next">
+    <div class="wrap">
+      <span aria-hidden="true"></span>
+      <a class="btn-text" href="/story" rel="next">創辦人經歷與故事<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+  </nav>
+</div>
+</main>
+
+<!-- 結尾的行動區塊（CtaBand）：每一頁共用，放在「下一站」之後。不要改動。 -->
+<section class="cta-band dark" id="final-cta">
+  <div class="cta-band__in">
+    <svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg>
+    <h2>成為你豐盛之路上的翅膀</h2>
+    <div class="cta-band__actions">
+      <a class="gold-btn" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>私訊官方 LINE</a>
+      <a class="btn-text" href="/#personas-section">從這裡，開始我的改變<svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+    </div>
+    <a class="btn-text" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>前往購買<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+  </div>
+</section>
+
+<!-- 頁尾（Footer，淺色）。不要改動。 -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__cols">
+      <div>
+        <a class="brand" href="/"><svg viewBox="0 0 64 46" aria-hidden="true"><use href="#wings-mark"/></svg><span>豐盛之翼學苑</span></a>
+        <p class="site-footer__tagline">用理性的商務邏輯，結合溫柔的能量調頻。不只給你心靈的撫慰，更提供落地可執行的行動指南。陪伴你解開愛情、家庭與財富卡點，找回內在的平靜，活出閃閃發光的幸運人生。</p>
+        <p class="site-footer__status">全球線上遠距服務</p>
+      </div>
+      <nav class="site-footer__nav">
+        <div><h3>關於豐盛之翼學苑</h3><ul><li><a href="/about">品牌理念</a></li><li><a href="/story">創辦人經歷與故事</a></li></ul></div>
+        <div><h3>療癒與培訓</h3><ul><li><a href="/services">服務項目</a></li><li><a href="/training">培訓課程</a></li></ul></div>
+        <div><h3>見證與實用內容</h3><ul><li><a href="/testimonials">真實見證</a></li><li><a href="/blog">好運blog</a></li><li><a href="/resources">免費資源</a></li><li><a href="/media">媒體專訪</a></li></ul></div>
+      </nav>
+      <div>
+        <h3>官方聯繫與諮詢管道</h3>
+        <p class="site-footer__intro">企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+        <ul>
+          <li><a href="mailto:lavie@wenling.tw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>lavie@wenling.tw</a></li>
+          <li><a href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>LINE @healer.wenling</a></li>
+          <li><a href="https://m.me/keila.healing" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-message-square"/></svg>Facebook m.me/keila.healing</a></li>
+          <li><a href="https://www.instagram.com/keila.healing1491" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-at"/></svg>IG keila.healing1491</a></li>
+          <li><a href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</a></li>
+        </ul>
+        <a class="site-footer__shop" href="https://booking.wenling.tw/" target="_blank" rel="noopener noreferrer">訂購商品、服務或課程<svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+      </div>
+    </div>
+    <p class="site-footer__disclaimer"><b>免責聲明</b>所有能量療癒與課程皆屬身心靈輔助與自我覺察支持，不能取代專業醫療診斷、精神醫學治療或專業諮商。如有生理或心理疾患，請務必優先諮詢專業醫師。</p>
+    <div class="site-footer__legal">
+      <p>© 2026 豐盛之翼學苑</p>
+      <ul><li><a href="/legal#disclaimer">免責聲明與條款</a></li><li><a href="/legal#privacy">隱私權保護政策</a></li><li><a href="/legal#terms">服務條款</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<!-- 手機底部固定列（StickyCtaBar）：捲過 520px 後出現。金色那顆換成這一頁唯一的行動；銀色圓鈕固定是私訊。 -->
+<div class="sticky-bar">
+  <div class="sticky-bar__in">
+    <a class="gold-btn" href="/#personas-section">從這裡，開始我的改變</a>
+    <a class="btn-silver btn-silver--round" href="https://lin.ee/N7QHCND" target="_blank" rel="noopener noreferrer" aria-label="私訊諮詢"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg></a>
+  </div>
+</div>
+
+<!-- 提案用的互動（對應 ChipTabs、Pager、PageSheet、StickyCtaBar）。沒有這段指令時內容仍然全部讀得到。 -->
+<script>
+(() => {
+  // 分頁：[data-tabs] 內的 role="tab" 與 role="tabpanel"（aria-controls 對應面板的 id）
+  document.querySelectorAll('[data-tabs]').forEach((root) => {
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    const select = (tab, focus) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on);
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).dataset.state = on ? 'active' : 'inactive';
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        select(tabs[(i + step + tabs.length) % tabs.length], true);
+      });
+    });
+    select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
+  });
+
+  // 一次一則：[data-pager]；每一則的 data-label 是它的標題，用作箭頭的 aria-label
+  document.querySelectorAll('[data-pager]').forEach((root) => {
+    const slides = [...root.querySelectorAll('.pager__slide')];
+    const prev = root.querySelector('[data-prev]');
+    const next = root.querySelector('[data-next]');
+    const dots = root.querySelector('.pager__dots');
+    slides.forEach(() => dots.insertAdjacentHTML('beforeend', '<span class="pager__dot"></span>'));
+    let index = 0;
+    const go = (to) => {
+      index = Math.min(slides.length - 1, Math.max(0, to));
+      slides.forEach((s, i) => s.toggleAttribute('data-off', i !== index));
+      [...dots.children].forEach((d, i) => d.toggleAttribute('data-on', i === index));
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+      prev.setAttribute('aria-label', slides[Math.max(0, index - 1)].dataset.label);
+      next.setAttribute('aria-label', slides[Math.min(slides.length - 1, index + 1)].dataset.label);
+    };
+    prev.addEventListener('click', () => go(index - 1));
+    next.addEventListener('click', () => go(index + 1));
+    root.addEventListener('keydown', (e) => {
+      if (e.target.closest('[role="tab"]')) return;
+      if (e.key === 'ArrowLeft') go(index - 1);
+      else if (e.key === 'ArrowRight') go(index + 1);
+    });
+    go(0);
+  });
+
+  // 面板：<button data-sheet="id"> 開啟 <dialog class="page-sheet" id="id">；關閉鈕 [data-close]、Esc、點面板以外
+  document.querySelectorAll('[data-sheet]').forEach((trigger) => {
+    const sheet = document.getElementById(trigger.dataset.sheet);
+    trigger.addEventListener('click', () => sheet.showModal());
+    sheet.addEventListener('click', (e) => {
+      const r = sheet.getBoundingClientRect();
+      const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      if (outside || e.target.closest('[data-close]')) sheet.close();
+    });
+  });
+
+  // 手機底部固定列：捲過 520px 後出現
+  const bar = document.querySelector('.sticky-bar');
+  if (bar) {
+    const sync = () => bar.toggleAttribute('data-on', scrollY > 520);
+    addEventListener('scroll', sync, { passive: true });
+    sync();
+  }
+})();
+</script>
+</body>
+</html>

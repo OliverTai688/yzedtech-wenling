@@ -1,0 +1,134 @@
+<!--
+提案 B・依目的分流（/contact）
+概念：訪客先選「為什麼要聯絡」，頁面只展開一張對的管道大卡，其餘管道收成一排細列。
+動效：.reveal 一次性進場、分頁切換的交叉淡入（opacity + transform）；無 3D、無粒子。
+已知弱點：(1) 目的按鈕的字都是資料原文、偏長，手機上按鈕較高；(2) 資料沒有「預約」專屬頁，服務諮詢只能導向 LINE，Email 與社群也沒有更多說明文字可放。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜聯絡我們 提案B・依目的分流</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+  .hero { padding-block: 40px 20px; }
+  .hero h1 { margin-top: 12px; }
+  .hero .lead { margin-top: 12px; max-width: 34em; color: var(--muted-foreground); }
+  .purposes { display: grid; gap: 10px; margin-top: 24px; }
+  @media (min-width: 900px) { .purposes { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+  .purpose { display: flex; align-items: center; gap: 12px; text-align: left; min-height: 64px; padding: 12px 18px; border-radius: 18px; border: 1px solid var(--border); background: var(--popover); color: var(--card-foreground); font: 600 16px/1.5 var(--font-sans); cursor: pointer; transition: border-color 150ms, background 150ms, box-shadow 150ms; }
+  .purpose:hover { border-color: var(--ring); }
+  .purpose .dot { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ring); position: relative; }
+  .purpose[aria-selected="true"] { background: var(--accent); border-color: var(--ring); box-shadow: 0 4px 14px rgba(201,134,46,.25); }
+  .purpose[aria-selected="true"] .dot::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--ring); }
+  .purpose:focus-visible, .btn:focus-visible, .link:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+  .step { font-size: 14px; font-weight: 600; color: var(--accent-foreground); margin-top: 28px; }
+  .channel { margin-top: 12px; display: grid; gap: 20px; }
+  .channel[hidden] { display: none; }
+  .channel.is-in { animation: swap 250ms cubic-bezier(.22,1,.36,1); }
+  @keyframes swap { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  .channel .card { border-width: 2px; border-color: var(--ring); padding: 28px 24px; display: grid; gap: 14px; }
+  @media (min-width: 768px) { .channel .card { padding: 40px; grid-template-columns: 1fr auto; align-items: center; gap: 32px; } }
+  .channel h2 { font-size: 26px; }
+  .channel .id { font-size: 14px; color: var(--muted-foreground); }
+  .channel .cta { display: flex; flex-direction: column; gap: 10px; }
+  .channel .cta .btn { min-height: 52px; font-size: 18px; padding-inline: 32px; }
+  .alt { font-size: 14px; color: var(--muted-foreground); margin-top: 4px; }
+  .note { margin-top: 10px; font-size: 14px; }
+  .others { margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .others h3 { font-size: 16px; font-family: var(--font-sans); font-weight: 600; color: var(--muted-foreground); }
+  .others ul { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 6px; }
+  .others .link { font-size: 15px; }
+  .page-end { padding-bottom: 56px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="hero container">
+    <span class="eyebrow">官方聯繫與諮詢管道</span>
+    <h1>聯絡我們</h1>
+    <p class="lead">企業開運講座、讀書會導讀合作或個人開班詢問，歡迎隨時聯繫團隊：</p>
+
+    <div class="purposes tabs" role="tablist" aria-label="聯絡目的">
+      <button class="purpose" role="tab" id="t-line" aria-selected="true" aria-controls="p-line" data-tab="line"><span class="dot" aria-hidden="true"></span>服務諮詢與預約</button>
+      <button class="purpose" role="tab" id="t-mail" aria-selected="false" aria-controls="p-mail" data-tab="mail" tabindex="-1"><span class="dot" aria-hidden="true"></span>企業開運講座、讀書會導讀合作或個人開班詢問</button>
+      <button class="purpose" role="tab" id="t-comm" aria-selected="false" aria-controls="p-comm" data-tab="comm" tabindex="-1"><span class="dot" aria-hidden="true"></span>免費體驗能量療癒、參加線上公益讀書會</button>
+    </div>
+
+    <p class="step" aria-hidden="true">你適合的管道</p>
+
+    <div class="channel" role="tabpanel" id="p-line" aria-labelledby="t-line">
+      <div class="card">
+        <div><h2>官方 LINE</h2><p class="id">LINE ID：@healer.wenling</p></div>
+        <div class="cta"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a></div>
+      </div>
+    </div>
+
+    <div class="channel" role="tabpanel" id="p-mail" aria-labelledby="t-mail" hidden>
+      <div class="card">
+        <div><h2>Email</h2><p class="id">lavie@wenling.tw</p><p class="alt">也可以用官方 LINE 聯繫（LINE ID：@healer.wenling）</p></div>
+        <div class="cta"><a class="btn btn-gold" href="mailto:lavie@wenling.tw">寄 Email 給團隊</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">改用官方 LINE</a></div>
+      </div>
+    </div>
+
+    <div class="channel" role="tabpanel" id="p-comm" aria-labelledby="t-comm" hidden>
+      <div class="card">
+        <div><h2>LINE 社群</h2><p class="id">輸入168168加入line社群（免費體驗能量療癒、參加線上公益讀書會）</p></div>
+        <div class="cta"><a class="btn btn-line" href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA">加入 LINE 社群</a></div>
+      </div>
+    </div>
+
+    <nav class="others" aria-label="其他管道">
+      <h3>其他管道</h3>
+      <ul>
+        <li data-for="line"><a class="link" href="mailto:lavie@wenling.tw">Email</a></li>
+        <li data-for="line"><a class="link" href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA">LINE 社群</a></li>
+        <li data-for="mail"><a class="link" href="https://line.me/ti/g2/p-tQhPwbIsuY_UJY_LvIQjvrVdLMcN4B7nCiHA">LINE 社群</a></li>
+        <li data-for="comm"><a class="link" href="https://lin.ee/N7QHCND">官方 LINE</a></li>
+        <li data-for="comm"><a class="link" href="mailto:lavie@wenling.tw">Email</a></li>
+        <li><a class="link" href="https://m.me/keila.healing">Facebook</a></li>
+        <li><a class="link" href="https://www.instagram.com/keila.healing1491">Instagram</a></li>
+      </ul>
+    </nav>
+  </section>
+  <div class="page-end"></div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 B・依目的分流</div>
+<script>
+const tabs = [...document.querySelectorAll('.purpose')];
+const panels = [...document.querySelectorAll('.channel')];
+const others = [...document.querySelectorAll('.others li[data-for]')];
+function pick(key, focus) {
+  tabs.forEach((t) => { const on = t.dataset.tab === key; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
+  panels.forEach((p) => {
+    const on = p.id === 'p-' + key;
+    p.hidden = !on; p.classList.remove('is-in');
+    if (on) { void p.offsetWidth; p.classList.add('is-in'); }
+  });
+  others.forEach((li) => { li.hidden = li.dataset.for !== key; });
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => pick(t.dataset.tab));
+  t.addEventListener('keydown', (e) => {
+    const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (d) { e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length].dataset.tab, true); }
+  });
+});
+pick('line');
+</script>
+</body>
+</html>

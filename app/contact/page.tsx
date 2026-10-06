@@ -1,14 +1,17 @@
 import ContactSection from '../../src/components/ContactSection';
+import JourneyNext from '../../src/components/page/JourneyNext';
+import CtaBand from '../../src/components/CtaBand';
+import { pageMeta } from '../../src/data';
 
-export const metadata = {
-  title: '聯絡我們｜豐盛之翼學苑',
-  description: '透過官方 LINE、Email、Facebook 或 LINE 社群聯絡豐盛之翼學苑，洽詢服務、課程與合作。',
-};
+// <title> 與 description 是文案集原文，集中在 src/data.ts 的 pageMeta。
+export const metadata = pageMeta.contact;
 
-export default function ContactPage() {
+export default function Page() {
   return (
-    <div className="animate-fadeIn">
+    <>
       <ContactSection />
-    </div>
+      <JourneyNext route="/contact" />
+      <CtaBand />
+    </>
   );
 }

@@ -1,61 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* `dark:` 只在 .dark 範圍內生效（目前是頁尾），不跟著系統深色模式切換。 */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Noto Sans TC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "Noto Serif TC", Georgia, Cambria, "Times New Roman", Times, serif;
+  /* 字體由 app/layout.tsx 的 next/font 載入（--font-noto-sans／--font-noto-serif），
+     這裡不再另外 @import Google Fonts。 */
+  --font-sans: var(--font-noto-sans), "Noto Sans TC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-noto-serif), "Noto Serif TC", Georgia, Cambria, "Times New Roman", Times, serif;
 
-  /* Keila Healing Visual Specification Color Codes */
-  --color-page-bg: #FBF1DD;
-  --color-card-bg: #FDF6E6;
-  --color-card-border: #F0DFA0;
-  --color-card-border-alt: #EFDA9E;
-  
-  --color-text-main: #2E2318;
-  --color-text-heading: #3A2A18;
-  --color-text-heading-dark: #4A2F0A;
-  --color-text-muted: #6A5642;
-  --color-text-subtle: #9A8060;
-  
-  --color-gold-primary: #B5762A;
-  --color-gold-dark: #C9862E;
-  --color-gold-light: #F5D98A;
-  --color-gold-pale: #FCE7A8;
-  
-  --color-dark-bg: #20140A;
-  --color-dark-gold: #F0C875;
-  --color-dark-gold-light: #F5E4C8;
-  --color-dark-muted: #B49A76;
-  --color-dark-subtle: #8A7458;
+  /* 語意色 token（RES-001 §7.2）。shadcn 元件與新寫的元件一律用這組名稱，
+     不再直接寫色碼。對比度已依 RES-001 §7.3 調整。 */
+  --color-background: #FBF1DD;
+  --color-foreground: #2E2318;
+  --color-card: #FDF6E6;
+  --color-card-foreground: #3A2A18;
+  --color-popover: #FFFDF0;
+  --color-popover-foreground: #3A2A18;
+  --color-primary: #C9862E;
+  --color-primary-foreground: #3A2409;
+  --color-secondary: #FFFDF0;
+  --color-secondary-foreground: #8A5415;
+  --color-muted: #FDF6E6;
+  --color-muted-foreground: #7A6650;
+  --color-accent: #FCE7A8;
+  --color-accent-foreground: #8A5415;
+  --color-border: #F0DFA0;
+  --color-input: #F0DFA0;
+  --color-ring: #B5762A;
+  --color-destructive: #B3261E;
+  --color-inverse: #20140A;
+  --color-inverse-foreground: #F5E4C8;
+  --color-inverse-accent: #F0C875;
+  /* 銀色：金色之後的第二金屬色，只少量使用（次要行動按鈕、LINE 入口）。設計系統 2026-10-06。 */
+  --color-silver: #E3E1DC;
+  --color-silver-light: #FAFAF8;
+  --color-silver-deep: #C4C1BA;
+  --color-silver-edge: #A9A59D;
+  --color-silver-foreground: #3A2A18;
+  /* 舞台白：首頁舞台與內頁第一個畫面的底色（比 background 更白的暖白）。 */
+  --color-stage: #FFFEFA;
+  /* 金色漸層的兩個端點：全站的金色漸層（主要按鈕、金字、節點）只用這一組。 */
+  --color-gold-from: #F5D98A;
+  --color-gold-to: #D89A3E;
+  /* 舊的「Keila Healing Visual Specification」色票（page-bg、text-heading、gold-primary、dark-bg 等 18 個）
+     已無任何引用，2026-10-06 移除（PLN-006 P0）。 */
+}
 
-  /* brand-pink-* / brand-gold-* — 元件內大量使用的 Tailwind utility 色階，
-     但先前從未在 @theme 內定義，導致 bg-brand-pink-500／text-brand-gold-600 等
-     class 完全不會產生任何 CSS（本輪瀏覽器視覺 QA 掃描發現：篩選 pill、分類標籤、
-     hover 強調色、次要按鈕全站皆遺失顏色）。brand-gold-* 對齊既有 design-spec.md
-     金色色票；brand-pink-* 為柔霧玫瑰色，作為愛情／單身主題的輔助強調色（design-spec.md
-     未定義 pink 色票，此處採用與既有咖啡金色調協調的低飽和玫瑰色，而非鮮豔粉色）。 */
-  --color-brand-gold-50: #FFFBEF;
-  --color-brand-gold-100: #FCE7A8;
-  --color-brand-gold-150: #F5D98A;
-  --color-brand-gold-200: #F0DFA0;
-  --color-brand-gold-300: #E8B15A;
-  --color-brand-gold-500: #C9862E;
-  --color-brand-gold-600: #B5762A;
-  --color-brand-gold-700: #8A5415;
-
-  --color-brand-pink-50: #FDF3F1;
-  --color-brand-pink-100: #FBE4E0;
-  --color-brand-pink-150: #F7D5CE;
-  --color-brand-pink-200: #F5C9C2;
-  --color-brand-pink-300: #E8A79C;
-  --color-brand-pink-400: #D98878;
-  --color-brand-pink-500: #C46B5B;
-  --color-brand-pink-600: #A8543F;
-  --color-brand-pink-700: #8A3F2E;
-
-  --color-brand-stone-50: #FAF7F2;
-  --color-brand-stone-800: #3A2E22;
-  --color-brand-stone-900: #2E2318;
+/* 深色區塊（頁尾、深色橫幅）內的語意色 */
+.dark {
+  --color-background: #20140A;
+  --color-foreground: #F5E4C8;
+  --color-card: #170E07;
+  --color-card-foreground: #F5E4C8;
+  --color-muted: #2A1A0D;
+  --color-muted-foreground: #B49A76;
+  --color-accent: #3A2409;
+  --color-accent-foreground: #F0C875;
+  --color-border: #3A2409;
+  --color-input: #3A2409;
+  --color-ring: #F0C875;
 }
 
 /* Base Body and Global Typography Setup */
@@ -63,9 +68,24 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 減少動態：關閉循環、位移與平滑捲動（RPT-001 §5.6）。
+   motion 元件另由 MotionProvider 的 reducedMotion="user" 處理。 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 body {
-  background-color: #FBF1DD;
-  color: #2E2318;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -73,21 +93,6 @@ body {
 
 h1, h2, h3, h4, .font-serif-tc {
   font-family: var(--font-serif);
-}
-
-/* Bokeh Golden Background */
-.bokeh-bg {
-  background-color: #F3D999;
-  background-image: 
-    radial-gradient(circle at 18% 28%, rgba(255, 247, 222, 0.85) 0%, transparent 35%),
-    radial-gradient(circle at 82% 18%, rgba(255, 244, 208, 0.75) 0%, transparent 32%),
-    radial-gradient(circle at 45% 68%, rgba(255, 240, 195, 0.7) 0%, transparent 40%),
-    radial-gradient(circle at 88% 72%, rgba(255, 247, 222, 0.8) 0%, transparent 28%),
-    radial-gradient(circle at 12% 78%, rgba(255, 244, 208, 0.65) 0%, transparent 32%),
-    radial-gradient(circle at 62% 38%, rgba(255, 240, 195, 0.65) 0%, transparent 38%),
-    radial-gradient(circle at 32% 16%, rgba(255, 247, 222, 0.7) 0%, transparent 24%),
-    radial-gradient(circle at 72% 88%, rgba(255, 244, 208, 0.7) 0%, transparent 30%),
-    linear-gradient(135deg, #F7E3A8 0%, #E8B15A 45%, #D89A3E 75%, #C9862E 100%);
 }
 
 /* Sparkle Animation */
@@ -105,7 +110,7 @@ h1, h2, h3, h4, .font-serif-tc {
 .sparkle {
   position: absolute;
   border-radius: 9999px;
-  background: #FFFDF0;
+  background: var(--color-popover);
   box-shadow: 0 0 10px 2px rgba(255, 245, 200, 0.85), 0 0 20px 4px rgba(245, 217, 138, 0.6);
   animation: shimmer 3s ease-in-out infinite;
   pointer-events: none;
@@ -113,30 +118,24 @@ h1, h2, h3, h4, .font-serif-tc {
 
 /* Gold Gradient Text */
 .gold-text-gradient {
-  background: linear-gradient(135deg, #B5762A 0%, #D89A3E 50%, #8A5415 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gold-number-gradient {
-  background: linear-gradient(135deg, #D89A3E 0%, #B5762A 60%, #8A5415 100%);
+  background: linear-gradient(135deg, var(--color-ring) 0%, var(--color-gold-to) 50%, var(--color-secondary-foreground) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* Primary CTA Button (Pill 999px, Gold gradient, dark coffee text, gold shadow) */
 .gold-btn {
-  background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%);
-  color: #3A2409;
+  background: linear-gradient(135deg, var(--color-gold-from) 0%, var(--color-gold-to) 100%);
+  color: var(--color-primary-foreground);
   border-radius: 9999px;
-  box-shadow: 0 4px 14px rgba(201, 134, 46, 0.35);
+  box-shadow: 0 4px 14px rgba(201, 134, 46, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.55);
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .gold-btn:hover {
-  background: linear-gradient(135deg, #FFF0BD 0%, #E2A648 100%);
-  box-shadow: 0 6px 20px rgba(201, 134, 46, 0.45);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-gold-from) 85%, white) 0%, color-mix(in srgb, var(--color-gold-to) 88%, white) 100%);
+  box-shadow: 0 6px 20px rgba(201, 134, 46, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.55);
   transform: translateY(-1px);
 }
 
@@ -145,62 +144,481 @@ h1, h2, h3, h4, .font-serif-tc {
   box-shadow: 0 2px 8px rgba(201, 134, 46, 0.3);
 }
 
-/* Header Button Specific Gradient */
-.gold-btn-header {
-  background: linear-gradient(135deg, #F5D98A 0%, #C9862E 100%);
-  color: #3A2409;
+/* 未使用的舊樣式（.bokeh-bg、.gold-number-gradient、.gold-btn-header、.brand-card、.dark-card、自訂的 .line-clamp-*）
+   已於 2026-10-06 移除（PLN-006 P0）。 */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PLN-004 階段 D：共用樣式（RES-002 §1 首頁定案的視覺語言）
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 次要按鈕與 LINE 按鈕（主按鈕沿用 .gold-btn）。點擊目標至少 44px。 */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.25rem;
   border-radius: 9999px;
-  box-shadow: 0 3px 10px rgba(201, 134, 46, 0.3);
+  border: 1px solid var(--color-border);
+  background: var(--color-popover);
+  color: var(--color-secondary-foreground);
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
-
-.gold-btn-header:hover {
-  background: linear-gradient(135deg, #FCE7A8 0%, #D89A3E 100%);
-  box-shadow: 0 5px 15px rgba(201, 134, 46, 0.4);
+.btn-outline:hover {
+  border-color: var(--color-ring);
+  background: var(--color-stage);
+}
+/* 安靜的第二選項：一個畫面只留一顆按鈕，其餘動作用文字連結（無底色、無外框）。 */
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0;
+  color: var(--color-accent-foreground);
+  font-weight: 600;
+  text-underline-offset: 0.3em;
+  text-decoration-thickness: 1px;
+  transition: color 150ms ease;
+}
+.btn-text:hover,
+.btn-text:focus-visible {
+  text-decoration-line: underline;
+}
+.btn-text:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.btn-silver {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-silver-edge);
+  background: linear-gradient(135deg, var(--color-silver-light) 0%, var(--color-silver) 45%, var(--color-silver-deep) 100%);
+  color: var(--color-silver-foreground);
+  box-shadow: 0 3px 10px rgba(110, 106, 98, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.btn-silver:hover {
   transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(110, 106, 98, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.gold-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
 }
 
-/* Standard Brand Cards */
-.brand-card {
-  background-color: #FDF6E6;
-  border: 1px solid #F0DFA0;
-  border-radius: 18px;
-  box-shadow: 0 4px 20px rgba(58, 42, 24, 0.04);
-  transition: all 0.3s ease;
-}
-
-.brand-card:hover {
-  border-color: #D89A3E;
-  box-shadow: 0 8px 30px rgba(181, 118, 42, 0.12);
-  transform: translateY(-2px);
-}
-
-/* Dark Section Cards */
-.dark-card {
-  background-color: rgba(45, 29, 15, 0.65);
-  border: 1px solid rgba(240, 200, 117, 0.25);
-  border-radius: 16px;
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
-}
-
-.dark-card:hover {
-  border-color: rgba(240, 200, 117, 0.5);
-  background-color: rgba(55, 36, 19, 0.8);
-}
-
-/* Text clamp utilities */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+/* 主按鈕的金光：進入畫面時掃過一次（RPT-001 §5.3）。 */
+.gold-sheen {
+  position: relative;
   overflow: hidden;
 }
+.gold-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 253, 240, 0.75) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: gold-sheen 900ms ease-out 600ms 1 both;
+  pointer-events: none;
+}
+.gold-sheen:hover::after {
+  animation: gold-sheen-hover 700ms ease-out 1;
+}
+@keyframes gold-sheen {
+  to {
+    transform: translateX(120%);
+  }
+}
+@keyframes gold-sheen-hover {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
 
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+/* 區塊眉批：短金線加小字 */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--color-accent-foreground);
+}
+.eyebrow::before {
+  content: '';
+  width: 1.75rem;
+  height: 1px;
+  background: var(--color-ring);
+}
+
+/* 漸進揭露（BRIEF §4A）：原生 <details>，內容一直在 HTML 裡，不需要 JavaScript。
+   支援的瀏覽器會有高度過渡，不支援的直接開合。 */
+.disclosure {
+  interpolate-size: allow-keywords;
+}
+.disclosure > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.disclosure::details-content {
+  block-size: 0;
+  opacity: 0;
   overflow: hidden;
+  transition: block-size 250ms ease, opacity 250ms ease, content-visibility 250ms allow-discrete;
+}
+.disclosure[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+.disclosure > summary .disclosure-icon {
+  transition: transform 250ms ease;
+}
+.disclosure[open] > summary .disclosure-icon {
+  transform: rotate(45deg);
+}
+
+/* 金翼羅盤（暫代圖，正式 Logo 到位後替換；RPT-001 G1）。
+   --open：雙翼展開程度 0～1；--needle：指針角度（度）。 */
+.emblem {
+  --open: 1;
+  --needle: 0;
+  --cx: 50%;
+  --cy: 64.7%;
+  position: relative;
+  width: min(100%, 460px);
+  margin-inline: auto;
+}
+.emblem__svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* 光暈與光芒以羅盤中心為圓心，跟著展開程度變大變亮 */
+.emblem__glow,
+.emblem__rays {
+  position: absolute;
+  left: var(--cx);
+  top: var(--cy);
+  border-radius: 50%;
+  pointer-events: none;
+  translate: -50% -50%;
+}
+.emblem__glow {
+  width: 104%;
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgba(255, 253, 240, 0.98) 0, rgba(252, 231, 168, 0.85) 30%, rgba(232, 177, 90, 0.3) 58%, rgba(232, 177, 90, 0) 100%);
+  opacity: calc(0.1 + var(--open) * 0.9);
+  transform: scale(calc(0.5 + var(--open) * 0.5));
+}
+.emblem__rays {
+  width: 128%;
+  aspect-ratio: 1;
+  background: repeating-conic-gradient(from -4deg, rgba(201, 134, 46, 0) 0 8deg, rgba(201, 134, 46, 0.18) 8deg 9.5deg, rgba(201, 134, 46, 0) 9.5deg 12deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 30%, #000 50%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 30%, #000 50%, transparent 100%);
+  opacity: var(--open);
+  transform: scale(calc(0.7 + var(--open) * 0.3));
+}
+/* 每根羽毛繞肩點旋轉：--fold 是該羽毛由展開到收攏的角度差（由幾何模組算出） */
+.emblem .f {
+  transform-origin: var(--pivot);
+  transform: rotate(calc(var(--fold) * (1 - var(--open))));
+}
+.emblem #needle {
+  transform-origin: var(--center);
+  transform: rotate(calc(var(--needle) * 1deg));
+  transition: transform 600ms cubic-bezier(0.3, 1.35, 0.6, 1);
+}
+/* 亮起的方位點：放大並換成最深的金 */
+.emblem .mark {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 250ms ease;
+}
+.emblem .mark * {
+  transition: fill 250ms ease;
+}
+/* 亮點是裝飾，不跟著羽毛轉動：雙翼收攏時淡出 */
+.emblem .sparkles {
+  opacity: calc(var(--open) * var(--open));
+}
+.emblem[data-active='n'] .mark[data-dir='n'],
+.emblem[data-active='e'] .mark[data-dir='e'],
+.emblem[data-active='s'] .mark[data-dir='s'],
+.emblem[data-active='w'] .mark[data-dir='w'] {
+  transform: scale(2.4);
+}
+.emblem[data-active='n'] .mark[data-dir='n'] *,
+.emblem[data-active='e'] .mark[data-dir='e'] *,
+.emblem[data-active='s'] .mark[data-dir='s'] *,
+.emblem[data-active='w'] .mark[data-dir='w'] * {
+  fill: var(--color-secondary-foreground);
+}
+
+/* 有手機底部固定 CTA 列的頁面：手機上隱藏右下角的浮動按鈕，並替頁尾留出空間。 */
+@media (max-width: 1023px) {
+  body[data-sticky-cta] #floating-widgets {
+    display: none;
+  }
+  body[data-sticky-cta] footer {
+    padding-bottom: 5rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PLN-006 P0：內頁共用樣式（src/components/page/**）。顏色只用上面的 token。
+   提案用的 docs/06_research-and-design/proposals/pages-v2/_kit.css 與這一段同步。
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 置中的眉批：兩側各一條短金線（PageHero） */
+.eyebrow--center::after {
+  content: '';
+  width: 1.75rem;
+  height: 1px;
+  background: var(--color-ring);
+}
+
+/* 第一個畫面的光暈：一圈很淡的金色，放在暖白底上 */
+.page-halo {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(760px, 150vw);
+  aspect-ratio: 1;
+  translate: -50% -42%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-accent) 62%, transparent) 0,
+    color-mix(in srgb, var(--color-accent) 22%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+/* Chip（設計系統）：分頁列與篩選列共用。選取狀態吃 Radix 的 data-state 或 aria-* */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  background: var(--color-popover);
+  color: var(--color-accent-foreground);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.chip:hover {
+  border-color: var(--color-ring);
+}
+.chip:is([data-state='active'], [aria-selected='true'], [aria-pressed='true'], [aria-current]) {
+  background: var(--color-accent);
+  border-color: var(--color-ring);
+  color: var(--color-primary-foreground);
+}
+
+/* 分頁（ChipTabs）：沒有 JavaScript 時不顯示分頁列，所有面板攤開，各自帶著分頁名稱；
+   有 JavaScript 時（<html class="js">，首次繪製前就加上）只顯示選到的面板，沒有版面位移。 */
+.chip-tabs__list {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: 0.25rem;
+}
+.chip-tabs__list::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .chip-tabs__list {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+html:not(.js) .chip-tabs__list,
+html.js .chip-tabs__label,
+html.js .chip-tabs__panel[data-state='inactive'] {
+  display: none;
+}
+html:not(.js) .chip-tabs__panel + .chip-tabs__panel {
+  margin-top: 2.5rem;
+}
+
+/* 安靜的圓形圖示鈕（翻頁箭頭、面板的關閉鈕）：淡銀底、細銀邊，44px */
+.icon-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-silver);
+  border-radius: 9999px;
+  background: var(--color-silver-light);
+  color: var(--color-accent-foreground);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, opacity 150ms ease;
+}
+.icon-btn:hover:not(:disabled):not([aria-disabled='true']) {
+  border-color: var(--color-silver-edge);
+  background: var(--color-stage);
+}
+.icon-btn:disabled,
+.icon-btn[aria-disabled='true'] {
+  opacity: 0.35;
+  cursor: default;
+}
+.icon-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* 一次一則（Pager）：沒有 JavaScript 時每一則直向列出，不顯示箭頭與圓點 */
+html:not(.js) .pager__nav,
+html.js .pager[data-auto] .pager__slide[data-off] {
+  display: none;
+}
+/* 預設把每一則疊在同一格：高度是最高的那一則，翻頁時箭頭不會跳動 */
+html.js .pager:not([data-auto]) .pager__track {
+  display: grid;
+}
+html.js .pager:not([data-auto]) .pager__slide {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+html.js .pager:not([data-auto]) .pager__slide[data-off] {
+  visibility: hidden;
+}
+html:not(.js) .pager__slide + .pager__slide {
+  margin-top: 2rem;
+}
+.pager__dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--color-silver-deep);
+  transition: background-color 200ms ease, width 200ms ease;
+}
+.pager__dot[data-on] {
+  width: 1.125rem;
+  background: var(--color-ring);
+}
+
+/* 面板（PageSheet）：手機由下滑出，桌機在右側。沒有 JavaScript 時，面板的內容直接接在觸發的那一列下面。 */
+html.js .page-sheet__fallback {
+  display: none;
+}
+.page-sheet__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: color-mix(in srgb, var(--color-inverse) 28%, transparent);
+}
+.page-sheet {
+  position: fixed;
+  z-index: 61;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  max-height: 86svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.875rem 1.5rem calc(1.75rem + env(safe-area-inset-bottom, 0px));
+  border-radius: 1.625rem 1.625rem 0 0;
+  background: var(--color-stage);
+  color: var(--color-card-foreground);
+  line-height: 1.7;
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--color-primary) 35%, transparent),
+    0 -22px 60px color-mix(in srgb, var(--color-secondary-foreground) 20%, transparent);
+}
+.page-sheet__grip {
+  position: absolute;
+  left: 50%;
+  top: 0.625rem;
+  width: 2.75rem;
+  height: 0.3125rem;
+  margin-left: -1.375rem;
+  border-radius: 9999px;
+  background: var(--color-silver);
+}
+.page-sheet__title {
+  margin: 0;
+  padding-right: 3.25rem;
+  font: 700 1.25rem/1.45 var(--font-serif);
+}
+.page-sheet__close {
+  position: absolute;
+  right: 0.75rem;
+  top: 0.875rem;
+}
+@media (min-width: 1024px) {
+  .page-sheet {
+    left: auto;
+    top: 1rem;
+    right: 1rem;
+    bottom: auto;
+    width: 27.5rem;
+    max-height: calc(100svh - 2rem);
+    padding: 2rem 2rem 2rem;
+    border-radius: 1.625rem;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 30%, transparent),
+      0 24px 70px color-mix(in srgb, var(--color-secondary-foreground) 22%, transparent);
+  }
+  .page-sheet__grip {
+    display: none;
+  }
+}
+/* 收起用另一組名稱的 keyframes：Radix 以動畫名稱是否改變來判斷要不要等收起的動畫播完 */
+@media (prefers-reduced-motion: no-preference) {
+  .page-sheet__overlay[data-state='open'] { animation: page-fade-in 250ms ease; }
+  .page-sheet__overlay[data-state='closed'] { animation: page-fade-out 200ms ease forwards; }
+  .page-sheet[data-state='open'] { animation: page-sheet-in 380ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .page-sheet[data-state='closed'] { animation: page-sheet-out 240ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+}
+@keyframes page-fade-in { from { opacity: 0; } }
+@keyframes page-fade-out { to { opacity: 0; } }
+@keyframes page-sheet-in { from { transform: translateY(104%); } }
+@keyframes page-sheet-out { to { transform: translateY(104%); } }
+@media (min-width: 1024px) {
+  @keyframes page-sheet-in { from { transform: translateX(112%); } }
+  @keyframes page-sheet-out { to { transform: translateX(112%); } }
+}
+
+/* 內頁共用元件的焦點框 */
+:is(.chip, .icon-btn, .page-sheet, .journey-next a):focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+html.js .pager:not([data-auto]) .pager__slide > * {
+  height: 100%;
 }

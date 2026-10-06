@@ -1,0 +1,149 @@
+<!-- 提案 C・依服務看見證（客戶見證頁）
+概念：見證依「相關服務」分列，每個服務一列（名稱、則數、了解這項服務），展開才看到見證；訪客的下一步是服務，所以見證是通往服務的證據。
+動效技術：僅原生 details 展開收合（一次只開一列）與一次性 .reveal 進場，無 3D、無粒子。
+授權開關：頁面右下「授權狀態」切換，或修改 script 的 AUTHORISED 常數。未授權時 HTML 內不含任何見證內文。
+已知弱點：(1) 只列 5 項服務，其餘服務與課程的見證沒有出口；(2) 見證要展開才看得到，想快速瀏覽「所有人怎麼說」的訪客要一列一列開。 -->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜客戶見證 提案C・依服務看見證</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 48px 24px; max-width: 720px; }
+.hero h1 { margin-top: 12px; }
+.hero p { margin-top: 12px; color: var(--muted-foreground); }
+.svc-list { display: grid; gap: 12px; padding-bottom: 8px; }
+.svc { background: var(--card); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 4px 20px rgba(58,42,24,.05); interpolate-size: allow-keywords; }
+.svc[open] { border-color: var(--ring); }
+.svc > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 16px 20px; min-height: 64px; }
+.svc > summary::-webkit-details-marker { display: none; }
+.svc .name { font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--card-foreground); line-height: 1.4; }
+.svc .count { font-size: 14px; color: var(--muted-foreground); }
+.svc .toggle { grid-row: 1 / span 2; grid-column: 2; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: var(--ring); font-size: 22px; transition: transform 250ms ease; }
+.svc[open] .toggle { transform: rotate(45deg); }
+.svc::details-content { block-size: 0; opacity: 0; overflow: hidden; transition: block-size 250ms ease, opacity 250ms ease, content-visibility 250ms allow-discrete; }
+.svc[open]::details-content { block-size: auto; opacity: 1; }
+.svc .body { padding: 0 20px 8px; display: grid; gap: 16px; }
+.svc blockquote { margin: 0; }
+.svc blockquote p { font-style: italic; }
+.svc .who { display: block; margin-top: 4px; font-size: 14px; color: var(--muted-foreground); font-style: normal; }
+.svc .foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px; padding: 4px 20px 12px; }
+.svc .foot .link { margin-left: auto; }
+/* 每列的「了解這項服務」永遠在預設狀態可見（列外右側／列內底部） */
+.svc-row { display: grid; gap: 0; }
+.svc-go { display: flex; justify-content: flex-end; padding: 0 20px 10px; margin-top: -8px; }
+.svc[open] + .svc-go { display: none; }
+.notice { display: none; background: var(--accent); border: 1px solid var(--ring); border-radius: 18px; padding: 20px 24px; margin-bottom: 20px; }
+.notice p { color: var(--primary-foreground); font-weight: 500; }
+.notice .row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 12px; }
+body[data-auth="off"] .notice { display: block; }
+body[data-auth="off"] .svc[open] + .svc-go { display: flex; }
+body[data-auth="off"] .svc .count, body[data-auth="off"] .svc .toggle { display: none; }
+body[data-auth="off"] .svc > summary { cursor: default; pointer-events: none; }
+body[data-auth="off"] .svc > summary .go-inline { pointer-events: auto; }
+.go-inline { color: var(--accent-foreground); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; min-height: 44px; }
+.switch { position: fixed; right: 12px; bottom: 84px; z-index: 60; background: #20140A; color: #F5E4C8; font-size: 12px; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; min-height: 28px; }
+@media (min-width: 1024px) { .switch { bottom: 12px; } }
+.more { margin-top: 20px; font-size: 14px; color: var(--muted-foreground); }
+@media (min-width: 768px) { .svc > summary { padding: 20px 28px; } .svc .body { padding: 0 28px 8px; } .svc .foot { padding: 4px 28px 16px; } .svc-go { padding-inline: 28px; } }
+</style>
+</head>
+<body data-auth="on">
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="container hero">
+    <span class="eyebrow">成功案例精選</span>
+    <h1>客戶見證</h1>
+    <p>他們，都在這裡找回了人生的主導權。來自不同生命階段、不同課題的真實蛻變故事。</p>
+  </section>
+
+  <section class="container" style="padding-bottom:64px" aria-label="依服務看見證">
+    <div class="notice" id="notice" role="status">
+      <p>我們正在向個案取得正式授權與去識別化整理，確保每一則分享都真實可查證。</p>
+      <div class="row"><a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a></div>
+    </div>
+    <div class="svc-list" id="svc-list"></div>
+    <p class="more reveal">服務名稱右側的連結會帶你到該項服務；展開後可看到與它相關的個案分享，一次只展開一項。</p>
+  </section>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="sticky-cta"><a class="btn btn-gold" href="/#personas-section">了解適合我的服務</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a></div>
+
+<label class="switch"><input type="checkbox" id="auth" checked> 已授權（取消勾選＝未授權）</label>
+<div class="proposal-tag">提案C・依服務看見證</div>
+<script>
+// 開關：true = 已授權（顯示見證）；false = 未授權（只顯示服務列與說明）
+let AUTHORISED = true;
+
+// 見證內文取自 src/content/offerings.ts 各服務 group 為 proof 的段落（逐字）
+const SERVICES = [
+  { id: 'personal-1on1', name: '心靈引渡人 ｜ 一對一個人能量療癒', quotes: [
+    ['「半年內遇見靈魂伴侶」', '愛情顯化個案'],
+    ['「信念轉換後愁緒消散了，感覺身心瞬間變乾淨」', '深層清理個案'],
+    ['「隔天業績提升、三天後獲得升遷通知」', '事業突破個案'],
+    ['「擺脫對失敗的恐懼，終於有勇氣邁開步伐」', '恐懼釋放個案'] ] },
+  { id: 'spiritual-reading', name: '靈性解讀與能量療癒（一對一專屬服務）', quotes: [
+    ['「原本以為自己很清楚要什麼，做完『伴侶訂單微調』才發現潛意識的限制。調整後的 3 個月內，我就遇到了新對象！完全突破了以前對另一半的刻板印象！」', ''],
+    ['「解讀時老師指出我有『家庭因素反對』的隱性議題，清理卡點後，對感情的焦慮感瞬間消失，身邊也開始出現好幾個符合解讀特徵的人！」', ''],
+    ['「40 分鐘的療癒非常有感，原本卡很久的金錢焦慮感，在信念轉換後放鬆了非常多，接著更迎來了財富與智慧的全面大爆發！」', ''] ] },
+  { id: 'spiritual-massage', name: '靈性按摩：全域氣場修護與脈輪清理（遠距能量 SPA）', quotes: [
+    ['「處理後連續三天透過作夢排出負能量，之後不再做惡夢了！」', '身心穩定與睡眠改善'],
+    ['「女兒代媽媽預約後，媽媽長期失眠狀況獲得改善，胸口不適感也消失了。」', '身心穩定與睡眠改善'],
+    ['「媳婦代預約兩次後，婆婆暴躁情緒明顯減少。」', '情緒平衡與關係修復'],
+    ['「做完海底輪清理，兩次都在 24 小時內有新個案主動上門並直接成交！」', '行動力與財富流動'] ] },
+  { id: 'group-healing', name: '人生推進器 ｜ 團體遠距療癒', quotes: [
+    ['「才兩週就感受到關係變得輕鬆，連工作合作也更順了！」', '關係突破個案'],
+    ['「傳送當晚夢到童年場景，醒來後莫名釋懷很多，感覺潛意識積壓的包袱被清掉了。」', '內在清理個案'],
+    ['「連續參加了三回合，不知不覺中人生真的開始往前，身邊朋友都說我氣場不一樣了！」', '長期調頻個案'] ] },
+  { id: 'smoke-prayer', name: '遠距煙供祈福儀式', quotes: [
+    ['「那週剛許下轉職願望，沒想到煙供完隔天就接到心儀公司的錄取電話！」', '轉職個案'],
+    ['「原本被不好的關係纏身很久，做完煙供後神奇地與對方斷離，隨後遇見了非常體貼的正緣。」', '姻緣個案'],
+    ['「煙供後老闆不再找麻煩，卡很久的案子順利成交，那週業績直接翻倍！」', '事業個案'],
+    ['「幫家裡祈福後，原本晚上容易哭鬧的孩子終於能安穩入睡，家裡的壓力感整個消失了。」', '家庭祈福個案'] ] },
+];
+
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const list = document.getElementById('svc-list');
+
+function render() {
+  document.body.dataset.auth = AUTHORISED ? 'on' : 'off';
+  list.innerHTML = SERVICES.map((s, i) => {
+    const href = '/services/' + s.id;
+    const quotes = AUTHORISED ? `<div class="body">${s.quotes.map(([q, who]) =>
+      `<blockquote class="quote"><p>${esc(q)}</p>${who ? `<span class="who">— ${esc(who)}</span>` : ''}</blockquote>`).join('')}</div>
+      <div class="foot"><span class="muted" style="font-size:14px">對應服務：${esc(s.name)}</span><a class="link" href="${href}">了解這項服務 →</a></div>` : '';
+    return `<div class="svc-row reveal" style="transition-delay:${i * 70}ms">
+      <details class="svc" name="svc"${AUTHORISED ? '' : ' open'}>
+        <summary><span class="name">${esc(s.name)}</span>
+          <span class="count">${AUTHORISED ? s.quotes.length + ' 則見證' : ''}</span>
+          <span class="toggle" aria-hidden="true">+</span></summary>
+        ${quotes}
+      </details>
+      <div class="svc-go"><a class="go-inline" href="${href}">了解這項服務 →</a></div>
+    </div>`;
+  }).join('');
+  // 未授權：列不可展開（內文不存在），不顯示展開圖示
+  list.querySelectorAll('.svc-row').forEach((r) => requestAnimationFrame(() => r.classList.add('is-in')));
+  if (!AUTHORISED) list.querySelectorAll('details').forEach((d) => d.addEventListener('toggle', () => { d.open = true; }));
+}
+document.getElementById('auth').addEventListener('change', (e) => { AUTHORISED = e.target.checked; render(); });
+render();
+
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

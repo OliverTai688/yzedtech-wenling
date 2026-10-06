@@ -1,0 +1,87 @@
+/* Slide 04 創辦人、06 社群、07 常見問題，以及 04～07 共用的版面（RES-005 §3）。
+   這幾張不釘住，是一般捲動的段落（呼吸）：留白多、一張一個主角。樣式不分舞台或一般頁面模式；
+   只有「進入畫面才出現」在舞台實際啟用（.st-root[data-live]）時才生效，沒有 JavaScript 時內容直接顯示。 */
+.st-root {
+  --st-foil: linear-gradient(135deg, var(--st-gold-hi), var(--st-gold-deep) 45%, color-mix(in srgb, var(--st-gold) 60%, var(--st-gold-hi)) 60%, var(--st-gold-edge));
+}
+.st-sec { position: relative; z-index: 2; padding: 88px 24px; overflow: clip; scroll-margin-top: var(--st-hdr); }
+.st-sec__text { display: grid; justify-items: center; gap: 14px; max-width: 680px; margin-inline: auto; text-align: center; }
+.st-sec__act { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 12px; }
+.st-eye { display: inline-flex; align-items: center; gap: 10px; margin: 0; font: 700 14px/1 var(--font-sans); letter-spacing: 0.24em; color: var(--st-gold-edge); }
+.st-eye__n { font: 600 13px/1 var(--font-serif); letter-spacing: 0.3em; color: var(--st-gold-deep); }
+.st-eye__mark { width: 44px; height: auto; }
+
+/* ── 04 創辦人：拱形（照片位置）與身後的光、金翼 ── */
+.st-founder {
+  --arch-w: min(56vw, 230px);
+  --fem-w: min(128vw, 560px);
+  /* 金翼羅盤的中心在拱形裡的高度（肩膀的位置） */
+  --fem-at: 0.66;
+  --fem-rise: calc(var(--fem-w) / var(--em-ar) * var(--em-cy) - var(--arch-w) * 1.25 * var(--fem-at));
+  padding-top: 0;
+}
+.st-founder__subject { position: relative; display: grid; justify-items: center; padding-top: calc(var(--fem-rise) + 44px); margin-bottom: 32px; }
+.st-founder__em {
+  --o1: 1; --o2: 1; --o3: 1;
+  position: absolute; left: 50%; top: calc(var(--fem-rise) + 44px + var(--arch-w) * 1.25 * var(--fem-at)); width: var(--fem-w);
+  margin: calc(var(--fem-w) / var(--em-ar) * var(--em-cy) * -1) 0 0 calc(var(--fem-w) * var(--em-cx) * -1);
+  transform-origin: calc(var(--em-cx) * 100%) calc(var(--em-cy) * 100%);
+}
+.st-founder__em .emblem { width: 100%; margin: 0; }
+.st-founder__em .tier-1 { --open: var(--o1); }
+.st-founder__em .tier-2 { --open: var(--o2); }
+.st-founder__em .tier-3 { --open: var(--o3); }
+.st-arch {
+  position: relative; z-index: 1; width: var(--arch-w); aspect-ratio: 4 / 5; border-radius: 999px 999px 18px 18px;
+  background:
+    radial-gradient(90% 60% at 50% 22%, var(--color-white) 0, transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-white) 94%, transparent) 0, color-mix(in srgb, var(--st-white) 84%, transparent) 52%, color-mix(in srgb, var(--st-gold-hi) 62%, transparent) 100%);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--st-gold-deep) 70%, transparent), inset 0 0 0 7px color-mix(in srgb, var(--color-white) 70%, transparent),
+    inset 0 0 0 8px color-mix(in srgb, var(--st-gold-deep) 28%, transparent), 0 24px 48px color-mix(in srgb, var(--st-gold-edge) 20%, transparent);
+}
+/* 名稱只在空白處換行（不把「創辦人」拆開） */
+.st-founder .st-cap { word-break: keep-all; }
+.st-founder__lbl { margin: 8px 0 0; font: 700 14px/1.6 var(--font-sans); letter-spacing: 0.06em; color: var(--st-gold-edge); }
+.st-founder__q { margin: 0; max-width: 32em; font: 500 18px/1.9 var(--font-serif); color: var(--st-ink); text-wrap: pretty; }
+
+/* ── 06 社群：密碼的六個數字 ── */
+.st-social { padding-block: 104px; }
+.st-code { display: grid; justify-items: center; gap: 18px; margin: 0 0 40px; }
+.st-code__lbl { font: 600 14px/1 var(--font-serif); letter-spacing: 0.3em; color: var(--st-gold-deep); }
+.st-code__digits { display: flex; gap: clamp(6px, 2vw, 14px); perspective: 900px; }
+.st-digit {
+  position: relative; display: grid; place-items: center; width: clamp(44px, 12.5vw, 86px); aspect-ratio: 3 / 4; border-radius: 12px;
+  font: 700 clamp(34px, 9.5vw, 66px)/1 var(--font-serif); color: var(--st-gold-edge);
+  background: linear-gradient(180deg, var(--color-white) 0, var(--st-white) 49%, color-mix(in srgb, var(--color-silver-light) 70%, var(--st-gold-hi)) 51%, var(--color-white) 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-gold-deep) 55%, transparent), inset 0 2px 0 var(--color-white), 0 14px 28px color-mix(in srgb, var(--st-gold-edge) 16%, transparent);
+}
+.st-digit::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: color-mix(in srgb, var(--st-gold-deep) 30%, transparent); }
+.st-social__intro { margin: 0; max-width: 32em; font: 400 16px/1.85 var(--font-sans); color: var(--st-soft); }
+
+/* ── 07 常見問題：一般的閱讀區，回到頁面底色（散場之後） ── */
+.st-faq { z-index: 4; padding-block: 0 96px; background: linear-gradient(180deg, transparent 0, var(--color-background) 150px); }
+.st-faq__in { display: grid; gap: 20px; max-width: 760px; margin-inline: auto; padding-top: 170px; }
+.st-faq__list { border-top: 1px solid color-mix(in srgb, var(--st-gold) 30%, transparent); }
+.st-faq__item { border-bottom: 1px solid color-mix(in srgb, var(--st-gold) 30%, transparent); }
+.st-faq__item > summary { display: flex; min-height: 60px; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; font: 700 16px/1.6 var(--font-sans); color: var(--st-ink); cursor: pointer; }
+.st-faq__item > summary svg { flex: none; width: 16px; height: 16px; color: var(--st-gold-deep); }
+.st-faq__item > p { margin: 0; padding-bottom: 22px; font: 400 16px/1.85 var(--font-sans); color: var(--st-soft); }
+
+@media (min-width: 1024px) {
+  .st-sec { padding-block: 120px; }
+  .st-founder { --arch-w: 220px; --fem-w: min(56vw, 680px); padding-top: 0; }
+  .st-founder__q { font-size: 20px; }
+  .st-social { padding-block: 150px; }
+  .st-faq { padding-block: 0 130px; }
+}
+
+/* 進入畫面才出現（淡入、上移 16px，只播一次）：舞台實際啟用時才先藏起來 */
+.st-root[data-live] .st-sec [data-rv] { transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.st-root[data-live] [data-rvg]:not([data-in]) [data-rv] { opacity: 0; transform: translateY(16px); }
+.st-root[data-live] .st-sec [data-rv]:nth-child(2) { transition-delay: 0.08s; }
+.st-root[data-live] .st-sec [data-rv]:nth-child(3) { transition-delay: 0.16s; }
+.st-root[data-live] .st-sec [data-rv]:nth-child(4) { transition-delay: 0.24s; }
+.st-root[data-live] .st-sec [data-rv]:nth-child(5) { transition-delay: 0.32s; }
+/* 數字依序翻出（展開／收攏的一種：由平躺翻到正面） */
+.st-root[data-live] .st-digit { transition: transform 0.6s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.2s linear; transition-delay: calc(var(--i) * 0.12s + 0.15s); }
+.st-root[data-live] .st-code:not([data-in]) .st-digit { opacity: 0; transform: rotateX(-88deg); }

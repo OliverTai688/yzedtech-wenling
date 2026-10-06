@@ -26,23 +26,17 @@ function isPathActive(pathname: string, path: string) {
   return path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`);
 }
 
-// 2026-08-22（客戶要求：桌機主導覽改用這份既有的 shadcn NavigationMenu 元件）：
-// `components/ui/navigation-menu.tsx` 預設用的 `bg-secondary`／`text-primary`／
-// `border-border`／`text-muted-foreground`／`bg-popover`／`ring-foreground/10`
-// 等語意色 token，目前 app/globals.css 的 @theme 並未定義對應變數（跟上一輪
-// Card／Badge 遇到的狀況相同），套用預設 variant 會呈現無色/透明。以下改用
-// 專案既有品牌色票（比照 Header.tsx 原本手刻選單的顏色）逐一 override。
+// 桌機主導覽用既有的 shadcn NavigationMenu 元件；顏色一律用 app/globals.css 的語意 token（PLN-006 P0）。
 const triggerClass = (active: boolean) =>
   cn(
-    'rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 bg-transparent hover:bg-[#FDF6E6]/60 data-popup-open:bg-[#FDF6E6]/60 data-open:bg-[#FDF6E6]/60',
+    'inline-flex h-10 items-center rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 bg-transparent hover:bg-card/60 data-popup-open:bg-card/60 data-open:bg-card/60',
     active
-      ? 'bg-[#FDF6E6] text-[#B5762A] font-semibold border border-[#F0DFA0] shadow-xs hover:bg-[#FDF6E6]'
-      : 'text-[#5A4A38] hover:text-[#B5762A]'
+      ? 'bg-card text-accent-foreground font-semibold border border-border shadow-xs hover:bg-card'
+      : 'text-card-foreground hover:text-ring'
   );
 
 // NavigationMenuContent 下拉面板：viewport=false 時套用的是
-// `group-data-[viewport=false]/navigation-menu:` 這組 class，同樣需要覆寫
-// bg-popover／text-popover-foreground／ring-foreground/10。
+// `group-data-[viewport=false]/navigation-menu:` 這組 class。
 //
 // 2026-08-22（客戶截圖回報 bug）：viewport=false 模式下，Content 是相對於
 // 各自 NavigationMenuItem（`relative`，寬度＝該 trigger 本身寬度）用
@@ -57,22 +51,19 @@ const triggerClass = (active: boolean) =>
 // 展開的可用空間則會隨位置越靠右而越少。這個方向與「哪一組是最後一項」無關，
 // 之後 primaryNavigation 分組順序或項目增減都不需要另外判斷哪個是「最右邊」。
 const contentClass =
-  'left-auto right-0 group-data-[viewport=false]/navigation-menu:bg-white group-data-[viewport=false]/navigation-menu:text-[#3A2A18] group-data-[viewport=false]/navigation-menu:ring-[#F0DFA0] group-data-[viewport=false]/navigation-menu:shadow-lg';
+  'left-auto right-0 group-data-[viewport=false]/navigation-menu:bg-stage group-data-[viewport=false]/navigation-menu:text-card-foreground group-data-[viewport=false]/navigation-menu:ring-border group-data-[viewport=false]/navigation-menu:shadow-lg';
 
-// 子選單項目連結（NavigationMenuLink 本身，不是內層 <Link>）：預設
-// hover:bg-muted／data-active:bg-muted/50／focus-visible:ring-ring/50 同樣是
-// 無色 token，改用品牌淺色底＋金色 focus ring。
+// 子選單項目連結（NavigationMenuLink 本身，不是內層 <Link>）：淺色底加金色的焦點框。
 const subLinkClass =
-  'hover:bg-[#FDF6E6] focus:bg-[#FDF6E6] data-active:bg-[#FBF1DD] data-active:hover:bg-[#FBF1DD] data-active:focus:bg-[#FBF1DD] focus-visible:ring-[#B5762A]/40';
+  'hover:bg-card focus:bg-card data-active:bg-background data-active:hover:bg-background data-active:focus:bg-background focus-visible:ring-ring/40';
 
 export default function DesktopNav() {
   const pathname = usePathname();
 
   return (
-    <NavigationMenu viewport={false} className="hidden max-w-none xl:flex" id="desktop-nav">
+    <NavigationMenu viewport={false} className="hidden max-w-none lg:flex" id="desktop-nav">
       <NavigationMenuList className="gap-1">
-        {/* PRD-003 §4.3（2026-10-04）：第一層 8 項全部呈現；「商城」按鈕在 Header.tsx。
-            8 項加按鈕在 1024～1279px 放不下，桌機導覽改從 xl 斷點起顯示（PLN-004 §6）。 */}
+        {/* 第一層是文案集的三個分組，lg（1024px）起完整顯示；私訊與商城按鈕在 Header.tsx。 */}
         {primaryNavigation.map((group) => {
             const active = groupPaths(group).some((path) => isPathActive(pathname, path));
 
@@ -95,17 +86,14 @@ export default function DesktopNav() {
                   {/* 寬度上限＋響應式：一般情況固定 300px，但視窗本身很窄
                       （例如平板橫向）時改以 100vw 扣掉左右各 1rem 緩衝為準，
                       避免面板寬度本身就超過視窗。 */}
-                  <ul className="grid w-[min(300px,calc(100vw-2rem))] gap-0.5 p-1.5">
+                  <ul className="grid w-[min(240px,calc(100vw-2rem))] gap-0.5 p-1.5">
                     {group.items.map((item) => {
                       const itemPath = item.href.split('?')[0];
                       return (
                         <li key={item.id}>
                           <NavigationMenuLink asChild active={isPathActive(pathname, itemPath)} className={subLinkClass}>
                             <Link href={item.href} className="flex flex-col gap-0.5 rounded-lg px-3 py-2.5">
-                              <span className="text-sm font-medium text-[#3A2A18]">{item.label}</span>
-                              {item.description && (
-                                <span className="text-sm text-[#9A8060]">{item.description}</span>
-                              )}
+                              <span className="text-sm font-medium text-card-foreground">{item.label}</span>
                             </Link>
                           </NavigationMenuLink>
                         </li>

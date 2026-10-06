@@ -1,0 +1,129 @@
+<!--
+提案 B「三步開始」
+概念：三項資源排成沿金色軌道的有序路徑（社群 → 直播 → LINE），每步只露標題、一句話與按鈕，說明收在展開裡。
+動效：.reveal 進場、details 展開、捲動時金色軌道依進度延伸（只動 transform）。
+已知弱點：1) 順序（先社群再直播）是設計判斷，社群與直播共用同一連結，兩顆按鈕會去同一處；2) 軌道捲動延伸在 reduced-motion 下改為全長靜態，且頁面太短，推進感有限。
+-->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜免費資源提案B・三步開始</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>
+.hero { padding-block: 40px 8px; }
+.hero .eyebrow { margin-bottom: 12px; }
+.path { position: relative; margin-top: 28px; padding-left: 56px; display: grid; gap: 20px; }
+.rail, .rail-fill { position: absolute; left: 19px; top: 20px; bottom: 20px; width: 2px; border-radius: 2px; }
+.rail { background: var(--border); }
+.rail-fill { background: linear-gradient(#FCE7A8, #C9862E); transform-origin: top; transform: scaleY(var(--p, 0)); box-shadow: 0 0 10px rgba(232,177,90,.7); }
+.step { position: relative; }
+.node { position: absolute; left: -56px; top: 18px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-serif); font-weight: 700; font-size: 18px; background: var(--popover); border: 2px solid var(--ring); color: var(--accent-foreground); }
+.step:first-child .node { background: linear-gradient(135deg, #FCE7A8, #D89A3E); color: var(--primary-foreground); box-shadow: 0 0 0 6px rgba(252,231,168,.55); }
+.step .chip { margin-bottom: 8px; }
+.step h3 { font-size: 20px; }
+.step .one { margin-top: 6px; color: var(--muted-foreground); }
+.step .go { margin-top: 16px; }
+.step .go .btn { width: 100%; }
+.step .disclosure { margin-top: 12px; border-bottom: 0; border-top: 1px solid rgba(240,223,160,.7); }
+.step .disclosure > summary { font-size: 14px; color: var(--accent-foreground); }
+.step .disclosure p + p { margin-top: 10px; }
+.step .disclosure b { color: var(--card-foreground); }
+.pw { display: inline-block; padding: 0 8px; border-radius: 6px; background: var(--accent); color: var(--primary-foreground); font-weight: 700; letter-spacing: .1em; }
+.next { margin: 20px 0 0 56px; font-size: 14px; color: var(--muted-foreground); }
+@media (min-width: 768px) {
+  .hero { padding-block: 72px 16px; }
+  .path { max-width: 760px; padding-left: 72px; gap: 24px; }
+  .rail, .rail-fill { left: 27px; }
+  .node { left: -72px; width: 56px; height: 56px; font-size: 22px; top: 24px; }
+  .step .go .btn { width: auto; }
+  .next { margin-left: 72px; }
+}
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <section class="container hero">
+    <span class="eyebrow">三步開始</span>
+    <h1 style="margin-top:12px">免費資源</h1>
+
+    <ol class="path" id="path" style="list-style:none;margin-bottom:0">
+      <span class="rail" aria-hidden="true"></span><span class="rail-fill" id="fill" aria-hidden="true"></span>
+
+      <li class="step card">
+        <span class="node" aria-hidden="true">1</span>
+        <span class="chip">療癒支持社群</span>
+        <h3>【免費社群】加入豐盛之翼學苑</h3>
+        <p class="one">每天充滿正能量分享的免費社群，帶著願望進來，也帶著好消息出去。</p>
+        <div class="go"><a class="btn btn-gold" href="https://reurl.cc/8DDd1M">點我加入免費社群</a></div>
+        <details class="disclosure">
+          <summary>密碼與適合對象</summary>
+          <div>
+            <p>進入社群需輸入密碼 <span class="pw">168168</span>。</p>
+            <p><b>適合：</b>渴望在身心靈路上有溫暖夥伴陪伴、想獲得第一手活動與直播資訊者。</p>
+          </div>
+        </details>
+      </li>
+
+      <li class="step card reveal">
+        <span class="node" aria-hidden="true">2</span>
+        <span class="chip">免費公益直播</span>
+        <h3>【每週免費直播】豐盛之翼學苑公益體驗直播</h3>
+        <p class="one">每週一晚間 21:30–22:30，文齡老師於社群內舉辦免費公益體驗直播。</p>
+        <div class="go"><a class="btn btn-outline" href="https://reurl.cc/8DDd1M">查看直播社群資訊</a></div>
+        <details class="disclosure">
+          <summary>直播內容與適合對象</summary>
+          <div>
+            <p>帶你實際感受能量練習與希塔療癒的應用，參與還有機會獲得專屬小禮物。</p>
+            <p><b>適合：</b>想先免費體驗能量療癒、還在觀望哪一項服務適合自己者。</p>
+          </div>
+        </details>
+      </li>
+
+      <li class="step card reveal">
+        <span class="node" aria-hidden="true">3</span>
+        <span class="chip">官方預約與諮詢管道</span>
+        <h3>【LINE 官方】加入文齡的療癒日常官方帳號</h3>
+        <p class="one">透過官方 LINE 帳號即時發問、預約各項服務，並掌握最新開班與活動情報。</p>
+        <div class="go"><a class="btn btn-line" href="https://lin.ee/N7QHCND">點我加入 LINE 官方帳號</a></div>
+        <details class="disclosure">
+          <summary>適合對象</summary>
+          <div><p><b>適合：</b>想直接預約服務、或有課程開班時程疑問者。</p></div>
+        </details>
+      </li>
+    </ol>
+  </section>
+  <div class="section" style="padding-block:24px"></div>
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<div class="proposal-tag">提案 B・三步開始</div>
+<script>
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+// 金色軌道隨捲動延伸（只動 transform）；減少動態時直接全長
+const path = document.getElementById('path'), fill = document.getElementById('fill');
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function track() {
+  if (calm) { fill.style.setProperty('--p', 1); return; }
+  const r = path.getBoundingClientRect(), vh = innerHeight;
+  const p = Math.min(1, Math.max(0, (vh * 0.7 - r.top) / r.height));
+  fill.style.setProperty('--p', p.toFixed(3));
+}
+addEventListener('scroll', track, { passive: true }); addEventListener('resize', track); track();
+</script>
+</body>
+</html>

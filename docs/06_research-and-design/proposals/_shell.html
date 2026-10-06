@@ -1,0 +1,38 @@
+<!-- 第 2 頁起的提案共用外殼：把 <main> 換成該頁內容即可。頁首、最終 CTA、頁尾、手機固定列都已備好。 -->
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>豐盛之翼學苑｜【頁面名稱】提案【A/B/C】・【概念名稱】</title>
+<link rel="stylesheet" href="../_kit.css">
+<style>/* 只放這一頁專屬的樣式 */</style>
+</head>
+<body>
+<header class="site-header"><div class="container bar">
+  <a class="brand" href="/">豐盛之翼學苑</a>
+  <nav aria-label="主導覽（示意）"><span>關於我們 ▾</span><span>療癒與培訓 ▾</span><span>客戶見證</span><span>媒體專訪</span><span>更多 ▾</span></nav>
+  <div class="actions"><a class="btn btn-outline only-desktop" href="https://lin.ee/N7QHCND">LINE 諮詢</a><a class="btn btn-gold" href="https://booking.wenling.tw/">商城</a><span class="only-mobile" aria-hidden="true">☰</span></div>
+</div></header>
+
+<main>
+  <!-- 頁面內容 -->
+</main>
+
+<section class="inverse cta-band" aria-label="下一步">
+  <h2>成為你豐盛之路上的翅膀</h2>
+  <div class="row"><a class="btn btn-line" href="https://lin.ee/N7QHCND">加入官方 LINE 諮詢</a><a class="btn btn-inverse" href="/#personas-section">了解適合我的服務</a></div>
+</section>
+<footer class="inverse site-footer">© 2026 豐盛之翼學苑</footer>
+
+<!-- 詳細頁才需要：手機底部固定列 -->
+<!-- <div class="sticky-cta"><a class="btn btn-gold" href="#">【預約或報名】</a><a class="btn btn-line" href="https://lin.ee/N7QHCND">LINE 諮詢</a></div> -->
+
+<div class="proposal-tag">提案【A/B/C】・【概念名稱】</div>
+<script>
+// 進場：.reveal 進入視窗時加上 .is-in（只播一次）
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

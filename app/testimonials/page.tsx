@@ -1,14 +1,17 @@
 import TrustSystem from '../../src/components/TrustSystem';
+import CtaBand from '../../src/components/CtaBand';
+import JourneyNext from '../../src/components/page/JourneyNext';
+import { pageMeta } from '../../src/data';
 
-export const metadata = {
-  title: '客戶見證｜豐盛之翼學苑',
-  description: '豐盛之翼學苑的客戶見證整理中，完整個案故事將於取得授權後公開。',
-};
+// <title> 與 description 是文案集原文，集中在 src/data.ts 的 pageMeta。
+export const metadata = pageMeta.testimonials;
 
-export default function TestimonialsPage() {
+export default function Page() {
   return (
-    <div className="animate-fadeIn">
+    <>
       <TrustSystem />
-    </div>
+      <JourneyNext route="/testimonials" />
+      <CtaBand />
+    </>
   );
 }
