@@ -1,6 +1,6 @@
 # PRD-005：部落格後台（CRUD、圖文編輯器、MongoDB 儲存）
 
-**版本：** 1.0
+**版本：** 1.1（2026-10-17 加入伺服器端壓縮 ≤ 1 MB）
 **日期：** 2026-10-17
 **狀態：** Ready for Implementation
 **相關文件：** [`ARC-001`](../02_architecture-and-rules/ARC-001_architecture-overview.md)、[`ARC-002`](../02_architecture-and-rules/ARC-002_ui-and-interaction-rules.md)、[`PRD-004`](./PRD-004_story-driven-interactive-site.md) §硬性限制、執行計畫 [`PLN-007`](../04_execution-plans/PLN-007_blog-admin-cms-plan.md)
@@ -74,7 +74,9 @@ PRD-004 的硬性限制「不新增、不移除、不改名任何網址」適用
 
 索引：`{ slug: 1 }` 唯一、`{ status: 1, publishedAt: -1 }`。
 
-圖片（GridFS `blogImages`）：只接受 JPEG／PNG／WebP／GIF，單檔上限 4 MB（Vercel 函式請求上限 4.5 MB）。瀏覽器端上傳前先把超過 2000px 的圖縮小並轉成 WebP（GIF 不轉），降低傳輸與儲存量。
+圖片（GridFS `blogImages`）：只接受 JPEG／PNG／WebP／GIF，收到的原檔上限 4 MB（Vercel 函式請求上限 4.5 MB）。瀏覽器端上傳前先把超過 2000px 的圖縮小並轉成 WebP（GIF 不轉），降低傳輸量。
+
+**伺服器端壓縮（v1.1，使用者 2026-10-17 指示）：每張圖都經過上傳 API 壓縮，確保存進 MongoDB 的檔案 ≤ 1 MB。** 以 `sharp` 重新編碼成 WebP：長邊先縮到 2000px，畫質從 82 依序降到 42；仍超過 1 MB 就把尺寸縮小 25% 重來（最小 320px）。同時依 EXIF 轉正方向後拿掉全部 EXIF（含 GPS 位置），GIF 轉成保留動畫的動態 WebP；解碼後超過 1 億像素或無法解碼的檔案回傳 422。GridFS 的 metadata 記錄壓縮後的寬高、大小與原檔格式、大小。
 
 ### 3.4 安全
 

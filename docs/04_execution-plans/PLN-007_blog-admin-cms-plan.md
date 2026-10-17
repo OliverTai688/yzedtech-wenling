@@ -18,6 +18,7 @@
 | 編輯器 | **Tiptap 3**（`@tiptap/react`、`starter-kit`、`extension-image`、`extension-youtube`、`extensions`） | 以 ProseMirror 為核心、無預設樣式，可完全套用學苑的 token；官方就有 Image 與 YouTube 擴充；輸出 JSON，伺服器可用同一組擴充轉成 HTML（`@tiptap/html`），不必信任瀏覽器送來的 HTML |
 | 資料庫驅動 | 官方 **`mongodb`** 驅動（不用 Mongoose） | 只有兩個 collection，不需要 ODM；GridFS 內建 |
 | 圖片儲存 | **GridFS**（bucket `blogImages`） | 使用者指定存在 MongoDB；GridFS 可串流輸出，不受 16 MB 文件上限 |
+| 圖片壓縮 | **`sharp`**（`lib/blog/compress.ts`），與 Next.js 內建的圖片最佳化同一版（0.34.5） | 使用者要求每張圖經 API 壓縮到 ≤ 1 MB 再存；libvips 速度快、記憶體用量低，Vercel 可直接執行 |
 | 登入 | 單一管理密碼＋HMAC 簽章 cookie（Web Crypto） | 只有學苑一位管理者；不引入 NextAuth；Web Crypto 在 middleware（Edge）與 Node 都能用 |
 | 前台快取 | 靜態快取＋`revalidatePath` | 讀者不必每次查資料庫；後台一儲存就更新 |
 
@@ -50,6 +51,7 @@ lib/blog/extensions.ts                     # 編輯器與伺服器共用的 Tipt
 lib/blog/render.ts                         # JSON → HTML、讀取時間、圖片 id 擷取
 lib/blog/validate.ts                       # 輸入驗證、slug 產生、網址白名單
 lib/blog/repo.ts                           # CRUD、索引、已發布文章查詢、刪圖
+lib/blog/compress.ts                       # 上傳圖片壓縮成 ≤ 1 MB 的 WebP（sharp）
 app/api/admin/login/route.ts, logout/route.ts
 app/api/admin/posts/route.ts, posts/[id]/route.ts
 app/api/admin/uploads/route.ts
@@ -85,6 +87,7 @@ app/globals.css                            # .blog-prose、後台少量樣式
 | --- | --- |
 | 單一密碼被暴力猜測 | 要求長密碼；上線前建議加上登入次數限制（例如 Upstash Ratelimit）或改用 Vercel 的密碼保護／Clerk |
 | Vercel 函式請求上限 4.5 MB | 瀏覽器端先縮圖轉 WebP；伺服器拒絕超過 4 MB |
+| 壓縮耗時 | 最難壓的雜訊圖約 2 秒（多輪重新編碼），一般照片一輪即可；在 Vercel 函式時限內 |
 | 建置時沒有資料庫 | 讀取失敗時回傳空陣列並記錄錯誤，`/blog` 只顯示頁名 |
 | 上傳後沒儲存的圖片留在 GridFS | 第一版接受；儲存時清掉從內文移除的圖片、刪除文章時清掉只屬於該文章的圖片 |
 | 新增路由與 PRD-004「路由不變」衝突 | PRD-005 §3.1 明確列出例外 |

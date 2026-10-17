@@ -20,7 +20,7 @@
 | PRD-002 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構](../01_product-requirements/PRD-002_round4-homepage-brand-partner-product-restructure.md) | Ready for Implementation | v1.1：首頁移除 FAQ、新增合作夥伴區塊、服務／培訓拆為兩個總覽頁＋各自獨立詳細頁（含專屬見證、漸層圖片、直覺力併入療癒師認證）、品牌標示統一為「豐盛之翼學苑」、導覽微調 |
 | PRD-003 | [第二次修改——學苑品牌主體、需求分流首頁與資訊架構重整](../01_product-requirements/PRD-003_second-revision-academy-ia-restructure.md) | Ready for Implementation | v1.1：品牌主體為「豐盛之翼學苑」、首頁改需求分流 10 段、導覽採方案 C（5 項＋LINE／商城按鈕）、CTA 分流規則、三層動效；分 A–E 五階段（文案對齊 → UIUX 研究 → 缺口建議書 → 實作 → 轉化驗證） |
 | PRD-004 | [故事型互動網站（主題「改變地圖」）](../01_product-requirements/PRD-004_story-driven-interactive-site.md) | 草案，已依指示開工 | 首頁五章、敘事元件、深入 CTA（記住選擇、會變的固定列、LINE 帶話）、量測事件；硬性限制：文案只用 docx、路由不變 |
-| PRD-005 | [部落格後台（CRUD、圖文編輯器、MongoDB 儲存）](../01_product-requirements/PRD-005_blog-admin-cms-mongodb.md) | Ready for Implementation | `/admin` 後台登入與文章 CRUD、Tiptap 編輯器（圖片上傳、YouTube）、文章與圖片存 MongoDB（GridFS）、新增 `/blog/[slug]`（PRD-004「路由不變」的明確例外） |
+| PRD-005 | [部落格後台（CRUD、圖文編輯器、MongoDB 儲存）](../01_product-requirements/PRD-005_blog-admin-cms-mongodb.md) | Ready for Implementation | `/admin` 後台登入與文章 CRUD、Tiptap 編輯器（圖片上傳、YouTube）、v1.1 圖片經 API 壓縮成 ≤ 1 MB 的 WebP 後存 MongoDB（GridFS）、新增 `/blog/[slug]`（PRD-004「路由不變」的明確例外） |
 
 ## 02_architecture-and-rules
 

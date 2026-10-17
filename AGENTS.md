@@ -40,7 +40,7 @@ pnpm content:check    # 防呆掃描（example.com／已下架課程 identifier�
 - **動畫**：`motion`（Framer Motion 的後繼套件）；首頁的捲動故事用 `gsap`＋`ScrollTrigger`（經 `@gsap/react` 的 `useGSAP`）
 - **圖示**：`lucide-react`
 - **互動元件**：`radix-ui`（Tabs 等原件）、原生 `<details>` 收合
-- **部落格後台**：`mongodb`（官方驅動、GridFS）、Tiptap 3（`@tiptap/*`，編輯器；伺服器以 `@tiptap/html`＋`happy-dom` 產生 HTML）
+- **部落格後台**：`mongodb`（官方驅動、GridFS）、Tiptap 3（`@tiptap/*`，編輯器；伺服器以 `@tiptap/html`＋`happy-dom` 產生 HTML）、`sharp`（上傳圖片壓縮成 ≤ 1 MB 的 WebP）
 - **量測**：`@vercel/analytics`，只透過 `lib/track.ts` 呼叫（自訂事件需 Vercel Pro 方案）
 - 未使用的 `express`、`dotenv`、`tsx`、`@google/genai` 已於 2026-10-05 移除。新增相依前先確認用途並在 PRD/ARC 文件中說明。
 

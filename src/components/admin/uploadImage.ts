@@ -1,5 +1,6 @@
 // 後台上傳圖片（PRD-005 §3.3）：上傳前在瀏覽器把長邊超過 2000px 的圖縮小並轉成 WebP，
 // 讓檔案落在 Vercel 函式的請求上限（4.5 MB）之內。GIF 保留原檔以免失去動畫。
+// 這只是減少傳輸量；「存進資料庫 ≤ 1 MB」由伺服器的 lib/blog/compress.ts 保證。
 const MAX_EDGE = 2000;
 const MAX_BYTES = 4 * 1024 * 1024;
 export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
