@@ -12,3 +12,6 @@ docs/網站文案集*.md
 # 環境變數（含資料庫連線與後台密碼，PRD-005）
 .env
 .env*.local
+.vercel
+.env*
+!.env.example

@@ -80,8 +80,8 @@
 
 ## 3. 人工驗收清單（上線前）
 
-- [ ] 在 MongoDB Atlas 建立資料庫與使用者，Network Access 允許 Vercel 連線
-- [ ] Vercel 設定 `MONGODB_URI`、`MONGODB_DB`、`ADMIN_PASSWORD`（長隨機密碼）、`ADMIN_SESSION_SECRET`（`openssl rand -base64 48`）
+- [x] 在 MongoDB Atlas 建立資料庫與使用者，Network Access 允許 Vercel 連線（2026-10-17，見 PLN-007 §6）
+- [x] Vercel 設定 `MONGODB_URI`、`MONGODB_DB`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`（2026-10-17，以 `scripts/setup-vercel-env.sh` 寫入 Production 與 Preview）
 - [ ] 正式網址登入後台、寫一篇含圖片與 YouTube 的草稿 → 預覽版面 → 發布 → 前台確認
 - [ ] 手機（iOS Safari、Android Chrome）上傳手機相簿照片（HEIC 會被拒絕，需先轉 JPEG；見 §4）
 - [ ] 和客戶確認前台介面字「全部」「閱讀全文」（不是文案集原文，PRD-005 §3.2）

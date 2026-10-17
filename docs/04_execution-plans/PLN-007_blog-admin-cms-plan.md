@@ -77,7 +77,7 @@ app/globals.css                            # .blog-prose、後台少量樣式
 | `ADMIN_PASSWORD` | 是 | 後台密碼 |
 | `ADMIN_SESSION_SECRET` | 是 | cookie 簽章金鑰，至少 32 字元（`openssl rand -base64 48`） |
 
-部署到 Vercel 時在 Project Settings → Environment Variables 設定；Atlas 的 Network Access 要允許 Vercel 連線（或 `0.0.0.0/0` 搭配強密碼）。
+部署到 Vercel 時用 `bash scripts/setup-vercel-env.sh <叢集主機>` 設定（需先 `vercel link`）：資料庫密碼在終端機貼上、不顯示；後台密碼與簽章金鑰隨機產生，以 Sensitive 型別寫入 Production 與 Preview。重跑會覆寫全部四個值（後台密碼會換新）。Atlas 的 Network Access 要允許 Vercel 連線（`0.0.0.0/0` 搭配強密碼與只限單一資料庫的使用者）。
 
 ---
 
@@ -91,3 +91,17 @@ app/globals.css                            # .blog-prose、後台少量樣式
 | 建置時沒有資料庫 | 讀取失敗時回傳空陣列並記錄錯誤，`/blog` 只顯示頁名 |
 | 上傳後沒儲存的圖片留在 GridFS | 第一版接受；儲存時清掉從內文移除的圖片、刪除文章時清掉只屬於該文章的圖片 |
 | 新增路由與 PRD-004「路由不變」衝突 | PRD-005 §3.1 明確列出例外 |
+
+---
+
+## 6. 部署紀錄（2026-10-17）
+
+| 項目 | 設定 |
+| --- | --- |
+| Atlas 組織／專案 | YZedtech／`wenling-web`（與其他網站的專案分開） |
+| 叢集 | `wenling`，免費 M0（512 MB），AWS 香港 `ap-east-1`（主機名稱見 Atlas 的 Connect，不寫進 repo）；未載入範例資料、未用自動安全設定 |
+| 網路存取 | `0.0.0.0/0`（備註 Vercel (dynamic IPs)；Vercel 函式沒有固定 IP） |
+| 資料庫使用者 | `wenling-web`，SCRAM，權限只有 `readWrite@wenling`；密碼由 Atlas 自動產生，只經過使用者的剪貼簿與終端機 |
+| Vercel 專案 | `oliver-tais-projects/yzedtech-wenling`；`vercel.json` 把函式區域設為香港 `hkg1`，與資料庫同區 |
+| 環境變數 | `MONGODB_URI`、`MONGODB_DB`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`（Sensitive，Production＋Preview） |
+| 待清理 | Vercel 上舊的 `GEMINI_API_KEY`、`APP_URL` 已無程式使用，可刪除 |
