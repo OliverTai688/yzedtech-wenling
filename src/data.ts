@@ -272,10 +272,9 @@ export const healerCertificationAddOn = {
 // PLN-004 階段 D（2026-10-05）移除：resolveOfferingHref（已無呼叫點）與 4 筆查無出處的
 // 具名見證。見證改用文案集的匿名引言（testimonialQuotes），並以授權開關控制顯示。
 
-// 部落格文章是否顯示。以下 6 篇文章不在客戶的文案集（docx）裡，依「全站文字只能出自 docx」
-// 的規定先不顯示（2026-10-05）。資料保留；客戶提供或確認文章後再改成 true。
-// 注意：pagesContent.blog 的 allLabel／readLabel／closeLabel 也不是 docx 文字，開啟前要一併補上。
-export const SHOW_BLOG_POSTS = false;
+// 部落格的 6 篇示範文章。不在客戶的文案集（docx）裡，從未在網站顯示（2026-10-05）。
+// 2026-10-17 起文章改由後台撰寫、存在 MongoDB（PRD-005），這份資料已沒有任何頁面引用，僅保留歷史脈絡。
+// 注意：pagesContent.blog 的 allLabel／readLabel 不是 docx 文字，前台有已發布文章時才會出現，上線前要和客戶確認。
 
 export const blogPosts: BlogPost[] = [
   {
@@ -1100,7 +1099,7 @@ export const pagesContent = {
       { id: 'community', label: '免費體驗能量療癒、參加線上公益讀書會', channel: 'community' },
     ],
   },
-  // 頁名：第 291 行。allLabel／readLabel／closeLabel 不是 docx 文字，只在 SHOW_BLOG_POSTS 開啟後才會出現。
+  // 頁名：第 291 行。allLabel／readLabel／closeLabel 不是 docx 文字，只在後台有已發布文章時才會出現（PRD-005）。
   blog: { title: '好運blog', allLabel: '全部', readLabel: '閱讀全文', closeLabel: '關閉' },
   // 頁名：第 297 行「免責聲明與條款」。
   legal: { title: '免責聲明與條款' },

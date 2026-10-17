@@ -10,7 +10,7 @@
 - **性質**：品牌官網，整合能量療癒服務、希塔療癒與靈氣（金錢／愛情／人魚）雙證照認證培訓；暢銷書《七週遇見對的人》為文齡老師撰寫改版推薦序之真實著作（非本站銷售之課程產品，該課程產品已依 PRD-001 決策 #5 下架）
 - **框架**：Next.js 15（App Router）＋ React 19 ＋ TypeScript
 - **語言**：介面與內容以繁體中文（zh-Hant-TW）為主
-- **內容型態**：全站文案集中於 `src/data.ts`（靜態資料）＋ `src/types.ts`（型別定義）。目前**沒有資料庫、沒有後端 API layer**。
+- **內容型態**：全站文案集中於 `src/data.ts`（靜態資料）＋ `src/types.ts`（型別定義）。唯一的例外是**部落格**：文章與圖片存在 MongoDB（GridFS），由後台 `/admin/blog` 撰寫與發布（PRD-005，架構見 ARC-001 §4.1；環境變數見 `.env.example`）。
 - **AI 相依**：無。`@google/genai` 從未串接，已於 2026-10-05 移除（PLN-005 決定 3）。若要導入 AI 功能（例如聊天諮詢、內容生成），需先在 `docs/01_product-requirements` 建立 PRD 再開發。
 
 ---
@@ -40,6 +40,7 @@ pnpm content:check    # 防呆掃描（example.com／已下架課程 identifier�
 - **動畫**：`motion`（Framer Motion 的後繼套件）；首頁的捲動故事用 `gsap`＋`ScrollTrigger`（經 `@gsap/react` 的 `useGSAP`）
 - **圖示**：`lucide-react`
 - **互動元件**：`radix-ui`（Tabs 等原件）、原生 `<details>` 收合
+- **部落格後台**：`mongodb`（官方驅動、GridFS）、Tiptap 3（`@tiptap/*`，編輯器；伺服器以 `@tiptap/html`＋`happy-dom` 產生 HTML）
 - **量測**：`@vercel/analytics`，只透過 `lib/track.ts` 呼叫（自訂事件需 Vercel Pro 方案）
 - 未使用的 `express`、`dotenv`、`tsx`、`@google/genai` 已於 2026-10-05 移除。新增相依前先確認用途並在 PRD/ARC 文件中說明。
 
@@ -53,7 +54,10 @@ app/                        # Next.js App Router 路由（路由不可任意增�
 ├── page.tsx                 # 首頁（七張 slide 的故事舞台，見 RES-005 與 ARC-002 §7）
 ├── ClientLayoutWrapper.tsx  # 右下角浮動按鈕
 ├── not-found.tsx, globals.css
-├── about/ story/ media/ testimonials/ resources/ contact/ blog/ legal/
+├── about/ story/ media/ testimonials/ resources/ contact/ legal/
+├── blog/page.tsx, blog/[slug]/page.tsx   # 文章來自 MongoDB（PRD-005）
+├── admin/                  # 部落格後台（登入、文章列表、編輯器），不顯示網站頁首頁尾
+└── api/admin/*, api/blog/images/[id]    # 後台 API 與圖片輸出
 ├── services/page.tsx, services/[id]/page.tsx
 └── training/page.tsx, training/[id]/page.tsx
 
@@ -76,6 +80,8 @@ src/
 
 components/ui/                # shadcn 元件：button、navigation-menu、separator、sheet
 lib/                          # utils、track（量測出口）、need（記住選擇）、chapter（目前章節）
+│                             # db/（MongoDB 連線）、blog/（文章存取、驗證、HTML 產生）、admin/（登入 cookie 與檢查）
+middleware.ts                 # 擋未登入的 /admin 與 /api/admin
 scripts/                      # docx-to-copy-deck.py、build-offering-content.py、content-check.sh
 │                             # emblem/：金翼羅盤的幾何模組與四張 SVG 的產生腳本（規範見 proposals/emblem/BRIEF.md）
 public/brand/                 # 金翼羅盤 SVG：emblem-open／folded／exploded／mark（由 scripts/emblem 產生，不要手改）

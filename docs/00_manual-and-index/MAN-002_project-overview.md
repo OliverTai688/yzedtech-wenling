@@ -27,7 +27,7 @@
 - Tailwind CSS 4
 - `motion`（動畫）、`lucide-react`（圖示）
 - `@google/genai`（Gemini，已安裝但尚未串接任何功能）
-- 內容資料集中於 `src/data.ts`，型別定義於 `src/types.ts`，**無資料庫、無後端 API layer**
+- 內容資料集中於 `src/data.ts`，型別定義於 `src/types.ts`，**部落格例外**：文章與圖片存在 MongoDB，由後台 `/admin` 管理（PRD-005）
 
 完整架構細節見 [ARC-001_architecture-overview.md](../02_architecture-and-rules/ARC-001_architecture-overview.md)。
 開發指令與 Agent 工作流程見根目錄 [AGENTS.md](../../AGENTS.md)。

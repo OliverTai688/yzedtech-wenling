@@ -622,3 +622,94 @@ html.js .page-sheet__fallback {
 html.js .pager:not([data-auto]) .pager__slide > * {
   height: 100%;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PRD-005：部落格文章內文。前台文章頁（BlogArticle）與後台編輯器（BlogEditor）共用，
+   後台看到的排版就是前台的排版。只用設計系統的 token。
+   ───────────────────────────────────────────────────────────────────────── */
+.blog-prose {
+  color: var(--color-foreground);
+  font-size: 1.0625rem;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+.blog-prose > * + * { margin-top: 1.1em; }
+.blog-prose h2,
+.blog-prose h3 {
+  font-family: var(--font-noto-serif), serif;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--color-card-foreground);
+}
+.blog-prose h2 { margin-top: 2em; font-size: 1.5rem; }
+.blog-prose h3 { margin-top: 1.6em; font-size: 1.25rem; }
+.blog-prose > :first-child { margin-top: 0; }
+.blog-prose strong { font-weight: 700; color: var(--color-card-foreground); }
+.blog-prose a {
+  color: var(--color-accent-foreground);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+.blog-prose a:hover { color: var(--color-ring); }
+.blog-prose ul,
+.blog-prose ol { padding-left: 1.5em; }
+.blog-prose ul { list-style: disc; }
+.blog-prose ol { list-style: decimal; }
+.blog-prose li + li { margin-top: 0.35em; }
+.blog-prose li::marker { color: var(--color-ring); }
+.blog-prose li > p { margin: 0; }
+.blog-prose blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding: 0.25em 0 0.25em 1.1em;
+  color: var(--color-secondary-foreground);
+  font-family: var(--font-noto-serif), serif;
+}
+.blog-prose hr {
+  border: 0;
+  height: 1px;
+  margin: 2.25em auto;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+}
+.blog-prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+}
+/* YouTube：Tiptap 輸出 <div data-youtube-video><iframe></div>，固定 16:9 */
+.blog-prose [data-youtube-video] {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-inverse);
+}
+.blog-prose [data-youtube-video] iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* 後台編輯器專用：佔位文字、選取中的圖片與影片 */
+.blog-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: color-mix(in srgb, var(--color-muted-foreground) 70%, transparent);
+}
+.blog-prose.ProseMirror img.ProseMirror-selectednode,
+.blog-prose.ProseMirror [data-youtube-video].ProseMirror-selectednode,
+.blog-prose.ProseMirror .ProseMirror-selectednode [data-youtube-video] {
+  outline: 3px solid var(--color-ring);
+  outline-offset: 2px;
+}
+.blog-prose.ProseMirror [data-youtube-video] iframe { pointer-events: none; }
