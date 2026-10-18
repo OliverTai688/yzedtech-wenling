@@ -50,7 +50,7 @@ assets/                       # 靜態資源
 | 資料 | `lib/blog/repo.ts` | `blogPosts` collection（slug 唯一）；圖片在 GridFS bucket `blogImages` |
 | 內容 | `lib/blog/extensions.ts`、`validate.ts`、`render.ts` | 編輯器與伺服器共用同一組 Tiptap 擴充；伺服器清理 JSON（節點、連結、圖片、YouTube 白名單）後產生 HTML |
 | 登入 | `middleware.ts`、`lib/admin/session.ts`、`lib/admin/guard.ts` | 單一管理密碼＋HMAC 簽章 cookie；middleware 與每個 API／頁面各檢查一次；寫入 API 限同源 |
-| API | `app/api/admin/*`、`app/api/blog/images/[id]` | 後台 CRUD 與上傳；上傳的圖一律經 `lib/blog/compress.ts`（sharp）壓成 ≤ 1 MB 的 WebP 並移除 EXIF 才存；圖片公開輸出並長期快取 |
+| API | `app/api/admin/*`、`app/api/blog/images/[id]` | 後台 CRUD 與上傳；上傳的圖一律經 `lib/blog/compress.ts`（sharp）壓成 ≤ 1 MB 的 WebP 並移除 EXIF 才存；圖片公開輸出，瀏覽器快取 1 小時、Vercel CDN 1 天（刪除的圖最晚一天後失效） |
 | 畫面 | `app/admin/**`、`src/components/admin/**`；前台 `app/blog/**`、`src/components/blog/**` | 後台不顯示頁首頁尾（`SiteChrome`）；前台靜態快取，儲存時 `revalidatePath` |
 
 環境變數：`MONGODB_URI`、`MONGODB_DB`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`（見 `.env.example`）。

@@ -1,6 +1,6 @@
 # PRD-005：部落格後台（CRUD、圖文編輯器、MongoDB 儲存）
 
-**版本：** 1.1（2026-10-17 加入伺服器端壓縮 ≤ 1 MB）
+**版本：** 1.2（2026-10-17 加入伺服器端壓縮 ≤ 1 MB；2026-10-18 圖片快取改為瀏覽器 1 小時、CDN 1 天）
 **日期：** 2026-10-17
 **狀態：** Ready for Implementation
 **相關文件：** [`ARC-001`](../02_architecture-and-rules/ARC-001_architecture-overview.md)、[`ARC-002`](../02_architecture-and-rules/ARC-002_ui-and-interaction-rules.md)、[`PRD-004`](./PRD-004_story-driven-interactive-site.md) §硬性限制、執行計畫 [`PLN-007`](../04_execution-plans/PLN-007_blog-admin-cms-plan.md)
@@ -24,7 +24,7 @@
 | 1 | 後台登入 | 無 | `/admin/login`：以環境變數設定的管理密碼登入，登入後發 httpOnly 簽章 cookie（7 天） |
 | 2 | 文章 CRUD | 文章寫死在 `src/data.ts` | `/admin/blog` 列表（草稿／已發布、搜尋）、`/admin/blog/new` 新增、`/admin/blog/[id]` 編輯、刪除、發布／取消發布 |
 | 3 | 圖文編輯器 | 無 | Tiptap 所見即所得：H2／H3、粗體、斜體、底線、刪除線、連結、項目／編號清單、引言、分隔線、圖片（上傳、拖放、貼上，可填替代文字）、YouTube 嵌入、復原／重做 |
-| 4 | 儲存 | 無資料庫 | MongoDB：文章存 `blogPosts` collection；圖片存 GridFS（bucket `blogImages`），由 `/api/blog/images/[id]` 輸出並長期快取 |
+| 4 | 儲存 | 無資料庫 | MongoDB：文章存 `blogPosts` collection；圖片存 GridFS（bucket `blogImages`），由 `/api/blog/images/[id]` 輸出（瀏覽器快取 1 小時、Vercel CDN 1 天，§3.4） |
 | 5 | 前台列表 | 只有頁名 | `/blog` 列出已發布文章（分類篩選、最新一篇顯示封面與摘要）；沒有已發布文章時維持只有頁名 |
 | 6 | 前台文章頁 | 文章在面板（PageSheet）裡讀 | **新增 `/blog/[slug]`**：完整文章頁（封面、圖文、YouTube），可分享、可被搜尋引擎收錄 |
 | 7 | 更新即時性 | — | 後台儲存、發布、刪除後以 `revalidatePath` 更新前台快取，不需重新部署 |
@@ -84,6 +84,7 @@ PRD-004 的硬性限制「不新增、不移除、不改名任何網址」適用
 - `middleware.ts` 擋下未登入的 `/admin/*`（登入頁除外）與 `/api/admin/*`；每個後台 API 與後台版面**再檢查一次**（不只依賴 middleware）。
 - cookie：`httpOnly`、`sameSite=lax`、正式環境 `secure`；內容是到期時間＋HMAC-SHA256 簽章。
 - 寫入 API 只接受同源請求（檢查 `Origin`），防止跨站送出。
+- 圖片快取（v1.2，2026-10-18）：`Cache-Control: public, max-age=3600`（瀏覽器 1 小時）＋`Vercel-CDN-Cache-Control: public, max-age=86400`（CDN 1 天）。原本快取一年，刪除的圖會在 CDN 與瀏覽器留到一年（ACC-007 §2.6）；改短後刪除的圖最晚一天後失效。
 - 文章 HTML 由伺服器從 JSON 產生；連結只允許 `http(s)`、`mailto`、`tel`、站內路徑；YouTube 只接受 youtube.com／youtu.be 並以 `youtube-nocookie.com` 嵌入；圖片只接受站內 `/api/blog/images/` 路徑。
 
 ### 3.5 前台呈現

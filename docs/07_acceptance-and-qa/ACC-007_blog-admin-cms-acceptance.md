@@ -89,7 +89,7 @@
 
 發現：
 
-1. **刪除的圖片仍可從 CDN 取得**：圖片 API 回應 `Cache-Control: public, max-age=31536000, immutable`，刪除前被讀過的圖片網址，Vercel 邊緣快取（及讀者瀏覽器）最長一年仍會回 200。資料庫已刪，但知道網址的人還看得到。待決定處理方式（縮短 CDN 快取或刪除時清除快取）。
+1. **刪除的圖片仍可從 CDN 取得**：圖片 API 回應 `Cache-Control: public, max-age=31536000, immutable`，刪除前被讀過的圖片網址，Vercel 邊緣快取（及讀者瀏覽器）最長一年仍會回 200。資料庫已刪，但知道網址的人還看得到。**已處理（2026-10-18，PRD-005 v1.2）**：改為瀏覽器 1 小時（`Cache-Control: public, max-age=3600`）、Vercel CDN 1 天（`Vercel-CDN-Cache-Control: public, max-age=86400`），刪除的圖最晚一天後失效；本機與預覽環境驗證見 §2.7。
 2. 測試時留下一張孤兒圖（947 KB）：插入圖片後圖片處於選取狀態，接著貼上的 YouTube 網址取代了它（ProseMirror 的標準行為），該圖已上傳但沒有文章引用，不會被自動刪除（見 §4 第 2 點）。
 
 ## 3. 人工驗收清單（上線前）
