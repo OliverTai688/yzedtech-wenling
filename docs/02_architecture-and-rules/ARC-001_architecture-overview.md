@@ -7,7 +7,7 @@
 
 ## 1. 總覽
 
-wenling-web 是一個 Next.js 15（App Router）品牌官網，目前為**純前端內容站**：所有頁面內容來自 `src/data.ts` 靜態資料，沒有資料庫、沒有 `app/api` 後端 route。
+wenling-web 是一個 Next.js 15（App Router）品牌官網，頁面內容來自 `src/data.ts` 靜態資料；唯一的例外是**部落格**：文章與圖片存在 MongoDB，由後台 `/admin` 管理（PRD-005，見 §4.1）。
 
 ## 2. 資料夾結構
 
@@ -41,6 +41,19 @@ assets/                       # 靜態資源
 - 沒有資料庫、沒有 CMS。內容集中在 `src/data.ts`，依 `src/types.ts` 定義的型別（`Service`、`ReikiCourse`、`Testimonial`、`BlogPost`、`FAQItem`、`ResourceItem`）組織。
 - 元件透過 import `src/data.ts` 取得內容，不應該在元件內寫死文案或另開本地資料檔。
 - 若日後需要 CMS 或資料庫，應先在 `docs/01_product-requirements` 建立 PRD 說明資料來源與遷移方式，並在本文件補充架構異動。
+
+### 4.1 部落格（MongoDB，PRD-005／PLN-007）
+
+| 層 | 位置 | 說明 |
+| --- | --- | --- |
+| 連線 | `lib/db/mongo.ts` | 官方 `mongodb` 驅動；連線存在 `globalThis` 重用；未設定 `MONGODB_URI` 時前台視為沒有文章 |
+| 資料 | `lib/blog/repo.ts` | `blogPosts` collection（slug 唯一）；圖片在 GridFS bucket `blogImages` |
+| 內容 | `lib/blog/extensions.ts`、`validate.ts`、`render.ts` | 編輯器與伺服器共用同一組 Tiptap 擴充；伺服器清理 JSON（節點、連結、圖片、YouTube 白名單）後產生 HTML |
+| 登入 | `middleware.ts`、`lib/admin/session.ts`、`lib/admin/guard.ts` | 單一管理密碼＋HMAC 簽章 cookie；middleware 與每個 API／頁面各檢查一次；寫入 API 限同源 |
+| API | `app/api/admin/*`、`app/api/blog/images/[id]` | 後台 CRUD 與上傳；上傳的圖一律經 `lib/blog/compress.ts`（sharp）壓成 ≤ 1 MB 的 WebP 並移除 EXIF 才存；圖片公開輸出，瀏覽器快取 1 小時、Vercel CDN 1 天（刪除的圖最晚一天後失效） |
+| 畫面 | `app/admin/**`、`src/components/admin/**`；前台 `app/blog/**`、`src/components/blog/**` | 後台不顯示頁首頁尾（`SiteChrome`）；前台靜態快取，儲存時 `revalidatePath` |
+
+環境變數：`MONGODB_URI`、`MONGODB_DB`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`（見 `.env.example`）。
 
 ## 5. 樣式與動畫
 

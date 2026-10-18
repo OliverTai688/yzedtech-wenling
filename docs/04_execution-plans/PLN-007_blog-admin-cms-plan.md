@@ -1,0 +1,107 @@
+# PLN-007：部落格後台實作計畫
+
+**狀態：** Done（待人工驗收，見 ACC-007）
+**日期：** 2026-10-17
+**前置 PRD：** [`PRD-005`](../01_product-requirements/PRD-005_blog-admin-cms-mongodb.md)
+**相關文件：** [`ARC-001`](../02_architecture-and-rules/ARC-001_architecture-overview.md)、[`ARC-002`](../02_architecture-and-rules/ARC-002_ui-and-interaction-rules.md)
+
+---
+
+## 1. 開發目標
+
+第一版做到：管理者登入後台 → 用圖文編輯器寫文章（上傳圖片、嵌入 YouTube）→ 存草稿或發布 → 前台 `/blog` 與 `/blog/[slug]` 立即更新；文章與圖片都在 MongoDB。
+
+### 技術選擇
+
+| 項目 | 選擇 | 理由 |
+| --- | --- | --- |
+| 編輯器 | **Tiptap 3**（`@tiptap/react`、`starter-kit`、`extension-image`、`extension-youtube`、`extensions`） | 以 ProseMirror 為核心、無預設樣式，可完全套用學苑的 token；官方就有 Image 與 YouTube 擴充；輸出 JSON，伺服器可用同一組擴充轉成 HTML（`@tiptap/html`），不必信任瀏覽器送來的 HTML |
+| 資料庫驅動 | 官方 **`mongodb`** 驅動（不用 Mongoose） | 只有兩個 collection，不需要 ODM；GridFS 內建 |
+| 圖片儲存 | **GridFS**（bucket `blogImages`） | 使用者指定存在 MongoDB；GridFS 可串流輸出，不受 16 MB 文件上限 |
+| 圖片壓縮 | **`sharp`**（`lib/blog/compress.ts`），與 Next.js 內建的圖片最佳化同一版（0.34.5） | 使用者要求每張圖經 API 壓縮到 ≤ 1 MB 再存；libvips 速度快、記憶體用量低，Vercel 可直接執行 |
+| 登入 | 單一管理密碼＋HMAC 簽章 cookie（Web Crypto） | 只有學苑一位管理者；不引入 NextAuth；Web Crypto 在 middleware（Edge）與 Node 都能用 |
+| 前台快取 | 靜態快取＋`revalidatePath` | 讀者不必每次查資料庫；後台一儲存就更新 |
+
+其他候選：Editor.js（區塊式、JSON，但 YouTube 需第三方套件、樣式較難統一）、Lexical（彈性高但 Image／YouTube 要自己寫節點）。
+
+---
+
+## 2. 批次
+
+| 批次 | 內容 | 狀態 |
+| --- | --- | --- |
+| A | 相依套件、`lib/db/mongo.ts`（連線快取）、`lib/blog/*`（型別、存取、HTML 產生、驗證） | ✅ |
+| B | 登入：`lib/admin/session.ts`、`middleware.ts`、`/api/admin/login`、`/api/admin/logout`、`/admin/login` | ✅ |
+| C | API：`/api/admin/posts`（列表／新增）、`/api/admin/posts/[id]`（讀／改／刪）、`/api/admin/uploads`（上傳）、`/api/blog/images/[id]`（公開輸出） | ✅ |
+| D | 後台畫面：`app/admin/**`、`src/components/admin/**`（版面、列表、表單、Tiptap 編輯器與工具列） | ✅ |
+| E | 前台：`/blog` 改讀資料庫、`/blog/[slug]`、`.blog-prose` 樣式、`SiteChrome`（後台不顯示頁首頁尾） | ✅ |
+| F | 檢查：lint、build、content:check；本機 MongoDB 實測 CRUD、上傳、發布後前台更新；ACC-007 | ✅ |
+
+---
+
+## 3. 檔案位置
+
+```text
+middleware.ts                              # 擋未登入的 /admin、/api/admin
+lib/db/mongo.ts                            # MongoClient 快取、getDb()、GridFSBucket
+lib/admin/session.ts                       # 簽章 cookie（Edge／Node 共用）
+lib/admin/guard.ts                         # requireAdmin()、同源檢查（Node）
+lib/blog/types.ts                          # BlogPostDoc、BlogPostSummary、輸入型別
+lib/blog/extensions.ts                     # 編輯器與伺服器共用的 Tiptap 擴充設定
+lib/blog/render.ts                         # JSON → HTML、讀取時間、圖片 id 擷取
+lib/blog/validate.ts                       # 輸入驗證、slug 產生、網址白名單
+lib/blog/repo.ts                           # CRUD、索引、已發布文章查詢、刪圖
+lib/blog/compress.ts                       # 上傳圖片壓縮成 ≤ 1 MB 的 WebP（sharp）
+app/api/admin/login/route.ts, logout/route.ts
+app/api/admin/posts/route.ts, posts/[id]/route.ts
+app/api/admin/uploads/route.ts
+app/api/blog/images/[id]/route.ts
+app/admin/layout.tsx, page.tsx, login/page.tsx
+app/admin/blog/page.tsx, new/page.tsx, [id]/page.tsx
+src/components/admin/                      # AdminShell、LoginForm、PostTable、PostForm、BlogEditor、EditorToolbar、uploadImage
+app/blog/page.tsx, app/blog/[slug]/page.tsx
+src/components/BlogSection.tsx, blog/BlogPosts.tsx, blog/BlogArticle.tsx
+src/components/SiteChrome.tsx              # /admin 不顯示頁首、頁尾、浮動按鈕
+app/globals.css                            # .blog-prose、後台少量樣式
+.env.example
+```
+
+---
+
+## 4. 環境變數
+
+| 變數 | 必填 | 說明 |
+| --- | --- | --- |
+| `MONGODB_URI` | 是 | 例如 MongoDB Atlas 的連線字串 |
+| `MONGODB_DB` | 否 | 資料庫名稱，預設 `wenling` |
+| `ADMIN_PASSWORD` | 是 | 後台密碼 |
+| `ADMIN_SESSION_SECRET` | 是 | cookie 簽章金鑰，至少 32 字元（`openssl rand -base64 48`） |
+
+部署到 Vercel 時用 `bash scripts/setup-vercel-env.sh <叢集主機>` 設定（需先 `vercel link`）：資料庫密碼在終端機貼上、不顯示；後台密碼與簽章金鑰隨機產生，以 Sensitive 型別寫入 Production 與 Preview。重跑會覆寫全部四個值（後台密碼會換新）。Atlas 的 Network Access 要允許 Vercel 連線（`0.0.0.0/0` 搭配強密碼與只限單一資料庫的使用者）。
+
+---
+
+## 5. 風險
+
+| 風險 | 處理 |
+| --- | --- |
+| 單一密碼被暴力猜測 | 要求長密碼；上線前建議加上登入次數限制（例如 Upstash Ratelimit）或改用 Vercel 的密碼保護／Clerk |
+| Vercel 函式請求上限 4.5 MB | 瀏覽器端先縮圖轉 WebP；伺服器拒絕超過 4 MB |
+| 壓縮耗時 | 最難壓的雜訊圖約 2 秒（多輪重新編碼），一般照片一輪即可；在 Vercel 函式時限內 |
+| 建置時沒有資料庫 | 讀取失敗時回傳空陣列並記錄錯誤，`/blog` 只顯示頁名 |
+| 上傳後沒儲存的圖片留在 GridFS | 第一版接受；儲存時清掉從內文移除的圖片、刪除文章時清掉只屬於該文章的圖片 |
+| 新增路由與 PRD-004「路由不變」衝突 | PRD-005 §3.1 明確列出例外 |
+
+---
+
+## 6. 部署紀錄（2026-10-17）
+
+| 項目 | 設定 |
+| --- | --- |
+| Atlas 組織／專案 | YZedtech／`wenling-web`（與其他網站的專案分開） |
+| 叢集 | `wenling`，免費 M0（512 MB），AWS 香港 `ap-east-1`（主機名稱見 Atlas 的 Connect，不寫進 repo）；未載入範例資料、未用自動安全設定 |
+| 網路存取 | `0.0.0.0/0`（備註 Vercel (dynamic IPs)；Vercel 函式沒有固定 IP） |
+| 資料庫使用者 | `wenling-web`，SCRAM，權限只有 `readWrite@wenling`；密碼由 Atlas 自動產生，只經過使用者的剪貼簿與終端機 |
+| Vercel 專案 | `oliver-tais-projects/yzedtech-wenling`；`vercel.json` 把函式區域設為香港 `hkg1`，與資料庫同區 |
+| 環境變數 | `MONGODB_URI`、`MONGODB_DB`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`（Sensitive，Production＋Preview） |
+| 待清理 | Vercel 上舊的 `GEMINI_API_KEY`、`APP_URL` 已無程式使用，可刪除 |

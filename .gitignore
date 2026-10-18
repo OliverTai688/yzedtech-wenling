@@ -8,3 +8,10 @@ next-env.d.ts
 
 # 內容來源文案集：僅供本機對照溯源，不上傳到遠端 repo（客戶指示 2026-08-21）
 docs/網站文案集*.md
+
+# 環境變數（含資料庫連線與後台密碼，PRD-005）
+.env
+.env*.local
+.vercel
+.env*
+!.env.example

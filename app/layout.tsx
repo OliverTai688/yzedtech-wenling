@@ -5,6 +5,7 @@ import Footer from '../src/components/Footer';
 import ClientLayoutWrapper from './ClientLayoutWrapper';
 import MotionProvider from '../src/components/motion/MotionProvider';
 import SiteInteractions from '../src/components/SiteInteractions';
+import SiteChrome from '../src/components/SiteChrome';
 import { Analytics } from '@vercel/analytics/next';
 import { pageMeta } from '../src/data';
 
@@ -49,12 +50,10 @@ export default function RootLayout({
           <style>{'[data-reveal]{opacity:1!important;transform:none!important}'}</style>
         </noscript>
         <MotionProvider>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <ClientLayoutWrapper />
-          </div>
+          {/* 後台（/admin）不顯示頁首、頁尾與浮動按鈕，見 SiteChrome（PRD-005 §3.1） */}
+          <SiteChrome header={<Header />} footer={<Footer />} widgets={<ClientLayoutWrapper />}>
+            {children}
+          </SiteChrome>
         </MotionProvider>
         <SiteInteractions />
         {/* 只在 Vercel 上載入量測腳本，本機與其他主機不會有載入失敗的請求 */}

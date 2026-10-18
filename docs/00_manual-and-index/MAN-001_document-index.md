@@ -20,6 +20,7 @@
 | PRD-002 | [首頁架構、品牌標示、合作夥伴與服務轉商品頁重構](../01_product-requirements/PRD-002_round4-homepage-brand-partner-product-restructure.md) | Ready for Implementation | v1.1：首頁移除 FAQ、新增合作夥伴區塊、服務／培訓拆為兩個總覽頁＋各自獨立詳細頁（含專屬見證、漸層圖片、直覺力併入療癒師認證）、品牌標示統一為「豐盛之翼學苑」、導覽微調 |
 | PRD-003 | [第二次修改——學苑品牌主體、需求分流首頁與資訊架構重整](../01_product-requirements/PRD-003_second-revision-academy-ia-restructure.md) | Ready for Implementation | v1.1：品牌主體為「豐盛之翼學苑」、首頁改需求分流 10 段、導覽採方案 C（5 項＋LINE／商城按鈕）、CTA 分流規則、三層動效；分 A–E 五階段（文案對齊 → UIUX 研究 → 缺口建議書 → 實作 → 轉化驗證） |
 | PRD-004 | [故事型互動網站（主題「改變地圖」）](../01_product-requirements/PRD-004_story-driven-interactive-site.md) | 草案，已依指示開工 | 首頁五章、敘事元件、深入 CTA（記住選擇、會變的固定列、LINE 帶話）、量測事件；硬性限制：文案只用 docx、路由不變 |
+| PRD-005 | [部落格後台（CRUD、圖文編輯器、MongoDB 儲存）](../01_product-requirements/PRD-005_blog-admin-cms-mongodb.md) | Ready for Implementation | `/admin` 後台登入與文章 CRUD、Tiptap 編輯器（圖片上傳、YouTube）、v1.1 圖片經 API 壓縮成 ≤ 1 MB 的 WebP 後存 MongoDB（GridFS）、新增 `/blog/[slug]`（PRD-004「路由不變」的明確例外） |
 
 ## 02_architecture-and-rules
 
@@ -46,6 +47,7 @@
 | PLN-004 | [第二次修改執行計畫](../04_execution-plans/PLN-004_second-revision-execution-plan.md) | In Progress | 階段 A（文案對齊）批次 A0–A8 已完成，含執行紀錄與已知未完成事項；文案集 v2 行號對照；階段 B–E 大綱 |
 | PLN-005 | [故事型互動網站多階段計畫](../04_execution-plans/PLN-005_story-driven-interactive-site-roadmap.md) | Draft | 階段 F0–F6：定調與基礎、量測基準、敘事骨架、深入 CTA、視覺素材、各頁故事化、比較與取捨；開工前的十項決定；前置 PRD-004 尚未撰寫 |
 | PLN-006 | [其他分頁的提案與優化](../04_execution-plans/PLN-006_inner-pages-proposal-and-optimisation.md) | Done（待驗收） | 目標與完成定義；批次 P0–P6 的追蹤表；每頁一個 HTML 提案再實作，最後交付體驗評估 RPT-002 與驗收 ACC-006 |
+| PLN-007 | [部落格後台實作計畫](../04_execution-plans/PLN-007_blog-admin-cms-plan.md) | Done（待驗收） | 技術選擇（Tiptap、mongodb 驅動、GridFS、簽章 cookie）、批次 A–F、檔案位置、環境變數、風險 |
 
 ## 05_audits-and-reports
 
@@ -76,6 +78,7 @@
 | ACC-004 | [故事型互動首頁與「文案只用 docx」驗收報告](../07_acceptance-and-qa/ACC-004_story-interactive-and-docx-copy-acceptance.md) | Active（待人工驗收） | 首頁五章與深入 CTA 的實測；全站 1,658 個字串逐句比對 docx 的結果；為符合 docx 而換字與拿掉的清單；需客戶提供的文字 T10–T18 |
 | ACC-005 | [故事舞台首頁驗收報告](../07_acceptance-and-qa/ACC-005_staged-homepage-acceptance.md) | Active（待人工驗收） | 首頁七張 slide 的實作現況、24 項互動檢查、文字與主角比例、速度、已知不足與實機驗收清單 |
 | ACC-006 | [其他分頁（第二輪）驗收報告](../07_acceptance-and-qa/ACC-006_inner-pages-acceptance.md) | Active（待人工驗收） | 12 種分頁的實測結果、逐頁驗收清單、實機清單、10 項待使用者決定的事、已知不足 |
+| ACC-007 | [部落格後台驗收](../07_acceptance-and-qa/ACC-007_blog-admin-cms-acceptance.md) | Active（待人工驗收） | 登入權限、CRUD、內容清理、圖片上傳與縮圖、前後台畫面的實測結果；上線前人工清單與已知限制 |
 
 ---
 
