@@ -92,6 +92,12 @@
 1. **刪除的圖片仍可從 CDN 取得**：圖片 API 回應 `Cache-Control: public, max-age=31536000, immutable`，刪除前被讀過的圖片網址，Vercel 邊緣快取（及讀者瀏覽器）最長一年仍會回 200。資料庫已刪，但知道網址的人還看得到。**已處理（2026-10-18，PRD-005 v1.2）**：改為瀏覽器 1 小時（`Cache-Control: public, max-age=3600`）、Vercel CDN 1 天（`Vercel-CDN-Cache-Control: public, max-age=86400`），刪除的圖最晚一天後失效；本機與預覽環境驗證見 §2.7。
 2. 測試時留下一張孤兒圖（947 KB）：插入圖片後圖片處於選取狀態，接著貼上的 YouTube 網址取代了它（ProseMirror 的標準行為），該圖已上傳但沒有文章引用，不會被自動刪除（見 §4 第 2 點）。
 
+### 2.7 圖片快取縮短（2026-10-18，PRD-005 v1.2）
+
+- [x] 本機：`/api/blog/images/<id>` 回 `Cache-Control: public, max-age=3600`、`Vercel-CDN-Cache-Control: public, max-age=86400`；`If-None-Match` 回 304；不存在的 id 回 404 且無快取標頭
+- [x] Vercel 預覽（`98a78b2`）：讀者收到 `Cache-Control: public, max-age=3600`，`Vercel-CDN-Cache-Control` 由 CDN 讀取後不再往下傳；第一次 `x-vercel-cache: MISS`、第二次 `HIT`（CDN 有快取）
+- [ ] 一天後的實際失效未實測（依 Vercel CDN 對 `Vercel-CDN-Cache-Control` 的處理）
+
 ## 3. 人工驗收清單（上線前）
 
 - [x] 在 MongoDB Atlas 建立資料庫與使用者，Network Access 允許 Vercel 連線（2026-10-17，見 PLN-007 §6）
