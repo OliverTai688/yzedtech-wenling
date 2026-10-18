@@ -78,6 +78,20 @@
 - [x] 手機寬度（375px）後台編輯頁無水平捲動，工具列自動換行
 - [x] 瀏覽器主控台無錯誤
 
+### 2.6 Vercel 預覽環境實測（2026-10-18，Atlas M0 香港＋Vercel `hkg1`）
+
+- [x] 預覽網址受 Vercel Authentication 保護；請求由 `hkg1` 處理；建置與執行紀錄無資料庫錯誤
+- [x] 未登入：`/admin/blog` 307 → `/admin/login`、`/api/admin/posts` 401
+- [x] 登入後台 → 新增文章：內文貼上 20.6 MB 雜訊圖 → 存成 947 KB WebP（2000×1333）；貼上 JPEG → 16 KB WebP；封面 PNG → 9 KB WebP；三張皆無 EXIF（**sharp 在 Vercel 正常運作**，pnpm 略過其安裝腳本不影響）
+- [x] 貼上 YouTube 網址 → 轉成 `youtube-nocookie.com` 嵌入
+- [x] 發布 → `/blog` 立即出現（封面經 `/_next/image` 載入）、文章頁 `<title>`、內文段落／YouTube／圖片、`BlogPosting` 結構化資料皆正確
+- [x] 刪除 → 列表清空、文章頁 404、`/blog` 移除；資料庫中只屬於該文的兩張圖已刪除（繞過 CDN 快取查詢回 404）
+
+發現：
+
+1. **刪除的圖片仍可從 CDN 取得**：圖片 API 回應 `Cache-Control: public, max-age=31536000, immutable`，刪除前被讀過的圖片網址，Vercel 邊緣快取（及讀者瀏覽器）最長一年仍會回 200。資料庫已刪，但知道網址的人還看得到。待決定處理方式（縮短 CDN 快取或刪除時清除快取）。
+2. 測試時留下一張孤兒圖（947 KB）：插入圖片後圖片處於選取狀態，接著貼上的 YouTube 網址取代了它（ProseMirror 的標準行為），該圖已上傳但沒有文章引用，不會被自動刪除（見 §4 第 2 點）。
+
 ## 3. 人工驗收清單（上線前）
 
 - [x] 在 MongoDB Atlas 建立資料庫與使用者，Network Access 允許 Vercel 連線（2026-10-17，見 PLN-007 §6）
